@@ -247,8 +247,13 @@ class Encoding(object):
 		if self.is_periodic():
 			return NT_TYPE_PERIODIC
 		
-		return NotImplemented
+		if self.asymptotic_translation_length() == 0:
+			return NT_TYPE_REDUCIBLE
+		
+		return NT_TYPE_PSEUDO_ANOSOV
 	
+	def asymptotic_translation_length(self):
+		return NotImplemented
 	
 	def is_conjugate_to(self, other):
 		''' Return if this mapping class is conjugate to other.
