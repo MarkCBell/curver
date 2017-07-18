@@ -5,7 +5,6 @@ Provides one class: Curve. '''
 
 import curver
 
-import heapq
 try:
 	from Queue import Queue
 except ImportError:
@@ -75,6 +74,23 @@ class Lamination(object):
 		# This should be done better.
 		return hash(tuple(self.geometric) + tuple(self.algebraic))
 	
+	def __add__(self, other):
+		if isinstance(other, Lamination):
+			if other.triangulation != self.triangulation:
+				raise ValueError('Laminations must be on the same triangulation to add them.')
+			
+			# Haken sum.
+			geometric = [x + y for x, y in zip(self, other)]
+			algebraic = [x + y for x, y in zip(self.algebraic, other.algebraic)]
+			return Lamination(self.triangulation, geometric, algebraic)
+		else:
+			if other == 0:  # So we can use sum.
+				return self
+			else:
+				return NotImplemented
+	def __radd__(self, other):
+		return self + other
+	
 	def is_empty(self):
 		''' Return if this lamination is equal to the empty lamination. '''
 		
@@ -83,7 +99,7 @@ class Lamination(object):
 	def isometries_to(self, other):
 		''' Return a list of isometries taking this lamination to other. '''
 		
-		assert(isinstance(other, Curve))
+		assert(isinstance(other, Lamination))
 		
 		return [isom for isom in self.triangulation.isometries_to(other.triangulation) if other== isom.encode()(self)]
 	
@@ -101,18 +117,10 @@ class Lamination(object):
 		''' Return an encoding which maps this lamination to a lamination with as little weight as possible. '''
 		
 		# Repeatedly flip to reduce the weight of this lamination as much as possible.
-		# Let [v_i] := f(self), where f is the encoding returned by this method.
-		#
-		# Self is a lamination and each component of S - self has a puncture if and only if:
-		#  v_i \in {0, 1} and all-bar-two v_i's are 0.
-		#
-		# Self is a lamination and a component of S - self has no punctures if and only if:
-		#  v_i \in {0, 2} and [v_i // 2] does not correspond to a (multi)curve.
-		#
-		# Otherwise, self is a multicurve.
+		# Needs to be made polynomial-time by taking advantage of spiralling.
 		
 		lamination = self
-		best_conjugation = conjugation = lamination.triangulation.id_encoding()
+		conjugation = lamination.triangulation.id_encoding()
 		
 		def weight_change(lamination, edge_index):
 			''' Return how much the weight would change by if this flip was done. '''
@@ -121,37 +129,36 @@ class Lamination(object):
 			a, b, c, d = lamination.triangulation.square_about_edge(edge_index)
 			return max(lamination(a) + lamination(c), lamination(b) + lamination(d)) - 2 * lamination(edge_index)
 		
-		time_since_last_weight_loss = 0
-		old_weight = lamination.weight()
+		weight = lamination.weight()
+		old_weight = weight + 1
+		old_old_weight = old_weight + 1
 		possible_edges = lamination.triangulation.indices
 		drops = sorted([(weight_change(lamination, i), i) for i in possible_edges])
 		# If we ever fail to make progress more than once then the lamination is as short as it's going to get.
-		while time_since_last_weight_loss < 2 and old_weight > 2:
+		while weight < old_old_weight:
 			# Find the edge which decreases our weight the most.
 			# If none exist then it doesn't matter which edge we flip, so long as it meets the lamination.
 			_, edge_index = drops[0]
 			
 			forwards = lamination.triangulation.encode_flip(edge_index)
 			conjugation = forwards * conjugation
-			old_lamination, lamination = lamination, forwards(lamination)
-			new_weight = lamination.weight()
+			lamination = forwards(lamination)
+			weight, old_weight, old_old_weight = lamination.weight(), weight, old_weight
 			
 			# Update new neighbours.
-			I = sorted(set([e.index for e in old_lamination.triangulation.square_about_edge(edge_index)] + [edge_index]))
-			drops = sorted([(d, i) if i not in I else (weight_change(lamination, i), i) for (d, i) in drops])  # This should be lightning fast since the list was basically sorted already.
+			changed_indices = set([edge.index for edge in lamination.triangulation.square_about_edge(edge_index)] + [edge_index])
+			drops = sorted([(d, i) if i not in changed_indices else (weight_change(lamination, i), i) for (d, i) in drops])  # This should be lightning fast since the list was basically sorted already.
 			# If performance really becomes an issue then we could look at using heapq.
-			
-			if new_weight < old_weight:
-				time_since_last_weight_loss = 0
-				old_weight = new_weight
-				best_conjugation = conjugation
-			else:
-				time_since_last_weight_loss += 1
 		
-		return lamination, best_conjugation
+		return lamination, conjugation
 	
 	def components(self):
 		return NotImplemented
+	
+	def skeleton(self):
+		''' Return the lamination obtained by collapsing parallel components. '''
+		
+		return sum(self.components())
 	
 	def is_multicurve(self):
 		return all(all(self(triangle.edges[i]) <= self(triangle.edges[(i+1)%3]) + self(triangle.edges[(i+2)%3]) for i in range(3))  for triangle in self.triangulation)
@@ -197,42 +204,6 @@ class Lamination(object):
 		
 		return NotImplemented  # To do.
 	
-	def geometric_intersection(self, curve):
-		''' Return the geometric intersection number between this curve and the given one.
-		
-		Assumes (and checks) that this is a twistable curve. '''
-		
-		assert(isinstance(curve, Curve))
-		assert(curve.triangulation == self.triangulation)
-		
-		if not self.is_twistable():
-			raise curver.AssumptionError('Can only compute geometric intersection number between a twistable curve and a curve.')
-		
-		short_self, conjugator = self.conjugate_short()
-		short_curve = conjugator(curve)
-		
-		triangulation = short_self.triangulation
-		e1, e2 = [edge_index for edge_index in triangulation.indices if short_self(edge_index) > 0]
-		# We might need to swap these edge indices so we have a good frame of reference.
-		if triangulation.corner_of_edge(e1).indices[2] != e2: e1, e2 = e2, e1
-		
-		a, b, c, d = triangulation.square_about_edge(e1)
-		e = e1
-		
-		x = (short_curve(a) + short_curve(b) - short_curve(e)) // 2
-		y = (short_curve(b) + short_curve(e) - short_curve(a)) // 2
-		z = (short_curve(e) + short_curve(a) - short_curve(b)) // 2
-		x2 = (short_curve(c) + short_curve(d) - short_curve(e)) // 2
-		y2 = (short_curve(d) + short_curve(e) - short_curve(c)) // 2
-		z2 = (short_curve(e) + short_curve(c) - short_curve(d)) // 2
-		
-		intersection_number = short_curve(a) - 2 * min(x, y2, z)
-		
-		# Check that the other formula gives the same answer.
-		assert(intersection_number == short_curve(c) - 2 * min(x2, y, z2))
-		
-		return intersection_number
-	
 	def promote(self):
 		if self.is_multicurve():
 			if self.is_curve():
@@ -245,6 +216,16 @@ class Lamination(object):
 			else:
 				self.__class__ = MultiArc
 		return self
+	
+	def components(self):
+		''' Return a dictionary mapping the Curves and Arcs that appear in self to their multiplicities. '''
+		
+		return NotImplemented
+	
+	def intersection(self, lamination):
+		''' Return the geometric intersection number between this lamination and the given one. '''
+		
+		return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.components().items())
 
 
 class MultiCurve(Lamination):
@@ -415,6 +396,66 @@ class Curve(MultiCurve):
 		else:  # k is odd so we need to add in an additional half twist.
 			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
 			return conjugation.inverse() * short_curve.encode_twist(k // 2) * half_twist * conjugation
+	
+	def intersection(self, lamination):
+		''' Return the geometric intersection between self and the given lamination.
+		
+		Currently assumes (and checks) that self is a twistable curve. '''
+		
+		assert(isinstance(lamination, Lamination))
+		assert(lamination.triangulation == self.triangulation)
+		
+		if not self.is_twistable():
+			raise curver.AssumptionError('Can only compute geometric intersection number between a twistable curve and a curve.')
+		
+		short_self, conjugator = self.conjugate_short()
+		short_lamination = conjugator(lamination)
+		
+		triangulation = short_self.triangulation
+		e1, e2 = [edge_index for edge_index in triangulation.indices if short_self(edge_index) > 0]
+		# We might need to swap these edge indices so we have a good frame of reference.
+		if triangulation.corner_of_edge(e1).indices[2] != e2: e1, e2 = e2, e1
+		
+		a, b, c, d = triangulation.square_about_edge(e1)
+		e = e1
+		
+		x = (short_lamination(a) + short_lamination(b) - short_lamination(e)) // 2
+		y = (short_lamination(b) + short_lamination(e) - short_lamination(a)) // 2
+		z = (short_lamination(e) + short_lamination(a) - short_lamination(b)) // 2
+		x2 = (short_lamination(c) + short_lamination(d) - short_lamination(e)) // 2
+		y2 = (short_lamination(d) + short_lamination(e) - short_lamination(c)) // 2
+		z2 = (short_lamination(e) + short_lamination(c) - short_lamination(d)) // 2
+		
+		intersection_number = short_lamination(a) - 2 * min(x, y2, z)
+		
+		# Check that the other formula gives the same answer.
+		assert(intersection_number == short_lamination(c) - 2 * min(x2, y, z2))
+		
+		return intersection_number
+	
+	def quasiconvex(self, other):
+		''' Return a polynomial-sized quasiconvex subset of the curve complex that contains self and other. '''
+		
+		return NotImplemented
+	
+	def geodesic(self, other):
+		''' Return a geodesic in the curve complex from self to other.
+		
+		The geodesic will always come from a tight geodesic. '''
+		
+		assert(isinstance(other, Curve))
+		
+		return NotImplemented
+	
+	def distance(self, other):
+		''' Return the distance from self to other in the curve complex. '''
+		
+		return len(self.geodesic(other))
+	
+	def crush(self):
+		''' Return the crush map. '''
+		
+		return NotImplemented
 
 
 class MultiArc(Lamination):
@@ -426,6 +467,16 @@ class MultiArc(Lamination):
 class Arc(MultiArc):
 	def is_arc(self):
 		return True
-
-
+	
+	def intersection(self, lamination):
+		''' Return the geometric intersection between self and the given lamination. '''
+		
+		assert(isinstance(lamination, Lamination))
+		assert(lamination.triangulation == self.triangulation)
+		
+		# short_self = [0, 0, ..., 0, -1, 0, ..., 0]
+		short_self, conjugator = self.conjugate_short()
+		short_lamination = conjugator(lamination)
+		
+		return sum(b for a, b in zip(short_self, short_lamination) if a == -1 and b >= 0)
 
