@@ -57,7 +57,7 @@ class EquippedTriangulation(object):
 	def __str__(self):
 		lam_keys = sorted(self.laminations.keys())
 		pos_keys = sorted(self.pos_mapping_classes.keys())
-		return 'Triangulation with curves: %s and mapping classes: %s.' % (lam_keys, pos_keys)
+		return 'Triangulation with laminations: %s and mapping classes: %s.' % (lam_keys, pos_keys)
 	
 	def random_word(self, length, positive=True, negative=True, letters=None):
 		''' Return a random word of the required length.
@@ -158,8 +158,8 @@ class EquippedTriangulation(object):
 		sequence = [item for letter in self.decompose_word(word) for item in self.mapping_classes[letter]]
 		return curver.kernel.Encoding(sequence) if len(sequence) > 0 else self.triangulation.id_encoding()
 	
-	def lamination(self, name):
-		''' Return the lamination given by name. '''
+	def lamination(self, geometric, algebraic=None, remove_peripheral=True):
+		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
-		return self.laminations[name]
+		return self.triangulation.lamination(geometric, algebraic, remove_peripheral)
 
