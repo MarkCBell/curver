@@ -5,11 +5,6 @@ Provides one class: Curve. '''
 
 import curver
 
-try:
-	from Queue import Queue
-except ImportError:
-	from queue import Queue
-
 INFTY = float('inf')
 
 class Lamination(object):

@@ -9,15 +9,6 @@ Provides five classes: Vertex, Edge, Triangle, Corner and Triangulation.
 
 import curver
 
-try:
-	from Queue import Queue
-except ImportError:
-	from queue import Queue
-from random import choice
-from itertools import groupby
-import string
-from math import log
-
 INFTY = float('inf')
 
 def norm(value):

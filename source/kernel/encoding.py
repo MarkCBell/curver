@@ -5,12 +5,6 @@ Provides one class: Encoding. '''
 
 import curver
 
-try:
-	from Queue import Queue
-except ImportError:
-	from queue import Queue
-from itertools import product
-
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means "reducible and not periodic".
 NT_TYPE_PSEUDO_ANOSOV = 'Pseudo-Anosov'

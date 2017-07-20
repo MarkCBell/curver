@@ -3,7 +3,7 @@
 
 import curver
 
-import itertools
+from itertools import product
 from string import ascii_lowercase
 
 def string_generator(n, skip=None):
@@ -20,7 +20,7 @@ def string_generator(n, skip=None):
 	i = 0
 	while True:
 		i += 1
-		for letters in itertools.product(alphabet, repeat=i):
+		for letters in product(alphabet, repeat=i):
 			word = ''.join(letters)
 			if word not in skip:
 				results.append(word)

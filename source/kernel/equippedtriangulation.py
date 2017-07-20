@@ -4,9 +4,7 @@
 Provides one class: EquippedTriangulation. '''
 
 from random import choice
-from itertools import product
 import re
-import multiprocessing
 
 import curver
 
