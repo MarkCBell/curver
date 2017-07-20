@@ -11,6 +11,8 @@ import curver
 class Move(object):
 	def __repr__(self):
 		return str(self)
+	def __invert__(self):
+		return self.inverse()
 	
 	def encode(self):
 		''' Return the Encoding induced by this isometry. '''
