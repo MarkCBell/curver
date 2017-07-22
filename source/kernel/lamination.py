@@ -7,6 +7,9 @@ import curver
 
 INFTY = float('inf')
 
+def sign(number):
+	return 1 if number > 0 else 0 if number  == 0 else -1  # if number < 0.
+
 class Lamination(object):
 	''' This represents a lamination on an triangulation.
 	
@@ -17,6 +20,12 @@ class Lamination(object):
 	     |
 	-----|------> e
 	     |
+	has algebraic intersection +1.
+	
+	For an arc that runs parallel to an edge, we say that its algebraic intersection
+	number is +1 if it runs in the same direction, that is:
+	 --------------> e
+	  \----------> L
 	has algebraic intersection +1.
 	
 	Users should use Triangulation.lamination() to create laminations. '''
@@ -85,6 +94,23 @@ class Lamination(object):
 				return NotImplemented
 	def __radd__(self, other):
 		return self + other
+	def __sub__(self, other):
+		if isinstance(other, Lamination):
+			if other.triangulation != self.triangulation:
+				raise ValueError('Laminations must be on the same triangulation to subtract them.')
+			
+			# Haken sum.
+			geometric = [x - y for x, y in zip(self, other)]
+			algebraic = [x - y for x, y in zip(self.algebraic, other.algebraic)]
+			return Lamination(self.triangulation, geometric, algebraic)
+		else:
+			return NotImplemented
+	def __mul__(self, other):
+		geometric = [other * x for x in self]
+		algebraic = [other * x for x in self]
+		return Lamination(self.triangulation, geometric, algebraic)
+	def __rmul__(self, other):
+		return self * other
 	
 	def is_empty(self):
 		''' Return if this lamination is equal to the empty lamination. '''
@@ -148,7 +174,108 @@ class Lamination(object):
 		return lamination, conjugation
 	
 	def components(self):
+		''' Return a dictionary mapping the Curves and Arcs that appear in this lamination to their multiplicities. '''
+		# Probably should cache.
+		
 		return NotImplemented
+		
+		comp = dict()
+		
+		
+		lamination = self
+		
+		# Remove all the obvious arcs. This reduces the number of cases we have to consider later.
+		for index in lamination.triangulation.indices:
+			if lamination(index) < 0:
+				geometric = [0 if i != index else -1 for i in range(self.zeta)]
+				algebraic = [0 if i != index else sign(lamination[i]) for i in range(self.zeta)]
+				component,multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(index))
+				comp[arc] = multiplicity
+				lamination = lamination - multiplicity * arc
+		
+		# Now in each triangle lamination looks like one of the following types:
+		# 0) Empty    # 1) One arc  # 2) Two arcs  # 3) Three arcs
+		#     /\      #     /\      #     /\       #     /\
+		#    /  \     #    /  \     #    /  \      #    /--\
+		#   /    \    #   /\   \    #   /\  /\     #   /\  /\
+		#  /      \   #  /  |   \   #  /  ||  \    #  /  ||  \
+		#  --------   #  --------   #  --------    #  --------
+		#
+		# 0a), 1a) or 2a) which are the same as 0), 1) and 2) but with an extra arc. For example, 2a):
+		#     /|\
+		#    / | \
+		#   /\ | /\
+		#  /  |||  \
+		#  ---------
+		
+		# We will subdivide the type 3) triangles. This type is determined by the fact that all of its
+		# dual weights (a + b - c) / 2 are positive.
+		
+		def subdivide(triangle):
+			weights = [self(index) for index in triangle.indices]
+			return all(weights[(i+1)%3] + weights[(i+2)%3] - weights[i] > 0 for i in range(3))
+		
+		zeta = lamination.zeta  # The number of edges in the new triangulaton.
+		geometric = [None] * zeta
+		algebraic = [None] * zeta
+		triangles = []
+		for triangle in lamination.triangulation:
+			if subdivide(triangle):
+				p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
+				s, t, u = [curver.kernel.Edge(zeta), curver.kernel.Edge(zeta+1), curver.kernel.Edge(zeta+2)]
+				triangles.append(curver.kernel.Triangle([p, ~u, t]))
+				triangles.append(curver.kernel.Triangle([q, ~s, u]))
+				triangles.append(curver.kernel.Triangle([r, ~t, s]))
+				
+				# Record intersections with new edges.
+				geometric.append(??)
+				geometric.append(??)
+				geometric.append(??)
+				algebraic.append(??)
+				algebraic.append(??)
+				algebraic.append(??)
+				
+				zeta += 3
+				pass
+			else:
+				triangles.append(curver.kernel.Triangle([curver.kernel.Edge(label) for label in triangle.labels]))
+			
+			for index in triangle.indices:
+				geometric[index] = lamination(index)
+				algebraic[index] = lamination[index]
+		
+		T = curver.kernel.Triangulation(triangles)
+		lamination = Lamination(T, geometric, algebraic)
+		
+		
+		def project(lamination):
+			''' Project a good lamination on T back to one on self.triangulation. '''
+			return Lamination(self.triangulation, lamination.geometric[:self.zeta], lamination.algebraic[:self.zeta])
+		
+		encoding = T.id_encoding()
+		
+		to_flip = None
+		
+		while not lamination.is_empty():
+			# Remove all the obvious arcs.
+			for index in lamination.triangulation.indices:
+				if lamination(index) < 0:
+					geometric = [0 if i != index else -1 for i in range(lamination.zeta)]
+					algebraic = [0 if i != index else sign(lamination[i]) for i in range(lamination.zeta)]
+					component,multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(index))
+					comp[project(encoding.inverse()(arc))] = multiplicity
+					lamination = lamination - multiplicity * arc
+			
+			if to_flip is None:
+				???
+			
+			move = lamination.triangulation.encode_flip(to_flip)
+			encoding = encoding * move
+			lamination = move(lamination)
+			
+			to_flip = ??
+		
+		return comp
 	
 	def skeleton(self):
 		''' Return the lamination obtained by collapsing parallel components. '''
@@ -156,48 +283,16 @@ class Lamination(object):
 		return sum(self.components())
 	
 	def is_multicurve(self):
-		return all(all(self(triangle.edges[i]) <= self(triangle.edges[(i+1)%3]) + self(triangle.edges[(i+2)%3]) for i in range(3))  for triangle in self.triangulation)
+		return all(isinstance(component, Curve) for component in self.components())
 	
 	def is_curve(self):
-		''' Return if this multicurve is a curve. '''
-		
-		if not self.is_multicurve(): return False
-		
-		short_lamination, _ = self.conjugate_short()
-		
-		if short_lamination.weight() == 2: return True
-		
-		# See the conditions on conjugate_short as to why this works.
-		if any(weight not in [0, 2] for weight in short_lamination): return False
-		
-		# If we have a longer lamination then all vertices must be on one side of it.
-		# So if we collapse the edges with weight 0 we must end up with a
-		# one vertex triangulation.
-		triangulation = short_lamination.triangulation
-		vertex_numbers = dict(zip(triangulation.vertex_classes, range(triangulation.num_vertices)))
-		for edge_index in triangulation.indices:
-			if self(edge_index) == 0:
-				c1, c2 = triangulation.vertex_lookup[edge_index], triangulation.vertex_lookup[~edge_index]
-				a, b = vertex_numbers[c1], vertex_numbers[c2]
-				if a != b:
-					x, y = max(a, b), min(a, b)
-					for c in vertex_numbers:
-						if vertex_numbers[c] == x: vertex_numbers[c] = y
-		
-		# If any corner class is numbered > 0 then we don't have a one vertex triangulation.
-		if any(vertex_numbers.values()): return False
-		
-		# So either we have a single curve or we have a multicurve with two parallel components.
-		# We can test for the former by looking for a triangle in which all sides have weight 2.
-		return any(all(short_lamination(edge) == 2 for edge in triangle) for triangle in short_lamination.triangulation)
+		return self.is_multicurve() and sum(self.components().values()) == 1
 	
 	def is_multiarc(self):
-		return NotImplemented  # To do.
+		return all(isinstance(component, Arc) for component in self.components())
 	
 	def is_arc(self):
-		if not self.is_multiarc(): return False
-		
-		return NotImplemented  # To do.
+		return self.is_multiarc() and sum(self.components().values()) == 1
 	
 	def promote(self):
 		if self.is_multicurve():
@@ -211,11 +306,6 @@ class Lamination(object):
 			else:
 				self.__class__ = MultiArc
 		return self
-	
-	def components(self):
-		''' Return a dictionary mapping the Curves and Arcs that appear in self to their multiplicities. '''
-		
-		return NotImplemented
 	
 	def intersection(self, lamination):
 		''' Return the geometric intersection number between this lamination and the given one. '''
@@ -409,7 +499,7 @@ class Curve(MultiCurve):
 		triangulation = short_self.triangulation
 		e1, e2 = [edge_index for edge_index in triangulation.indices if short_self(edge_index) > 0]
 		# We might need to swap these edge indices so we have a good frame of reference.
-		if triangulation.corner_of_edge(e1).indices[2] != e2: e1, e2 = e2, e1
+		if triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
 		
 		a, b, c, d = triangulation.square_about_edge(e1)
 		e = e1
