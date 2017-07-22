@@ -21,7 +21,9 @@ def norm(value):
 class Edge(object):
 	''' This represents an oriented edge, labelled with an integer.
 	
-	It is specified by its label and its inverse edge is labelled with ~its label. '''
+	It is specified by its label and its inverse edge is labelled with ~its label.
+	
+	These are really just integers but with fancy printing and indexing set up on them. '''
 	
 	# Warning: This needs to be updated if the interals of this class ever change.
 	__slots__ = ['label', 'index']
@@ -33,7 +35,7 @@ class Edge(object):
 	def __repr__(self):
 		return str(self)
 	def __str__(self):
-		return ('' if self.is_positive() else '~') + str(self.index)
+		return ('' if self.sign() == +1 else '~') + str(self.index)
 	def __reduce__(self):
 		# Having __slots__ means we need to pickle manually.
 		return (self.__class__, (self.label, None))
@@ -50,15 +52,10 @@ class Edge(object):
 		
 		return Edge(~self.label)
 	
-	def is_positive(self):
-		''' Return if this edge is the positively oriented one. '''
-		
-		return self.label == self.index
-	
 	def sign(self):
 		''' Return the sign (+/-1) of this edge. '''
 		
-		return +1 if self.is_positive() else -1
+		return +1 if self.label == self.index else -1
 
 class Triangle(object):
 	''' This represents a triangle.
@@ -122,7 +119,7 @@ class Triangulation(object):
 		self.triangles = sorted(triangles, key=lambda t: t.labels)
 		
 		self.edges = [edge for triangle in self for edge in triangle.edges]
-		self.positive_edges = [edge for edge in self.edges if edge.is_positive()]
+		self.positive_edges = [edge for edge in self.edges if edge.sign() == +1]
 		self.labels = sorted([edge.label for edge in self.edges])
 		self.indices = sorted([edge.index for edge in self.positive_edges])
 		
