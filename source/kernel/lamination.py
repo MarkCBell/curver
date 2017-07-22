@@ -99,7 +99,6 @@ class Lamination(object):
 			if other.triangulation != self.triangulation:
 				raise ValueError('Laminations must be on the same triangulation to subtract them.')
 			
-			# Haken sum.
 			geometric = [x - y for x, y in zip(self, other)]
 			algebraic = [x - y for x, y in zip(self.algebraic, other.algebraic)]
 			return Lamination(self.triangulation, geometric, algebraic)
@@ -173,6 +172,26 @@ class Lamination(object):
 		
 		return lamination, conjugation
 	
+	def dual_weights(self, triangle):
+		''' Return the number of component of this lamination dual to each side of the given triangle.
+		
+		Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
+		
+		weights = [self(index) for index in triangle.indices]
+		correction = min(weights[(i+1)%3] + weights[(i+2)%3] - weights[i] for i in range(3))
+		if correction >= 0:  # No terminal arcs.
+			return [(weights[(i+1)%3] + weights[(i+2)%3] - weights[i]) // 2 for i in range(3)]
+		else:  # Terminal arc.
+			return [(weights[(i+1)%3] + weights[(i+2)%3] - weights[i] + correction) // 2 for i in range(3)]
+	
+	def arc_side(self, triangle):
+		dual_weights = self.dual_weights(triangle)
+		arc = min(dual_weights)
+		if arc >= 0:  # No arc.
+			return None
+		else:
+			return dual_weights.index(arc)
+	
 	def components(self):
 		''' Return a dictionary mapping the Curves and Arcs that appear in this lamination to their multiplicities. '''
 		# Probably should cache.
@@ -193,6 +212,17 @@ class Lamination(object):
 				comp[arc] = multiplicity
 				lamination = lamination - multiplicity * arc
 		
+		# Remove all the obvious curves. This reduces the number of places we have to look for new curves later.
+		for label in lamination.triangulation.labels:
+			if lamination.triangulation.is_flippable(label):
+				a, b, c, d = lamination.triangulation.square_about_edge(label)
+				if b == ~d:
+					multiplicity = ??
+					if multiplicity > 0:
+						curve = Curve(lamination.triangulation, geometric, algebraic)
+						comp[project(encoding.inverse()(arc))] = multiplicity
+						lamination = lamination - multiplicity * curve
+		
 		# Now in each triangle lamination looks like one of the following types:
 		# 0) Empty    # 1) One arc  # 2) Two arcs  # 3) Three arcs
 		#     /\      #     /\      #     /\       #     /\
@@ -201,77 +231,91 @@ class Lamination(object):
 		#  /      \   #  /  |   \   #  /  ||  \    #  /  ||  \
 		#  --------   #  --------   #  --------    #  --------
 		#
-		# 0a), 1a) or 2a) which are the same as 0), 1) and 2) but with an extra arc. For example, 2a):
+		# 0a), 1a) or 2a); which are the same as 0), 1) and 2) but with an extra arc. For example, 2a):
 		#     /|\
 		#    / | \
 		#   /\ | /\
 		#  /  |||  \
 		#  ---------
+		# These cases are determined by the fact that (exactly) one of their dual weights is negative.
 		
-		# We will subdivide the type 3) triangles. This type is determined by the fact that all of its
-		# dual weights (a + b - c) / 2 are positive.
+		# We will subdivide the triangles so that afterwards each triangle contains at most one switch.
+		# It is only necessary to subdivide 3) and 2a) but it's easier to do them all.
 		
-		def subdivide(triangle):
-			weights = [self(index) for index in triangle.indices]
-			return all(weights[(i+1)%3] + weights[(i+2)%3] - weights[i] > 0 for i in range(3))
 		
-		zeta = lamination.zeta  # The number of edges in the new triangulaton.
-		geometric = [None] * zeta
-		algebraic = [None] * zeta
+		# We introduce new edgesto subdivide a triangle (p, q, r) as follows:
+		#            /^\
+		#           / | \
+		#          /  |  \
+		#         /   |s(i)
+		#        /    |    \
+		#     r /    / \    \ q
+		#      /   /     \   \
+		#     /  /t(j) u(k)\  \
+		#    /</             \>\
+		#   /-------------------\
+		#             p
+		
+		geometric = lamination.geometric + [None] * (2*zeta)
+		algebraic = lamination.algebraic + [None] * (2*zeta)
 		triangles = []
-		for triangle in lamination.triangulation:
-			if subdivide(triangle):
-				p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
-				s, t, u = [curver.kernel.Edge(zeta), curver.kernel.Edge(zeta+1), curver.kernel.Edge(zeta+2)]
-				triangles.append(curver.kernel.Triangle([p, ~u, t]))
-				triangles.append(curver.kernel.Triangle([q, ~s, u]))
-				triangles.append(curver.kernel.Triangle([r, ~t, s]))
-				
-				# Record intersections with new edges.
-				geometric.append(??)
-				geometric.append(??)
-				geometric.append(??)
-				algebraic.append(??)
-				algebraic.append(??)
-				algebraic.append(??)
-				
-				zeta += 3
-				pass
-			else:
-				triangles.append(curver.kernel.Triangle([curver.kernel.Edge(label) for label in triangle.labels]))
+		for count, triangle in enumerate(lamination.triangulation):
+			i, j, k = self.zeta + 3*count, self.zeta + 3*count + 1, self.zeta + 3*count + 2
+			p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
+			s, t, u = [curver.kernel.Edge(i), curver.kernel.Edge(j), curver.kernel.Edge(k)]
+			triangles.append(curver.kernel.Triangle([p, ~u, t]))
+			triangles.append(curver.kernel.Triangle([q, ~s, u]))
+			triangles.append(curver.kernel.Triangle([r, ~t, s]))
 			
-			for index in triangle.indices:
-				geometric[index] = lamination(index)
-				algebraic[index] = lamination[index]
+			# Record intersections with new edges.
+			dual_weights = self.dual_weights(triangle)
+			arc_side = self.arc_side(triangle)
+			if arc_side is None:
+				geometric[i], geometric[j], geometric[k] = dual_weights
+				
+				algebraic[i] = 0
+				algebraic[j] = +lamination[r] * r.sign()
+				algebraic[k] = -lamination[q] * q.sign()
+			else:
+				pass
 		
 		T = curver.kernel.Triangulation(triangles)
 		lamination = Lamination(T, geometric, algebraic)
-		
 		
 		def project(lamination):
 			''' Project a good lamination on T back to one on self.triangulation. '''
 			return Lamination(self.triangulation, lamination.geometric[:self.zeta], lamination.algebraic[:self.zeta])
 		
-		encoding = T.id_encoding()
-		
 		to_flip = None
-		
+		encoding = T.id_encoding()
 		while not lamination.is_empty():
-			# Remove all the obvious arcs.
-			for index in lamination.triangulation.indices:
-				if lamination(index) < 0:
-					geometric = [0 if i != index else -1 for i in range(lamination.zeta)]
-					algebraic = [0 if i != index else sign(lamination[i]) for i in range(lamination.zeta)]
-					component,multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(index))
-					comp[project(encoding.inverse()(arc))] = multiplicity
-					lamination = lamination - multiplicity * arc
-			
 			if to_flip is None:
 				???
 			
 			move = lamination.triangulation.encode_flip(to_flip)
 			encoding = encoding * move
 			lamination = move(lamination)
+			
+			# The only place where an obvious arc could appear is along the new edge we have just introduced.
+			if lamination(to_flip) < 0:
+				geometric = [0 if i != to_flip else -1 for i in range(lamination.zeta)]
+				algebraic = [0 if i != to_flip else sign(lamination[i]) for i in range(lamination.zeta)]
+				component, multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(to_flip))
+				comp[project(encoding.inverse()(arc))] = multiplicity
+				lamination = lamination - multiplicity * arc
+			
+			# The only places where a short curve could appear is across an edge adjacent to the one we just flipped.
+			for edge in lamination.triangulation.square_about_edge(to_flip):
+				if lamination.triangulation.is_flippable(edge.label):
+					a, b, c, d = lamination.triangulation.square_about_edge(edge.label)
+					if b == ~d:
+						multiplicity = ??
+						if multiplicity > 0:
+							curve = Curve(lamination.triangulation, geometric, algebraic)
+							comp[project(encoding.inverse()(arc))] = multiplicity
+							lamination = lamination - multiplicity * curve
+			
+			# Accelerate!!
 			
 			to_flip = ??
 		
@@ -475,7 +519,7 @@ class Curve(MultiCurve):
 		
 		half_twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [e1, e2, c.index, x.index]}, e2, e1, c.index])
 		
-		# We accelerate large powers by replacting (T^1/2_self)^2 with T_self which includes acceleration.
+		# We accelerate large powers by replacing (T^1/2_self)^2 with T_self which includes acceleration.
 		if abs(k) == 1:
 			return conjugation.inverse() * half_twist**k * conjugation
 		else:  # k is odd so we need to add in an additional half twist.
