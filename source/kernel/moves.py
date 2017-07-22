@@ -55,8 +55,6 @@ class Isometry(Move):
 		return 'Isometry ' + str([self.target_triangulation.edge_lookup[self.label_map[i]] for i in self.source_triangulation.indices])
 	def __reduce__(self):
 		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.label_map))
-	def __len__(self):
-		return 1  # The number of pieces of this move.
 	def package(self):
 		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
 		
@@ -95,8 +93,6 @@ class EdgeFlip(Move):
 		return 'Flip %s%d' % ('' if self.edge_index == self.edge_label else '~', self.edge_index)
 	def __reduce__(self):
 		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge_label))
-	def __len__(self):
-		return 2  # The number of pieces of this move.
 	def package(self):
 		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
 		
@@ -148,8 +144,6 @@ class Spiral(Move):
 		return 'Spiral^%d %s' % (self.power, self.edge_label)
 	def __reduce__(self):
 		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge_label, self.power))
-	def __len__(self):
-		return abs(self.power) + 3  # The number of pieces of this move.
 	def package(self):
 		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
 		
@@ -157,7 +151,7 @@ class Spiral(Move):
 	
 	def mat(self, config, t):
 		k = abs(self.power)
-		if k == 0: return curver.kernel.id_matrix(4)
+		if k == 0: return lambda (a, b, c, d): (a, b, c, d)
 		
 		def F(n):  # Note F(0) == Id.
 			return lambda (a, b, c, d): (a, b, (n+1)*c - n*d, n*c + (1-n)*d)
@@ -175,7 +169,7 @@ class Spiral(Move):
 				M = lambda x: G(F(t)(x))
 			elif k == t+2:  # t steps in unstable, into transition, then out of transition.
 				M = lambda x: G(G(F(t)(x)))
-			else:  # t+2 < k:  # t steps in unstable, into transition, out of transition, then the remaining steps in stable.
+			else:  # k > t+2:  # t steps in unstable, into transition, out of transition, then the remaining steps in stable.
 				M = lambda x: F(k - (t + 2))(G(G(F(t)(x))))
 		
 		return M
@@ -202,25 +196,24 @@ class Spiral(Move):
 		k = abs(self.power)
 		
 		# Compute action on a, b, c, e.
-		# Note that if self.power > 0 then we use the ordering a, c, b, e
-		# and otherwise we use a, c, e, d. This allows us to do two calculations
-		# with only one matrix.
+		# Note that if self.power < 0 then (instead of using the ordering a, c, b, e) we use a, c, e, d.
+		# This allows us to do two calculations with only one matrix.
 		# Additionally d == b so we dont need to compute new_d.
 		
-		# The maximum number of times you can perform the unstable state.
-		# WLOG 0 <= t <= k.
-		
-		if self.power > 0:
-			config = state
-			t = min(max((2*b - a - c) // (2*(e - b)) + 1, 0), k) if e != b else k
-			M = self.mat(config, t)  # t only matters if in the unstable, that is, if config == 3.
-			_, _, new_b, new_e = M([a, c, b, e])
-		else:
+		config = state
+		if self.power < 0:
 			# Reverse the configuration if we are taking a negative power.
-			config = 4 - state
-			t = min(max((2*e - a - c) // (2*(b - e)) + 1, 0), k) if e != b else k
-			M = self.mat(config, t)  # t only matters if in the unstable, that is, if config == 3.
-			_, _, new_e, new_b = M([a, c, e, b])
+			config = 4 - config
+			b, e = e, b
+		
+		# The maximum number of times you can perform the unstable state.
+		t = min(max((2*b - a - c) // (2*(e - b)) + 1, 0), k) if e != b else k
+		M = self.mat(config, t)  # t only really matters if in the unstable, that is, if config == 3.
+		_, _, new_b, new_e = M([a, c, b, e])
+		
+		if self.power < 0:
+			# Reverse the configuration if we are taking a negative power.
+			new_b, new_e = new_e, new_b
 		
 		return [new_b if i == bi else new_e if i == ei else vector[i] for i in range(self.zeta)]
 	
