@@ -124,7 +124,7 @@ class Lamination(object):
 		return [isom for isom in self.triangulation.isometries_to(other.triangulation) if other== isom.encode()(self)]
 	
 	def self_isometries(self):
-		''' Returns a list of isometries taking this lamination to itself. '''
+		''' Return a list of isometries taking this lamination to itself. '''
 		
 		return self.isometries_to(self)
 	
@@ -194,12 +194,12 @@ class Lamination(object):
 	
 	def components(self):
 		''' Return a dictionary mapping the Curves and Arcs that appear in this lamination to their multiplicities. '''
+		
 		# Probably should cache.
 		
 		return NotImplemented
 		
 		comp = dict()
-		
 		
 		lamination = self
 		
@@ -208,14 +208,14 @@ class Lamination(object):
 			if lamination(index) < 0:
 				geometric = [0 if i != index else -1 for i in range(self.zeta)]
 				algebraic = [0 if i != index else sign(lamination[i]) for i in range(self.zeta)]
-				component,multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(index))
+				component, multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(index))
 				comp[arc] = multiplicity
 				lamination = lamination - multiplicity * arc
 		
 		# Remove all the obvious curves. This reduces the number of places we have to look for new curves later.
-		for label in lamination.triangulation.labels:
-			if lamination.triangulation.is_flippable(label):
-				a, b, c, d = lamination.triangulation.square_about_edge(label)
+		for index in lamination.triangulation.indices:
+			if lamination.triangulation.is_flippable(index):
+				a, b, c, d = lamination.triangulation.square_about_edge(index)
 				if b == ~d:
 					multiplicity = ??
 					if multiplicity > 0:
@@ -243,7 +243,7 @@ class Lamination(object):
 		# It is only necessary to subdivide 3) and 2a) but it's easier to do them all.
 		
 		
-		# We introduce new edgesto subdivide a triangle (p, q, r) as follows:
+		# We introduce new edges to subdivide a triangle (p, q, r) as follows:
 		#            /^\
 		#           / | \
 		#          /  |  \
@@ -255,11 +255,19 @@ class Lamination(object):
 		#    /</             \>\
 		#   /-------------------\
 		#             p
+		# WLOG: If there is an terminal normal arc in this triangle then it goes through side p.
 		
 		geometric = lamination.geometric + [None] * (2*zeta)
 		algebraic = lamination.algebraic + [None] * (2*zeta)
 		triangles = []
 		for count, triangle in enumerate(lamination.triangulation):
+			dual_weights = self.dual_weights(triangle)
+			arc_side = self.arc_side(triangle)
+			if arc_side is not None:  # Rotate the triangle so that arc_side is side #0.
+				triangle = lamination.triangulation.corner_lookup[triangle.labels[arc_side]]
+				dual_weights = dual_weights[arc_side:] + dual_weights[:arc_side]
+				arc_side = 0
+			
 			i, j, k = self.zeta + 3*count, self.zeta + 3*count + 1, self.zeta + 3*count + 2
 			p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
 			s, t, u = [curver.kernel.Edge(i), curver.kernel.Edge(j), curver.kernel.Edge(k)]
@@ -268,13 +276,10 @@ class Lamination(object):
 			triangles.append(curver.kernel.Triangle([r, ~t, s]))
 			
 			# Record intersections with new edges.
-			dual_weights = self.dual_weights(triangle)
-			arc_side = self.arc_side(triangle)
 			if arc_side is None:
 				geometric[i], geometric[j], geometric[k] = dual_weights
-				
 				algebraic[i] = 0
-				algebraic[j] = +lamination[r] * r.sign()
+				algebraic[j] = lamination[r] * r.sign()
 				algebraic[k] = -lamination[q] * q.sign()
 			else:
 				pass
@@ -284,6 +289,7 @@ class Lamination(object):
 		
 		def project(lamination):
 			''' Project a good lamination on T back to one on self.triangulation. '''
+			assert(lamination.triangulation == T)
 			return Lamination(self.triangulation, lamination.geometric[:self.zeta], lamination.algebraic[:self.zeta])
 		
 		to_flip = None
@@ -366,12 +372,13 @@ class MultiCurve(Lamination):
 class Curve(MultiCurve):
 	def is_curve(self):
 		return True
+	def components(self):
+		return {self: 1}
 	
-	def is_twistable(self):
+	def is_isolating(self):
 		''' Return if this curve is a twistable curve. '''
 		
 		# This is based off of self.encode_twist(). See the documentation there as to why this works.
-		if not self.is_curve(): return False
 		
 		short_curve, _ = self.conjugate_short()
 		
@@ -384,7 +391,7 @@ class Curve(MultiCurve):
 		
 		short_curve, _ = self.conjugate_short()
 		# We used to start with:
-		#   if not self.is_twistable(): return False
+		#   if self.is_isolating(): return False
 		# But this wasted a lot of cycles repeating the calculation twice.
 		if not short_curve.weight() == 2:
 			return False
@@ -410,7 +417,7 @@ class Curve(MultiCurve):
 		
 		This curve must be a twistable curve. '''
 		
-		assert(self.is_twistable())
+		assert(not self.is_isolating())
 		
 		if k == 0: return self.triangulation.id_encoding()
 		
@@ -534,7 +541,7 @@ class Curve(MultiCurve):
 		assert(isinstance(lamination, Lamination))
 		assert(lamination.triangulation == self.triangulation)
 		
-		if not self.is_twistable():
+		if self.is_isolating():
 			raise curver.AssumptionError('Can only compute geometric intersection number between a twistable curve and a curve.')
 		
 		short_self, conjugator = self.conjugate_short()
@@ -592,10 +599,24 @@ class MultiArc(Lamination):
 		return False
 	def is_multiarc(self):
 		return True
+	
+	def boundary(self):
+		''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
+		
+		short, conjugator = self.conjugate_short()
+		# short is a subset of the edges of the triangulation it is defined on.
+		# So its geometric vector is non-positive.
+		
+		boundary = short.triangulation.lamination([0 if weight < 0 else 2 for weight in short]).promote()
+		# This removes peripheral curves so we can just put 2's on all the edges not in short.
+		
+		return boundary
 
 class Arc(MultiArc):
 	def is_arc(self):
 		return True
+	def components(self):
+		return {self: 1}
 	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''

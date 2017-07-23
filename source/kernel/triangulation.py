@@ -389,7 +389,7 @@ class Triangulation(object):
 		return isometries
 	
 	def self_isometries(self):
-		''' Returns a list of isometries taking this triangulation to itself. '''
+		''' Return a list of isometries taking this triangulation to itself. '''
 		
 		return self.isometries_to(self)
 	
@@ -425,9 +425,9 @@ class Triangulation(object):
 			# If we have a curve we should compute the algebraic intersection numbers.
 			if lamination.is_curve():
 				curve = lamination  # Better name.
-				# Note that if the curve is not twistable then its algebraic intersection numbers
+				# Note that if the curve is isolating then its algebraic intersection numbers
 				# are all zero and so we can just return curve.
-				if curve.is_twistable():
+				if not curve.is_isolating():
 					short_curve, conjugation = curve.conjugate_short()
 					triangulation = short_curve.triangulation
 					
@@ -468,45 +468,12 @@ class Triangulation(object):
 		
 		curves = []
 		
-		for edge_index in self.indices:
-			# Build the curve which is the boundary of a regular neighbourhood of this edge.
-			endpoints = [self.vertex_lookup[edge_index], self.vertex_lookup[~edge_index]]
-			
-			# If the given edge actually forms a loop then we will build two curves, one for
-			# each side of the regular neighbourhood.
-			if len(set(endpoints)) == 1:
-				left = False
-				geometric = [[0] * self.zeta, [0] * self.zeta]
-				algebraic = [[0] * self.zeta, [0] * self.zeta]
-				for edge in endpoints[0]:  # They are the same so it doesn't matter which we take.
-					if edge.index == edge_index:
-						left = not left
-					else:
-						geometric[0 if left else 1][edge.index] += 1
-						algebraic[0 if left else 1][edge.index] += edge.sign()
-				
-				curves.append(curver.kernel.Curve(self, geometric[0], algebraic[0]))
-				curves.append(curver.kernel.Curve(self, geometric[1], algebraic[1]))
-			else:
-				geometric = [0] * self.zeta
-				algebraic = [0] * self.zeta
-				for vertex in endpoints:
-					for edge in vertex:
-						geometric[edge.index] += 1
-						algebraic[edge.index] += edge.sign()
-				
-				geometric[edge_index] = 0
-				algebraic[edge_index] = 0
-				if not self.is_flippable(edge_index):
-					# We also need to zero out the curve enclosing this edge.
-					[boundary_edge] = [label for label in self.triangle_lookup[edge_label].labels if label != edge_label and label != ~edge_label]
-					geometric[boundary_edge] = 0
-					algebraic[boundary_edge] = 0
-				
-				curves.append(curver.kernel.Curve(self, geometric, algebraic))
+		for index in self.indices:
+			arc = curver.kernel.Arc(self, [1 if i == index else 0 for i in range(self.zeta)], [1 if i == index else 0 for i in range(self.zeta)])
+			for component in arc.boundary().components():
+				curves.append(component)
 		
-		# Filter out any empty curves that we get.
-		return [curve for curve in curves if not curve.is_empty()]
+		return curves
 	
 	def id_isometry(self):
 		''' Return the isometry representing the identity map. '''
