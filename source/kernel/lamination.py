@@ -341,64 +341,38 @@ class Curve(MultiCurve):
 		return {self: 1}
 	
 	def is_isolating(self):
-		''' Return if this curve is a twistable curve. '''
+		''' Return if this curve is an isolating curve.
+		
+		That is, is there a component of S - self that does not contain a puncture. '''
 		
 		# This is based off of self.encode_twist(). See the documentation there as to why this works.
 		
-		short_curve, _ = self.conjugate_short()
+		short, _ = self.conjugate_short()
 		
-		return short_curve.weight() == 2
-	
-	def is_halftwistable(self):
-		''' Return if this curve is a half twistable curve. '''
-		
-		# This is based off of self.encode_halftwist(). See the documentation there as to why this works.
-		
-		short_curve, _ = self.conjugate_short()
-		# We used to start with:
-		#   if self.is_isolating(): return False
-		# But this wasted a lot of cycles repeating the calculation twice.
-		if not short_curve.weight() == 2:
-			return False
-		
-		triangulation = short_curve.triangulation
-		
-		e1, e2 = [edge_index for edge_index in short_curve.triangulation.indices if short_curve(edge_index) > 0]
-		
-		a, b, c, d = triangulation.square_about_edge(e1)
-		if short_curve(a) == 1 and short_curve(c) == 1:
-			e1, e2 = e2, e1
-			a, b, c, d = triangulation.square_about_edge(e1)
-		elif short_curve(b) == 1 and short_curve(d) == 1:
-			pass
-		
-		_, _, z, w = triangulation.square_about_edge(a.label)
-		_, _, x, y = triangulation.square_about_edge(c.label)
-		
-		return z == ~w or x == ~y
+		return short.weight() == 2
 	
 	def encode_twist(self, k=1):
 		''' Return an Encoding of a left Dehn twist about this curve raised to the power k.
 		
-		This curve must be a twistable curve. '''
+		Currently, this must be a non-isolating curve. '''
 		
 		assert(not self.is_isolating())
 		
 		if k == 0: return self.triangulation.id_encoding()
 		
-		short_curve, conjugation = self.conjugate_short()
+		short, conjugation = self.conjugate_short()
 		
-		triangulation = short_curve.triangulation
+		triangulation = short.triangulation
 		# Grab the indices of the two edges we meet.
-		e1, e2 = [edge_index for edge_index in short_curve.triangulation.indices if short_curve(edge_index) > 0]
+		e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
 		
 		a, b, c, d = triangulation.square_about_edge(e1)
 		# If the curve is going vertically through the square then ...
-		if short_curve(a) == 1 and short_curve(c) == 1:
+		if short(a) == 1 and short(c) == 1:
 			# swap the labels round so it goes horizontally.
 			e1, e2 = e2, e1
 			a, b, c, d = triangulation.square_about_edge(e1)
-		elif short_curve(b) == 1 and short_curve(d) == 1:
+		elif short(b) == 1 and short(d) == 1:
 			pass
 		
 		# We now have:
@@ -424,90 +398,40 @@ class Curve(MultiCurve):
 		twist_k = triangulation.encode([(e1, k)])
 		return conjugation.inverse() * twist_k * conjugation
 	
-	def encode_halftwist(self, k=1):
-		''' Return an Encoding of a left half twist about this curve raised to the power k.
+	def is_halftwistable(self):
+		''' Return if this curve is a half twistable curve. '''
 		
-		This curve must be a half-twistable curve. '''
+		# This is based off of self.encode_halftwist(). See the documentation there as to why this works.
 		
-		assert(self.is_halftwistable())
+		short, _ = self.conjugate_short()
 		
-		if k % 2 == 0:  # k is even so use a Dehn twist
-			return self.encode_twist(k // 2)
+		triangulation = short.triangulation
 		
-		# This first section is the same as in self.encode_flip.
-		
-		short_curve, conjugation = self.conjugate_short()
-		
-		triangulation = short_curve.triangulation
-		e1, e2 = [edge_index for edge_index in short_curve.triangulation.indices if short_curve(edge_index) > 0]
+		e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
 		
 		a, b, c, d = triangulation.square_about_edge(e1)
-		# If the curve is going vertically through the square then ...
-		if short_curve(a) == 1 and short_curve(c) == 1:
-			# swap the labels round so it goes horizontally.
+		if short(a) == 1 and short(c) == 1:
 			e1, e2 = e2, e1
 			a, b, c, d = triangulation.square_about_edge(e1)
-		elif short_curve(b) == 1 and short_curve(d) == 1:
+		elif short(b) == 1 and short(d) == 1:
 			pass
 		
-		# Get some more edges.
 		_, _, z, w = triangulation.square_about_edge(a.label)
 		_, _, x, y = triangulation.square_about_edge(c.label)
 		
-		# But now we have to go one further and worry about a, b, c, d Vs. c, d, a, b.
-		# We want it so that x == ~y.
-		if z.index == w.index:
-			a, b, c, d = c, d, a, b
-			w, x, y, z = y, z, w, x
-		
-		# So we now have:
-		#       #
-		#      / ^
-		#     /   \
-		#    /w   z\
-		#   /       \
-		#  V         \
-		# #<----------#
-		# |     a    ^^
-		# |         / |
-		# |---->------|
-		# |       /   |
-		# |b    e/   d|
-		# |     /     |
-		# |    /      |
-		# |   /       |
-		# |  /        |
-		# | /         |
-		# V/    c     |
-		# #---------->#
-		#  \         ^
-		#   \       /
-		#    \x   y/
-		#     \   /
-		#      V /
-		#       #
-		# Where e.index = e1 and b.index = d.index = e2,
-		# and additionally x.index = y.index.
-		
-		half_twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [e1, e2, c.index, x.index]}, e2, e1, c.index])
-		
-		# We accelerate large powers by replacing (T^1/2_self)^2 with T_self which includes acceleration.
-		if abs(k) == 1:
-			return conjugation.inverse() * half_twist**k * conjugation
-		else:  # k is odd so we need to add in an additional half twist.
-			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
-			return conjugation.inverse() * short_curve.encode_twist(k // 2) * half_twist * conjugation
+		return z == ~w or x == ~y
+	
 	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination.
 		
-		Currently assumes (and checks) that self is a twistable curve. '''
+		Currently assumes (and checks) that self is a non-isolating curve. '''
 		
 		assert(isinstance(lamination, Lamination))
 		assert(lamination.triangulation == self.triangulation)
 		
 		if self.is_isolating():
-			raise curver.AssumptionError('Can only compute geometric intersection number between a twistable curve and a curve.')
+			raise curver.AssumptionError('Can only compute geometric intersection number between a non-isolating curve and a lamination.')
 		
 		short_self, conjugator = self.conjugate_short()
 		short_lamination = conjugator(lamination)
@@ -592,6 +516,69 @@ class Arc(MultiArc):
 	def components(self):
 		return {self: 1}
 	
+	def encode_halftwist(self, k=1):
+		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc raised to the power k.
+		
+		Assumes (and checks) that this arc connects between distinct vertices.
+		Currently, the boundary curve must also be non-isolating. '''
+		
+		boundary = self.boundary()
+		if not isinstance(boundary, Curve):
+			raise curver.AssumptionError('Arc connects a vertex to itself.')
+		
+		if k % 2 == 0:  # k is even so use a Dehn twist about the boundary.
+			return boundary.encode_twist(k // 2)
+		
+		short_boundary, conjugation = boundary.conjugate_short()
+		short = conjugation(self)
+		
+		if not short_boundary.weight() == 2:  # boundary.is_isolating().
+			raise curver.AssumptionError('Boundary curve is isolating.')
+		
+		[arc_index] = [index for index in short.triangulation.indices if short(index) != 0]
+		triangulation = short.triangulation
+		
+		# Let x be the edge of triangulation with index arc_index. We build out the neighbourhood
+		# of x which, since boundary is short, looks like the following:
+		#
+		# #<----------#
+		# |     a    ^^
+		# |         / |
+		# |---->------|
+		# |       /   |
+		# |b    e/   d|
+		# |     /     |
+		# |    /      |
+		# |   /       |
+		# |  /        |
+		# | /         |
+		# V/    c     |
+		# #---------->#
+		#  \         /
+		#   \       /
+		#    \x   y/
+		#     \   /
+		#      \ /
+		#       #
+		# Where d == ~b and x == ~y.
+		
+		c = ~triangulation.folded_boundary(arc_index)
+		d, tilde_e, _, _ = triangulation.square_about_edge(c.label)
+		e = ~tilde_e
+		a, b, c, d = triangulation.square_about_edge(e.label)
+		
+		half_twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [b.index, e.index, c.index, x.index]}, b.index, e.index, c.index])
+		
+		# We accelerate large powers by replacing (T^1/2_self)^2 with T_self which includes acceleration.
+		if abs(k) == 1:
+			return conjugation.inverse() * half_twist**k * conjugation
+		else:  # k is odd so we need to add in an additional half twist.
+			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
+			return conjugation.inverse() * short_boundary.encode_twist(k // 2) * half_twist * conjugation
+	
+	
+	
+	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''
 		
@@ -603,4 +590,6 @@ class Arc(MultiArc):
 		short_lamination = conjugator(lamination)
 		
 		return sum(b for a, b in zip(short_self, short_lamination) if a == -1 and b >= 0)
+	
+	
 
