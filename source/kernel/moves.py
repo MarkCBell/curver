@@ -65,8 +65,6 @@ class Isometry(Move):
 	
 	def apply_geometric(self, vector):
 		return [vector[self.inverse_index_map[i]] for i in range(self.zeta)]
-	def apply_algebraic(self, vector):
-		return [vector[self.inverse_index_map[i]] * self.inverse_signs[i] for i in range(self.zeta)]
 	
 	def inverse(self):
 		''' Return the inverse of this isometry. '''
@@ -101,10 +99,6 @@ class EdgeFlip(Move):
 	def apply_geometric(self, vector):
 		a, b, c, d = self.square
 		m = max(vector[a.index] + vector[c.index], vector[b.index] + vector[d.index]) - vector[self.edge_index]
-		return [vector[i] if i != self.edge_index else m for i in range(self.zeta)]
-	def apply_algebraic(self, vector):
-		a, b, c, d = self.square
-		m = b.sign() * vector[b.index] + c.sign() * vector[c.index]
 		return [vector[i] if i != self.edge_index else m for i in range(self.zeta)]
 	
 	def inverse(self):
@@ -216,13 +210,6 @@ class Spiral(Move):
 			new_b, new_e = new_e, new_b
 		
 		return [new_b if i == bi else new_e if i == ei else vector[i] for i in range(self.zeta)]
-	
-	def apply_algebraic(self, vector):
-		a, b, c, d = self.square
-		e = self.source_triangulation.edge_lookup[self.edge_label]
-		new_b = vector[b.index] + b.sign() * c.sign() * vector[c.index] * self.power
-		new_e = vector[e.index] - e.sign() * c.sign() * vector[c.index] * self.power
-		return [new_b if i == b.index else new_e if i == self.edge_index else vector[i] for i in range(self.zeta)]
 	
 	def inverse(self):
 		''' Return the inverse of this isometry. '''

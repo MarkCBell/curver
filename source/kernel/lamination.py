@@ -13,34 +13,17 @@ def sign(number):
 class Lamination(object):
 	''' This represents a lamination on an triangulation.
 	
-	It is given by a list of its geometric intersection numbers and a
-	list of its algebraic intersection numbers with the (oriented) edges
-	of underlying triangulation. Note that:
-	     ^L
-	     |
-	-----|------> e
-	     |
-	has algebraic intersection +1.
-	
-	For an arc that runs parallel to an edge, we say that its algebraic intersection
-	number is +1 if it runs in the same direction, that is:
-	 --------------> e
-	  \----------> L
-	has algebraic intersection +1.
-	
+	It is given by a list of its geometric intersection numbers.
 	Users should use Triangulation.lamination() to create laminations. '''
-	def __init__(self, triangulation, geometric, algebraic):
+	def __init__(self, triangulation, geometric):
 		assert(isinstance(triangulation, curver.kernel.Triangulation))
 		assert(isinstance(geometric, (list, tuple)))
-		assert(isinstance(algebraic, (list, tuple)))
-		# We should check that geometric / algebraic satisfies reasonable relations.
+		# We should check that geometric satisfies reasonable relations.
 		
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta
 		self.geometric = list(geometric)
-		self.algebraic = list(algebraic)
 		assert(len(self.geometric) == self.zeta)
-		assert(len(self.algebraic) == self.zeta)
 	
 	def __repr__(self):
 		return str(self)
@@ -56,27 +39,18 @@ class Lamination(object):
 		else:
 			return self.geometric[curver.kernel.norm(item)]
 	
-	def __getitem__(self, item):
-		''' Return the algebraic measure assigned to item. '''
-		if isinstance(item, curver.kernel.Edge):
-			return self.algebraic[item.index] * item.sign()
-		else:
-			normalised = curver.kernel.norm(item)
-			return self.algebraic[normalised] * (1 if normalised == item else -1)
-	
 	def __len__(self):
 		return self.zeta
 	
 	def __eq__(self, other):
 		return self.triangulation == other.triangulation and \
-			all(v == w for v, w in zip(self.geometric, other.geometric)) and \
-			all(v == w for v, w in zip(self.algebraic, other.algebraic))
+			all(v == w for v, w in zip(self.geometric, other.geometric))
 	def __ne__(self, other):
 		return not (self == other)
 	
 	def __hash__(self):
 		# This should be done better.
-		return hash(tuple(self.geometric) + tuple(self.algebraic))
+		return hash(tuple(self.geometric))
 	
 	def __add__(self, other):
 		if isinstance(other, Lamination):
@@ -85,8 +59,7 @@ class Lamination(object):
 			
 			# Haken sum.
 			geometric = [x + y for x, y in zip(self, other)]
-			algebraic = [x + y for x, y in zip(self.algebraic, other.algebraic)]
-			return Lamination(self.triangulation, geometric, algebraic)
+			return Lamination(self.triangulation, geometric)
 		else:
 			if other == 0:  # So we can use sum.
 				return self
@@ -100,14 +73,12 @@ class Lamination(object):
 				raise ValueError('Laminations must be on the same triangulation to subtract them.')
 			
 			geometric = [x - y for x, y in zip(self, other)]
-			algebraic = [x - y for x, y in zip(self.algebraic, other.algebraic)]
-			return Lamination(self.triangulation, geometric, algebraic)
+			return Lamination(self.triangulation, geometric)
 		else:
 			return NotImplemented
 	def __mul__(self, other):
 		geometric = [other * x for x in self]
-		algebraic = [other * x for x in self]
-		return Lamination(self.triangulation, geometric, algebraic)
+		return Lamination(self.triangulation, geometric)
 	def __rmul__(self, other):
 		return self * other
 	
@@ -207,8 +178,7 @@ class Lamination(object):
 		for index in lamination.triangulation.indices:
 			if lamination(index) < 0:
 				geometric = [0 if i != index else -1 for i in range(self.zeta)]
-				algebraic = [0 if i != index else sign(lamination[i]) for i in range(self.zeta)]
-				component, multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(index))
+				component, multiplicity = Arc(lamination.triangulation, geometric), abs(lamination(index))
 				comp[arc] = multiplicity
 				lamination = lamination - multiplicity * arc
 		
@@ -219,7 +189,7 @@ class Lamination(object):
 				if b == ~d:
 					multiplicity = ??
 					if multiplicity > 0:
-						curve = Curve(lamination.triangulation, geometric, algebraic)
+						curve = Curve(lamination.triangulation, geometric)
 						comp[project(encoding.inverse()(arc))] = multiplicity
 						lamination = lamination - multiplicity * curve
 		
@@ -258,7 +228,6 @@ class Lamination(object):
 		# WLOG: If there is an terminal normal arc in this triangle then it goes through side p.
 		
 		geometric = lamination.geometric + [None] * (2*zeta)
-		algebraic = lamination.algebraic + [None] * (2*zeta)
 		triangles = []
 		for count, triangle in enumerate(lamination.triangulation):
 			dual_weights = self.dual_weights(triangle)
@@ -278,19 +247,16 @@ class Lamination(object):
 			# Record intersections with new edges.
 			if arc_side is None:
 				geometric[i], geometric[j], geometric[k] = dual_weights
-				algebraic[i] = 0
-				algebraic[j] = lamination[r] * r.sign()
-				algebraic[k] = -lamination[q] * q.sign()
 			else:
 				pass
 		
 		T = curver.kernel.Triangulation(triangles)
-		lamination = Lamination(T, geometric, algebraic)
+		lamination = Lamination(T, geometric)
 		
 		def project(lamination):
 			''' Project a good lamination on T back to one on self.triangulation. '''
 			assert(lamination.triangulation == T)
-			return Lamination(self.triangulation, lamination.geometric[:self.zeta], lamination.algebraic[:self.zeta])
+			return Lamination(self.triangulation, lamination.geometric[:self.zeta])
 		
 		to_flip = None
 		encoding = T.id_encoding()
@@ -305,8 +271,7 @@ class Lamination(object):
 			# The only place where an obvious arc could appear is along the new edge we have just introduced.
 			if lamination(to_flip) < 0:
 				geometric = [0 if i != to_flip else -1 for i in range(lamination.zeta)]
-				algebraic = [0 if i != to_flip else sign(lamination[i]) for i in range(lamination.zeta)]
-				component, multiplicity = Arc(lamination.triangulation, geometric, algebraic), abs(lamination(to_flip))
+				component, multiplicity = Arc(lamination.triangulation, geometric), abs(lamination(to_flip))
 				comp[project(encoding.inverse()(arc))] = multiplicity
 				lamination = lamination - multiplicity * arc
 			
@@ -317,7 +282,7 @@ class Lamination(object):
 					if b == ~d:
 						multiplicity = ??
 						if multiplicity > 0:
-							curve = Curve(lamination.triangulation, geometric, algebraic)
+							curve = Curve(lamination.triangulation, geometric)
 							comp[project(encoding.inverse()(arc))] = multiplicity
 							lamination = lamination - multiplicity * curve
 			
@@ -607,10 +572,19 @@ class MultiArc(Lamination):
 		# short is a subset of the edges of the triangulation it is defined on.
 		# So its geometric vector is non-positive.
 		
-		boundary = short.triangulation.lamination([0 if weight < 0 else 2 for weight in short]).promote()
-		# This removes peripheral curves so we can just put 2's on all the edges not in short.
+		geometric = [0 if weight < 0 else 2 for weight in short]
+		changed = True
+		while changed:
+			changed = False
+			for triangle in short.triangulation:
+				if sum(geometric[index] for index in triangle.indices) == 2:
+					for index in triangle.indices:
+						geometric[index] = 0
+					changed = True
 		
-		return boundary
+		boundary = short.triangulation.lamination(geometric).promote()
+		
+		return conjugator.inverse()(boundary)
 
 class Arc(MultiArc):
 	def is_arc(self):

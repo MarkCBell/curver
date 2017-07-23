@@ -401,7 +401,7 @@ class Triangulation(object):
 		return len(self.isometries_to(other)) > 0
 	
 	# Curves we can build on this triangulation.
-	def lamination(self, geometric, algebraic=None, remove_peripheral=True):
+	def lamination(self, geometric, remove_peripheral=True):
 		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
 		if remove_peripheral and False:  # !?!
@@ -418,42 +418,8 @@ class Triangulation(object):
 			if any(peripheral.values()):  # Is there any to add / remove?
 				geometric = [geometric[i] - sum(peripheral[v] for v in self.vertices_of_edge(i)) // 2 for i in range(self.zeta)]
 		
-		if algebraic is not None:
-			lamination = curver.kernel.Lamination(self, geometric, algebraic).promote()
-		else:
-			lamination = curver.kernel.Lamination(self, geometric, [0] * self.zeta).promote()
-			# If we have a curve we should compute the algebraic intersection numbers.
-			if lamination.is_curve():
-				curve = lamination  # Better name.
-				# Note that if the curve is isolating then its algebraic intersection numbers
-				# are all zero and so we can just return curve.
-				if not curve.is_isolating():
-					short_curve, conjugation = curve.conjugate_short()
-					triangulation = short_curve.triangulation
-					
-					# Grab the indices of the two edges we meet.
-					e1, e2 = [edge_index for edge_index in range(short_curve.zeta) if short_curve(edge_index) > 0]
-					
-					a, b, c, d = triangulation.square_about_edge(e1)
-					# If the curve is going vertically through the square then ...
-					if short_curve(a) == 1 and short_curve(c) == 1:
-						# swap the labels round so it goes horizontally.
-						e1, e2 = e2, e1
-						a, b, c, d = triangulation.square_about_edge(e1)
-					elif short_curve(b) == 1 and short_curve(d) == 1:
-						pass
-					
-					# Currently short_curve.algebraic == [0, 0, ..., 0].
-					# So we need to build a new short_curve with the correct algebraic intersection numbers.
-					geometric = short_curve.geometric
-					algebraic = [1 if i == e1 else -b.sign() if i == b.index else 0 for i in range(self.zeta)]
-					
-					new_short_curve = curver.kernel.Curve(triangulation, geometric, algebraic)
-					return conjugation.inverse()(new_short_curve)
-				else:
-					return curve
-			else:
-				return lamination
+		
+		return curver.kernel.Lamination(self, geometric).promote()
 	
 	def empty_lamination(self):
 		''' Return an empty curve on this surface. '''

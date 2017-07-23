@@ -80,13 +80,15 @@ class Encoding(object):
 		(assuming we know source_triangulation and target_triangulation)
 		by Alexanders trick. '''
 		
-		return tuple(entry for curve in self.source_triangulation.key_curves() for vector in [curve.geometric, curve.algebraic] for entry in vector)
+		return tuple(entry for curve in self.source_triangulation.key_curves() for entry in curve)
 	
 	def __eq__(self, other):
 		if isinstance(other, Encoding):
 			if self.source_triangulation != other.source_triangulation or \
 				self.target_triangulation != other.target_triangulation:
 				raise ValueError('Cannot compare Encodings between different triangulations.')
+			
+			# Check homology too.
 			
 			return self.identify() == other.identify()
 		else:
@@ -102,13 +104,11 @@ class Encoding(object):
 				raise ValueError('Cannot apply an Encoding to a Lamination on a triangulation other than source_triangulation.')
 			
 			geometric = other.geometric
-			algebraic = other.algebraic
 			
 			for item in reversed(self.sequence):
 				geometric = item.apply_geometric(geometric)
-				algebraic = item.apply_algebraic(algebraic)
 			
-			return other.__class__(self.target_triangulation, geometric, algebraic)
+			return other.__class__(self.target_triangulation, geometric)
 		else:
 			return NotImplemented
 	def __mul__(self, other):

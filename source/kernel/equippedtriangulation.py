@@ -156,8 +156,8 @@ class EquippedTriangulation(object):
 		sequence = [item for letter in self.decompose_word(word) for item in self.mapping_classes[letter]]
 		return curver.kernel.Encoding(sequence) if len(sequence) > 0 else self.triangulation.id_encoding()
 	
-	def lamination(self, geometric, algebraic=None, remove_peripheral=True):
+	def lamination(self, geometric, remove_peripheral=True):
 		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
-		return self.triangulation.lamination(geometric, algebraic, remove_peripheral)
+		return self.triangulation.lamination(geometric, remove_peripheral)
 
