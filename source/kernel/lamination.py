@@ -398,30 +398,6 @@ class Curve(MultiCurve):
 		twist_k = triangulation.encode([(e1, k)])
 		return conjugation.inverse() * twist_k * conjugation
 	
-	def is_halftwistable(self):
-		''' Return if this curve is a half twistable curve. '''
-		
-		# This is based off of self.encode_halftwist(). See the documentation there as to why this works.
-		
-		short, _ = self.conjugate_short()
-		
-		triangulation = short.triangulation
-		
-		e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
-		
-		a, b, c, d = triangulation.square_about_edge(e1)
-		if short(a) == 1 and short(c) == 1:
-			e1, e2 = e2, e1
-			a, b, c, d = triangulation.square_about_edge(e1)
-		elif short(b) == 1 and short(d) == 1:
-			pass
-		
-		_, _, z, w = triangulation.square_about_edge(a.label)
-		_, _, x, y = triangulation.square_about_edge(c.label)
-		
-		return z == ~w or x == ~y
-	
-	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination.
 		
@@ -576,9 +552,6 @@ class Arc(MultiArc):
 			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
 			return conjugation.inverse() * short_boundary.encode_twist(k // 2) * half_twist * conjugation
 	
-	
-	
-	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''
 		
@@ -590,6 +563,4 @@ class Arc(MultiArc):
 		short_lamination = conjugator(lamination)
 		
 		return sum(b for a, b in zip(short_self, short_lamination) if a == -1 and b >= 0)
-	
-	
 
