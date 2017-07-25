@@ -11,12 +11,12 @@ import curver
 
 INFTY = float('inf')
 
-def norm(value):
+def norm(number):
 	''' A map taking an edges label to its index.
 	
 	That is, x and ~x should map to the same thing. '''
 	
-	return max(value, ~value)
+	return max(number, ~number)
 
 class Edge(object):
 	''' This represents an oriented edge, labelled with an integer.
@@ -38,14 +38,16 @@ class Edge(object):
 		return ('' if self.sign() == +1 else '~') + str(self.index)
 	def __reduce__(self):
 		# Having __slots__ means we need to pickle manually.
-		return (self.__class__, (self.label, None))
-	def __hash__(self):
-		return hash(self.label)
+		return (self.__class__, (self.label,))
 	def __eq__(self, other):
 		if isinstance(other, Edge):
 			return self.label == other.label
 		else:
 			return NotImplemented
+	def __ne__(self, other):
+		return not (self == other)
+	def __hash__(self):
+		return hash(self.label)
 	
 	def __invert__(self):
 		''' Return this edge but with reversed orientation. '''
@@ -64,7 +66,7 @@ class Triangle(object):
 	It builds its corners automatically. '''
 	
 	# Warning: This needs to be updated if the interals of this class ever change.
-	__slots__ = ['edges', 'labels', 'indices', 'vertices', 'corners']
+	__slots__ = ['edges', 'labels', 'indices']
 	
 	def __init__(self, edges, rotate=None):
 		assert(isinstance(edges, (list, tuple)))
@@ -87,13 +89,15 @@ class Triangle(object):
 	def __reduce__(self):
 		# Having __slots__ means we need to pickle manually.
 		return (self.__class__, (self.edges,))
-	def __hash__(self):
-		return hash(tuple(self.labels))
 	def __eq__(self, other):
 		if isinstance(other, Triangle):
 			return self.labels == other.labels
 		else:
 			return NotImplemented
+	def __ne__(self, other):
+		return not (self == other)
+	def __hash__(self):
+		return hash(tuple(self.labels))
 	def __len__(self):
 		return 3  # This is needed for revered(triangle) to work.
 	
@@ -226,6 +230,8 @@ class Triangulation(object):
 		return self.signature == other.signature
 	def __ne__(self, other):
 		return not(self == other)
+	def __hash__(self):
+		return hash(tuple(self.signature))
 	
 	def is_flippable(self, edge_label):
 		''' Return if the given edge is flippable.
@@ -246,9 +252,9 @@ class Triangulation(object):
 		return boundary_edge
 	
 	def square_about_edge(self, edge_label):
-		''' Return the four edges around the given edge.
+		''' Return the four edges around the given edge and the diagonal.
 		
-		The chosen edge must be flippable. '''
+		The given edge must be flippable. '''
 		
 		assert(self.is_flippable(edge_label))
 		
@@ -269,8 +275,9 @@ class Triangulation(object):
 		# #---------->#
 		
 		corner_A, corner_B = self.corner_lookup[edge_label], self.corner_lookup[~edge_label]
-		return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2]]
+		return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], self.edge_lookup[edge_label]]
 	
+	# Build new triangulations:
 	def flip_edge(self, edge_label):
 		''' Return a new triangulation obtained by flipping the given edge.
 		
@@ -298,8 +305,7 @@ class Triangulation(object):
 		# Most triangles don't change.
 		triangles = [Triangle([edge_map[edge] for edge in triangle]) for triangle in self if edge_label not in triangle.labels and ~edge_label not in triangle.labels]
 		
-		a, b, c, d = self.square_about_edge(edge_label)
-		e = self.edge_lookup[edge_label]
+		a, b, c, d, e = self.square_about_edge(edge_label)
 		
 		triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
 		triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
@@ -411,46 +417,23 @@ class Triangulation(object):
 		
 		return len(self.isometries_to(other)) > 0
 	
-	# Curves we can build on this triangulation.
-	def lamination(self, geometric, remove_peripheral=True):
+	# Laminations we can build on this triangulation.
+	def lamination(self, geometric):
 		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
-		if remove_peripheral and False:  # !?!
-			# Compute how much peripheral component there is on each corner class.
-			# This will also check that the triangle inequalities are satisfied. When
-			# they fail one of peripheral.values() is negative, which is non-zero and
-			# so triggers the correction.
-			def dual_weight(corner):
-				''' Return double the weight of normal arc corresponding to the given corner. '''
-				
-				return geometric[corner.indices[1]] + geometric[corner.indices[2]] - geometric[corner.index]
-			
-			peripheral = dict((vertex, min(dual_weight(corner) for corner in self.corner_class_of_vertex(vertex))) for vertex in self.vertices)
-			if any(peripheral.values()):  # Is there any to add / remove?
-				geometric = [geometric[i] - sum(peripheral[v] for v in self.vertices_of_edge(i)) // 2 for i in range(self.zeta)]
-		
-		
-		return curver.kernel.Lamination(self, geometric).promote()
+		return curver.kernel.Lamination.from_weights(self, geometric)
 	
 	def empty_lamination(self):
 		''' Return an empty curve on this surface. '''
 		
-		return self.lamination([0] * self.zeta, [0] * self.zeta)
+		return self.lamination([0] * self.zeta)
 	
-	def key_curves(self):
-		''' Return a list of curves which fill the underlying surface.
+	def edge_arcs(self):
+		''' Return a list containing the Arc representing each Edge.
 		
-		As these fill, by Alexander's trick a mapping class is the identity
-		if and only if it fixes all of them, including orientation. '''
+		As these fill, by Alexander's trick a mapping class is the identity if and only if it fixes all of them. '''
 		
-		curves = []
-		
-		for index in self.indices:
-			arc = curver.kernel.Arc(self, [1 if i == index else 0 for i in range(self.zeta)], [1 if i == index else 0 for i in range(self.zeta)])
-			for component in arc.boundary().components():
-				curves.append(component)
-		
-		return curves
+		return [self.lamination([0 if i != index else -1 for i in range(self.zeta)]) for index in self.indices]
 	
 	def id_isometry(self):
 		''' Return the isometry representing the identity map. '''
@@ -512,6 +495,7 @@ class Triangulation(object):
 		 - A dictionary which has i or ~i as a key (for every i) represents a relabelling.
 		 - A dictionary which is missing i and ~i (for some i) represents an isometry back to this triangulation.
 		 - None represents the identity isometry.
+		 - A pair of integers (x, k) represents a Spiral about x to the power k.
 		
 		This sequence is read in reverse in order respect composition. For example:
 			self.encode([1, {1: ~2}, 2, 3, ~4])
@@ -520,46 +504,34 @@ class Triangulation(object):
 		then finally flips edge 1. '''
 		
 		assert(isinstance(sequence, (list, tuple)))
+		assert(len(sequence) > 0)
 		
+		T = self
 		h = None
 		for item in reversed(sequence):
 			if isinstance(item, curver.IntegerType):  # Flip.
-				if h is None:
-					h = self.encode_flip(item)
-				else:
-					h = h.target_triangulation.encode_flip(item) * h
+				g = T.encode_flip(item)
 			elif isinstance(item, dict):  # Isometry.
-				if h is None:
-					h = self.encode_relabel_edges(item)
-				elif all(i in item or ~i in item for i in self.indices):
-					h = h.target_triangulation.encode_relabel_edges(item) * h
+				if all(i in item or ~i in item for i in self.indices):
+					g = T.encode_relabel_edges(item)
 				else:  # If some edges are missing then we assume that we must be mapping back to this triangulation.
-					h = h.target_triangulation.find_isometry(self, item).encode() * h
+					g = T.find_isometry(self, item).encode()
 			elif item is None:  # Identity isometry.
-				if h is None:
-					h = self.id_encoding()
-				else:
-					h = h.target_triangulation.id_encoding() * h
-			elif isinstance(item, tuple) and len(item) == 2:  # Spiral
-				if h is None:
-					h = self.encode_spiral(item[0], item[1])
-				else:
-					h = h.target_triangulation.encode_spiral(item[0], item[1]) * h
+				h = T.id_encoding()
+			elif isinstance(item, tuple) and len(item) == 2 and all(isinstance(x, curver.IntegerType) for x in item):  # Spiral
+				g = T.encode_spiral(item[0], item[1])
 			elif isinstance(item, curver.kernel.Encoding):  # Encoding.
-				if h is None:
-					h = item
-				else:
-					h = item * h
+				g = item
 			elif isinstance(item, curver.kernel.Move):  # Move.
-				if h is None:
-					h = item.encode()
-				else:
-					h = item.encode() * h
+				g = item.encode()
 			else:  # Other.
-				if h is None:
-					h = item.encode()
-				else:
-					h = item.encode() * h
+				g = item.encode()
+			
+			if h is None:
+				h = g
+			else:
+				h = g * h
+			T = h.target_triangulation
 		
 		return h
 

@@ -80,15 +80,13 @@ class Encoding(object):
 		(assuming we know source_triangulation and target_triangulation)
 		by Alexanders trick. '''
 		
-		return tuple(entry for curve in self.source_triangulation.key_curves() for entry in curve)
+		return tuple(self(arc) for arc in self.source_triangulation.edge_arcs())
 	
 	def __eq__(self, other):
 		if isinstance(other, Encoding):
 			if self.source_triangulation != other.source_triangulation or \
 				self.target_triangulation != other.target_triangulation:
 				raise ValueError('Cannot compare Encodings between different triangulations.')
-			
-			# Check homology too.
 			
 			return self.identify() == other.identify()
 		else:
@@ -99,16 +97,16 @@ class Encoding(object):
 		return hash(self.identify())
 	
 	def __call__(self, other):
-		if isinstance(other, curver.kernel.Lamination):
+		if isinstance(other, curver.kernel.Leaf):
 			if self.source_triangulation != other.triangulation:
-				raise ValueError('Cannot apply an Encoding to a Lamination on a triangulation other than source_triangulation.')
-			
-			geometric = other.geometric
+				raise ValueError('Cannot apply an Encoding to a Leaf on a triangulation other than source_triangulation.')
 			
 			for item in reversed(self.sequence):
-				geometric = item.apply_geometric(geometric)
+				other = item(other)
 			
-			return other.__class__(self.target_triangulation, geometric)
+			return other
+		elif isinstance(other, curver.kernel.Lamination):
+			return other.__class__(self.target_triangulation, {self(component): multiplicity for multiplicity, component in other})
 		else:
 			return NotImplemented
 	def __mul__(self, other):
@@ -167,13 +165,13 @@ class Encoding(object):
 		#	if self**i == self.source_triangulation.id_encoding():
 		#		return i
 		# But this is quadratic in the order so instead we do:
-		curves = self.source_triangulation.key_curves()
+		arcs = self.source_triangulation.edge_arcs()
 		possible_orders = set(range(1, self.source_triangulation.max_order+1))
-		for curve in curves:
-			curve_image = curve
+		for arc in arcs:
+			arc_image = arc
 			for i in range(1, max(possible_orders)+1):
-				curve_image = self(curve_image)
-				if curve_image != curve:
+				arc_image = self(arc_image)
+				if arc_image != arc:
 					possible_orders.discard(i)
 					if not possible_orders: return 0  # No finite orders remain so we are infinite order.
 		
@@ -188,7 +186,7 @@ class Encoding(object):
 		False
 		'''
 		
-		return self.is_mapping_class() and all(self(curve) == curve for curve in self.source_triangulation.key_curves())
+		return self.is_mapping_class() and self.order() == 1
 	
 	def is_periodic(self):
 		''' Return if this encoding has finite order.

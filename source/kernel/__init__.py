@@ -17,6 +17,7 @@ from . import encoding
 from . import error
 from . import equippedtriangulation
 from . import lamination
+from . import leaf
 from . import moves
 from . import triangulation
 
@@ -33,6 +34,9 @@ MultiCurve = lamination.MultiCurve
 Curve = lamination.Curve
 MultiArc = lamination.MultiArc
 Arc = lamination.Arc
+Leaf = leaf.Leaf
+ClosedLeaf = leaf.ClosedLeaf
+OpenLeaf = leaf.OpenLeaf
 Move = moves.Move
 Isometry = moves.Isometry
 EdgeFlip = moves.EdgeFlip

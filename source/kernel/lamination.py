@@ -7,190 +7,91 @@ import curver
 
 INFTY = float('inf')
 
-def sign(number):
-	return 1 if number > 0 else 0 if number  == 0 else -1  # if number < 0.
-
 class Lamination(object):
 	''' This represents a lamination on an triangulation.
 	
-	It is given by a list of its geometric intersection numbers.
-	Users should use Triangulation.lamination() to create laminations. '''
-	def __init__(self, triangulation, geometric):
-		assert(isinstance(triangulation, curver.kernel.Triangulation))
-		assert(isinstance(geometric, (list, tuple)))
-		# We should check that geometric satisfies reasonable relations.
+	Users can use Triangulation.lamination() as an alias for Lamination.from_weights(triangulation, ...). '''
+	def __init__(self, triangulation, components):
+		assert(isinstance(components, dict))
 		
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta
-		self.geometric = list(geometric)
-		assert(len(self.geometric) == self.zeta)
+		self.components = components
+		# Could sanity check:
+		# assert(all(c1.intersection(c2) == 0 for c1 in self for c2 in self))
+		self.geometric = [sum(multiplicty * component(index) for component, multiplicity in self) for index in triangulation.indices]
 	
 	def __repr__(self):
 		return str(self)
 	def __str__(self):
 		return str(self.geometric)
 	def __iter__(self):
-		return iter(self.geometric)
-	
+		return iter(self.components.items())
+	def __len__(self):
+		return sum(self.components.values())  # Total number of components.
 	def __call__(self, item):
 		''' Return the geometric measure assigned to item. '''
-		if isinstance(item, curver.kernel.Edge):
-			return self.geometric[item.index]
-		else:
-			return self.geometric[curver.kernel.norm(item)]
-	
-	def __len__(self):
-		return self.zeta
-	
+		# Could use self.geometric.
+		return sum(multiplicity * component(item) for component, multiplicity in self)
 	def __eq__(self, other):
-		return self.triangulation == other.triangulation and \
-			all(v == w for v, w in zip(self.geometric, other.geometric))
+		return self.triangulation == other.triangulation and self.components == other.components
 	def __ne__(self, other):
 		return not (self == other)
-	
 	def __hash__(self):
-		# This should be done better.
-		return hash(tuple(self.geometric))
-	
-	def __add__(self, other):
-		if isinstance(other, Lamination):
-			if other.triangulation != self.triangulation:
-				raise ValueError('Laminations must be on the same triangulation to add them.')
-			
-			# Haken sum.
-			geometric = [x + y for x, y in zip(self, other)]
-			return Lamination(self.triangulation, geometric)
-		else:
-			if other == 0:  # So we can use sum.
-				return self
-			else:
-				return NotImplemented
-	def __radd__(self, other):
-		return self + other
-	def __sub__(self, other):
-		if isinstance(other, Lamination):
-			if other.triangulation != self.triangulation:
-				raise ValueError('Laminations must be on the same triangulation to subtract them.')
-			
-			geometric = [x - y for x, y in zip(self, other)]
-			return Lamination(self.triangulation, geometric)
-		else:
-			return NotImplemented
-	def __mul__(self, other):
-		geometric = [other * x for x in self]
-		return Lamination(self.triangulation, geometric)
-	def __rmul__(self, other):
-		return self * other
-	
-	def is_empty(self):
-		''' Return if this lamination is equal to the empty lamination. '''
-		
-		return not any(self)
-	
-	def isometries_to(self, other):
-		''' Return a list of isometries taking this lamination to other. '''
-		
-		assert(isinstance(other, Lamination))
-		
-		return [isom for isom in self.triangulation.isometries_to(other.triangulation) if other== isom.encode()(self)]
-	
-	def self_isometries(self):
-		''' Return a list of isometries taking this lamination to itself. '''
-		
-		return self.isometries_to(self)
+		return hash(self.geometric)
 	
 	def weight(self):
-		''' Return the geometric intersection of this lamination with its underlying triangulation. '''
+		''' Return the geometric intersection of this leaf with its underlying triangulation. '''
 		
-		return sum(abs(x) for x in self.geometric)
+		return sum(multiplicity * component.weight() for component, multiplicity in self)
 	
-	def conjugate_short(self):
-		''' Return an encoding which maps this lamination to a lamination with as little weight as possible. '''
+	def shorten(self):
+		''' Return an encoding obtained by shortening each component in turn together with the image of self. '''
 		
-		# Repeatedly flip to reduce the weight of this lamination as much as possible.
-		# Needs to be made polynomial-time by taking advantage of spiralling.
+		conjugator = self.triangulation.id_encoding()
+		for component, _ in self:
+			conj, _ = conjugator(component).shorten()
+			conjugator = conj * conjugator
 		
-		lamination = self
-		conjugation = lamination.triangulation.id_encoding()
-		
-		def weight_change(lamination, edge_index):
-			''' Return how much the weight would change by if this flip was done. '''
-			
-			if lamination(edge_index) == 0 or not lamination.triangulation.is_flippable(edge_index): return INFTY
-			a, b, c, d = lamination.triangulation.square_about_edge(edge_index)
-			return max(lamination(a) + lamination(c), lamination(b) + lamination(d)) - 2 * lamination(edge_index)
-		
-		weight = lamination.weight()
-		old_weight = weight + 1
-		old_old_weight = old_weight + 1
-		possible_edges = lamination.triangulation.indices
-		drops = sorted([(weight_change(lamination, i), i) for i in possible_edges])
-		# If we ever fail to make progress more than once then the lamination is as short as it's going to get.
-		while weight < old_old_weight:
-			# Find the edge which decreases our weight the most.
-			# If none exist then it doesn't matter which edge we flip, so long as it meets the lamination.
-			_, edge_index = drops[0]
-			
-			forwards = lamination.triangulation.encode_flip(edge_index)
-			conjugation = forwards * conjugation
-			lamination = forwards(lamination)
-			weight, old_weight, old_old_weight = lamination.weight(), weight, old_weight
-			
-			# Update new neighbours.
-			changed_indices = set([edge.index for edge in lamination.triangulation.square_about_edge(edge_index)] + [edge_index])
-			drops = sorted([(d, i) if i not in changed_indices else (weight_change(lamination, i), i) for (d, i) in drops])  # This should be lightning fast since the list was basically sorted already.
-			# If performance really becomes an issue then we could look at using heapq.
-		
-		return lamination, conjugation
+		return conjugator, conjugator(self)
 	
-	def dual_weights(self, triangle):
-		''' Return the number of component of this lamination dual to each side of the given triangle.
+	@classmethod
+	def from_weights(cls, triangulation, weights):
+		''' Return the Lamination determined by the specified weights.
 		
-		Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
-		
-		weights = [self(index) for index in triangle.indices]
-		correction = min(weights[(i+1)%3] + weights[(i+2)%3] - weights[i] for i in range(3))
-		if correction >= 0:  # No terminal arcs.
-			return [(weights[(i+1)%3] + weights[(i+2)%3] - weights[i]) // 2 for i in range(3)]
-		else:  # Terminal arc.
-			return [(weights[(i+1)%3] + weights[(i+2)%3] - weights[i] + correction) // 2 for i in range(3)]
-	
-	def arc_side(self, triangle):
-		dual_weights = self.dual_weights(triangle)
-		arc = min(dual_weights)
-		if arc >= 0:  # No arc.
-			return None
-		else:
-			return dual_weights.index(arc)
-	
-	def components(self):
-		''' Return a dictionary mapping the Curves and Arcs that appear in this lamination to their multiplicities. '''
-		
-		# Probably should cache.
+		Note: We currently install arbitary orientations on each component. '''
 		
 		return NotImplemented
 		
-		comp = dict()
+		components = dict()
 		
-		lamination = self
+		# This is not really a Leaf but that has the right methods to make our lives easy.
+		leaves = curver.kernel.Leaf(triangulation, weights, dict())
+		
+		# TODO: Modify geometric to remove any peripheral components before starting.
+		# Until this is done MultiArc.boundary() wont work correctly.
+		
+		# max(min(leaves.dual_weight(leaves.triangulation.corner_lookup[edge.label].indices[1]) for edge in vertex_class), 0) for 
+		# peripheral = dict((vertex, min(dual_weight(corner) for corner in self.corner_class_of_vertex(vertex))) for vertex in self.vertices)
+		# geometric = [geometric[i] - sum(peripheral[v] for v in self.vertices_of_edge(i)) // 2 for i in range(self.zeta)]
 		
 		# Remove all the obvious arcs. This reduces the number of cases we have to consider later.
-		for index in lamination.triangulation.indices:
-			if lamination(index) < 0:
+		for index in leaves.triangulation.indices:
+			if leaves(index) < 0:
 				geometric = [0 if i != index else -1 for i in range(self.zeta)]
-				component, multiplicity = Arc(lamination.triangulation, geometric), abs(lamination(index))
-				comp[arc] = multiplicity
+				component, multiplicity = curver.kernel.OpenLeaf(lamination.triangulation, geometric, orientations).with_orientation(), abs(lamination(index))
+				components[arc] = multiplicity
 				lamination = lamination - multiplicity * arc
 		
 		# Remove all the obvious curves. This reduces the number of places we have to look for new curves later.
 		for index in lamination.triangulation.indices:
 			if lamination.triangulation.is_flippable(index):
-				a, b, c, d = lamination.triangulation.square_about_edge(index)
+				a, b, c, d, e = lamination.triangulation.square_about_edge(index)
 				if b == ~d:
 					multiplicity = ??
 					if multiplicity > 0:
-						curve = Curve(lamination.triangulation, geometric)
-						comp[project(encoding.inverse()(arc))] = multiplicity
+						curve = curver.kernel.ClosedLeaf(lamination.triangulation, geometric).with_orientation()
+						components[curve] = multiplicity
 						lamination = lamination - multiplicity * curve
 		
 		# Now in each triangle lamination looks like one of the following types:
@@ -225,7 +126,7 @@ class Lamination(object):
 		#    /</             \>\
 		#   /-------------------\
 		#             p
-		# WLOG: If there is an terminal normal arc in this triangle then it goes through side p.
+		# WLOG: If there is a terminal normal arc in this triangle then it goes through side p.
 		
 		geometric = lamination.geometric + [None] * (2*zeta)
 		triangles = []
@@ -248,7 +149,7 @@ class Lamination(object):
 			if arc_side is None:
 				geometric[i], geometric[j], geometric[k] = dual_weights
 			else:
-				pass
+				pass  # !?!
 		
 		T = curver.kernel.Triangulation(triangles)
 		lamination = Lamination(T, geometric)
@@ -271,43 +172,38 @@ class Lamination(object):
 			# The only place where an obvious arc could appear is along the new edge we have just introduced.
 			if lamination(to_flip) < 0:
 				geometric = [0 if i != to_flip else -1 for i in range(lamination.zeta)]
-				component, multiplicity = Arc(lamination.triangulation, geometric), abs(lamination(to_flip))
-				comp[project(encoding.inverse()(arc))] = multiplicity
+				component, multiplicity = curver.kernel.OpenLeaf(lamination.triangulation, geometric).with_orientation(), abs(lamination(to_flip))
+				components[project(encoding.inverse()(component))] = multiplicity
 				lamination = lamination - multiplicity * arc
 			
 			# The only places where a short curve could appear is across an edge adjacent to the one we just flipped.
 			for edge in lamination.triangulation.square_about_edge(to_flip):
 				if lamination.triangulation.is_flippable(edge.label):
-					a, b, c, d = lamination.triangulation.square_about_edge(edge.label)
+					a, b, c, d, e = lamination.triangulation.square_about_edge(edge.label)
 					if b == ~d:
 						multiplicity = ??
 						if multiplicity > 0:
-							curve = Curve(lamination.triangulation, geometric)
-							comp[project(encoding.inverse()(arc))] = multiplicity
+							component = curver.kernel.ClosedLeaf(lamination.triangulation, geometric).with_orientation()
+							components[project(encoding.inverse()(component))] = multiplicity
 							lamination = lamination - multiplicity * curve
 			
 			# Accelerate!!
 			
 			to_flip = ??
 		
-		return comp
-	
-	def skeleton(self):
-		''' Return the lamination obtained by collapsing parallel components. '''
-		
-		return sum(self.components())
+		return Lamination(triangulation, components).promote()
 	
 	def is_multicurve(self):
-		return all(isinstance(component, Curve) for component in self.components())
+		return all(isinstance(component, curver.kernel.ClosedLeaf) for component, _ in self)
 	
 	def is_curve(self):
-		return self.is_multicurve() and sum(self.components().values()) == 1
+		return self.is_multicurve() and len(self) == 1
 	
 	def is_multiarc(self):
-		return all(isinstance(component, Arc) for component in self.components())
+		return all(isinstance(component, curver.kernel.OpenLeaf) for component, _ in self)
 	
 	def is_arc(self):
-		return self.is_multiarc() and sum(self.components().values()) == 1
+		return self.is_multiarc() and len(self) == 1
 	
 	def promote(self):
 		if self.is_multicurve():
@@ -322,23 +218,32 @@ class Lamination(object):
 				self.__class__ = MultiArc
 		return self
 	
+	def is_empty(self):
+		''' Return if this lamination has no components. '''
+		
+		return len(self) == 0
+	
+	def skeleton(self):
+		''' Return the lamination obtained by collapsing parallel components. '''
+		
+		return Lamination(self.triangulation, {component: 1 for component, _ in self})
+	
 	def intersection(self, lamination):
 		''' Return the geometric intersection number between this lamination and the given one. '''
 		
-		return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.components().items())
-
+		assert(isinstance(lamination, Lamination))
+		
+		return sum(m1 * m2 * c1.intersection(c2) for c1, m1 in self for c2, m2 in lamination)
 
 class MultiCurve(Lamination):
+	''' A Lamination in which every component is a ClosedLeaf. '''
 	def is_multicurve(self):
 		return True
 	def is_multiarc(self):
 		return False
 
-class Curve(MultiCurve):
-	def is_curve(self):
-		return True
-	def components(self):
-		return {self: 1}
+class Curve(Multicurve):
+	''' A MultiCurve with a single component. '''
 	
 	def is_isolating(self):
 		''' Return if this curve is an isolating curve.
@@ -347,7 +252,7 @@ class Curve(MultiCurve):
 		
 		# This is based off of self.encode_twist(). See the documentation there as to why this works.
 		
-		short, _ = self.conjugate_short()
+		short, _ = self.shorten()
 		
 		return short.weight() == 2
 	
@@ -360,18 +265,18 @@ class Curve(MultiCurve):
 		
 		if k == 0: return self.triangulation.id_encoding()
 		
-		short, conjugation = self.conjugate_short()
+		short, conjugation = self.shorten()
 		
 		triangulation = short.triangulation
 		# Grab the indices of the two edges we meet.
 		e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
 		
-		a, b, c, d = triangulation.square_about_edge(e1)
+		a, b, c, d, e = triangulation.square_about_edge(e1)
 		# If the curve is going vertically through the square then ...
 		if short(a) == 1 and short(c) == 1:
 			# swap the labels round so it goes horizontally.
 			e1, e2 = e2, e1
-			a, b, c, d = triangulation.square_about_edge(e1)
+			a, b, c, d, e = triangulation.square_about_edge(e1)
 		elif short(b) == 1 and short(d) == 1:
 			pass
 		
@@ -389,50 +294,14 @@ class Curve(MultiCurve):
 		# | /         |
 		# V/    c     |
 		# #---------->#
-		# And e.index = e1 and b.index = d.index = e2.
+		# And e.index = e1 and b == ~d
 		
-		# Used to do:
-		# twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [e1, e2]}, e1]))
-		# return conjugation.inverse() * twist**k * conjugation
+		twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [e1, e2]}, e1]))
+		return conjugation.inverse() * twist**k * conjugation
 		
+		# Once Spiral is working we can do:
 		twist_k = triangulation.encode([(e1, k)])
 		return conjugation.inverse() * twist_k * conjugation
-	
-	def intersection(self, lamination):
-		''' Return the geometric intersection between self and the given lamination.
-		
-		Currently assumes (and checks) that self is a non-isolating curve. '''
-		
-		assert(isinstance(lamination, Lamination))
-		assert(lamination.triangulation == self.triangulation)
-		
-		if self.is_isolating():
-			raise curver.AssumptionError('Can only compute geometric intersection number between a non-isolating curve and a lamination.')
-		
-		short_self, conjugator = self.conjugate_short()
-		short_lamination = conjugator(lamination)
-		
-		triangulation = short_self.triangulation
-		e1, e2 = [edge_index for edge_index in triangulation.indices if short_self(edge_index) > 0]
-		# We might need to swap these edge indices so we have a good frame of reference.
-		if triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
-		
-		a, b, c, d = triangulation.square_about_edge(e1)
-		e = e1
-		
-		x = (short_lamination(a) + short_lamination(b) - short_lamination(e)) // 2
-		y = (short_lamination(b) + short_lamination(e) - short_lamination(a)) // 2
-		z = (short_lamination(e) + short_lamination(a) - short_lamination(b)) // 2
-		x2 = (short_lamination(c) + short_lamination(d) - short_lamination(e)) // 2
-		y2 = (short_lamination(d) + short_lamination(e) - short_lamination(c)) // 2
-		z2 = (short_lamination(e) + short_lamination(c) - short_lamination(d)) // 2
-		
-		intersection_number = short_lamination(a) - 2 * min(x, y2, z)
-		
-		# Check that the other formula gives the same answer.
-		assert(intersection_number == short_lamination(c) - 2 * min(x2, y, z2))
-		
-		return intersection_number
 	
 	def quasiconvex(self, other):
 		''' Return a polynomial-sized quasiconvex subset of the curve complex that contains self and other. '''
@@ -458,8 +327,8 @@ class Curve(MultiCurve):
 		
 		return NotImplemented
 
-
 class MultiArc(Lamination):
+	''' A Lamination in which every component is an OpenLeaf. '''
 	def is_multicurve(self):
 		return False
 	def is_multiarc(self):
@@ -468,7 +337,9 @@ class MultiArc(Lamination):
 	def boundary(self):
 		''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
 		
-		short, conjugator = self.conjugate_short()
+		# TODO: Should build correct orientations on boundary components.
+		
+		short, conjugator = self.shorten()
 		# short is a subset of the edges of the triangulation it is defined on.
 		# So its geometric vector is non-positive.
 		
@@ -487,10 +358,7 @@ class MultiArc(Lamination):
 		return conjugator.inverse()(boundary)
 
 class Arc(MultiArc):
-	def is_arc(self):
-		return True
-	def components(self):
-		return {self: 1}
+	''' A MultiArc with a single component. '''
 	
 	def encode_halftwist(self, k=1):
 		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc raised to the power k.
@@ -499,16 +367,19 @@ class Arc(MultiArc):
 		Currently, the boundary curve must also be non-isolating. '''
 		
 		boundary = self.boundary()
-		if not isinstance(boundary, Curve):
+		if not isinstance(boundary, Curve):  # isinstance(boundary, MultiCurve):
 			raise curver.AssumptionError('Arc connects a vertex to itself.')
+		
+		if boundary.is_empty():  # Surface == S_{0, 3}:
+			return  # !?!
 		
 		if k % 2 == 0:  # k is even so use a Dehn twist about the boundary.
 			return boundary.encode_twist(k // 2)
 		
-		short_boundary, conjugation = boundary.conjugate_short()
+		short_boundary, conjugation = boundary.shorten()
 		short = conjugation(self)
 		
-		if not short_boundary.weight() == 2:  # boundary.is_isolating().
+		if not short_boundary.weight() == 2:  # not boundary.is_isolating().
 			raise curver.AssumptionError('Boundary curve is isolating.')
 		
 		[arc_index] = [index for index in short.triangulation.indices if short(index) != 0]
@@ -539,9 +410,8 @@ class Arc(MultiArc):
 		# Where d == ~b and x == ~y.
 		
 		c = ~triangulation.folded_boundary(arc_index)
-		d, tilde_e, _, _ = triangulation.square_about_edge(c.label)
-		e = ~tilde_e
-		a, b, c, d = triangulation.square_about_edge(e.label)
+		_, tilde_e, _, _, _ = triangulation.square_about_edge(c.label)
+		a, b, c, d, e = triangulation.square_about_edge(~tilde_e.label)
 		
 		half_twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [b.index, e.index, c.index, x.index]}, b.index, e.index, c.index])
 		
@@ -552,15 +422,4 @@ class Arc(MultiArc):
 			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
 			return conjugation.inverse() * short_boundary.encode_twist(k // 2) * half_twist * conjugation
 	
-	def intersection(self, lamination):
-		''' Return the geometric intersection between self and the given lamination. '''
-		
-		assert(isinstance(lamination, Lamination))
-		assert(lamination.triangulation == self.triangulation)
-		
-		# short_self = [0, 0, ..., 0, -1, 0, ..., 0]
-		short_self, conjugator = self.conjugate_short()
-		short_lamination = conjugator(lamination)
-		
-		return sum(b for a, b in zip(short_self, short_lamination) if a == -1 and b >= 0)
 
