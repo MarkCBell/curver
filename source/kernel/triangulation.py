@@ -387,7 +387,7 @@ class Triangulation(object):
 		if self.zeta != other.zeta:
 			return []
 		
-		# !?! This needs to be modified to work on disconnected surfaces.
+		# TODO: Modify this to work on disconnected surfaces.
 		
 		# Isometries are determined by where a single triangle is sent.
 		# We take a corner of smallest degree.
@@ -418,10 +418,58 @@ class Triangulation(object):
 		return len(self.isometries_to(other)) > 0
 	
 	# Laminations we can build on this triangulation.
-	def lamination(self, geometric):
-		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
+	def lamination(self, weights):
+		''' Return a new lamination on this surface assigning the specified weight to each edge.
 		
-		return curver.kernel.Lamination.from_weights(self, geometric)
+		Note: We install arbitary orientations on each component. '''
+		
+		
+		assert(len(weights) == self.zeta)
+		
+		# Remove any peripheral components before starting.
+		peripherals = [0] * self.zeta
+		for vertex in self.vertex_classes:
+			peripheral = INFTY
+			for edge in vertex:
+				triangle = self.corner_lookup[edge.label]
+				peripheral = min(peripheral, curver.kernel.leaf.dual_weight(weights[triangle.indices[0]], weights[triangle.indices[2]], weights[triangle.indices[1]]))
+			for edge in vertex:
+				peripherals[edge.index] += max(peripheral, 0)
+		weights = [weight - peripheral for weight, peripheral in zip(weights, peripherals)]  # Remove the peripheral components.
+		
+		components = dict()
+		
+		# Find all the arcs parallel to edges.
+		for index in self.indices:
+			if weights[index] < 0:  # Parallel arcs.
+				geometric = [0 if i != index else -1 for i in range(self.zeta)]
+				multiplicity = abs(weights[index])
+				component  = curver.kernel.OpenLeaf(self, geometric)
+				components[component] = multiplicity
+		weights = [max(weight, 0) for weight in weights]  # Discard the parallel arcs.
+		
+		blocks = []  # TODO: Create the blocks.
+		
+		triples = [self.corner_lookup[label].indices for label in self.labels]
+		for geometric, multplicity in curver.kernel.AHT.components(blocks):
+			if all(geometric[a] + geometric[b] - geometric[c] >= 0 for (a, b, c) in triples):  # No terminal normal arcs.
+				component = curver.kernel.ClosedLeaf(self, geometric)
+			else:
+				component = curver.kernel.OpenLeaf(self, geometric)
+			components[component] = multiplicity
+		
+		return curver.kernel.Lamination(self, components)
+	
+	def all_encodings(self, num_flips):
+		''' Return all encodings that can be made using at most the given number of flips. '''
+		
+		# TODO: Construct all flip sequences.
+		
+		return NotImplemented
+	
+	def as_lamination(self):
+		
+		return self.lamination([-1] * self.zeta)
 	
 	def empty_lamination(self):
 		''' Return an empty curve on this surface. '''

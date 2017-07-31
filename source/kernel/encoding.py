@@ -3,6 +3,8 @@
 
 Provides one class: Encoding. '''
 
+from fractions import Fraction
+
 import curver
 
 NT_TYPE_PERIODIC = 'Periodic'
@@ -97,7 +99,7 @@ class Encoding(object):
 		return hash(self.identify())
 	
 	def __call__(self, other):
-		if isinstance(other, curver.kernel.Leaf):
+		if isinstance(other, curver.kernel.Lamination):
 			if self.source_triangulation != other.triangulation:
 				raise ValueError('Cannot apply an Encoding to a Leaf on a triangulation other than source_triangulation.')
 			
@@ -105,8 +107,6 @@ class Encoding(object):
 				other = item(other)
 			
 			return other
-		elif isinstance(other, curver.kernel.Lamination):
-			return other.__class__(self.target_triangulation, {self(component): multiplicity for multiplicity, component in other})
 		else:
 			return NotImplemented
 	def __mul__(self, other):
@@ -236,6 +236,8 @@ class Encoding(object):
 		('Periodic', 'Reducible', 'Pseudo-Anosov')
 		'''
 		
+		assert(self.is_mapping_class())
+		
 		if self.is_periodic():
 			return NT_TYPE_PERIODIC
 		
@@ -245,26 +247,20 @@ class Encoding(object):
 		return NT_TYPE_PSEUDO_ANOSOV
 	
 	def asymptotic_translation_length(self):
-		return NotImplemented
-	
-	def is_conjugate_to(self, other):
-		''' Return if this mapping class is conjugate to other.
+		''' Return the asymptotic translation length of this mapping class on the curve complex.
 		
-		It would also be straightforward to check if self^i ~~ other^j
-		for some i, j.
+		From Algorithm 6 of Paper 3. '''
 		
-		Both encodings must be mapping classes.
+		# TODO: Fix these constants.
+		N = 1  # Some constant.
+		D = 1  # Bowditch bound on denominator.
+		c = self.triangulation.edge_arcs()[0].boundary()  # A "short" curve.
+		geodesic = c.geodesic((self**N)(c))
+		m = geodesic[len(geodesic)//2]  # midpoint
 		
-		Currently assumes that at least one mapping class is pseudo-Anosov. '''
-		
-		assert(isinstance(other, Encoding))
-		
-		# Nielsen-Thurston type is a conjugacy invariant.
-		if self.nielsen_thurston_type() != other.nielsen_thurston_type():
-			return False
-		
-		return NotImplemented
-	
+		n = m.distance((self**N)(m))  # Numerator.
+		d = N  # Denominator.
+		return Fraction(n, d).limit_denominator(D)
 
 def create_encoding(source_triangulation, sequence):
 	''' Return the encoding defined by sequence starting at source_triangulation.

@@ -15,7 +15,9 @@ class Move(object):
 	def __invert__(self):
 		return self.inverse()
 	def __call__(self, other):
-		if isinstance(other, curver.kernel.ClosedLeaf):
+		if isinstance(other, curver.kernel.Lamination):
+			return other.__class__(self.target_triangulation, {self(component): multiplicity for multiplicity, component in other})
+		elif isinstance(other, curver.kernel.ClosedLeaf):
 			return self.closedleaf(other)
 		elif isinstance(other, curver.kernel.OpenLeaf):
 			return self.openleaf(other)
@@ -72,12 +74,12 @@ class Isometry(Move):
 	
 	def closedleaf(self, leaf):
 		geometric = [leaf(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
-		orientations = dict(label: leaf[self.inverse_label_map[label]] for label in self.source_triangulation.labels)
+		orientations = dict((label, leaf[self.inverse_label_map[label]]) for label in self.source_triangulation.labels)
 		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric, orientations)
 	
 	def openleaf(self, leaf):
 		geometric = [leaf(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
-		orientations = dict(label: leaf[self.inverse_label_map[label]] for label in self.source_triangulation.labels)
+		orientations = dict((label, leaf[self.inverse_label_map[label]]) for label in self.source_triangulation.labels)
 		return curver.kernel.OpenLeaf(self.target_triangulation, geometric, orientations)
 	
 	def inverse(self):
@@ -153,8 +155,7 @@ class EdgeFlip(Move):
 		
 		if leaf.parallel() is not None:
 			geometric[self.edge_index] = 1 if leaf.parallel() == self.edge_index else 0
-		else:
-			geometric[self.edge_index] = ??  # !?!
+		else:  # TODO: Write out the cases for flipping an arc.
 		
 		# Copy the unchanged orientations over.
 		return curver.kernel.OpenLeaf(self.target_triangulation, geometric, orientations)

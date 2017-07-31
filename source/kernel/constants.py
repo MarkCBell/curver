@@ -4,7 +4,6 @@
 
 import curver
 
-QUASICONVEXITY = 10  # Masur-Minsky.
+QUASICONVEXITY = 10  # Masur-Minsky.  # Ask Katie Vokes about this.
 BOUNDED_GEODESIC_IMAGE = 10  # BGIT.
-
 
