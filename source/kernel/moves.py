@@ -74,13 +74,11 @@ class Isometry(Move):
 	
 	def closedleaf(self, leaf):
 		geometric = [leaf(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
-		orientations = dict((label, leaf[self.inverse_label_map[label]]) for label in self.source_triangulation.labels)
-		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric, orientations)
+		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric)
 	
 	def openleaf(self, leaf):
 		geometric = [leaf(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
-		orientations = dict((label, leaf[self.inverse_label_map[label]]) for label in self.source_triangulation.labels)
-		return curver.kernel.OpenLeaf(self.target_triangulation, geometric, orientations)
+		return curver.kernel.OpenLeaf(self.target_triangulation, geometric)
 	
 	def inverse(self):
 		''' Return the inverse of this isometry. '''
@@ -116,34 +114,9 @@ class EdgeFlip(Move):
 		
 		# Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
 		geometric = list(leaf.geometric)
-		orientations = dict(leaf.orientations)
+		geometric[self.edge_index] = max(leaf(a) + leaf(c), leaf(b) + leaf(d)) - leaf(e)
 		
-		if leaf(a) + leaf(c) == leaf(b) + leaf(d):  # No traversals.
-			geometric[self.edge_index] = leaf(a) + leaf(c) - leaf(e)  # = lead(b) + leaf(d) - leaf(e)
-			orientations[a.label] = leaf[~e]
-			orientations[b.label] = leaf[~e]
-			orientations[c.label] = leaf[e]
-			orientations[d.label] = leaf[e]
-			orientations[e.label] = leaf[b]  # = leaf[c].
-			orientations[~e.label] = leaf[a]  # = leaf[d].
-		elif leaf(a) + leaf(c) > leaf(b) + leaf(d):  # Vertical traversals.
-			geometric[self.edge_index] = leaf(a) + leaf(c) - leaf(e)
-			orientations[a.label] = leaf[~e]
-			orientations[b.label] = leaf[b]  # Not needed.
-			orientations[c.label] = leaf[e]
-			orientations[d.label] = leaf[d]  # Not needed.
-			orientations[e.label] = leaf[c]
-			orientations[~e.label] = leaf[a]
-		else:  # leaf(a) + leaf(c) < leaf(b) + leaf(d):  # Horizontal traversals.
-			geometric[self.edge_index] = leaf(b) + leaf(d) - leaf(e)
-			orientations[a.label] = leaf[a]  # Not needed.
-			orientations[b.label] = leaf[~e]
-			orientations[c.label] = leaf[c]  # Not needed.
-			orientations[d.label] = leaf[e]
-			orientations[e.label] = leaf[b]
-			orientations[~e.label] = leaf[d]
-		
-		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric, orientations)
+		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric)
 	
 	def openleaf(self, leaf):
 		return NotImplemented
@@ -151,14 +124,30 @@ class EdgeFlip(Move):
 		
 		# Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
 		geometric = list(leaf.geometric)
-		orientations = dict(leaf.orientations)
 		
 		if leaf.parallel() is not None:
 			geometric[self.edge_index] = 1 if leaf.parallel() == self.edge_index else 0
-		else:  # TODO: Write out the cases for flipping an arc.
+		else:  # leaf is not parallel to an edge.
+			if leaf(e) >= leaf(a) + leaf(b) and leaf(a) >= leaf(d) and leaf(b) >= leaf(c):  # CASE: A(ab)
+				geometric[self.edge_index] = leaf(a) + leaf(b) - leaf(e)
+			elif leaf(e) >= leaf(c) + leaf(d) and leaf(d) >= leaf(a) and leaf(c) >= leaf(b):  # CASE: A(cd)
+				geometric[self.edge_index] = leaf(c) + leaf(d) - leaf(e)
+			#elif leaf(e) <= 0 and leaf(a) >= leaf(b) and leaf(d) >= leaf(c):  # CASE: D(ad)
+			#	geometric[self.edge_index] = leaf(a) + leaf(d) - leaf(e)
+			#elif leaf(e) <= 0 and leaf(b) >= leaf(a) and leaf(c) >= leaf(d):  # CASE: D(bc)
+			#	geometric[self.edge_index] = leaf(b) + leaf(c) - leaf(e) 
+			elif leaf(a) >= leaf(b) + leaf(e) and leaf(d) >= leaf(c) + leaf(e):  # CASE: N(ad)
+				geometric[self.edge_index] = leaf(a) + leaf(d) - 2*leaf(e)
+			elif leaf(b) >= leaf(a) + leaf(e) and leaf(c) >= leaf(d) + leaf(e):  # CASE: N(bc)
+				geometric[self.edge_index] = leaf(b) + leaf(c) - 2*leaf(e)
+			elif leaf(a) + leaf(b) >= leaf(e) and leaf(b) + leaf(e) >= 2*leaf(c) + leaf(a) and leaf(a) + leaf(e) >= 2*leaf(d) + leaf(b):  # CASE: N(ab)
+				geometric[self.edge_index] = (leaf(a) + leaf(b) - leaf(e)) // 2
+			elif leaf(c) + leaf(d) >= leaf(e) and leaf(d) + leaf(e) >= 2*leaf(a) + leaf(c) and leaf(c) + leaf(e) >= 2*leaf(b) + leaf(d):  # CASE: N(cd)
+				geometric[self.edge_index] = (leaf(c) + leaf(d) - leaf(e)) // 2
+			else:
+				geometric[self.edge_index] = max(leaf(a) + leaf(c), leaf(b) + leaf(d)) - leaf(e)
 		
-		# Copy the unchanged orientations over.
-		return curver.kernel.OpenLeaf(self.target_triangulation, geometric, orientations)
+		return curver.kernel.OpenLeaf(self.target_triangulation, geometric)
 	
 	def inverse(self):
 		''' Return the inverse of this map. '''
@@ -265,14 +254,12 @@ class Spiral(Move):
 			new_bi, new_ei = new_ei, new_bi
 		
 		geometric = [new_bi if index == b.index else new_e if index == e.index else leaf(index) for index in self.triangle.indices]
-		orientations = dict()  # !?!
-		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric, orientations)
+		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric)
 	
 	def openleaf(self, leaf):
 		return NotImplemented
 		
-		orientations = dict()  # !?!
-		return curver.kernel.OpenLeaf(self.target_triangulation, geometric, orientations)
+		return curver.kernel.OpenLeaf(self.target_triangulation, geometric)
 	
 	def inverse(self):
 		''' Return the inverse of this isometry. '''

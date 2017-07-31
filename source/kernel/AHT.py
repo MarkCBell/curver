@@ -1,5 +1,5 @@
 
-# TODO: Everything!
+# TODO: 1) Everything!
 
 def components(partition):
 	# A list of pairs (start, end) representing

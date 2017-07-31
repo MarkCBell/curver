@@ -5,22 +5,16 @@ def dual_weight(a, b, c):
 
 class Leaf(object):
 	''' A 1-d object drawn on a Triangulation and determined by its number of intersections with each Edge. '''
-	def __init__(self, triangulation, geometric, orientations=None):
+	def __init__(self, triangulation, geometric):
 		assert(isinstance(triangulation, curver.kernel.Triangulation))
 		assert(isinstance(geometric, (list, tuple)))  # Maps indices to measures.
-		assert(orientations is None or isinstance(orientations, dict))  # Maps labels to orientations or None if we should install these ourself.
 		# We should check that geometric satisfies reasonable relations.
 		
-		# TODO: Document the orientation conventions here:
 		
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta
 		self.geometric = list(geometric)
 		assert(len(self.geometric) == self.zeta)
-		if orientations is None:
-			self.install_orientation()
-		else:
-			self.orientations = dict(orientations)
 	
 	def __repr__(self):
 		return str(self)
@@ -32,8 +26,7 @@ class Leaf(object):
 		return hash(tuple(self.geometric))
 	def __eq__(self, other):
 		return self.triangulation == other.triangulation and \
-			self.geometric == other.geometric and \
-			self.orientations == other.orientations
+			self.geometric == other.geometric
 	def __ne__(self, other):
 		return not (self == other)
 	def __call__(self, other):
@@ -41,11 +34,6 @@ class Leaf(object):
 		if isinstance(other, curver.kernel.Edge): other = other.label
 		
 		return self.geometric[curver.kernel.norm(other)]
-	def __getitem__(self, other):
-		''' Return the orientation information for this edge. '''
-		if isinstance(other, curver.kernel.Edge): other = other.label
-		
-		return self.orientation[other]
 	
 	def weight(self):
 		''' Return the geometric intersection of this leaf with its underlying triangulation. '''
@@ -76,7 +64,7 @@ class ClosedLeaf(Leaf):
 		''' Return an encoding which maps this leaf to a leaf with as little weight as possible together with its image. '''
 		
 		# Repeatedly flip to reduce the weight of this leaf as much as possible.
-		# TODO: Make polynomial-time by taking advantage of spiralling.
+		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
 		
 		leaf = self
 		conjugation = leaf.triangulation.id_encoding()
@@ -93,22 +81,6 @@ class ClosedLeaf(Leaf):
 			weight_history.append(leaf.weight())
 		
 		return leaf, conjugation
-	
-	def install_orientation(self):
-		short, conjugator = self.shorten()
-		# Now short is an edge of its triangulation.
-		if short.weight() == 2:
-			e1, e2 = [index for index in short.triangulation.indices if short(index) > 0]
-			# We might need to swap these edge indices so we have a good frame of reference.
-			if triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
-			
-			a, b, c, d, e = short.triangulation.square_about_edge(e1)
-			short.orientations = dict((label, +1 if label == a.label else -1 if label == c.label else 0) for label in short.triangulation.labels)
-		else:
-			# TODO: Make this work on isolating curves.
-			raise curver.AssumptionError('Must be non-isolating.')
-		
-		self.orientations = conjugator.inverse()(short).orientations
 	
 	def intersection(self, leaf):
 		''' Return the geometric intersection between self and the given lamination.
@@ -141,7 +113,7 @@ class ClosedLeaf(Leaf):
 			
 			return short_leaf(a) - 2 * min(x, y2, z)  # = short_leaf(c) - 2 * min(x2, y, z2))
 		else:
-			# TODO: Implement LP to find intersection for general configuration.
+			# TODO: 4) Implement LP to find intersection for general configuration.
 			raise curver.AssumptionError('Currently can only compute geometric intersection number between a non-isolating ClosedLeaf and a Leaf.')
 
 class OpenLeaf(Leaf):
@@ -163,7 +135,7 @@ class OpenLeaf(Leaf):
 		
 		Uses Mosher's arguement. '''
 		
-		# TODO: Make polynomial-time by taking advantage of spiralling.
+		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
 		
 		leaf = self
 		conjugation = leaf.triangulation.id_encoding()
@@ -177,15 +149,6 @@ class OpenLeaf(Leaf):
 			leaf = flip(leaf)
 		
 		return leaf, conjugation
-	
-	def install_orientation(self):
-		# Modifies self!
-		short, conjugator = self.shorten()
-		# Now short is an edge of its triangulation it is easy to build an orientation for it.
-		parallel = short.parallel()
-		short.orientations = dict((label, +1 if label == parallel.label else -1 if label == ~parallel.label else 0) for label in short.triangulation.labels)
-		
-		self.orientations = conjugator.inverse()(short).orientations
 	
 	def intersection(self, leaf):
 		''' Return the geometric intersection between self and the given lamination. '''

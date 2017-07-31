@@ -90,6 +90,7 @@ class Encoding(object):
 				self.target_triangulation != other.target_triangulation:
 				raise ValueError('Cannot compare Encodings between different triangulations.')
 			
+			# TODO: 4) Check action on homology in order to deal with hyperelliptics on S_1_1.
 			return self.identify() == other.identify()
 		else:
 			return NotImplemented
@@ -251,7 +252,7 @@ class Encoding(object):
 		
 		From Algorithm 6 of Paper 3. '''
 		
-		# TODO: Fix these constants.
+		# TODO: 2) Fix these constants.
 		N = 1  # Some constant.
 		D = 1  # Bowditch bound on denominator.
 		c = self.triangulation.edge_arcs()[0].boundary()  # A "short" curve.

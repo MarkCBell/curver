@@ -238,14 +238,14 @@ class Curve(Multicurve):
 			twist_k = triangulation.encode([(e1, k)])
 			return conjugation.inverse() * twist_k * conjugation
 		else:  # curve is isolating.
-			raise curver.AssumptionError('Curve is isolating.')  # TODO: Handle isolating case.
+			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
 	
 	def quasiconvex(self, other):
 		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains self and other. '''
 		
 		assert(isinstance(other, Curve))
 		
-		# TODO: Implement train track splitting sequence.
+		# TODO: 2) Implement train track splitting sequence.
 		
 		return NotImplemented
 	
@@ -296,7 +296,7 @@ class Curve(Multicurve):
 	def crush(self):
 		''' Return the crush map associated to this Curve. '''
 		
-		# TODO: Implement this and the associated Move.
+		# TODO: 2) Implement this and the associated Move.
 		
 		return NotImplemented
 
@@ -309,8 +309,6 @@ class MultiArc(Lamination):
 	
 	def boundary(self):
 		''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
-		
-		# TODO: Should build correct orientations on boundary components.
 		
 		short, conjugator = self.shorten()
 		# short is a subset of the edges of the triangulation it is defined on.
@@ -406,5 +404,5 @@ class Arc(MultiArc):
 				# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
 				return conjugation.inverse() * short_boundary.encode_twist(k // 2) * half_twist * conjugation
 		else:  # boundary is isolating.
-			raise curver.AssumptionError('Boundary curve is isolating.')  # TODO: Handle isolating case, use Will Worden's code.
+			raise curver.AssumptionError('Boundary curve is isolating.')  # TODO: 4) Handle isolating case, use Will Worden's code.
 

@@ -66,3 +66,9 @@ And then install using the command::
 
 	> python setup.py install --user
 
+In several places work is flagged TODO: #). The number determines the priority.
+	1) == Fundamentally broken until this is done.
+	2) == Major feature.
+	3) == Performance (incl. polynomial time).
+	4) == Minor feature.
+

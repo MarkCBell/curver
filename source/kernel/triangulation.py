@@ -203,7 +203,7 @@ class Triangulation(object):
 		zeta = len(edge_labels) * 3 // 2
 		
 		# Check that each of 0, ..., zeta-1, ~0, ..., ~(zeta-1) occurs exactly once.
-		flattened = set([label for labels in edge_labels for label in labels])
+		flattened = set(label for labels in edge_labels for label in labels)
 		for i in range(zeta):
 			if i not in flattened:
 				raise TypeError('Missing label %d' % i)
@@ -387,7 +387,7 @@ class Triangulation(object):
 		if self.zeta != other.zeta:
 			return []
 		
-		# TODO: Modify this to work on disconnected surfaces.
+		# TODO: 4) Modify this to work on disconnected surfaces.
 		
 		# Isometries are determined by where a single triangle is sent.
 		# We take a corner of smallest degree.
@@ -419,10 +419,7 @@ class Triangulation(object):
 	
 	# Laminations we can build on this triangulation.
 	def lamination(self, weights):
-		''' Return a new lamination on this surface assigning the specified weight to each edge.
-		
-		Note: We install arbitary orientations on each component. '''
-		
+		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
 		assert(len(weights) == self.zeta)
 		
@@ -448,7 +445,7 @@ class Triangulation(object):
 				components[component] = multiplicity
 		weights = [max(weight, 0) for weight in weights]  # Discard the parallel arcs.
 		
-		blocks = []  # TODO: Create the blocks.
+		blocks = []  # TODO: 1) Create the blocks.
 		
 		triples = [self.corner_lookup[label].indices for label in self.labels]
 		for geometric, multplicity in curver.kernel.AHT.components(blocks):
@@ -463,7 +460,7 @@ class Triangulation(object):
 	def all_encodings(self, num_flips):
 		''' Return all encodings that can be made using at most the given number of flips. '''
 		
-		# TODO: Construct all flip sequences.
+		# TODO: 2) Construct all flip sequences.
 		
 		return NotImplemented
 	
