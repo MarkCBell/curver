@@ -14,6 +14,7 @@ def example_0_4():
 	
 	a = T.lamination([0, 1, 0, 0, 1, 0])
 	b = T.lamination([1, 0, 1, 2, 2, 2])
+	# TODO: 4) Redo with Arcs since these now have encode_halftwist.
 	
 	return curver.kernel.EquippedTriangulation(T, [a, b], {
 		'a': a.encode_twist(), 'b': b.encode_twist(),
@@ -45,7 +46,7 @@ def example_1_2():
 	a = T.lamination([0, 0, 1, 1, 1, 0])
 	b = T.lamination([1, 0, 0, 0, 1, 1])
 	c = T.lamination([0, 1, 0, 1, 0, 1])
-	x = T.lamination([2, 0, 2, 2, 2, 2])
+	x = T.lamination([0,-1, 0, 0, 0, 0])
 	
 	return curver.kernel.EquippedTriangulation(T, {
 		'a': a, 'b': b, 'c': c, 'x': x

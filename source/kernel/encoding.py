@@ -1,7 +1,7 @@
 
 ''' A module for representing and manipulating maps between Triangulations.
 
-Provides one class: Encoding. '''
+Provides: Encoding. '''
 
 from fractions import Fraction
 
@@ -17,22 +17,7 @@ class Encoding(object):
 	If it maps to and from the same triangulation then it represents
 	a mapping class. This can be checked using self.is_mapping_class().
 	
-	The map is given by a sequence of EdgeFlips, LinearTransformations
-	and Isometries which act from right to left.
-	
-	>>> import curver
-	>>> S = curver.load('S_1_1')
-	>>> aB = S.mapping_class('aB')
-	>>> bA = S.mapping_class('bA')
-	>>> ab = S.mapping_class('ab')
-	>>> i = S.mapping_class('')
-	>>> a = S.mapping_class('a')
-	>>> a
-	a
-	>>> x = S.triangulation.encode([1])
-	>>> x
-	[Flip 1]
-	'''
+	The map is given by a sequence of Moves which act from right to left. '''
 	def __init__(self, sequence):
 		assert(isinstance(sequence, (list, tuple)))
 		assert(len(sequence) > 0)
@@ -50,13 +35,7 @@ class Encoding(object):
 	def is_mapping_class(self):
 		''' Return if this encoding is a mapping class.
 		
-		That is, if it maps to the triangulation it came from.
-		
-		>>> aB.is_mapping_class(), bA.is_mapping_class()
-		(True, True)
-		>>> x.is_mapping_class()
-		False
-		'''
+		That is, if it maps to the triangulation it came from. '''
 		
 		return self.source_triangulation == self.target_triangulation
 	
@@ -74,42 +53,30 @@ class Encoding(object):
 	def __reduce__(self):
 		return (create_encoding, (self.source_triangulation, self.package()))
 	
-	def identify(self):
-		''' Return a tuple of integers which uniquely determines this map.
-		
-		The tuple we return is the intersection numbers of the images of
-		the key_curves under this map. This uniquely determines the map
-		(assuming we know source_triangulation and target_triangulation)
-		by Alexanders trick. '''
-		
-		return tuple(self(arc) for arc in self.source_triangulation.edge_arcs())
-	
 	def __eq__(self, other):
 		if isinstance(other, Encoding):
 			if self.source_triangulation != other.source_triangulation or \
 				self.target_triangulation != other.target_triangulation:
 				raise ValueError('Cannot compare Encodings between different triangulations.')
 			
-			# TODO: 4) Check action on homology in order to deal with hyperelliptics on S_1_1.
-			return self.identify() == other.identify()
+			return all(self(arc) == other(arc) for arc in self.source_triangulation.edge_arcs()) and \
+				all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())
 		else:
 			return NotImplemented
 	def __ne__(self, other):
 		return not (self == other)
 	def __hash__(self):
-		return hash(self.identify())
+		# In fact this hash is perfect unless the surface is S_{1,1}.
+		return hash(tuple(weight for arc in self.source_triangulation.edge_arcs() for weight in self(arc)))
 	
 	def __call__(self, other):
-		if isinstance(other, curver.kernel.Lamination):
-			if self.source_triangulation != other.triangulation:
-				raise ValueError('Cannot apply an Encoding to a Leaf on a triangulation other than source_triangulation.')
-			
-			for item in reversed(self.sequence):
-				other = item(other)
-			
-			return other
-		else:
-			return NotImplemented
+		if self.source_triangulation != other.triangulation:
+			raise ValueError('Cannot apply an Encoding to something on a triangulation other than source_triangulation.')
+		
+		for item in reversed(self.sequence):
+			other = item(other)
+		
+		return other
 	def __mul__(self, other):
 		if isinstance(other, Encoding):
 			if self.source_triangulation != other.target_triangulation:
@@ -129,11 +96,7 @@ class Encoding(object):
 			return self.inverse()**abs(k)
 	
 	def inverse(self):
-		''' Return the inverse of this encoding.
-		
-		>>> aB.inverse() == bA, ab == ab.inverse(), i == i.inverse()
-		(True, False, True)
-		'''
+		''' Return the inverse of this encoding. '''
 		
 		return Encoding([item.inverse() for item in reversed(self.sequence)])
 	def __invert__(self):
@@ -151,91 +114,45 @@ class Encoding(object):
 		
 		If this has infinite order then return 0.
 		
-		This encoding must be a mapping class.
-		
-		>>> aB.order(), a.order()
-		(0, 0)
-		>>> i.order(), ab.order()
-		(1, 6)
-		'''
+		This encoding must be a mapping class. '''
 		
 		assert(self.is_mapping_class())
 		
-		# We could do:
-		# for i in range(1, self.source_triangulation.max_order + 1):
-		#	if self**i == self.source_triangulation.id_encoding():
-		#		return i
-		# But this is quadratic in the order so instead we do:
-		arcs = self.source_triangulation.edge_arcs()
-		possible_orders = set(range(1, self.source_triangulation.max_order+1))
-		for arc in arcs:
-			arc_image = arc
-			for i in range(1, max(possible_orders)+1):
-				arc_image = self(arc_image)
-				if arc_image != arc:
-					possible_orders.discard(i)
-					if not possible_orders: return 0  # No finite orders remain so we are infinite order.
-		
-		return min(possible_orders)
+		for i in range(1, self.source_triangulation.max_order + 1):
+			if self**i == self.source_triangulation.id_encoding():
+				return i
+		return 0
 	
 	def is_identity(self):
-		''' Return if this encoding is the identity map.
-		
-		>>> i.is_identity()
-		True
-		>>> aB.is_identity()
-		False
-		'''
+		''' Return if this encoding is the identity map. '''
 		
 		return self.is_mapping_class() and self.order() == 1
 	
 	def is_periodic(self):
 		''' Return if this encoding has finite order.
 		
-		This encoding must be a mapping class.
-		
-		>>> aB.is_periodic(), a.is_periodic()
-		(False, False)
-		>>> i.is_periodic(), ab.is_periodic()
-		(True, True)
-		'''
+		This encoding must be a mapping class. '''
 		
 		return self.order() > 0
 	
 	def is_reducible(self):
 		''' Return if this encoding is reducible and NOT periodic.
 		
-		This encoding must be a mapping class.
-		
-		>>> aB.is_reducible(), a.is_reducible()
-		(False, True)
-		>>> i.is_reducible(), ab.is_reducible()
-		(False, False)
-		'''
+		This encoding must be a mapping class. '''
 		
 		return self.nielsen_thurston_type() == NT_TYPE_REDUCIBLE
 	
 	def is_pseudo_anosov(self):
 		''' Return if this encoding is pseudo-Anosov.
 		
-		This encoding must be a mapping class.
-		
-		>>> aB.is_pseudo_anosov(), a.is_pseudo_anosov()
-		(True, False)
-		>>> i.is_pseudo_anosov(), ab.is_pseudo_anosov()
-		(False, False)
-		'''
+		This encoding must be a mapping class. '''
 		
 		return self.nielsen_thurston_type() == NT_TYPE_PSEUDO_ANOSOV
 	
 	def nielsen_thurston_type(self):
 		''' Return the Nielsen--Thurston type of this encoding.
 		
-		This encoding must be a mapping class.
-		
-		>>> ab.nielsen_thurston_type(), a.nielsen_thurston_type(), aB.nielsen_thurston_type()
-		('Periodic', 'Reducible', 'Pseudo-Anosov')
-		'''
+		This encoding must be a mapping class. '''
 		
 		assert(self.is_mapping_class())
 		

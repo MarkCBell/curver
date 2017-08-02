@@ -16,11 +16,9 @@ class Move(object):
 		return self.inverse()
 	def __call__(self, other):
 		if isinstance(other, curver.kernel.Lamination):
-			return other.__class__(self.target_triangulation, {self(component): multiplicity for multiplicity, component in other})
-		elif isinstance(other, curver.kernel.ClosedLeaf):
-			return self.closedleaf(other)
-		elif isinstance(other, curver.kernel.OpenLeaf):
-			return self.openleaf(other)
+			return self.apply_lamination(other)
+		if isinstance(other, curver.kernel.HomologyClass):
+			return self.apply_homology(other)
 		else:
 			return NotImplemented
 	
@@ -72,13 +70,13 @@ class Isometry(Move):
 		else:
 			return None
 	
-	def closedleaf(self, leaf):
-		geometric = [leaf(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
-		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric)
+	def apply_lamination(self, lamination):
+		geometric = [lamination(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
+		return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
 	
-	def openleaf(self, leaf):
-		geometric = [leaf(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
-		return curver.kernel.OpenLeaf(self.target_triangulation, geometric)
+	def apply_homology(self, homology_class):
+		algebraic = [homology_class(self.inverse_label_map[index]) for index in self.source_triangulation.indices]
+		return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
 	
 	def inverse(self):
 		''' Return the inverse of this isometry. '''
@@ -98,7 +96,7 @@ class EdgeFlip(Move):
 		self.zeta = self.source_triangulation.zeta
 		assert(self.source_triangulation.is_flippable(self.edge_index))
 		
-		self.square = self.source_triangulation.square_about_edge(self.edge_label)
+		self.square = self.source_triangulation.square(self.edge_label)
 	
 	def __str__(self):
 		return 'Flip %s%d' % ('' if self.edge_index == self.edge_label else '~', self.edge_index)
@@ -109,53 +107,55 @@ class EdgeFlip(Move):
 		
 		return self.edge_label
 	
-	def closedleaf(self, leaf):
+	def apply_lamination(self, lamination):
 		a, b, c, d, e = self.square
+		L = lamination  # Shorter name.
 		
 		# Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
-		geometric = list(leaf.geometric)
-		geometric[self.edge_index] = max(leaf(a) + leaf(c), leaf(b) + leaf(d)) - leaf(e)
+		geometric = list(L.geometric)
 		
-		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric)
+		if L(e) >= L(a) + L(b) and L(a) >= L(d) and L(b) >= L(c):  # CASE: A(ab)
+			geometric[e.index] = L(a) + L(b) - L(e)
+		elif L(e) >= L(c) + L(d) and L(d) >= L(a) and L(c) >= L(b):  # CASE: A(cd)
+			geometric[e.index] = L(c) + L(d) - L(e)
+		elif L(e) <= 0 and L(a) >= L(b) and L(d) >= L(c):  # CASE: D(ad)
+			geometric[e.index] = L(a) + L(d) - L(e)
+		elif L(e) <= 0 and L(b) >= L(a) and L(c) >= L(d):  # CASE: D(bc)
+			geometric[e.index] = L(b) + L(c) - L(e) 
+		elif L(a) >= L(b) + L(e) and L(d) >= L(c) + L(e):  # CASE: N(ad)
+			geometric[e.index] = L(a) + L(d) - 2*L(e)
+		elif L(b) >= L(a) + L(e) and L(c) >= L(d) + L(e):  # CASE: N(bc)
+			geometric[e.index] = L(b) + L(c) - 2*L(e)
+		elif L(a) + L(b) >= L(e) and L(b) + L(e) >= 2*L(c) + L(a) and L(a) + L(e) >= 2*L(d) + L(b):  # CASE: N(ab)
+			geometric[e.index] = (L(a) + L(b) - L(e)) // 2
+		elif L(c) + L(d) >= L(e) and L(d) + L(e) >= 2*L(a) + L(c) and L(c) + L(e) >= 2*L(b) + L(d):  # CASE: N(cd)
+			geometric[e.index] = (L(c) + L(d) - L(e)) // 2
+		else:
+			geometric[e.index] = max(L(a) + L(c), L(b) + L(d)) - L(e)
+		
+		return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
 	
-	def openleaf(self, leaf):
-		return NotImplemented
+	def apply_homology(self, homology_class):
 		a, b, c, d, e = self.square
 		
-		# Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
-		geometric = list(leaf.geometric)
+		algebraic = list(homology_class)
+		# Move the homology on e onto a & b.
+		algebraic[a.index] -= a.sign() * homology_class(e)
+		algebraic[b.index] -= b.sign() * homology_class(e)
+		algebraic[e.index] = 0
 		
-		if leaf.parallel() is not None:
-			geometric[self.edge_index] = 1 if leaf.parallel() == self.edge_index else 0
-		else:  # leaf is not parallel to an edge.
-			if leaf(e) >= leaf(a) + leaf(b) and leaf(a) >= leaf(d) and leaf(b) >= leaf(c):  # CASE: A(ab)
-				geometric[self.edge_index] = leaf(a) + leaf(b) - leaf(e)
-			elif leaf(e) >= leaf(c) + leaf(d) and leaf(d) >= leaf(a) and leaf(c) >= leaf(b):  # CASE: A(cd)
-				geometric[self.edge_index] = leaf(c) + leaf(d) - leaf(e)
-			#elif leaf(e) <= 0 and leaf(a) >= leaf(b) and leaf(d) >= leaf(c):  # CASE: D(ad)
-			#	geometric[self.edge_index] = leaf(a) + leaf(d) - leaf(e)
-			#elif leaf(e) <= 0 and leaf(b) >= leaf(a) and leaf(c) >= leaf(d):  # CASE: D(bc)
-			#	geometric[self.edge_index] = leaf(b) + leaf(c) - leaf(e) 
-			elif leaf(a) >= leaf(b) + leaf(e) and leaf(d) >= leaf(c) + leaf(e):  # CASE: N(ad)
-				geometric[self.edge_index] = leaf(a) + leaf(d) - 2*leaf(e)
-			elif leaf(b) >= leaf(a) + leaf(e) and leaf(c) >= leaf(d) + leaf(e):  # CASE: N(bc)
-				geometric[self.edge_index] = leaf(b) + leaf(c) - 2*leaf(e)
-			elif leaf(a) + leaf(b) >= leaf(e) and leaf(b) + leaf(e) >= 2*leaf(c) + leaf(a) and leaf(a) + leaf(e) >= 2*leaf(d) + leaf(b):  # CASE: N(ab)
-				geometric[self.edge_index] = (leaf(a) + leaf(b) - leaf(e)) // 2
-			elif leaf(c) + leaf(d) >= leaf(e) and leaf(d) + leaf(e) >= 2*leaf(a) + leaf(c) and leaf(c) + leaf(e) >= 2*leaf(b) + leaf(d):  # CASE: N(cd)
-				geometric[self.edge_index] = (leaf(c) + leaf(d) - leaf(e)) // 2
-			else:
-				geometric[self.edge_index] = max(leaf(a) + leaf(c), leaf(b) + leaf(d)) - leaf(e)
-		
-		return curver.kernel.OpenLeaf(self.target_triangulation, geometric)
+		return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
 	
 	def inverse(self):
 		''' Return the inverse of this map. '''
 		
 		return EdgeFlip(self.target_triangulation, self.source_triangulation, ~self.edge_label)
 
+
+
 class Spiral(Move):
 	''' This represents a spiral around a short curve. '''
+	# TODO: 4) Completely redo.
 	def __init__(self, source_triangulation, target_triangulation, edge_label, power):
 		''' This represents spiralling around a short curve passing through edge_label.
 		
@@ -215,7 +215,8 @@ class Spiral(Move):
 		
 		return M
 	
-	def closedleaf(self, leaf):
+	def apply_lamination(self, leaf):
+		# TODO: 4) Make work on all Laminations, not just MultiCurves.
 		# We will begin with an easy case so we can later assume self.power != 0.
 		
 		a, b, c, d, e = self.square
@@ -254,16 +255,21 @@ class Spiral(Move):
 			new_bi, new_ei = new_ei, new_bi
 		
 		geometric = [new_bi if index == b.index else new_e if index == e.index else leaf(index) for index in self.triangle.indices]
-		return curver.kernel.ClosedLeaf(self.target_triangulation, geometric)
+		return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
 	
-	def openleaf(self, leaf):
-		return NotImplemented
-		
-		return curver.kernel.OpenLeaf(self.target_triangulation, geometric)
+	def apply_homology(self, homology_class):
+		algebraic = list(homology_class)
+		algebraic[self.edge_index] = 0  # TODO 4)
+		return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
 	
 	def inverse(self):
 		''' Return the inverse of this isometry. '''
 		
 		# inverse_corner_map = dict((self(corner), corner) for corner in self.corner_map)
 		return Spiral(self.target_triangulation, self.source_triangulation, self.edge_label, -self.power)
+
+class Crush(Move):
+	# TODO: 2) EVERYTHING!
+	pass
+
 

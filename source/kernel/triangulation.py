@@ -1,11 +1,7 @@
+
 ''' A module for representing a triangulation of a punctured surface.
 
-Provides five classes: Vertex, Edge, Triangle, Corner and Triangulation.
-	A Vertex is a singleton.
-	An Edge is an ordered pair of Vertices.
-	A Triangle is an ordered triple of Edges.
-	A Corner is a Triangle with a chosen side.
-	A Triangulation is a collection of Triangles. '''
+Provides: Edge, Triangle and Triangulation. '''
 
 import curver
 
@@ -233,6 +229,59 @@ class Triangulation(object):
 	def __hash__(self):
 		return hash(tuple(self.signature))
 	
+	def components(self):
+		''' Return a list of of the indices in each component of self. '''
+		
+		components = curver.kernel.UnionFind(self.indices)
+		for triangle in self:
+			components.union(*triangle.indices)
+		
+		return list(components)
+	
+	def dual_tree(self):
+		''' Return a maximal tree in 1--skeleton of the dual of this triangulation.
+		
+		This are given as lists of Booleans signaling if each edge is in the tree.
+		Note that when this surface is disconnected this tree is actually a forest.
+		To make this unique / well-defined we return the numerically first one. '''
+		
+		# Kruskal's algorithm.
+		dual_tree = [False] * self.zeta
+		classes = curver.kernel.UnionFind(self.triangles)
+		for index in self.indices:
+			a, b = self.triangle_lookup[index], self.triangle_lookup[~index]
+			if classes(a) != classes(b):
+				classes.union(a, b)
+				dual_tree[index] = True
+		
+		return dual_tree
+	
+	def homology_matrix(self):
+		''' Return a matrix that kills the entries of the dual tree. '''
+		# Cache?
+		# TODO: 4) Document conventions here.
+		
+		dual_tree = self.dual_tree()
+		
+		M = []
+		for index in self.indices:
+			row = [0] * self.zeta
+			if dual_tree[index]:
+				edge = self.edge_lookup[index]
+				while True:
+					corner = self.corner_lookup[edge.label]
+					edge = corner.edges[2]
+					if not dual_tree[edge.index]:
+						row[edge.index] -= edge.sign()
+					else:
+						edge = ~edge
+					if edge.label == ~index: break
+			else:
+				row[index] = 1
+			M.append(row)
+		
+		return zip(*M)
+	
 	def is_flippable(self, edge_label):
 		''' Return if the given edge is flippable.
 		
@@ -251,7 +300,7 @@ class Triangulation(object):
 		[boundary_edge] = [edge for edge in self.triangle_lookup[edge_label] if edge.label != edge_label and edge.label != ~edge_label]
 		return boundary_edge
 	
-	def square_about_edge(self, edge_label):
+	def square(self, edge_label):
 		''' Return the four edges around the given edge and the diagonal.
 		
 		The given edge must be flippable. '''
@@ -305,12 +354,23 @@ class Triangulation(object):
 		# Most triangles don't change.
 		triangles = [Triangle([edge_map[edge] for edge in triangle]) for triangle in self if edge_label not in triangle.labels and ~edge_label not in triangle.labels]
 		
-		a, b, c, d, e = self.square_about_edge(edge_label)
+		a, b, c, d, e = self.square(edge_label)
 		
-		triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
-		triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
+		if edge_label == norm(edge_label):
+			triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
+			triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
+		else:
+			triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
+			triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
 		
 		return Triangulation(triangles + [triangle_A2, triangle_B2])
+	
+	def all_encodings(self, num_flips):
+		''' Return all encodings that can be made using at most the given number of flips. '''
+		
+		# TODO: 2) Construct all flip sequences.
+		
+		return NotImplemented
 	
 	def relabel_edges(self, label_map):
 		''' Return a new triangulation obtained by relabelling the edges according to label_map. '''
@@ -429,56 +489,35 @@ class Triangulation(object):
 			peripheral = INFTY
 			for edge in vertex:
 				triangle = self.corner_lookup[edge.label]
-				peripheral = min(peripheral, curver.kernel.leaf.dual_weight(weights[triangle.indices[0]], weights[triangle.indices[2]], weights[triangle.indices[1]]))
+				peripheral = min(peripheral, curver.kernel.lamination.dual_weight(weights[triangle.indices[0]], weights[triangle.indices[2]], weights[triangle.indices[1]]))
 			for edge in vertex:
 				peripherals[edge.index] += max(peripheral, 0)
 		weights = [weight - peripheral for weight, peripheral in zip(weights, peripherals)]  # Remove the peripheral components.
 		
-		components = dict()
-		
-		# Find all the arcs parallel to edges.
-		for index in self.indices:
-			if weights[index] < 0:  # Parallel arcs.
-				geometric = [0 if i != index else -1 for i in range(self.zeta)]
-				multiplicity = abs(weights[index])
-				component  = curver.kernel.OpenLeaf(self, geometric)
-				components[component] = multiplicity
-		weights = [max(weight, 0) for weight in weights]  # Discard the parallel arcs.
-		
-		blocks = []  # TODO: 1) Create the blocks.
-		
-		triples = [self.corner_lookup[label].indices for label in self.labels]
-		for geometric, multplicity in curver.kernel.AHT.components(blocks):
-			if all(geometric[a] + geometric[b] - geometric[c] >= 0 for (a, b, c) in triples):  # No terminal normal arcs.
-				component = curver.kernel.ClosedLeaf(self, geometric)
-			else:
-				component = curver.kernel.OpenLeaf(self, geometric)
-			components[component] = multiplicity
-		
-		return curver.kernel.Lamination(self, components)
-	
-	def all_encodings(self, num_flips):
-		''' Return all encodings that can be made using at most the given number of flips. '''
-		
-		# TODO: 2) Construct all flip sequences.
-		
-		return NotImplemented
-	
-	def as_lamination(self):
-		
-		return self.lamination([-1] * self.zeta)
+		return curver.kernel.Lamination(self, weights).promote()
 	
 	def empty_lamination(self):
 		''' Return an empty curve on this surface. '''
 		
 		return self.lamination([0] * self.zeta)
 	
+	def as_lamination(self):
+		''' Return this triangulation as a lamination. '''
+		
+		return self.lamination([-1] * self.zeta)
+	
 	def edge_arcs(self):
 		''' Return a list containing the Arc representing each Edge.
 		
 		As these fill, by Alexander's trick a mapping class is the identity if and only if it fixes all of them. '''
 		
-		return [self.lamination([0 if i != index else -1 for i in range(self.zeta)]) for index in self.indices]
+		return [curver.kernel.Arc(self, [0 if i != index else -1 for i in range(self.zeta)]) for index in self.indices]  # Could use self.lamination.
+	
+	def edge_homologies(self):
+		''' Return a list containing the HomologyClass of each Edge. '''
+		
+		# Could skip those in self.dual_tree().
+		return [curver.kernel.HomologyClass(self, [0 if i != index else 1 for i in range(self.zeta)]) for index in self.indices]
 	
 	def id_isometry(self):
 		''' Return the isometry representing the identity map. '''

@@ -16,10 +16,12 @@ in a functions docstring:
 from . import encoding
 from . import error
 from . import equippedtriangulation
+from . import homology
 from . import lamination
-from . import leaf
 from . import moves
 from . import triangulation
+from . import traintrack
+from . import utilities
 
 # Set up shorter names for all of the different classes.
 Edge = triangulation.Edge
@@ -29,20 +31,20 @@ Encoding = encoding.Encoding
 AbortError = error.AbortError
 AssumptionError = error.AssumptionError
 EquippedTriangulation = equippedtriangulation.EquippedTriangulation
+HomologyClass = homology.HomologyClass
 Lamination = lamination.Lamination
 MultiCurve = lamination.MultiCurve
 Curve = lamination.Curve
 MultiArc = lamination.MultiArc
 Arc = lamination.Arc
-Leaf = leaf.Leaf
-ClosedLeaf = leaf.ClosedLeaf
-OpenLeaf = leaf.OpenLeaf
 Move = moves.Move
 Isometry = moves.Isometry
 EdgeFlip = moves.EdgeFlip
 Spiral = moves.Spiral
+TrainTrack = traintrack.TrainTrack
 
 norm = triangulation.norm
+UnionFind = utilities.UnionFind
 
 # Functions that help with construction.
 create_triangulation = Triangulation.from_tuple
