@@ -1,6 +1,4 @@
 
-import numpy as np
-
 import curver
 
 class HomologyClass(object):
@@ -52,5 +50,5 @@ class HomologyClass(object):
 		
 		This is the HomologyClass that is homologous to this one and has weight 0 on each edge of the standard dual tree of the underlying triangulation. '''
 		
-		return HomologyClass(self.triangulation, np.dot(self.triangulation.homology_matrix(), self.algebraic).tolist())
+		return HomologyClass(self.triangulation, [sum(x * y for x, y in zip(row, self.algebraic)) for row in self.triangulation.homology_matrix()])  # Dot product.
 
