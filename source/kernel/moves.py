@@ -85,27 +85,28 @@ class Isometry(Move):
 
 class EdgeFlip(Move):
 	''' Represents the change to a curve caused by flipping an edge. '''
-	def __init__(self, source_triangulation, target_triangulation, edge_label):
+	def __init__(self, source_triangulation, target_triangulation, edge):
 		assert(isinstance(source_triangulation, curver.kernel.Triangulation))
 		assert(isinstance(target_triangulation, curver.kernel.Triangulation))
 		
+		if isinstance(edge, curver.IntegerType): edge = self.source_triangulation.edge_lookup[edge]  # If given an integer instead.
+		
 		self.source_triangulation = source_triangulation
 		self.target_triangulation = target_triangulation
-		self.edge_label = edge_label
-		self.edge_index = curver.kernel.norm(self.edge_label)
+		self.edge = edge
 		self.zeta = self.source_triangulation.zeta
-		assert(self.source_triangulation.is_flippable(self.edge_index))
+		assert(self.source_triangulation.is_flippable(self.edge))
 		
-		self.square = self.source_triangulation.square(self.edge_label)
+		self.square = self.source_triangulation.square(self.edge)
 	
 	def __str__(self):
-		return 'Flip %s%d' % ('' if self.edge_index == self.edge_label else '~', self.edge_index)
+		return 'Flip %s' % self.edge
 	def __reduce__(self):
-		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge_label))
+		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge))
 	def package(self):
 		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
 		
-		return self.edge_label
+		return self.edge.label
 	
 	def apply_lamination(self, lamination):
 		a, b, c, d, e = self.square
@@ -149,7 +150,7 @@ class EdgeFlip(Move):
 	def inverse(self):
 		''' Return the inverse of this map. '''
 		
-		return EdgeFlip(self.target_triangulation, self.source_triangulation, ~self.edge_label)
+		return EdgeFlip(self.target_triangulation, self.source_triangulation, ~self.edge)
 
 
 
