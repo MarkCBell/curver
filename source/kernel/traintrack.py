@@ -1,6 +1,6 @@
 
 import curver
-from curver.kernel.lamination import Lamination
+from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 
 INFTY = float('inf')
 
@@ -9,34 +9,37 @@ class TrainTrack(Lamination):
 	
 	def split(self, edge):
 		# Splittable ==> flippable.
-		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
 		assert(self.dual_weight(edge.label) <= 0 or self.dual_weight(~edge.label) <= 0)
 		
-		return self.triangulation.encode_flip(edge.label)
+		return self.triangulation.encode_flip(edge)
 	
-	def score(self, label):
+	def score(self, edge):
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
 		score = 0
-		corner = self.triangulation.corner_lookup[label]
-		if self.dual_weight(corner.labels[0]) > 0: score += 1
-		if self.dual_weight(corner.labels[1]) <= 0: score += 1
-		if self.dual_weight(corner.labels[2]) <= 0: score += 1
-		if self(label) <= 0: score += 1
+		corner = self.triangulation.corner_lookup[edge.label]
+		if self.dual_weight(corner[0]) > 0: score += 1
+		if self.dual_weight(corner[1]) <= 0: score += 1
+		if self.dual_weight(corner[2]) <= 0: score += 1
+		if self(edge) <= 0: score += 1
 		return score
 	
 	def mcomponents(self):
 		
 		train_track = self
 		
-		def short_curve(L, label):
-			a, b, c, d, e = L.triangulation.square(label)
+		def short_curve(L, edge):
+			a, b, c, d, e = L.triangulation.square(edge)
 			geometric = [1 if i == b.index or i == e.index else 0 for i in range(self.zeta)]
 			if b == ~d and \
-				L.dual_weight(a.label) >= 0 and \
-				L.dual_weight(b.label) == 0 and \
-				L.dual_weight(c.label) >= 0 and \
-				L.dual_weight(d.label) == 0 and \
-				L.dual_weight(e.label) == 0 and \
-				L.dual_weight(~e.label) == 0:
+				L.dual_weight(a) >= 0 and \
+				L.dual_weight(b) == 0 and \
+				L.dual_weight(c) >= 0 and \
+				L.dual_weight(d) == 0 and \
+				L.dual_weight(e) == 0 and \
+				L.dual_weight(~e) == 0:
 				multiplicity = L(e)
 			else:
 				multiplicity = 0
@@ -65,7 +68,7 @@ class TrainTrack(Lamination):
 		extra = []
 		while not train_track.is_empty():
 			# This edge is always splittable.
-			to_split = min(extra + train_track.triangulation.labels, key=train_track.score)
+			to_split = min(extra + train_track.triangulation.edges, key=train_track.score)
 			
 			move = train_track.split(to_split)
 			encoding = move * encoding
@@ -89,10 +92,13 @@ class TrainTrack(Lamination):
 			
 			# Accelerate!!
 			a, b, c, d, e = train_track.triangulation.square(to_split)
-			extra = [~a.label, ~d.label]
+			extra = [~a, ~d]
 		
 		return components
 	
 	def vertex_cycle(self):
 		return NotImplemented  # TODO: 2).
+	
+	def splitting_sequence(self):
+		''' Return a sequence of Encodings taking this train track to its simplest form. '''
 
