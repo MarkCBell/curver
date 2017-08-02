@@ -4,6 +4,7 @@
 Provides: Edge, Triangle and Triangulation. '''
 
 import curver
+from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 INFTY = float('inf')
 
@@ -104,6 +105,8 @@ class Triangle(object):
 	
 	def __getitem__(self, index):
 		return self.edges[index]
+	def __contains__(self, other):
+		return other in self.edges
 
 # Remark: In other places in the code you will often see L(triangulation). This is the space
 # of laminations on triangulation with the coordinate system induced by the triangulation.
@@ -118,7 +121,7 @@ class Triangulation(object):
 		# minimally by label. This allows for fast comparisons.
 		self.triangles = sorted(triangles, key=lambda t: t.labels)
 		
-		self.edges = [edge for triangle in self for edge in triangle.edges]
+		self.edges = [edge for triangle in self for edge in triangle]
 		self.positive_edges = [edge for edge in self.edges if edge.sign() == +1]
 		self.labels = sorted([edge.label for edge in self.edges])
 		self.indices = sorted([edge.index for edge in self.positive_edges])
@@ -130,7 +133,7 @@ class Triangulation(object):
 		assert(set(self.labels) == set([i for i in range(self.zeta)] + [~i for i in range(self.zeta)]))
 		
 		self.edge_lookup = dict((edge.label, edge) for edge in self.edges)
-		self.triangle_lookup = dict((edge.label, triangle) for triangle in self for edge in triangle.edges)
+		self.triangle_lookup = dict((edge.label, triangle) for triangle in self for edge in triangle)
 		self.corner_lookup = dict((edge.label, Triangle(triangle.edges, rotate=index)) for triangle in triangles for index, edge in enumerate(triangle))
 		
 		# Group the edges into vertex classes.
@@ -256,10 +259,9 @@ class Triangulation(object):
 		
 		return dual_tree
 	
+	@memoize
 	def homology_matrix(self):
 		''' Return a matrix that kills the entries of the dual tree. '''
-		# Cache?
-		# TODO: 4) Document conventions here.
 		
 		dual_tree = self.dual_tree()
 		
@@ -280,34 +282,40 @@ class Triangulation(object):
 				row[index] = 1
 			M.append(row)
 		
-		return zip(*M)
+		return zip(*M)  # Transpose the matrix.
 	
-	def is_flippable(self, edge_label):
+	def is_flippable(self, edge):
 		''' Return if the given edge is flippable.
 		
 		An edge is flippable if and only if it lies in two distinct triangles. '''
 		
-		return self.triangle_lookup[edge_label] != self.triangle_lookup[~edge_label]
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+		
+		return self.triangle_lookup[edge.label] != self.triangle_lookup[~edge.label]
 	
-	def folded_boundary(self, edge_label):
-		''' Return the edge bounding the once-punctured monogon containing edge_label.
+	def folded_boundary(self, edge):
+		''' Return the edge bounding the once-punctured monogon containing the given edge.
 		
 		The given edge must not be flippable. '''
 		
-		assert(not self.is_flippable(edge_label))
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+		
+		assert(not self.is_flippable(edge))
 		
 		# As edge_label is not flippable the triangle containing it must be (edge_label, ~edge_label, boundary_edge).
-		[boundary_edge] = [edge for edge in self.triangle_lookup[edge_label] if edge.label != edge_label and edge.label != ~edge_label]
+		[boundary_edge] = [edge for edge in self.triangle_lookup[edge.label] if edge.label != edge_label and edge.label != ~edge_label]
 		return boundary_edge
 	
-	def square(self, edge_label):
+	def square(self, edge):
 		''' Return the four edges around the given edge and the diagonal.
 		
 		The given edge must be flippable. '''
 		
-		assert(self.is_flippable(edge_label))
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
 		
-		# Given the label e, return the edges a, b, c, d in order.
+		assert(self.is_flippable(edge))
+		
+		# Given the e, return the edges a, b, c, d, e in order.
 		#
 		# #<----------#
 		# |     a    ^^
@@ -323,16 +331,18 @@ class Triangulation(object):
 		# V/    c     |
 		# #---------->#
 		
-		corner_A, corner_B = self.corner_lookup[edge_label], self.corner_lookup[~edge_label]
-		return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], self.edge_lookup[edge_label]]
+		corner_A, corner_B = self.corner_lookup[edge.label], self.corner_lookup[~edge.label]
+		return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], edge]
 	
 	# Build new triangulations:
-	def flip_edge(self, edge_label):
+	def flip_edge(self, edge):
 		''' Return a new triangulation obtained by flipping the given edge.
 		
 		The chosen edge must be flippable. '''
 		
-		assert(self.is_flippable(edge_label))
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+		
+		assert(self.is_flippable(edge))
 		
 		# Use the following for reference:
 		# #<----------#     #-----------#
@@ -352,17 +362,16 @@ class Triangulation(object):
 		edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
 		
 		# Most triangles don't change.
-		triangles = [Triangle([edge_map[edge] for edge in triangle]) for triangle in self if edge_label not in triangle.labels and ~edge_label not in triangle.labels]
+		triangles = [Triangle([edge_map[edgey] for edgey in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
 		
-		a, b, c, d, e = self.square(edge_label)
+		a, b, c, d, e = self.square(edge)
 		
-		if edge_label == norm(edge_label):
+		if edge.sign() == +1:
 			triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
 			triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
-		else:
+		else:  # edge.sign() == -1.
 			triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
 			triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
-		
 		return Triangulation(triangles + [triangle_A2, triangle_B2])
 	
 	def all_encodings(self, num_flips):
@@ -529,23 +538,27 @@ class Triangulation(object):
 		
 		return self.id_isometry().encode()
 	
-	def encode_flip(self, edge_label):
+	def encode_flip(self, edge):
 		''' Return an encoding of the effect of flipping the given edge.
 		
 		The given edge must be flippable. '''
 		
-		assert(self.is_flippable(edge_label))
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
 		
-		new_triangulation = self.flip_edge(edge_label)
+		assert(self.is_flippable(edge))
 		
-		return curver.kernel.EdgeFlip(self, new_triangulation, edge_label).encode()
+		new_triangulation = self.flip_edge(edge)
+		
+		return curver.kernel.EdgeFlip(self, new_triangulation, edge).encode()
 	
-	def encode_spiral(self, edge_label, power):
+	def encode_spiral(self, edge, power):
 		''' Return an encoding of the effect of spiraling about the given edge.
 		
 		The given edge must be spiralable. '''
 		
-		return curver.kernel.Spiral(self, self, edge_label, power).encode()
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+		
+		return curver.kernel.Spiral(self, self, edge, power).encode()
 	
 	def encode_relabel_edges(self, label_map):
 		''' Return an encoding of the effect of flipping the given edge. '''
