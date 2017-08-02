@@ -7,6 +7,7 @@ import networkx
 from itertools import permutations
 
 import curver
+from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 INFTY = float('inf')
 
@@ -80,12 +81,14 @@ class Lamination(object):
 		
 		return sum(max(weight, 0) for weight in self)
 	
-	def dual_weight(self, label):
-		''' Return the number of component of this leaf dual to the given edge.
+	def dual_weight(self, edge):
+		''' Return the number of component of this lamination dual to the given edge.
 		
 		Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
 		
-		corner = self.triangulation.corner_lookup[label]
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
+		corner = self.triangulation.corner_lookup[edge.label]
 		weights = [self(edge) for edge in corner]
 		return dual_weight(*weights)
 	
@@ -212,6 +215,7 @@ class Lamination(object):
 		
 		return set(component for component, _ in self.mcomponents())
 	
+	@memoize
 	def mcomponents(self):
 		''' Return a set of pairs (component, multiplicity). '''
 		# Probably one of the best methods to cache!?!
@@ -243,8 +247,8 @@ class MultiCurve(Lamination):
 	
 	def encode_twist(self, k=1):
 		h = self.triangulation.id_encoding()
-		for curve, multiplicity in self:
-			h = Curve(self.triangulation, {curve: 1}).encode_twist(k * multiplicity) * h
+		for curve, multiplicity in self.mcomponents():
+			h = curve.encode_twist(k * multiplicity) * h
 		
 		return h
 	
@@ -296,8 +300,7 @@ class MultiCurve(Lamination):
 		''' Return the crush map associated to this MultiCurve. '''
 		
 		g = self.triangulation.id_encoding()
-		
-		for curve in self.arcs_and_curves():
+		for curve in self.components():
 			h = g(curve).crush()  # Map forward under crushes first.
 			g = h * g
 		
