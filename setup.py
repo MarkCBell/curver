@@ -30,7 +30,7 @@ setup(
 		'curver.application': ['icon/*', 'frames/*'],
 		},
 	install_requires=[
-		'networkx',
+		'networkx',  # Curve.tight_geodesic
 		]
 	)
 
