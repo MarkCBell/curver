@@ -9,6 +9,7 @@ class HomologyClass(object):
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta
 		self.algebraic = list(algebraic)
+		assert(len(self.algebraic) == self.zeta)
 	
 	def __repr__(self):
 		return str(self)
