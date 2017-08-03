@@ -176,10 +176,8 @@ class Spiral(Move):
 		
 		self.edge_label = edge_label
 		self.edge_index = curver.kernel.norm(self.edge_label)
-		# Find a, b, c & d automatically.
 		a, b, c, d, e = self.square
-		assert(b == ~d)
-		# Assert that b == d.
+		assert(b == ~d)  # Assert that b == d.
 		self.power = power
 	
 	def __str__(self):
@@ -191,37 +189,15 @@ class Spiral(Move):
 		
 		return (self.edge_label, self.power)
 	
-	def mat(self, config, t):
-		k = abs(self.power)
-		if k == 0: return lambda (a, b, c, d): (a, b, c, d)
-		
-		def F(n):  # Note F(0) == Id.
-			return lambda (a, b, c, d): (a, b, (n+1)*c - n*d, n*c + (1-n)*d)
-		G = lambda (a, b, c, d): (a, b, a+b-d, c)
-		
-		# Take k steps in the graph. Leave unstable after t steps.
-		if config == 1:  # Stable.
-			M = lambda x: F(k)(x)
-		elif config == 2:  # Transition.
-			M = lambda x: F(k-1)(G(x))
-		elif config == 3:  # Unstable.
-			if k <= t:  # k steps in unstable
-				M = lambda x: F(k)(x)
-			elif k == t+1:  # t steps in unstable, then into transition.
-				M = lambda x: G(F(t)(x))
-			elif k == t+2:  # t steps in unstable, into transition, then out of transition.
-				M = lambda x: G(G(F(t)(x)))
-			else:  # k > t+2:  # t steps in unstable, into transition, out of transition, then the remaining steps in stable.
-				M = lambda x: F(k - (t + 2))(G(G(F(t)(x))))
-		
-		return M
-	
-	def apply_lamination(self, leaf):
+	def apply_lamination(self, lamination):
 		# TODO: 4) Make work on all Laminations, not just MultiCurves.
 		# We will begin with an easy case so we can later assume self.power != 0.
+		if self.power == 0: return lamination
+		
+		k = abs(self.power)
 		
 		a, b, c, d, e = self.square
-		ai, bi, ci, di, ei = [self(edge) for edge in self.square]
+		ai, bi, ci, di, ei = [lamination(edge) for edge in self.square]
 		
 		# Determine the number of strands passing through the annulus.
 		xi = max(bi - ei, ai + ci - bi - ei, ei - bi)
@@ -233,8 +209,6 @@ class Spiral(Move):
 		# We use this slightly unusual ordering to ensure this gives the
 		# same preference (a + c >= b + d) as EdgeFlip.
 		state = 2 if xi == ai+ci-bi-ei else 1 if xi == bi-ei else 3
-		
-		k = abs(self.power)
 		
 		# Compute action on a, b, c, e.
 		# Note that if self.power < 0 then (instead of using the ordering a, c, b, e) we use a, c, e, d.
@@ -248,14 +222,36 @@ class Spiral(Move):
 		
 		# The maximum number of times you can perform the unstable state.
 		t = min(max((2*bi - ai - ci) // (2*(ei - bi)) + 1, 0), k) if ei != bi else k
-		M = self.mat(state, t)  # t only really matters if in the unstable, that is, if state == 3.
-		_, _, new_bi, new_ei = M([ai, ci, bi, ei])
+		
+		def F(n, X):  # Note F(0) == Id.
+			(a, b, c, d) = X
+			return a, b, (n+1)*c - n*d, n*c + (1-n)*d
+		def G(X):
+			(a, b, c, d) = X
+			return a, b, a+b-d, c
+		
+		# Take k steps in the graph. Leave unstable after t steps.
+		if config == 1:  # Stable.
+			Y = F(k, X)
+		elif config == 2:  # Transition.
+			Y = F(k-1, G(X))
+		elif config == 3:  # Unstable.
+			if k <= t:  # k steps in unstable
+				Y = F(k, X)
+			elif k == t+1:  # t steps in unstable, then into transition.
+				Y = G(F(t, x))
+			elif k == t+2:  # t steps in unstable, into transition, then out of transition.
+				Y = G(G(F(t, x)))
+			else:  # k > t+2:  # t steps in unstable, into transition, out of transition, then the remaining steps in stable.
+				Y = F(k - (t + 2), G(G(F(t, x))))
+		
+		_, _, new_bi, new_ei = Y  # t only really matters if in the unstable, that is, if state == 3.
 		
 		if self.power < 0:
 			# Reverse the configuration if we are taking a negative power.
 			new_bi, new_ei = new_ei, new_bi
 		
-		geometric = [new_bi if index == b.index else new_e if index == e.index else leaf(index) for index in self.triangle.indices]
+		geometric = [new_bi if index == b.index else new_e if index == e.index else lamination(index) for index in self.triangle.indices]
 		return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
 	
 	def apply_homology(self, homology_class):

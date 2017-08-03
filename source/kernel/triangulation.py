@@ -282,7 +282,7 @@ class Triangulation(object):
 				row[index] = 1
 			M.append(row)
 		
-		return zip(*M)  # Transpose the matrix.
+		return list(zip(*M))  # Transpose the matrix. We need list so that this is not a generator in Python3.
 	
 	def is_flippable(self, edge):
 		''' Return if the given edge is flippable.
