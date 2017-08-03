@@ -218,10 +218,8 @@ class Lamination(object):
 	@memoize
 	def mcomponents(self):
 		''' Return a set of pairs (component, multiplicity). '''
-		# Probably one of the best methods to cache!?!
 		
 		components = []
-		
 		for component, multiplicity in self.train_track().mcomponents():
 			# Project an Arc or Curve on T back to self.triangulation.
 			if isinstance(component, Curve):
@@ -419,10 +417,12 @@ class Curve(MultiCurve):
 		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains self and other. '''
 		
 		assert(isinstance(other, Curve))
+		short, conjugator = self.shorten()
 		
-		# TODO: 2) Implement train track splitting sequence.
-		
-		return NotImplemented
+		train_track = conjugator(other).train_track()
+		_, conjugator_tt = train_track.shorten()
+		encodings = [conjugator_tt[i:] for i in range(len(conjugator_tt)+1)]
+		return [conjugator.inverse()(encoding.inverse()(encoding(train_track).vertex_cycle())) for encoding in encodings]
 	
 	def all_tight_geodesic_multicurves(self, other):
 		''' Return a set that contains all multicurves in any tight geodesic from self to other.
@@ -432,7 +432,7 @@ class Curve(MultiCurve):
 		assert(isinstance(other, Curve))
 		
 		guide = self.quasiconvex(other)  # U.
-		L = 6*curver.kernel.constants.QUASICONVEXITY + 2
+		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See Richard's paper!?!
 		return set(multicurve for length in range(L+1) for c1 in guide for c2 in guide for path in c1.tight_paths(c2, length) for multicurve in path)
 	
 	def tight_geodesic(self, other):
