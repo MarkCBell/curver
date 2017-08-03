@@ -45,7 +45,7 @@ TrainTrack = traintrack.TrainTrack
 
 norm = triangulation.norm
 UnionFind = utilities.UnionFind
-memoize = utilities.memoize
+memoize = utilities.memoize  # Unused?
 
 # Functions that help with construction.
 create_triangulation = Triangulation.from_tuple
