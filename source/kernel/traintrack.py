@@ -7,98 +7,75 @@ INFTY = float('inf')
 class TrainTrack(Lamination):
 	''' A Lamination in which each triangle is tripod free. '''
 	
-	def split(self, edge):
-		# Splittable ==> flippable.
-		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
-		
-		assert(self.dual_weight(edge.label) <= 0 or self.dual_weight(~edge.label) <= 0)
-		
-		return self.triangulation.encode_flip(edge)
-	
 	def score(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		score = 0
-		corner = self.triangulation.corner_lookup[edge.label]
-		if self.dual_weight(corner[0]) > 0: score += 1
-		if self.dual_weight(corner[1]) <= 0: score += 1
-		if self.dual_weight(corner[2]) <= 0: score += 1
-		if self(edge) <= 0: score += 1
-		return score
+		# Low score == bad.
+		if not self.triangulation.is_flippable(edge):
+			return 0
+		
+		a, b, c, d, e = self.triangulation.square(edge)
+		da, db, dc, dd, de = [self.dual_weight(edgey) for edgey in self.triangulation.square(edge)]
+		if self(e) <= 0:
+			return 0
+		if b == ~d and da > 0 and db == 0 and de == 0:
+			return 0
+		if a == ~c and da == 0 and db > 0 and de == 0:
+			return 0
+		if de > 0 or da < 0 or db < 0:
+			return 1
+		
+		if (da == 0 and db == 0) or (da == 0 and de == 0) or (db == 0 and de == 0):
+			return 2
+		
+		return 3
 	
-	def mcomponents(self):
+	def shorten(self):
+		''' Return an encoding which maps this train track to one with as little weight as possible together with its image.
+		
+		This happens when every edge has a score of 0. '''
 		
 		train_track = self
-		
-		def short_curve(L, edge):
-			a, b, c, d, e = L.triangulation.square(edge)
-			geometric = [1 if i == b.index or i == e.index else 0 for i in range(self.zeta)]
-			if b == ~d and \
-				L.dual_weight(a) >= 0 and \
-				L.dual_weight(b) == 0 and \
-				L.dual_weight(c) >= 0 and \
-				L.dual_weight(d) == 0 and \
-				L.dual_weight(e) == 0 and \
-				L.dual_weight(~e) == 0:
-				multiplicity = L(e)
-			else:
-				multiplicity = 0
-			return geometric, multiplicity
-		
-		components = []
-		encoding = train_track.triangulation.id_encoding()
-		
-		# Remove all the obvious arcs. This reduces the number of places we have to look for new arcs later.
-		for index in train_track.triangulation.indices:
-			if train_track(index) < 0:
-				geometric = [0 if i != index else -1 for i in range(train_track.zeta)]
-				component, multiplicity = curver.kernel.Arc(train_track.triangulation, geometric), abs(train_track(index))
-				components.append((encoding.inverse()(component), multiplicity))
-				train_track = train_track - multiplicity * component
-		
-		# Remove all the obvious curves. This reduces the number of places we have to look for new curves later.
-		for index in train_track.triangulation.indices:
-			if train_track.triangulation.is_flippable(index):
-				geometric, multiplicity = short_curve(train_track, index)
-				if multiplicity > 0:
-					component = curver.kernel.Curve(train_track.triangulation, geometric)
-					components.append((encoding.inverse()(component), multiplicity))
-					train_track = train_track - multiplicity * component
-		
-		extra = []
-		while not train_track.is_empty():
-			# This edge is always splittable.
-			to_split = min(extra + train_track.triangulation.edges, key=train_track.score)
+		encoding = self.triangulation.id_encoding()
+		extra = []  # Preference for next split.
+		while True:
+			to_split = max(extra + train_track.triangulation.edges, key=train_track.score)
+			if train_track.score(to_split) == 0: break
+			# This edge is always flippable.
 			
-			move = train_track.split(to_split)
+			move = train_track.triangulation.encode_flip(to_split)
 			encoding = move * encoding
 			train_track = move(train_track)
 			
-			# The only place where an obvious arc could appear is along the new edge we have just introduced.
-			if train_track(to_split) < 0:
-				geometric = [0 if i != to_split else -1 for i in range(train_track.zeta)]
-				component, multiplicity = curver.kernel.Arc(train_track.triangulation, geometric), abs(train_track(to_split))
-				components.append((encoding.inverse()(component), multiplicity))
-				train_track = train_track - multiplicity * component
-			
-			# The only places where a short curve could appear is across an edge adjacent to the one we just flipped.
-			for index in [edge.index for edge in train_track.triangulation.square(to_split)]:
-				if train_track.triangulation.is_flippable(index):
-					geometric, multiplicity = short_curve(train_track, index)
-					if multiplicity > 0:
-						component = curver.kernel.Curve(train_track.triangulation, geometric)
-						components.append((encoding.inverse()(component), multiplicity))
-						train_track = train_track - multiplicity * component
-			
-			# Accelerate!!
+			# TODO: 3) Accelerate!!
 			a, b, c, d, e = train_track.triangulation.square(to_split)
-			extra = [~a, ~d]
+			extra = [a, d]
+		
+		return train_track, encoding
+	
+	def mcomponents(self):
+		
+		short, conjugator = self.shorten()
+		
+		components = []
+		for edge in short.triangulation.positive_edges:  # Only need to check half of them.
+			# Check for an Arc here.
+			if short(edge) < 0:
+				geometric = [-1 if index == edge.index else 0 for index in short.triangulation.indices]
+				component, multiplicity = curver.kernel.Arc(short.triangulation, geometric), abs(short(edge))
+				components.append((conjugator.inverse()(component), multiplicity))  # Map it back onto self.
+			
+			# Check for a curve here.
+			if short.triangulation.is_flippable(edge):
+				a, b, c, d, e = short.triangulation.square(edge)
+				da, db, dc, dd, de = [short.dual_weight(edgey) for edgey in short.triangulation.square(edge)]
+				if b == ~d and da > 0 and db == 0 and de == 0:
+					geometric = [1 if index == b.index or index == e.index else 0 for index in short.triangulation.indices]
+					component, multiplicity = curver.kernel.Curve(short.triangulation, geometric), short(e)
+					components.append((conjugator.inverse()(component), multiplicity))  # Map it back onto self.
 		
 		return components
 	
 	def vertex_cycle(self):
 		return NotImplemented  # TODO: 2).
-	
-	def splitting_sequence(self):
-		''' Return a sequence of Encodings taking this train track to its simplest form. '''
 
