@@ -47,6 +47,27 @@ class Encoding(object):
 		return iter(self.sequence)
 	def __len__(self):
 		return len(self.sequence)
+	def __getitem__(self, value):
+		if isinstance(value, slice):
+			# It turns out that handling all slices correctly is really hard.
+			# We need to be very careful with "empty" slices. As Encodings require
+			# non-empty sequences, we have to return just the id_encoding. This
+			# ensures the Encoding that we return satisfies:
+			#   self == self[:i] * self[i:j] * self[j:]
+			# even when i == j.
+			
+			start = 0 if value.start is None else value.start if value.start >= 0 else len(self) + value.start
+			stop = len(self) if value.stop is None else value.stop if value.stop >= 0 else len(self) + value.stop
+			if start == stop:
+				if 0 <= start < len(self):
+					return self.sequence[start].target_triangulation.id_encoding()
+				else:
+					raise IndexError('list index out of range')
+			return Encoding(self.sequence[value])
+		elif isinstance(value, curver.IntegerType):
+			return self.sequence[value]
+		else:
+			return NotImplemented
 	def package(self):
 		''' Return a small amount of info that self.source_triangulation can use to reconstruct this triangulation. '''
 		return [item.package() for item in self]
