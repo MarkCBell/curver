@@ -160,8 +160,8 @@ class EquippedTriangulation(object):
 		''' A shortcut for self.mapping_class(...). '''
 		return self.mapping_class(word)
 	
-	def lamination(self, geometric, remove_peripheral=True):
+	def lamination(self, geometric):
 		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
-		return self.triangulation.lamination(geometric, remove_peripheral)
+		return self.triangulation.lamination(geometric)
 
