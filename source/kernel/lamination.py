@@ -97,10 +97,10 @@ class Lamination(object):
 		
 		conjugator = self.triangulation.id_encoding()
 		for component in self.components():
-			conj, _ = conjugator(component).shorten()
+			_, conj = conjugator(component).shorten()
 			conjugator = conj * conjugator
 		
-		return conjugator, conjugator(self)
+		return conjugator(self), conjugator
 	
 	def is_empty(self):
 		''' Return if this lamination has no components. '''
