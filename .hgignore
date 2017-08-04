@@ -1,10 +1,10 @@
 
 syntax:glob
+source/application/icon
 build/*
 dist/*
 curver.egg-info/*
 __pycache__/*
-source/application
 *.pyc
 *.bat
 *.swp
