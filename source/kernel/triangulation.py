@@ -498,7 +498,7 @@ class Triangulation(object):
 			peripheral = INFTY
 			for edge in vertex:
 				triangle = self.corner_lookup[edge.label]
-				peripheral = min(peripheral, curver.kernel.lamination.dual_weight(weights[triangle.indices[0]], weights[triangle.indices[2]], weights[triangle.indices[1]]))
+				peripheral = min(peripheral, curver.kernel.lamination.dual_weight(weights[triangle.indices[1]], weights[triangle.indices[2]], weights[triangle.indices[0]]))
 			for edge in vertex:
 				peripherals[edge.index] += max(peripheral, 0)
 		weights = [weight - peripheral for weight, peripheral in zip(weights, peripherals)]  # Remove the peripheral components.
