@@ -109,30 +109,31 @@ class EdgeFlip(Move):
 		return self.edge.label
 	
 	def apply_lamination(self, lamination):
-		a, b, c, d, e = self.square
 		L = lamination  # Shorter name.
+		a, b, c, d, e = self.square
+		ai, bi, ci, di, ei = [max(L(edge), 0) for edge in self.square]
 		
 		# Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
 		geometric = list(L.geometric)
 		
-		if L(e) >= L(a) + L(b) and L(a) >= L(d) and L(b) >= L(c):  # CASE: A(ab)
-			geometric[e.index] = L(a) + L(b) - L(e)
-		elif L(e) >= L(c) + L(d) and L(d) >= L(a) and L(c) >= L(b):  # CASE: A(cd)
-			geometric[e.index] = L(c) + L(d) - L(e)
-		elif L(e) <= 0 and L(a) >= L(b) and L(d) >= L(c):  # CASE: D(ad)
-			geometric[e.index] = L(a) + L(d) - L(e)
-		elif L(e) <= 0 and L(b) >= L(a) and L(c) >= L(d):  # CASE: D(bc)
-			geometric[e.index] = L(b) + L(c) - L(e) 
-		elif L(a) >= L(b) + L(e) and L(d) >= L(c) + L(e):  # CASE: N(ad)
-			geometric[e.index] = L(a) + L(d) - 2*L(e)
-		elif L(b) >= L(a) + L(e) and L(c) >= L(d) + L(e):  # CASE: N(bc)
-			geometric[e.index] = L(b) + L(c) - 2*L(e)
-		elif L(a) + L(b) >= L(e) and L(b) + L(e) >= 2*L(c) + L(a) and L(a) + L(e) >= 2*L(d) + L(b):  # CASE: N(ab)
-			geometric[e.index] = (L(a) + L(b) - L(e)) // 2
-		elif L(c) + L(d) >= L(e) and L(d) + L(e) >= 2*L(a) + L(c) and L(c) + L(e) >= 2*L(b) + L(d):  # CASE: N(cd)
-			geometric[e.index] = (L(c) + L(d) - L(e)) // 2
+		if L(e) >= ai + bi and ai >= di and bi >= ci:  # CASE: A(ab)
+			geometric[e.index] = ai + bi - L(e)
+		elif L(e) >= ci + di and di >= ai and ci >= bi:  # CASE: A(cd)
+			geometric[e.index] = ci + di - L(e)
+		elif L(e) <= 0 and ai >= bi and di >= ci:  # CASE: D(ad)
+			geometric[e.index] = ai + di - L(e)
+		elif L(e) <= 0 and bi >= ai and ci >= di:  # CASE: D(bc)
+			geometric[e.index] = bi + ci - L(e)
+		elif L(e) >= 0 and ai >= bi + L(e) and di >= ci + L(e):  # CASE: N(ad)
+			geometric[e.index] = ai + di - 2*L(e)
+		elif L(e) >= 0 and bi >= ai + L(e) and ci >= di + L(e):  # CASE: N(bc)
+			geometric[e.index] = bi + ci - 2*L(e)
+		elif ai + bi >= L(e) and bi + L(e) >= 2*ci + ai and ai + L(e) >= 2*di + bi:  # CASE: N(ab)
+			geometric[e.index] = (ai + bi - L(e)) // 2
+		elif ci + di >= L(e) and di + L(e) >= 2*ai + ci and ci + L(e) >= 2*bi + di:  # CASE: N(cd)
+			geometric[e.index] = (ci + di - L(e)) // 2
 		else:
-			geometric[e.index] = max(L(a) + L(c), L(b) + L(d)) - L(e)
+			geometric[e.index] = max(ai + ci, bi + di) - L(e)
 		
 		return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
 	
