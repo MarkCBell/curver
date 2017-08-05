@@ -10,11 +10,10 @@ except ImportError:
 
 this_directory = os.path.dirname(__file__)
 source_directory = os.path.join(this_directory, 'source')
-exec(open(os.path.join(source_directory, 'version.py')).read())  # Load in the variable __version__.
 
 setup(
 	name='curver',
-	version=__version__,
+	version='0.1.0',
 	description='For calculations in the curve complex',
 	author='Mark Bell',
 	author_email='mcbell@illinois.edu',
