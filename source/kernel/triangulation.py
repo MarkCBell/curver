@@ -237,7 +237,7 @@ class Triangulation(object):
 		
 		components = curver.kernel.UnionFind(self.indices)
 		for triangle in self:
-			components.union(*triangle.indices)
+			components.union(triangle.indices)
 		
 		return list(components)
 	

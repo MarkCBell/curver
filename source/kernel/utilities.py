@@ -64,6 +64,7 @@ class UnionFind(object):
 			self.parent[ry] = rx
 			self.rank[rx] += 1
 	def union(self, *arg):
+		if len(arg) == 1: arg = arg[0]
 		for item in arg:
 			self.union2(arg[0], item)
 
