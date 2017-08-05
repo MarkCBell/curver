@@ -60,7 +60,7 @@ def dot(a, b):
 	return a[0] * b[0] + a[1] * b[1]
 
 class CurverApplication(object):
-	def __init__(self, parent):
+	def __init__(self, parent, showable=[]):
 		self.parent = parent
 		self.options = curver.application.Options(self)
 		self.colour_picker = curver.application.ColourPalette()
@@ -129,6 +129,7 @@ class CurverApplication(object):
 		self.triangles = []
 		self.curve_components = []
 		
+		self.showable = dict(showable)
 		self.lamination = None
 	
 	def parent_key_press(self, event):
@@ -302,8 +303,8 @@ class CurverApplication(object):
 		self.triangles.append(curver.application.CanvasTriangle(self.canvas, [e1, e2, e3], self.options))
 		return self.triangles[-1]
 	
-	def create_curve_component(self, vertices, multiplicity=1, thin=True, smooth=False):
-		self.curve_components.append(curver.application.CurveComponent(self.canvas, vertices, self.options, multiplicity, thin, smooth))
+	def create_curve_component(self, vertices, thin=True, smooth=False):
+		self.curve_components.append(curver.application.CurveComponent(self.canvas, vertices, self.options, thin, smooth))
 		return self.curve_components[-1]
 	
 	
@@ -404,21 +405,28 @@ class CurverApplication(object):
 					if dual_weights[i] > 0:  # Should be 0 but we have a floating point approximation.
 						# We first do the edge to the left of the vertex.
 						# Correction factor to take into account the weight on this edge.
-						s_a = weights[i-2] / master
+						s_a = (1 - 2*vb) * weights[i-2] / master
 						# The fractions of the distance of the two points on this edge.
-						scale_a = vb * s_a + (1 - s_a) / 2
-						scale_a2 = scale_a + (1 - 2*vb) * s_a * dual_weights[i] / (dual_weights[i] + dual_weights[i-1])
+						scale_a = (1 - s_a) / 2
+						scale_a2 = scale_a + s_a * dual_weights[i] / weights[i-2]
 						
 						# Now repeat for the other edge of the triangle.
-						s_b = weights[i-1] / master
-						scale_b = vb * s_b + (1 - s_b) / 2
-						scale_b2 = scale_b + (1 - 2*vb) * s_b * dual_weights[i] / (dual_weights[i] + dual_weights[i-2])
+						s_b = (1 - 2*vb) * weights[i-1] / master
+						scale_b = (1 - s_b) / 2
+						scale_b2 = scale_b + s_b * dual_weights[i] / weights[i-1]
 						
 						S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-1], triangle[i], triangle[i-2], scale_a, scale_b)
 						S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-1], triangle[i], triangle[i-2], scale_a2, scale_b2)
-						self.create_curve_component([S1, S1, P1, Q1, E1, E1, E2, E2, Q2, P2, S2, S2, S1, S1])
+						self.create_curve_component([S1, S1, P1, Q1, E1, E1, E2, E2, Q2, P2, S2, S2, S1, S1], thin=False)
 					elif dual_weights[i] < 0: # Terminal arc.
-						pass  # TODO: 2)
+						s_0 = (1 - 2*vb) * weights[i] / master
+						
+						scale_a = (1 - s_0) / 2 + s_0 * dual_weights[i-2] / weights[i]
+						scale_a2 = scale_a + s_0 * (-dual_weights[i]) / weights[i]
+						
+						S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-2], triangle[i-1], triangle[i], scale_a, 1.0)
+						S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-2], triangle[i-1], triangle[i], scale_a2, 1.0)
+						self.create_curve_component([S1, S1, P1, E1, E1, P2, S2, S2, S1, S1], thin=False)
 					else:  # dual_weights[i] == 0:  # Nothing to draw.
 						pass
 		else:  # Draw everything. Caution, this is is VERY slow (O(n) not O(log(n))) so we only do it when the weight is low.
@@ -427,21 +435,21 @@ class CurverApplication(object):
 				dual_weights = [lamination.dual_weight(edge.label) for edge in triangle.edges]
 				for i in range(3):
 					if dual_weights[i] > 0:  # Should be 0 but we have a floating point approximation.
-						wa, wb = weights[i-2], weights[i-1]
+						s_a = (1 - 2*vb) * weights[i-2] / master
+						s_b = (1 - 2*vb) * weights[i-1] / master
 						for j in range(dual_weights[i]):
-							scale_a = 0.5 if wa == 1 else vb + (1 - 2*vb) * ((wa - 1) * (master - wa) + 2 * wa * j) / (2 * (wa - 1) * master)
-							scale_b = 0.5 if wb == 1 else vb + (1 - 2*vb) * ((wb - 1) * (master - wb) + 2 * wb * j) / (2 * (wb - 1) * master)
+							scale_a = 0.5 if weights[i-2] == 1 else (1 - s_a) / 2 + s_a * j / (weights[i-2] - 1)
+							scale_b = 0.5 if weights[i-1] == 1 else (1 - s_b) / 2 + s_b * j / (weights[i-1] - 1)
 							
 							S, P, Q, E = curver.application.interpolate(triangle[i-1], triangle[i], triangle[i-2], scale_a, scale_b)
 							self.create_curve_component([S, P, Q, E])
 					elif dual_weights[i] < 0: # Terminal arc.
+						s_0 = (1 - 2*vb) * weights[i] / master
 						for j in range(-dual_weights[i]):
-							pass  # TODO: 2)
-							#if self.options.straight_laminations:
-							#	self.create_curve_component([S, E])
-							#else:
-							#	self.create_curve_component([S, P, Q, E], smooth=True)
-						pass
+							scale_a = 0.5 if weights[i] == 1 else (1 - s_0) / 2 + s_0 * dual_weights[i-1] / (weights[i] - 1) + s_0 * j / (weights[i] - 1)
+							
+							S, P, Q, E = curver.application.interpolate(triangle[i-2], triangle[i-1], triangle[i], scale_a, 1.0)
+							self.create_curve_component([S, P, E])
 					else:  # dual_weights[i] == 0:  # Nothing to draw.
 						pass
 		
@@ -498,14 +506,13 @@ class CurverApplication(object):
 					font=self.options.canvas_font,
 					fill=DEFAULT_EDGE_LABEL_COLOUR)
 
-def start(load_from=None):
+def start(showable):
 	root = TK.Tk()
 	root.title('curver')
-	curver_application = CurverApplication(root)
+	curver_application = CurverApplication(root, showable=showable)
 	root.minsize(300, 300)
 	root.geometry('700x500')
 	root.wait_visibility(root)
-	if load_from is not None: curver_application.load(load_from=load_from)
 	# Set the icon.
 	# Make sure to get the right path if we are in a cx_Freeze compiled executable.
 	# See: http://cx-freeze.readthedocs.org/en/latest/faq.html#using-data-files
