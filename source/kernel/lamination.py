@@ -250,15 +250,21 @@ class MultiCurve(Lamination):
 		
 		return h
 	
-	def boundary_neighbourhood_union(other):
-		''' Return \partial N(self \cup other). '''
-		assert(isinstance(other, MultiCurve))  # Could probably do any Lamination.
+	def boundary_neighbourhood_union(self, other):
+		''' Return \\partial N(self \\cup other). '''
+		assert(isinstance(other, Lamination))
 		
 		crush = self.crush()
 		lift = crush.inverse()
 		other_prime = crush(other)
 		m_prime = other_prime.boundary()
 		return lift(m_prime)  # = m.
+	
+	def fills_with(self, other):
+		''' Return whether self \\cup other fills. '''
+		assert(isinstance(other, Lamination))
+		
+		return self.boundary_neighbourhood_union(other).is_empty()
 	
 	def tight_paths(self, other, length):
 		''' Return the set of all tight paths from self to other that are of the given length.
