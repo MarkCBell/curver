@@ -1,10 +1,4 @@
 
-from math import sqrt
-from random import random
-from colorsys import hls_to_rgb
-
-PHI = (1 + sqrt(5)) / 2
-
 DEFAULT_OBJECT_COLOUR = 'black'
 DEFAULT_VERTEX_COLOUR = 'black'
 DEFAULT_EDGE_COLOUR = 'black'
@@ -72,28 +66,12 @@ def interpolate(A, B, C, r, s):
 	
 	return X, P, Q, Y
 
-class ColourPalette(object):
-	def __init__(self):
-		self.state = 0
-	
-	def get_colour(self):
-		self.state += 1
-		hue = (self.state / PHI) % 1.
-		lightness = (50 + random() * 10)/100.
-		saturation = (90 + random() * 10)/100.
-		r, g, b = hls_to_rgb(hue, lightness, saturation)
-		return '#%02x%02x%02x' % (int(r * 255), int(g * 255), int(b * 255))
-	
-	def reset(self):
-		self.state = 0
-
 class DrawableObject(object):
 	def __init__(self, canvas, vertices, options):
 		self.options = options
 		self.canvas = canvas
 		self.vertices = vertices
-		self.default_colour = DEFAULT_OBJECT_COLOUR
-		self.colour = None
+		self.colour = DEFAULT_OBJECT_COLOUR
 		self.drawn = None
 	
 	def __repr__(self):
@@ -110,9 +88,8 @@ class DrawableObject(object):
 		return len(self.vertices)
 	
 	def set_colour(self, colour=None):
-		if colour is None: colour = self.default_colour
 		self.colour = colour
-		self.canvas.itemconfig(self.drawn, fill=colour)
+		self.canvas.itemconfig(self.drawn, fill=self.colour)
 	
 	def centre(self):
 		return (sum(x[0] for x in self.vertices) / len(self), sum(x[1] for x in self.vertices) / len(self))
@@ -123,11 +100,11 @@ class DrawableObject(object):
 class CanvasVertex(DrawableObject):
 	def __init__(self, canvas, vertex, options):
 		super(CanvasVertex, self).__init__(canvas, [vertex], options)
-		self.default_colour = self.colour = DEFAULT_VERTEX_COLOUR
+		self.colour = DEFAULT_VERTEX_COLOUR
 		self.vertex = list(vertex)
 		self.drawn = self.canvas.create_oval(
 			[p + scale*self.options.dot_size for scale in [-1, 1] for p in self],
-			outline=self.default_colour, fill=self.default_colour, tag='oval'
+			outline=self.colour, fill=self.colour, tag='oval'
 			)
 	
 	def __str__(self):
@@ -153,23 +130,23 @@ class CanvasVertex(DrawableObject):
 		self.canvas.coords(self.drawn, *[p + scale*self.options.dot_size for scale in [-1, 1] for p in self])
 
 class CanvasEdge(DrawableObject):
-	def __init__(self, canvas, vertices, label, options):
+	def __init__(self, canvas, vertices, label, colour, options):
 		super(CanvasEdge, self).__init__(canvas, vertices, options)
 		self.label = label
-		self.default_colour = self.colour = DEFAULT_EDGE_COLOUR
+		self.colour = DEFAULT_EDGE_COLOUR if colour is None else colour
 		m = ((1-ARROW_FRAC)*self.vertices[0][0] + ARROW_FRAC*self.vertices[1][0], (1-ARROW_FRAC)*self.vertices[0][1] + ARROW_FRAC*self.vertices[1][1])
 		self.drawn = [  # Need two lines really so arrows work correctly.
 			self.canvas.create_line(
 				[c for v in [self.vertices[0], m] for c in v],
 				width=self.options.line_size,
-				fill=self.default_colour,
+				fill=self.colour,
 				tags=['line', 'line_start'],
 				arrowshape=self.options.arrow_shape
 			),
 			self.canvas.create_line(
 				[c for v in [self.vertices[0], self.vertices[1]] for c in v],
 				width=self.options.line_size,
-				fill=self.default_colour,
+				fill=self.colour,
 				tags=['line', 'line_end'],
 				arrowshape=self.options.arrow_shape
 			)
@@ -192,7 +169,7 @@ class CanvasEdge(DrawableObject):
 class CanvasTriangle(DrawableObject):
 	def __init__(self, canvas, edges, options):
 		super(CanvasTriangle, self).__init__(canvas, list(set(v for e in edges for v in e)), options)
-		self.default_colour = self.colour = DEFAULT_TRIANGLE_COLOUR
+		self.colour = DEFAULT_TRIANGLE_COLOUR
 		self.edges = edges
 		
 		# We reorder the vertices to guarantee that the vertices are cyclically ordered anticlockwise in the plane.
@@ -206,7 +183,7 @@ class CanvasTriangle(DrawableObject):
 		assert(self[0] != self[1] and self[1] != self[2] and self[2] != self[0])
 		assert(self.edges[0] != self.edges[1] and self.edges[1] != self.edges[2] and self.edges[2] != self.edges[0])
 		
-		self.drawn = self.canvas.create_polygon([c for v in self for c in v], fill=self.default_colour, tag='polygon')
+		self.drawn = self.canvas.create_polygon([c for v in self for c in v], fill=self.colour, tag='polygon')
 		# Add this triangle to each edge involved.
 		for edge in self.edges:
 			edge.in_triangles.append(self)
@@ -214,7 +191,7 @@ class CanvasTriangle(DrawableObject):
 class CurveComponent(DrawableObject):
 	def __init__(self, canvas, vertices, options, thin=True, smooth=False):
 		super(CurveComponent, self).__init__(canvas, vertices, options)
-		self.default_colour = self.colour = DEFAULT_CURVE_COLOUR
+		self.colour = DEFAULT_CURVE_COLOUR
 		if thin:
 			self.drawn = self.canvas.create_line(
 				[c for v in self.vertices for c in v],
@@ -227,9 +204,9 @@ class CurveComponent(DrawableObject):
 		else:
 			self.drawn = self.canvas.create_polygon(
 				[c for v in self.vertices for c in v],
-				fill=self.default_colour,
+				fill=self.colour,
 				tag='curve',
-				outline=self.default_colour,
+				outline=self.colour,
 				smooth=smooth,
 				splinesteps=50
 				)

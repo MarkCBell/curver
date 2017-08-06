@@ -10,7 +10,10 @@ import io
 import sys
 import pickle
 from math import sin, cos, pi, ceil, sqrt
+from random import random
+from colorsys import hls_to_rgb
 from itertools import combinations
+from collections import OrderedDict
 
 try:
 	import Tkinter as TK
@@ -59,21 +62,38 @@ MAX_DRAWABLE = 1000  # Maximum weight of a multicurve to draw fully.
 def dot(a, b):
 	return a[0] * b[0] + a[1] * b[1]
 
+PHI = (1 + sqrt(5)) / 2
+
+def get_colours(num_colours):
+	def colour(state):
+		hue = (state / PHI) % 1.
+		lightness = (50 + random() * 10)/100.
+		saturation = (90 + random() * 10)/100.
+		r, g, b = hls_to_rgb(hue, lightness, saturation)
+		return '#%02x%02x%02x' % (int(r * 255), int(g * 255), int(b * 255))
+	
+	return [colour(i) for i in range(num_colours)]
+
 class CurverApplication(object):
-	def __init__(self, parent, showable=[]):
+	def __init__(self, parent, showable):
 		self.parent = parent
-		self.showable = dict(showable)  # List.
-		self.showable_names = [name for name, _ in showable]
+		# Convert showable into an OrderedDict.
+		if isinstance(showable, dict):  # dict
+			showable = OrderedDict(sorted(dict(showable).items(), key=lambda x: x[0]))
+		try:  # list of pairs, OrderedDict
+			showable = OrderedDict(showable)
+		except TypeError:  # list
+			showable = OrderedDict(curver.kernel.utilities.name_objects(showable))
+		self.showable = showable
 		self.options = curver.application.Options(self)
-		self.colour_picker = curver.application.ColourPalette()
 		
 		###
 		self.canvas = TK.Canvas(self.parent, height=1, bg='#dcecff', takefocus=True)
 		self.canvas.pack(padx=6, pady=6, fill='both', expand=True)
 		
 		self.show_var = TK.StringVar(self.parent)
-		self.show_var.set(self.showable_names[0])  # Initial value.
-		self.pick = TK.OptionMenu(self.parent, self.show_var, *self.showable_names)
+		self.show_var.set(self.showable.keys()[0])  # Initial value.
+		self.pick = TK.OptionMenu(self.parent, self.show_var, *self.showable.keys())
 		self.pick.pack(padx=3, pady=3)
 		self.show_var.trace('w', self.load_var)
 		###
@@ -164,7 +184,6 @@ class CurverApplication(object):
 		self.vertices = []
 		self.edges = []
 		self.triangles = []
-		self.colour_picker.reset()
 		
 		return True
 	
@@ -294,9 +313,9 @@ class CurverApplication(object):
 		self.vertices.append(curver.application.CanvasVertex(self.canvas, point, self.options))
 		return self.vertices[-1]
 	
-	def create_edge(self, v1, v2, label, create_inverse=False):
-		if create_inverse: self.create_edge(v2, v1, ~label)
-		self.edges.append(curver.application.CanvasEdge(self.canvas, [v1, v2], label, self.options))
+	def create_edge(self, v1, v2, label, colour, create_inverse=False):
+		if create_inverse: self.create_edge(v2, v1, ~label, colour)
+		self.edges.append(curver.application.CanvasEdge(self.canvas, [v1, v2], label, colour, self.options))
 		return self.edges[-1]
 	
 	def create_triangle(self, e1, e2, e3):
@@ -316,6 +335,10 @@ class CurverApplication(object):
 		
 		# Get a dual tree.
 		dual_tree = triangulation.dual_tree()
+		colours = dict((index, None) for index in triangulation.indices)
+		outside = [index for index in triangulation.indices if not dual_tree[index]]
+		for index, colour in zip(outside, get_colours(len(outside))):
+			colours[index] = colour
 		components = triangulation.components()
 		num_components = len(components)
 		# Make sure we get the right sizes of things.
@@ -357,7 +380,7 @@ class CurverApplication(object):
 			initial_edge_index = min(i for i in component if not dual_tree[i])
 			to_extend = [(num_used_vertices, num_used_vertices+1, initial_edge_index)]
 			# Hmmm, need to be more careful here to ensure that we correctly orient the edges.
-			self.create_edge(self.vertices[num_used_vertices+1], self.vertices[num_used_vertices+0], initial_edge_index, False)
+			self.create_edge(self.vertices[num_used_vertices+1], self.vertices[num_used_vertices+0], initial_edge_index, colours[initial_edge_index])
 			while to_extend:
 				source_vertex, target_vertex, label = to_extend.pop()
 				left, right = num_descendants(label)
@@ -365,13 +388,13 @@ class CurverApplication(object):
 				corner = triangulation.corner_lookup[label]
 				
 				if corner[2].sign() == +1:
-					self.create_edge(self.vertices[far_vertex], self.vertices[target_vertex], corner[2].label, left > 0)
+					self.create_edge(self.vertices[far_vertex], self.vertices[target_vertex], corner[2].label, colours[corner[2].index], left > 0)
 				else:
-					self.create_edge(self.vertices[target_vertex], self.vertices[far_vertex], corner[2].label, left > 0)
+					self.create_edge(self.vertices[target_vertex], self.vertices[far_vertex], corner[2].label, colours[corner[2].index], left > 0)
 				if corner[1].sign() == +1:
-					self.create_edge(self.vertices[source_vertex], self.vertices[far_vertex], corner[1].label, right > 0)
+					self.create_edge(self.vertices[source_vertex], self.vertices[far_vertex], corner[1].label, colours[corner[1].index], right > 0)
 				else:
-					self.create_edge(self.vertices[far_vertex], self.vertices[source_vertex], corner[1].label, right > 0)
+					self.create_edge(self.vertices[far_vertex], self.vertices[source_vertex], corner[1].label, colours[corner[1].index], right > 0)
 				
 				if left > 0:
 					to_extend.append((far_vertex, target_vertex, ~(corner[2].label)))
@@ -508,7 +531,7 @@ class CurverApplication(object):
 def start(showable):
 	root = TK.Tk()
 	root.title('curver')
-	curver_application = CurverApplication(root, showable=showable)
+	curver_application = CurverApplication(root, showable)
 	root.minsize(300, 300)
 	root.geometry('700x500')
 	root.wait_visibility(root)

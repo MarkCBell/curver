@@ -9,7 +9,6 @@ from . import options
 start = main.start
 Options = options.Options
 CurverApplication = main.CurverApplication
-ColourPalette = pieces.ColourPalette
 CanvasVertex = pieces.CanvasVertex
 CanvasEdge = pieces.CanvasEdge
 CanvasTriangle = pieces.CanvasTriangle
