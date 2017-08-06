@@ -19,3 +19,7 @@ norm = curver.kernel.norm
 AbortError = curver.kernel.AbortError
 AssumptionError = curver.kernel.AssumptionError
 
+def show(showable):
+	import curver.application
+	curver.application.start(showable)
+
