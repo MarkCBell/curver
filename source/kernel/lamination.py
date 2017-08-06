@@ -587,8 +587,8 @@ class Arc(MultiArc):
 		# and on this component (the one containing this arc) to invert this arc.
 		this_component = set([component for component in short.triangulation.components() if arc_index in component][0])
 		label_map = dict(
-			[(index, index) for index in short.triangulation.indices if index not in this_component] + \  # Fix other components.
-			[(arc_index, ~arc_index)]  # Invert this arc.
+			[(index, index) for index in short.triangulation.indices if index not in this_component] + \
+			[(arc_index, ~arc_index)]
 			)
 		half_twist = short.triangulation.find_isometry(half_twist.source_triangulation, label_map).encode() * half_twist
 		
