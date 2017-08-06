@@ -62,12 +62,20 @@ def dot(a, b):
 class CurverApplication(object):
 	def __init__(self, parent, showable=[]):
 		self.parent = parent
+		self.showable = dict(showable)  # List.
+		self.showable_names = [name for name, _ in showable]
 		self.options = curver.application.Options(self)
 		self.colour_picker = curver.application.ColourPalette()
 		
 		###
 		self.canvas = TK.Canvas(self.parent, height=1, bg='#dcecff', takefocus=True)
 		self.canvas.pack(padx=6, pady=6, fill='both', expand=True)
+		
+		self.show_var = TK.StringVar(self.parent)
+		self.show_var.set(self.showable_names[0])  # Initial value.
+		self.pick = TK.OptionMenu(self.parent, self.show_var, *self.showable_names)
+		self.pick.pack(padx=3, pady=3)
+		self.show_var.trace('w', self.load_var)
 		###
 		
 		# Create the menus.
@@ -129,7 +137,6 @@ class CurverApplication(object):
 		self.triangles = []
 		self.curve_components = []
 		
-		self.showable = dict(showable)
 		self.lamination = None
 	
 	def parent_key_press(self, event):
@@ -165,12 +172,11 @@ class CurverApplication(object):
 		
 		return True
 	
-	def load(self, load_from=None):
-		''' Load up some information.
-		
-		We can load from:
-		'''
-		
+	def load_var(self, *args):
+		self.load(self.showable[str(self.show_var.get())])
+	
+	def load(self, load_from):
+		''' Load up some information. '''
 		#try:
 		if isinstance(load_from, curver.kernel.EquippedTriangulation):
 			self.draw_lamination(load_from.triangulation.empty_lamination())
@@ -232,12 +238,7 @@ class CurverApplication(object):
 			for i in range(len(curve_component.vertices)):
 				curve_component.vertices[i] = scale * curve_component.vertices[i][0], scale * curve_component.vertices[i][1]
 			curve_component.update()
-	
-	def zoom_in(self):
-		self.zoom_centre(1.05)
-	
-	def zoom_out(self):
-		self.zoom_centre(0.95)
+		self.redraw()
 	
 	def zoom_centre(self, scale):
 		self.parent.update_idletasks()
@@ -247,8 +248,13 @@ class CurverApplication(object):
 		self.zoom(scale)
 		self.translate(cw / 2, ch / 2)
 	
+	def zoom_in(self):
+		self.zoom_centre(1.05)
+	
+	def zoom_out(self):
+		self.zoom_centre(0.95)
+	
 	def zoom_to_drawing(self):
-		self.parent.update_idletasks()
 		box = self.canvas.bbox('all')
 		if box is not None:
 			x0, y0, x1, y1 = box
@@ -274,8 +280,6 @@ class CurverApplication(object):
 				self.canvas.itemconfig(edge.drawn[0], arrow='last')
 			else:
 				self.canvas.itemconfig(edge.drawn[0], arrow='')
-		#self.canvas.itemconfig('pos_line_start', arrow='last' if self.options.show_orientations else '')
-		# self.canvas.itemconfig('line', arrowshape=self.options.arrow_shape)
 		
 		for edge in self.edges:
 			edge.hide(not self.options.show_internals and self.edges[~edge.label].vertices[::-1] == edge.vertices)
@@ -384,8 +388,6 @@ class CurverApplication(object):
 		
 		for triangle in triangulation:
 			self.create_triangle(self.edges[triangle[0].label], self.edges[triangle[1].label], self.edges[triangle[2].label])
-		
-		self.zoom_to_drawing()
 	
 	def draw_lamination(self, lamination):
 		self.draw_triangulation(lamination.triangulation)  # This starts with self.initialise().
@@ -454,6 +456,7 @@ class CurverApplication(object):
 						pass
 		
 		self.lamination = lamination
+		self.zoom_to_drawing()  # Recheck.
 		self.redraw()  # Install options.
 	
 	
@@ -525,6 +528,7 @@ def start(showable):
 		# Give up if we can't set the icon for some reason.
 		# This seems to be a problem if you start curver within SnapPy.
 		pass
+	curver_application.load_var()
 	root.mainloop()
 
 if __name__ == '__main__':
