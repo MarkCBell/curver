@@ -26,9 +26,12 @@ class TrainTrack(Lamination):
 			return 1
 		
 		if (da == 0 and db == 0) or (da == 0 and de == 0) or (db == 0 and de == 0):
-			return 2
+			if (da > 0 and dc > 0) or (db > 0 and dd > 0):
+				return 2
+			else:
+				return 3
 		
-		return 3
+		return 4
 	
 	def shorten(self):
 		''' Return an encoding which maps this train track to one with as little weight as possible together with its image.
