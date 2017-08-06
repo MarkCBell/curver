@@ -151,17 +151,13 @@ class CurverApplication(object):
 		elif key == '0':
 			self.zoom_to_drawing()
 		elif key == 'Up':
-			if focus == self.canvas:
-				self.translate(0, 5)
+			self.translate(0, 5)
 		elif key == 'Down':
-			if focus == self.canvas:
-				self.translate(0, -5)
+			self.translate(0, -5)
 		elif key == 'Left':
-			if focus == self.canvas:
-				self.translate(5, 0)
+			self.translate(5, 0)
 		elif key == 'Right':
-			if focus == self.canvas:
-				self.translate(-5, 0)
+			self.translate(-5, 0)
 	
 	def initialise(self):
 		self.canvas.delete('all')
@@ -277,7 +273,7 @@ class CurverApplication(object):
 		# Only put arrows on the start so arrow heads appear in the middle.
 		for edge in self.edges:
 			if self.options.show_orientations and (edge.label >= 0 or self.edges[~edge.label].vertices[::-1] != edge.vertices):
-				self.canvas.itemconfig(edge.drawn[0], arrow='last')
+				self.canvas.itemconfig(edge.drawn[0], arrow='last', arrowshape=self.options.arrow_shape)
 			else:
 				self.canvas.itemconfig(edge.drawn[0], arrow='')
 		

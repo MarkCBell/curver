@@ -164,14 +164,14 @@ class CanvasEdge(DrawableObject):
 				width=self.options.line_size,
 				fill=self.default_colour,
 				tags=['line', 'line_start'],
-				arrowshape=options.arrow_shape
+				arrowshape=self.options.arrow_shape
 			),
 			self.canvas.create_line(
 				[c for v in [self.vertices[0], self.vertices[1]] for c in v],
 				width=self.options.line_size,
 				fill=self.default_colour,
 				tags=['line', 'line_end'],
-				arrowshape=options.arrow_shape
+				arrowshape=self.options.arrow_shape
 			)
 			]
 		
