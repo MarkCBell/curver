@@ -177,7 +177,7 @@ class Triangulation(object):
 		self.signature = [e.label for t in self for e in t]
 	
 	@classmethod
-	def from_tuple(cls, edge_labels):
+	def from_tuple(cls, *edge_labels):
 		''' Return an Triangulation from a list of triples of edge labels.
 		
 		Let T be an ideal triangulaton of the punctured (oriented) surface S. Orient
@@ -193,6 +193,8 @@ class Triangulation(object):
 		
 		edge_labels must be a list of triples of integers and each of
 		0, ..., zeta-1, ~0, ..., ~(zeta-1) must occur exactly once. '''
+		
+		if len(edge_labels) == 1: edge_labels = edge_labels[0]
 		
 		assert(isinstance(edge_labels, (list, tuple)))
 		assert(all(isinstance(labels, (list, tuple)) for labels in edge_labels))

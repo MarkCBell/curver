@@ -10,20 +10,20 @@ import curver
 REGEX_IS_SPHERE_BRAID = re.compile(r'SB_(?P<num_strands>\d+)$')
 
 def example_0_4():
-	T = curver.create_triangulation([[0, 3, ~0], [1, 4, ~3], [~1, ~4, 5], [~2, ~5, 2]])
+	T = curver.create_triangulation((0, 1, 4), (2, 3, ~4), (~0, ~3, 5), (~1, ~5, ~2))
 	
-	a = T.lamination([0, 1, 0, 0, 1, 0])
-	b = T.lamination([1, 0, 1, 2, 2, 2])
-	# TODO: 4) Redo with Arcs since these now have encode_halftwist.
+	a = T.lamination([-1, 0, 0, 0, 0, 0])
+	b = T.lamination([0, -1, 0, 0, 0, 0])
+	c = T.lamination([0, 0, -1, 0, 0, 0])
+	d = T.lamination([0, 0, 0, -1, 0, 0])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b], {
-		'a': a.encode_twist(), 'b': b.encode_twist(),
-		'w': a.encode_halftwist(), 'x': b.encode_halftwist(),
-		'y': a.encode_halftwist(), 'z': b.encode_halftwist()
+	return curver.kernel.EquippedTriangulation(T, [a, b, c, d], {
+		'a': a.encode_halftwist(), 'b': b.encode_halftwist(),
+		'c': a.encode_halftwist(), 'd': b.encode_halftwist()
 		})
 
 def example_1_1():
-	T = curver.create_triangulation([[0, 2, 1], [~0, ~2, ~1]])
+	T = curver.create_triangulation((0, 2, 1), (~0, ~2, ~1))
 	
 	a = T.lamination([1, 0, 1])
 	b = T.lamination([0, 1, 1])
@@ -32,7 +32,7 @@ def example_1_1():
 
 def example_1_1m():
 	# Mirror image of S_1_1 and its standard (Twister) curves:
-	T = curver.create_triangulation([[0, 1, 2], [~0, ~1, ~2]])
+	T = curver.create_triangulation((0, 1, 2), (~0, ~1, ~2))
 	
 	a = T.lamination([1, 1, 0])
 	b = T.lamination([0, 1, 1])
@@ -41,7 +41,7 @@ def example_1_1m():
 
 def example_1_2():
 	# S_1_2 and its standard (Twister) curves:
-	T = curver.create_triangulation([[1, 3, 2], [~2, 0, 4], [~1, 5, ~0], [~5, ~4, ~3]])
+	T = curver.create_triangulation((1, 3, 2), (~2, 0, 4), (~1, 5, ~0), (~5, ~4, ~3))
 	
 	a = T.lamination([0, 0, 1, 1, 1, 0])
 	b = T.lamination([1, 0, 0, 0, 1, 1])
@@ -57,7 +57,7 @@ def example_1_2():
 
 def example_1_2p():
 	# S_1_2 without the half twist
-	T = curver.create_triangulation([[1, 3, 2], [~2, 0, 4], [~1, 5, ~0], [~5, ~4, ~3]])
+	T = curver.create_triangulation((1, 3, 2), (~2, 0, 4), (~1, 5, ~0), (~5, ~4, ~3))
 	
 	a = T.lamination([0, 0, 1, 1, 1, 0])
 	b = T.lamination([1, 0, 0, 0, 1, 1])
@@ -71,7 +71,7 @@ def example_1_2p():
 
 def example_2_1():
 	# S_2_1 and its standard (Twister) curves:
-	T = curver.create_triangulation([[0, 4, 1], [5, ~4, ~3], [2, ~5, 6], [7, ~6, ~2], [3, ~7, 8], [~0, ~8, ~1]])
+	T = curver.create_triangulation((0, 4, 1), (5, ~4, ~3), (2, ~5, 6), (7, ~6, ~2), (3, ~7, 8), (~0, ~8, ~1))
 	
 	a = T.lamination([0, 1, 1, 0, 1, 1, 2, 1, 1])
 	b = T.lamination([0, 1, 0, 1, 1, 0, 0, 0, 1])
@@ -86,7 +86,7 @@ def example_2_1():
 
 def example_2_1b():
 	''' Nathans origional version. '''
-	T = curver.create_triangulation([[1, 2, 4], [5, 3, 0], [~2, 6, ~1], [~3, ~0, 7], [~4, ~5, 8], [~7, ~8, ~6]])
+	T = curver.create_triangulation((1, 2, 4), (5, 3, 0), (~2, 6, ~1), (~3, ~0, 7), (~4, ~5, 8), (~7, ~8, ~6))
 	
 	a = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0])
 	b = T.lamination([0, 0, 1, 0, 1, 0, 1, 0, 1])
@@ -100,8 +100,8 @@ def example_2_1b():
 		d.encode_twist(), e.encode_twist(), f.encode_twist()])
 
 def example_3_1():
-	T = curver.create_triangulation([[0, 6, 1], [7, ~6, ~5], [8, 2, ~7], [9, ~8, ~4], [10, 3, ~9], [11, ~10, ~3],
-		[12, 4, ~11], [13, ~12, ~2], [14, 5, ~13], [~0, ~14, ~1]])
+	T = curver.create_triangulation((0, 6, 1), (7, ~6, ~5), (8, 2, ~7), (9, ~8, ~4), (10, 3, ~9), (11, ~10, ~3),
+		(12, 4, ~11), (13, ~12, ~2), (14, 5, ~13), (~0, ~14, ~1))
 	
 	a = T.lamination([0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
 	b = T.lamination([0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0])
@@ -117,29 +117,10 @@ def example_3_1():
 		d.encode_twist(), e.encode_twist(), f.encode_twist(),
 		g.encode_twist(), h.encode_twist()])
 
-def example_3_1b():
-	''' Nathans origional version. '''
-	T = curver.create_triangulation([[1, 2, 5], [0, 6, 3], [4, ~1, 7], [~3, 8, ~2], [9, ~5, ~6],
-									[10, ~0, ~9], [~10, ~7, ~8], [11, 12, ~4], [~12, 14, 13], [~13, ~11, ~14]])
-	
-	a = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1])
-	b = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1])
-	c = T.lamination([0, 1, 1, 0, 2, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1])
-	d = T.lamination([0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0])
-	e = T.lamination([1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0])
-	f = T.lamination([0, 1, 1, 1, 2, 0, 1, 1, 0, 1, 1, 2, 2, 2, 2])
-	g = T.lamination([0, 1, 1, 1, 0, 2, 1, 1, 2, 1, 1, 0, 0, 0, 0])
-	h = T.lamination([0, 1, 2, 1, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0])
-	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d, e, f, g, h],
-		[a.encode_twist(), b.encode_twist(), c.encode_twist(),
-		d.encode_twist(), e.encode_twist(), f.encode_twist(),
-		g.encode_twist(), h.encode_twist()])
-
 def example_4_1():
-	T = curver.create_triangulation([[~8, 1, 2], [3, 4, ~9], [6, ~10, 5], [~0, ~11, 7], [~12, ~1, ~2],
-									[~13, ~3, ~4], [~14, ~5, ~6], [~15, ~7, 0], [8, 9, ~16], [11, ~17, 10],
-									[13, ~18, 12], [~19, 14, 15], [~20, 16, 17], [18, 19, 20]])
+	T = curver.create_triangulation((~8, 1, 2), (3, 4, ~9), (6, ~10, 5), (~0, ~11, 7), (~12, ~1, ~2),
+									(~13, ~3, ~4), (~14, ~5, ~6), (~15, ~7, 0), (8, 9, ~16), (11, ~17, 10),
+									(13, ~18, 12), (~19, 14, 15), (~20, 16, 17), (18, 19, 20))
 	
 	a = T.lamination([0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2])
 	b = T.lamination([0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2])
@@ -159,10 +140,10 @@ def example_4_1():
 		j.encode_twist()])
 
 def example_5_1():
-	T = curver.create_triangulation([[~10, 1, 2], [~11, 3, 4], [6, ~12, 5], [7, 8, ~13], [~0, ~14, 9],
-									[~2, ~15, ~1], [~4, ~16, ~3], [~6, ~17, ~5], [~8, ~18, ~7], [0, ~19, ~9],
-									[11, ~20, 10], [12, 13, ~21], [15, ~22, 14], [~23, 16, 17], [19, ~24, 18],
-									[20, 21, ~25], [~26, 22, 23], [24, 25, 26]])
+	T = curver.create_triangulation((~10, 1, 2), (~11, 3, 4), (6, ~12, 5), (7, 8, ~13), (~0, ~14, 9),
+									(~2, ~15, ~1), (~4, ~16, ~3), (~6, ~17, ~5), (~8, ~18, ~7), (0, ~19, ~9),
+									(11, ~20, 10), (12, 13, ~21), (15, ~22, 14), (~23, 16, 17), (19, ~24, 18),
+									(20, 21, ~25), (~26, 22, 23), (24, 25, 26))
 	
 	a = T.lamination([0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0])
 	b = T.lamination([0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0])
@@ -185,8 +166,8 @@ def example_5_1():
 
 def example_12():
 	# A 12-gon:
-	T = curver.create_triangulation([[6, 7, 0], [8, 1, ~7], [~8, 9, 2], [~9, 10, 3], [11, 4, ~10], [12, 5, ~11], [~12, 13, ~0],
-		[14, ~1, ~13], [~14, 15, ~2], [~15, 16, ~3], [~16, 17, ~4], [~6, ~5, ~17]])
+	T = curver.create_triangulation((6, 7, 0), (8, 1, ~7), (~8, 9, 2), (~9, 10, 3), (11, 4, ~10), (12, 5, ~11), (~12, 13, ~0),
+		(14, ~1, ~13), (~14, 15, ~2), (~15, 16, ~3), (~16, 17, ~4), (~6, ~5, ~17))
 	
 	a = T.lamination([1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
 	b = T.lamination([1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
@@ -198,10 +179,10 @@ def example_12():
 
 def example_24():
 	# A 24-gon.
-	T = curver.create_triangulation([[12, 13, 0], [14, 1, ~13], [15, 2, ~14], [~15, 16, 3], [17, 4, ~16],
-		[~17, 18, 5], [~18, 19, 6], [20, 7, ~19], [21, 8, ~20], [~21, 22, 9], [~22, 23, 10], [24, 11, ~23],
-		[25, ~0, ~24], [~25, 26, ~1], [~26, 27, ~2], [28, ~3, ~27], [29, ~4, ~28], [~29, 30, ~5], [~30, 31, ~6],
-		[32, ~7, ~31], [33, ~8, ~32], [~33, 34, ~9], [~34, 35, ~10], [~12, ~11, ~35]])
+	T = curver.create_triangulation((12, 13, 0), (14, 1, ~13), (15, 2, ~14), (~15, 16, 3), (17, 4, ~16),
+		(~17, 18, 5), (~18, 19, 6), (20, 7, ~19), (21, 8, ~20), (~21, 22, 9), (~22, 23, 10), (24, 11, ~23),
+		(25, ~0, ~24), (~25, 26, ~1), (~26, 27, ~2), (28, ~3, ~27), (29, ~4, ~28), (~29, 30, ~5), (~30, 31, ~6),
+		(32, ~7, ~31), (33, ~8, ~32), (~33, 34, ~9), (~34, 35, ~10), (~12, ~11, ~35))
 	
 	a = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 	b = T.lamination([0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -213,12 +194,12 @@ def example_24():
 
 def example_36():
 	# A 36-gon
-	T = curver.create_triangulation([[18, 19, 0], [20, 1, ~19], [21, 2, ~20], [~21, 22, 3], [~22, 23, 4],
-		[24, 5, ~23], [25, 6, ~24], [~25, 26, 7], [27, 8, ~26], [~27, 28, 9], [~28, 29, 10], [30, 11, ~29],
-		[31, 12, ~30], [~31, 32, 13], [~32, 33, 14], [34, 15, ~33], [35, 16, ~34], [~35, 36, 17], [~36, 37, ~0],
-		[38, ~1, ~37], [39, ~2, ~38], [~39, 40, ~3], [~40, 41, ~4], [42, ~5, ~41], [43, ~6, ~42], [~43, 44, ~7],
-		[~44, 45, ~8], [46, ~9, ~45], [47, ~10, ~46], [~47, 48, ~11], [~48, 49, ~12], [50, ~13, ~49],
-		[51, ~14, ~50], [~51, 52, ~15], [~52, 53, ~16], [~18, ~17, ~53]])
+	T = curver.create_triangulation((18, 19, 0), (20, 1, ~19), (21, 2, ~20), (~21, 22, 3), (~22, 23, 4),
+		(24, 5, ~23), (25, 6, ~24), (~25, 26, 7), (27, 8, ~26), (~27, 28, 9), (~28, 29, 10), (30, 11, ~29),
+		(31, 12, ~30), (~31, 32, 13), (~32, 33, 14), (34, 15, ~33), (35, 16, ~34), (~35, 36, 17), (~36, 37, ~0),
+		(38, ~1, ~37), (39, ~2, ~38), (~39, 40, ~3), (~40, 41, ~4), (42, ~5, ~41), (43, ~6, ~42), (~43, 44, ~7),
+		(~44, 45, ~8), (46, ~9, ~45), (47, ~10, ~46), (~47, 48, ~11), (~48, 49, ~12), (50, ~13, ~49),
+		(51, ~14, ~50), (~51, 52, ~15), (~52, 53, ~16), (~18, ~17, ~53))
 	
 	a = T.lamination([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 	b = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -252,9 +233,9 @@ def example_braid_sphere(n):
 	#  3) Left triangle given by [~0, ~(n-2), ~(2n-4)], and
 	#  4) Right triangle given by [n-3, 3n-7, 2n-5].
 	T = curver.create_triangulation(
-		[[i, i + 2 * n - 4, ~(i + 1)] for i in range(0, n - 3)] + \
-		[[i, ~(i + 1), ~(i + n - 1)] for i in range(n-2, 2*n - 5)] + \
-		[[~0, ~(n - 2), ~(2 * n - 4)], [n - 3, 3 * n - 7, 2 * n - 5]]
+		[(i, i + 2 * n - 4, ~(i + 1)) for i in range(0, n - 3)] + \
+		[(i, ~(i + 1), ~(i + n - 1)) for i in range(n-2, 2*n - 5)] + \
+		[(~0, ~(n - 2), ~(2 * n - 4)), (n - 3, 3 * n - 7, 2 * n - 5)]
 		)
 	
 	# We'll then create a curve isolating the ith and (i+1)st punctures from the others.
@@ -282,9 +263,9 @@ def load(surface):
 	
 	Available surfaces:
 		'S_0_4', 'S_1_1', 'S_1_1m', 'S_1_2', 'S_1_2p',
-		'S_2_1', 'S_2_1b', 'S_3_1', 'S_3_1b',
+		'S_2_1', 'S_3_1', 'S_4_1', 'S_5_1',
 		'E_12', 'E_24', 'E_36', and
-		'SB_n' where n is an integer >= 3. '''
+		'SB_n' where n is an integer >= 4. '''
 	
 	surfaces = {
 		'S_0_4': example_0_4,
@@ -293,11 +274,9 @@ def load(surface):
 		'S_1_2': example_1_2,
 		'S_1_2p': example_1_2p,
 		'S_2_1': example_2_1,
-		'S_2_1b': example_2_1b,
 		'S_3_1': example_3_1,
 		'S_4_1': example_4_1,
 		'S_5_1': example_5_1,
-		'S_3_1b': example_3_1b,
 		'E_12': example_12,
 		'E_24': example_24,
 		'E_36': example_36
