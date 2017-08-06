@@ -123,12 +123,11 @@ class MappingClass(Encoding):
 			return self.inverse()**abs(k)
 	
 	def intersection_matrix(self):
-		''' Return the matrix M = {intersection(self(e_i), e_j)}_{ij} where e_i are the edges of self.source_triangulation.
+		''' Return the matrix M = {signed_intersection(self(e_i), e_j)}_{ij} where e_i are the edges of self.source_triangulation.
 		
 		Except when self.source_triangulation == S_{1,1}, this uniquely determines self. '''
 		
-		arcs = self.source_triangulation.edge_arcs()
-		return [[self(arc).signed_intersection(arc2) for arc2 in arcs] for arc in arcs]
+		return [list(self(arc)) for arc in self.source_triangulation.edge_arcs()]
 	
 	def order(self):
 		''' Return the order of this mapping class.

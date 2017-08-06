@@ -147,7 +147,7 @@ class Lamination(object):
 		
 		assert(isinstance(lamination, Lamination))
 		
-		return sum(m1 * m2 * max(c1.signed_intersection(c2), 0) for c1, m1 in self.mcomponents() for c2, m2 in lamination.mcomponents())
+		return sum(m1 * m2 * max(c1.intersection(c2), 0) for c1, m1 in self.mcomponents() for c2, m2 in lamination.mcomponents())
 	
 	def is_disjoint(self, lamination):
 		''' Return that self does not share any components with the given Lamination. '''
@@ -385,8 +385,8 @@ class Curve(MultiCurve):
 		else:  # curve is isolating.
 			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
 	
-	def signed_intersection(self, other):
-		''' Return the signed geometric intersection between self and the given other.
+	def intersection(self, other):
+		''' Return the geometric intersection between self and the given other.
 		
 		Currently assumes (and checks) that self is a non-isolating curve. '''
 		
@@ -609,8 +609,8 @@ class Arc(MultiArc):
 		else:  # boundary is isolating.
 			raise curver.AssumptionError('Boundary curve is isolating.')  # TODO: 4) Handle isolating case, use Will Worden's code.
 	
-	def signed_intersection(self, other):
-		''' Return the signed geometric intersection between self and the given lamination. '''
+	def intersection(self, other):
+		''' Return the geometric intersection between self and the given lamination. '''
 		
 		assert(isinstance(other, Lamination))
 		assert(other.triangulation == self.triangulation)
