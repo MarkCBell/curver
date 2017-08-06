@@ -21,6 +21,8 @@ class TestS_1_2(unittest.TestCase):
 		self.h = self.S('abc')
 		self.g = self.S('abcaaabxx')
 		self.identity = self.S('')
+	def test_group(self):
+		self.assertEqual(self.S('a^2b^3'), self.S('aabbb'))
 	def test_mcomponents(self):
 		self.assertEqual(sum(mult*comp for comp, mult in self.a.mcomponents()), self.a)
 		self.assertTrue(isinstance(self.b, curver.kernel.MultiArc))
@@ -32,6 +34,9 @@ class TestS_1_2(unittest.TestCase):
 		self.assertEqual((self.g**0)(self.a), self.S.lamination([17, 32, 0, 12, 29, 6]))
 		self.assertEqual((self.g**1)(self.a), self.S.lamination([213, 143, 32, 59, 181, 216]))
 		self.assertEqual((self.g**20)(self.a), self.b)
+	def test_intersection(self):
+		self.assertEqual(self.S('').intersection_matrix() == [[-1, 0, 0, 0, 0, 0], [0, -1, 0, 0, 0, 0], [0, 0, -1, 0, 0, 0], [0, 0, 0, -1, 0, 0], [0, 0, 0, 0, -1, 0], [0, 0, 0, 0, 0, -1]])
 
 if __name__ == '__main__':
 	unittest.main()
+
