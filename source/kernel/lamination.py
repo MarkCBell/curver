@@ -77,7 +77,7 @@ class Lamination(object):
 			return NotImplemented
 	
 	def weight(self):
-		''' Return the geometric intersection of this leaf with its underlying triangulation. '''
+		''' Return the geometric intersection of this lamination with its underlying triangulation. '''
 		
 		return sum(max(weight, 0) for weight in self)
 	
@@ -147,7 +147,7 @@ class Lamination(object):
 		
 		assert(isinstance(lamination, Lamination))
 		
-		return sum(m1 * m2 * c1.intersection(c2) for c1, m1 in self.mcomponents() for c2, m2 in lamination.mcomponents())
+		return sum(m1 * m2 * max(c1.signed_intersection(c2), 0) for c1, m1 in self.mcomponents() for c2, m2 in lamination.mcomponents())
 	
 	def is_disjoint(self, lamination):
 		''' Return that self does not share any components with the given Lamination. '''
@@ -237,7 +237,7 @@ class Lamination(object):
 		return [sum(components).promote() for i in range(len(components)) for sub in permutations(components, i)]
 
 class MultiCurve(Lamination):
-	''' A Lamination in which every component is a ClosedLeaf. '''
+	''' A Lamination in which every component is a Curve. '''
 	def is_multicurve(self):
 		return True
 	def is_multiarc(self):
@@ -385,8 +385,8 @@ class Curve(MultiCurve):
 		else:  # curve is isolating.
 			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
 	
-	def intersection(self, other):
-		''' Return the geometric intersection between self and the given other.
+	def signed_intersection(self, other):
+		''' Return the signed geometric intersection between self and the given other.
 		
 		Currently assumes (and checks) that self is a non-isolating curve. '''
 		
@@ -417,7 +417,7 @@ class Curve(MultiCurve):
 			return short_other(a) - 2 * min(x, y2, z)  # = short_other(c) - 2 * min(x2, y, z2))
 		else:
 			# TODO: 4) Implement LP to find intersection for general configuration.
-			raise curver.AssumptionError('Currently can only compute geometric intersection number between a non-isolating ClosedLeaf and a Leaf.')
+			raise curver.AssumptionError('Currently can only compute geometric intersection number between a non-isolating Curve and Curve.')
 	
 	def quasiconvex(self, other):
 		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains self and other. '''
@@ -482,7 +482,7 @@ class Curve(MultiCurve):
 		return NotImplemented
 
 class MultiArc(Lamination):
-	''' A Lamination in which every component is an OpenLeaf. '''
+	''' A Lamination in which every component is an Arc. '''
 	def is_multicurve(self):
 		return False
 	def is_multiarc(self):
@@ -548,18 +548,6 @@ class Arc(MultiArc):
 		
 		return arc, conjugator
 	
-	def intersection(self, other):
-		''' Return the geometric intersection between self and the given lamination. '''
-		
-		assert(isinstance(other, Leaf))
-		assert(other.triangulation == self.triangulation)
-		
-		# short = [0, 0, ..., 0, -1, 0, ..., 0]
-		short, conjugator = self.shorten()
-		short_other = conjugator(other)
-		
-		return sum(b for a, b in zip(short, short_other) if a == -1 and b >= 0)
-	
 	def encode_halftwist(self, k=1):
 		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc raised to the power k.
 		
@@ -620,4 +608,16 @@ class Arc(MultiArc):
 				return conjugator.inverse() * short_boundary.encode_twist(k // 2) * half_twist * conjugator
 		else:  # boundary is isolating.
 			raise curver.AssumptionError('Boundary curve is isolating.')  # TODO: 4) Handle isolating case, use Will Worden's code.
+	
+	def signed_intersection(self, other):
+		''' Return the signed geometric intersection between self and the given lamination. '''
+		
+		assert(isinstance(other, Lamination))
+		assert(other.triangulation == self.triangulation)
+		
+		# short = [0, 0, ..., 0, -1, 0, ..., 0]
+		short, conjugator = self.shorten()
+		short_other = conjugator(other)
+		
+		return sum(b for a, b in zip(short, short_other) if a == -1)
 
