@@ -10,8 +10,10 @@ class TestS_1_1(unittest.TestCase):
 		self.assertEqual(h.order(), 6)
 		g = self.S('aba')
 		self.assertEqual(g.order(), 4)
-		i = self.S('ababab')
-		self.assertEqual(i.order(), 2)
+		involution = self.S('ababab')
+		self.assertEqual(involution.order(), 2)
+		identity = self.S('(ab)^6')
+		self.assertEqual(identity.order(), 1)
 
 class TestS_1_2(unittest.TestCase):
 	def setUp(self):
@@ -30,6 +32,7 @@ class TestS_1_2(unittest.TestCase):
 		self.assertEqual(self.h, self.h)
 		self.assertEqual(self.h.order(), 4)
 		self.assertEqual((self.h**(self.h.order())), self.identity)
+		self.assertEqual(self.S('xx'), self.S('(ab)^6'))
 	def test_images(self):
 		self.assertEqual((self.g**0)(self.a), self.S.lamination([17, 32, 0, 12, 29, 6]))
 		self.assertEqual((self.g**1)(self.a), self.S.lamination([213, 143, 32, 59, 181, 216]))
