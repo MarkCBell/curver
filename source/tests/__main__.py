@@ -35,7 +35,7 @@ class TestS_1_2(unittest.TestCase):
 		self.assertEqual((self.g**1)(self.a), self.S.lamination([213, 143, 32, 59, 181, 216]))
 		self.assertEqual((self.g**20)(self.a), self.b)
 	def test_intersection(self):
-		self.assertEqual(self.S('').intersection_matrix() == [[-1, 0, 0, 0, 0, 0], [0, -1, 0, 0, 0, 0], [0, 0, -1, 0, 0, 0], [0, 0, 0, -1, 0, 0], [0, 0, 0, 0, -1, 0], [0, 0, 0, 0, 0, -1]])
+		self.assertEqual(self.S('').intersection_matrix(), [[-1, 0, 0, 0, 0, 0], [0, -1, 0, 0, 0, 0], [0, 0, -1, 0, 0, 0], [0, 0, 0, -1, 0, 0], [0, 0, 0, 0, -1, 0], [0, 0, 0, 0, 0, -1]])
 
 if __name__ == '__main__':
 	unittest.main()
