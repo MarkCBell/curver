@@ -338,7 +338,7 @@ class Curve(MultiCurve):
 		return curve, conjugator
 	
 	def encode_twist(self, k=1):
-		''' Return an Encoding of a left Dehn twist about this curve raised to the power k.
+		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k.
 		
 		Currently, this must be a non-isolating curve. '''
 		
@@ -379,7 +379,7 @@ class Curve(MultiCurve):
 			twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [e1, e2]}, e1])
 			return conjugator.inverse() * twist**k * conjugator
 			
-			# Once Spiral is working we can do:
+			# TODO: 4) Once Spiral is working we can do:
 			twist_k = triangulation.encode([(e1, k)])
 			return conjugator.inverse() * twist_k * conjugator
 		else:  # curve is isolating.
@@ -549,65 +549,59 @@ class Arc(MultiArc):
 		return arc, conjugator
 	
 	def encode_halftwist(self, k=1):
-		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc raised to the power k.
+		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the power k.
 		
-		Assumes (and checks) that this arc connects between distinct vertices.
-		Currently, the boundary curve must also be non-isolating. '''
+		Assumes (and checks) that this arc connects between distinct vertices. '''
+		# Will Worden checked that this works for genus <= 20.
 		
 		boundary = self.boundary()
-		assert(not boundary.is_empty())  # Surface == S_{0, 3}
-		
-		if not isinstance(boundary, Curve):  # isinstance(boundary, MultiCurve):
+		if len(boundary) != 1:
 			raise curver.AssumptionError('Arc connects a vertex to itself.')
 		
-		if k % 2 == 0:  # k is even so use a Dehn twist about the boundary.
-			return boundary.encode_twist(k // 2)
+		# TODO: 4) Once we can twist about any curve we can go back to:
+		# if k % 2 == 0:  # k is even so use a Dehn twist about the boundary.
+		#	return boundary.encode_twist(k // 2)
 		
-		short_boundary, conjugator = boundary.shorten()
-		short = conjugator(self)
+		# We need to get to a really good configuration, one where self
+		# is an edge of the triangulation whose valence(initial vertex) == 1.
+		#
+		# We achieve this in two steps. First conjugate to make self an edge of some triangulation.
+		short, conjugator = self.shorten()
+		[arc_index] = [index for index in short.triangulation.indices if short(index) != 0]  # Which edge is this.
+		# Now keep moving edges away from this edge's initial vertex to get to a really good triangulation.
+		while len(short.triangulation.vertex_lookup[arc_index]) > 1:  # valence(initial vertex) > 1.
+			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[arc_index][2])
+			conjugator = flip * conjugator
+			short = flip(short)
 		
-		if short_boundary.weight() == 2:  # boundary is non-isolating.
-			[arc_index] = [index for index in short.triangulation.indices if short(index) != 0]
-			triangulation = short.triangulation
-			
-			# Let x be the edge of triangulation with index arc_index. We build out the neighbourhood
-			# of x which, since boundary is short, looks like the following:
-			#
-			# #<----------#
-			# |     a    ^^
-			# |         / |
-			# |---->------|
-			# |       /   |
-			# |b    e/   d|
-			# |     /     |
-			# |    /      |
-			# |   /       |
-			# |  /        |
-			# | /         |
-			# V/    c     |
-			# #---------->#
-			#  \         /
-			#   \       /
-			#    \x   y/
-			#     \   /
-			#      \ /
-			#       #
-			# Where d == ~b and x == ~y.
-			
-			c = ~triangulation.folded_boundary(arc_index)
-			_, tilde_e, _, _, _ = triangulation.square(c.label)
-			a, b, c, d, e = triangulation.square(~tilde_e.label)
-			
-			half_twist = triangulation.encode([{i: i for i in triangulation.indices if i not in [b.index, e.index, c.index, x.index]}, b.index, e.index, c.index])
-			
-			# We accelerate large powers by replacing (T^1/2_self)^2 with T_self which includes acceleration.
-			if abs(k) == 1:
-				return conjugator.inverse() * half_twist**k * conjugator
-			else:  # k is odd so we need to add in an additional half twist.
-				# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
-				return conjugator.inverse() * short_boundary.encode_twist(k // 2) * half_twist * conjugator
-		else:  # boundary is isolating.
-			raise curver.AssumptionError('Boundary curve is isolating.')  # TODO: 4) Handle isolating case, use Will Worden's code.
+		# We can now perform the half twist. To do this we move all the edges back across to the other vertex.
+		# Again, we keep moving edges away from this edge's terminal vertex.
+		half_twist = short.triangulation.id_encoding()  # valence(terminal vertex) > 1.
+		while len(short.triangulation.vertex_lookup[~arc_index]) > 1:
+			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[~arc_index][2])
+			half_twist = flip * half_twist
+			short = flip(short)
+		
+		# No close up to complete the half twist. This means finding the correct isometry back to the
+		# really good triangulation. We want the isometry to be the identity on all other components
+		# and on this component (the one containing this arc) to invert this arc.
+		this_component = set([component for component in short.triangulation.components() if arc_index in component][0])
+		label_map = dict(
+			[(index, index) for index in short.triangulation.indices if index not in this_component] + \  # Fix other components.
+			[(arc_index, ~arc_index)]  # Invert this arc.
+			)
+		half_twist = short.triangulation.find_isometry(half_twist.source_triangulation, label_map).encode() * half_twist
+		
+		# Until all twists are working we must do:
+		return conjugator.inverse() * half_twist**k * conjugator
+		
+		# TODO: 4) Afterwards we can go back to:
+		# We accelerate large powers by replacing (T^1/2_self)^2 with T_self which includes acceleration.
+		if abs(k) == 1:
+			return conjugator.inverse() * half_twist**k * conjugator
+		else:  # k is odd so we need to add in an additional half twist.
+			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
+			return boundary.encode_twist(k // 2) * conjugator.inverse() * half_twist * conjugator
 	
 	def intersection(self, other):
 		''' Return the geometric intersection between self and the given lamination. '''
