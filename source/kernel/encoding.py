@@ -116,6 +116,11 @@ class Encoding(object):
 		else:
 			return self.inverse()**abs(k)
 	
+	def intersection_matrix(self):
+		assert(self.is_mapping_class())
+		arcs = self.source_triangulation.edge_arcs()
+		return [[self(arc).intersection(arc2) for arc2 in arcs] for arc in arcs]
+	
 	def inverse(self):
 		''' Return the inverse of this encoding. '''
 		
