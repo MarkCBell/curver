@@ -1,36 +1,32 @@
 
 ''' A module for representing and manipulating maps between Triangulations.
 
-Provides: Encoding. '''
+Provides: Encoding and MappingClass. '''
 
 from fractions import Fraction
 
 import curver
 
 NT_TYPE_PERIODIC = 'Periodic'
-NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means "reducible and not periodic".
+NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
 NT_TYPE_PSEUDO_ANOSOV = 'Pseudo-Anosov'
 
 class Encoding(object):
 	''' This represents a map between two Triagulations.
-	
-	If it maps to and from the same triangulation then it represents
-	a mapping class. This can be checked using self.is_mapping_class().
 	
 	The map is given by a sequence of Moves which act from right to left. '''
 	def __init__(self, sequence):
 		assert(isinstance(sequence, (list, tuple)))
 		assert(len(sequence) > 0)
 		assert(all(isinstance(item, curver.kernel.Move) for item in sequence))
-		# We used to also test:
-		#  assert(all(x.source_triangulation == y.target_triangulation for x, y in zip(sequence, sequence[1:])))
-		# However this makes composing Encodings a quadratic time algorithm!
 		
 		self.sequence = sequence
 		
 		self.source_triangulation = self.sequence[-1].source_triangulation
 		self.target_triangulation = self.sequence[0].target_triangulation
 		self.zeta = self.source_triangulation.zeta
+		if self.is_mapping_class():  # Promote.
+			self.__class__ = MappingClass
 	
 	def is_mapping_class(self):
 		''' Return if this encoding is a mapping class.
@@ -63,7 +59,10 @@ class Encoding(object):
 					return self.sequence[start].target_triangulation.id_encoding()
 				else:
 					raise IndexError('list index out of range')
-			return Encoding(self.sequence[value])
+			elif stop < start:
+				raise IndexError('list index out of range')
+			else:  # start < stop.
+				return Encoding(self.sequence[value])
 		elif isinstance(value, curver.IntegerType):
 			return self.sequence[value]
 		else:
@@ -106,81 +105,64 @@ class Encoding(object):
 			return Encoding(self.sequence + other.sequence)
 		else:
 			return NotImplemented
-	def __pow__(self, k):
-		assert(self.is_mapping_class())
-		
-		if k == 0:
-			return self.source_triangulation.id_encoding()
-		elif k > 0:
-			return Encoding(self.sequence * k)
-		else:
-			return self.inverse()**abs(k)
-	
-	def intersection_matrix(self):
-		assert(self.is_mapping_class())
-		arcs = self.source_triangulation.edge_arcs()
-		return [[self(arc).intersection(arc2) for arc2 in arcs] for arc in arcs]
-	
 	def inverse(self):
 		''' Return the inverse of this encoding. '''
 		
 		return Encoding([item.inverse() for item in reversed(self.sequence)])
 	def __invert__(self):
 		return self.inverse()
+
+class MappingClass(Encoding):
+	''' An Encoding where self.source_triangulation == self.target_triangulation. '''
+	def __pow__(self, k):
+		if k == 0:
+			return self.source_triangulation.id_encoding()
+		elif k > 0:
+			return MappingClass(self.sequence * k)
+		else:
+			return self.inverse()**abs(k)
 	
-	def closing_isometries(self):
-		''' Return all the possible isometries from self.target_triangulation to self.source_triangulation.
+	def intersection_matrix(self):
+		''' Return the matrix M = {intersection(self(e_i), e_j)}_{ij} where e_i are the edges of self.source_triangulation.
 		
-		These are the maps that can be used to close this into a mapping class. '''
+		Except when self.source_triangulation == S_{1,1}, this uniquely determines self. '''
 		
-		return self.target_triangulation.isometries_to(self.source_triangulation)
+		arcs = self.source_triangulation.edge_arcs()
+		return [[self(arc).signed_intersection(arc2) for arc2 in arcs] for arc in arcs]
 	
 	def order(self):
 		''' Return the order of this mapping class.
 		
-		If this has infinite order then return 0.
+		If this has infinite order then return 0. '''
 		
-		This encoding must be a mapping class. '''
-		
-		assert(self.is_mapping_class())
-		
+		identity = self.source_triangulation.id_encoding()
 		for i in range(1, self.source_triangulation.max_order + 1):
-			if self**i == self.source_triangulation.id_encoding():
+			if self**i == identity:
 				return i
 		return 0
 	
 	def is_identity(self):
-		''' Return if this encoding is the identity map. '''
+		''' Return if this mapping class is the identity. '''
 		
 		return self.is_mapping_class() and self.order() == 1
 	
 	def is_periodic(self):
-		''' Return if this encoding has finite order.
-		
-		This encoding must be a mapping class. '''
+		''' Return if this mapping class has finite order. '''
 		
 		return self.order() > 0
 	
 	def is_reducible(self):
-		''' Return if this encoding is reducible and NOT periodic.
-		
-		This encoding must be a mapping class. '''
+		''' Return if this mapping class is reducible and NOT periodic. '''
 		
 		return self.nielsen_thurston_type() == NT_TYPE_REDUCIBLE
 	
 	def is_pseudo_anosov(self):
-		''' Return if this encoding is pseudo-Anosov.
-		
-		This encoding must be a mapping class. '''
+		''' Return if this mapping class is pseudo-Anosov. '''
 		
 		return self.nielsen_thurston_type() == NT_TYPE_PSEUDO_ANOSOV
 	
 	def nielsen_thurston_type(self):
-		''' Return the Nielsen--Thurston type of this encoding.
-		
-		This encoding must be a mapping class. '''
-		
-		assert(self.is_mapping_class())
+		''' Return the Nielsen--Thurston type of this mapping class. '''
 		
 		if self.is_periodic():
 			return NT_TYPE_PERIODIC
@@ -206,6 +188,7 @@ class Encoding(object):
 		d = N  # Denominator.
 		return Fraction(n, d).limit_denominator(D)
 
+
 def create_encoding(source_triangulation, sequence):
 	''' Return the encoding defined by sequence starting at source_triangulation.
 	
@@ -215,17 +198,4 @@ def create_encoding(source_triangulation, sequence):
 	assert(isinstance(source_triangulation, curver.kernel.Triangulation))
 	
 	return source_triangulation.encode(sequence)
-
-def doctest_globs():
-	''' Return the globals needed to run doctest on this module. '''
-	
-	S = curver.load('S_1_1')
-	aB = S.mapping_class('aB')
-	bA = S.mapping_class('bA')
-	ab = S.mapping_class('ab')
-	i = S.mapping_class('')
-	a = S.mapping_class('a')
-	x = S.triangulation.encode([1])
-	
-	return {'aB': aB, 'bA': bA, 'ab': ab, 'i': i, 'a': a, 'x': x}
 
