@@ -2,8 +2,6 @@
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 
-INFTY = float('inf')
-
 class TrainTrack(Lamination):
 	''' A Lamination in which each triangle is tripod free. '''
 	
