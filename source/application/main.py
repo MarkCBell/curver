@@ -82,7 +82,7 @@ class CurverApplication(object):
 			showable = OrderedDict(sorted(dict(showable).items(), key=lambda x: x[0]))
 		try:  # list of pairs, OrderedDict
 			showable = OrderedDict(showable)
-		except TypeError:  # list
+		except (TypeError, ValueError):  # list
 			showable = OrderedDict(curver.kernel.utilities.name_objects(showable))
 		self.showable = showable
 		self.options = curver.application.Options(self)

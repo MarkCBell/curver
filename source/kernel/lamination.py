@@ -53,18 +53,16 @@ class Lamination(object):
 				raise ValueError('Laminations must be on the same triangulation to add them.')
 			
 			geometric = [x + y for x, y in zip(self.geometric, other.geometric)]
-			return Lamination(self.triangulation, geometric).promote()
-		elif other == 0:  # So we can use sum.
-			return self
+			return Lamination(self.triangulation, geometric).promote()  # Have to promote.
 		else:
 			return NotImplemented
 	def __radd__(self, other):
-		return self + other
+		return self + other  # Commutative.
 	def __mul__(self, other):
 		geometric = [other * x for x in self]
 		return Lamination(self.triangulation, geometric)
 	def __rmul__(self, other):
-		return self * other
+		return self * other  # Commutative.
 	def __sub__(self, other):
 		# Haken sum.
 		if isinstance(other, Lamination):
@@ -72,7 +70,7 @@ class Lamination(object):
 				raise ValueError('Laminations must be on the same triangulation to add them.')
 			
 			geometric = [x - y for x, y in zip(self.geometric, other.geometric)]
-			return Lamination(self.triangulation, geometric).promote()
+			return Lamination(self.triangulation, geometric).promote()  # Have to promote.
 		else:
 			return NotImplemented
 	
@@ -139,7 +137,7 @@ class Lamination(object):
 	def skeleton(self):
 		''' Return the lamination obtained by collapsing parallel components. '''
 		
-		return sum(component for component in self.components()).promote()
+		return sum([component for component in self.components()], self.triangulation.empty_lamination()).promote()  # What if components is empty!?!
 	
 	def peek_component(self):
 		''' Return one component of this Lamination. '''
@@ -238,13 +236,26 @@ class Lamination(object):
 	def sublaminations(self):
 		''' Return all sublaminations that appear within self. '''
 		components = self.components()
-		return [sum(components).promote() for i in range(len(components)) for sub in permutations(components, i)]
+		return [sum(sub, self.triangulation.empty_lamination()).promote() for i in range(len(components)) for sub in permutations(components, i)]  # What if components is empty!?!
+	
+	def multiarc(self):
+		''' Return the maximal MultiArc contained within this lamination. '''
+		
+		empty = self.triangulation.empty_lamination()
+		return sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, Arc)], empty)
+	
+	def multicurve(self):
+		''' Return the maximal MultiCurve contained within this lamination. '''
+		
+		empty = self.triangulation.empty_lamination()
+		return sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, Curve)], empty)
 	
 	def boundary(self):
 		''' Return the boundary of a regular neighbourhood of this lamination. '''
 		
-		return sum(component for component in self.components() if isinstance(component, Arc)).boundary() + \
-			sum(multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, Curve))
+		multiarc = self.multiarc()  # Might be empty.
+		multicurve = self.multicurve()  # Might be empty.
+		return multicurve + (multiarc if multiarc.is_empty() else multiarc.boundary)
 
 class MultiCurve(Lamination):
 	''' A Lamination in which every component is a Curve. '''
@@ -260,7 +271,7 @@ class MultiCurve(Lamination):
 		
 		return h
 	
-	def boundary_neighbourhood_union(self, other):
+	def boundary_union(self, other):
 		''' Return \\partial N(self \\cup other). '''
 		assert(isinstance(other, Lamination))
 		
@@ -274,7 +285,7 @@ class MultiCurve(Lamination):
 		''' Return whether self \\cup other fills. '''
 		assert(isinstance(other, Lamination))
 		
-		return self.boundary_neighbourhood_union(other).is_empty()
+		return self.boundary_union(other).is_empty()
 	
 	def tight_paths(self, other, length):
 		''' Return the set of all tight paths from self to other that are of the given length.
@@ -288,7 +299,7 @@ class MultiCurve(Lamination):
 		elif length == 1:
 			return set([(self, other)]) if self.intersection(other) == 0 and self.is_disjoint(other) else set()
 		elif length == 2:
-			m = self.boundary_neighbourhood_union(other)  # m = \partial N(self \cup other).
+			m = self.boundary_union(other)  # m = \partial N(self \cup other).
 			return set([(self, m, other)]) if not m.is_empty() and self.is_disjoint(m) and other.is_disjoint(m) else set()
 		else:  # length >= 3.
 			crush = self.crush()
@@ -305,7 +316,7 @@ class MultiCurve(Lamination):
 			for a_1 in A_1:
 				for multipath in a_1.tight_paths(other, length-1):  # Recurse.
 					a_2 = multipath[0]
-					if self.boundary_neighbourhood_union(a_2) == a_1:  # (self,) + multipath is tight:
+					if self.boundary_union(a_2) == a_1:  # (self,) + multipath is tight:
 						P.add((self,) + multipath)
 			
 			return P
@@ -424,10 +435,10 @@ class Curve(MultiCurve):
 			if triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
 			
 			a, b, c, d, e = triangulation.square(e1)
-			y, z, y2, z2, x, x2 = self.dual_square(e)
+			u, v, w, x, y, z = short_other.dual_square(e)
 			
 			# This assumes that other is a curve.
-			return short_other(a) - 2 * min(x, y2, z)  # = short_other(c) - 2 * min(x2, y, z2))
+			return short_other(a) - 2 * min(v, w, y)  # = short_other(c) - 2 * min(v, x, z))
 		else:
 			# TODO: 4) Implement LP to find intersection for general configuration.
 			raise curver.AssumptionError('Currently can only compute geometric intersection number between a non-isolating Curve and Curve.')
@@ -451,7 +462,7 @@ class Curve(MultiCurve):
 		assert(isinstance(other, Curve))
 		
 		guide = self.quasiconvex(other)  # U.
-		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See Richard's paper!?!
+		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See Richard's paper.
 		return set(multicurve for length in range(L+1) for c1 in guide for c2 in guide for path in c1.tight_paths(c2, length) for multicurve in path)
 	
 	def tight_geodesic(self, other):
@@ -469,7 +480,7 @@ class Curve(MultiCurve):
 		geodesic = [vertices[index] for index in indices]  # Get the geodesic, however this might not be tight.
 		
 		for i in range(1, len(geodesic)-1):
-			geodesic[i] = geodesic[i-1].boundary_neighbourhood_union(geodesic[i+1])  # Tighten.
+			geodesic[i] = geodesic[i-1].boundary_union(geodesic[i+1])  # Tighten.
 		
 		return tuple(geodesic)
 	
@@ -488,25 +499,21 @@ class Curve(MultiCurve):
 		return len(self.geodesic(other)) - 1
 	
 	def crush(self):
-		''' Return the crush map associated to this Curve. '''
+		''' Return the crush map associated to this Curve.
 		
-		# TODO: 2) Implement this and the associated Move.
+		Currently assumes that this a non-isolating curve. '''
 		
-		short, conjugator = self.conjugate_short()
+		short, conjugator = self.shorten()
 		
 		if short.weight() == 2:  # curve is non-isolating.
 			triangulation = short.triangulation
 			# Grab the indices of the two edges we meet.
 			e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
 			
+			# We might need to swap these edge indices so we have a good frame of reference.
+			if short.triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
+			
 			a, b, c, d, e = triangulation.square(e1)
-			# If the curve is going vertically through the square then ...
-			if short(a) == 1 and short(c) == 1:
-				# swap the labels round so it goes horizontally.
-				e1, e2 = e2, e1
-				a, b, c, d, e = triangulation.square(e1)
-			elif short(b) == 1 and short(d) == 1:
-				pass
 			
 			# Use the following for reference:
 			# #<----------#     #-----------#  #
@@ -523,19 +530,21 @@ class Curve(MultiCurve):
 			# V/    c     |     |/  /    c     |
 			# #---------->#     #  #-----------#
 			
-			edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
+			edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in triangulation.edges)
 			
 			# Most triangles don't change.
-			triangles = [Triangle([edge_map[edgey] for edgey in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
+			triangles = [curver.kernel.Triangle([edge_map[edgey] for edgey in triangle]) for triangle in triangulation if e not in triangle and ~e not in triangle]
 			
-			triangle_A2 = Triangle([edge_map[a], edge_map[b], edge_map[~b]])
-			triangle_B2 = Triangle([edge_map[c], edge_map[e], edge_map[~e]])
-			new_triangulation = Triangulation(triangles + [triangle_A2, triangle_B2])
+			triangle_A2 = curver.kernel.Triangle([edge_map[a], edge_map[b], edge_map[~b]])
+			triangle_B2 = curver.kernel.Triangle([edge_map[c], edge_map[e], edge_map[~e]])
+			new_triangulation = curver.kernel.Triangulation(triangles + [triangle_A2, triangle_B2])
+			
+			matrix = [[1 if i == j or (i == b.index and j == e.index) or (i == e.index and j == b.index) else 0 for i in range(self.zeta)] for j in range(self.zeta)]
 		else:  # curve is isolating.
 			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
 		
-		crush = curver.kernel.Crush(triangulation, new_triangulation, short)
-		return conjugator.inverse() * crush * conjugator
+		crush = curver.kernel.Crush(triangulation, new_triangulation, short, matrix).encode()
+		return crush * conjugator
 
 class MultiArc(Lamination):
 	''' A Lamination in which every component is an Arc. '''
