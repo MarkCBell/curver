@@ -64,7 +64,7 @@ the command::
 
 And then install using the command::
 
-	> python setup.py install --user
+	> python setup.py develop --user
 
 In several places work is flagged TODO: #). The number determines the priority.
 	1) == Fundamentally broken until this is done.
