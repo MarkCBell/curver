@@ -24,7 +24,6 @@ setup(
 		'curver.kernel',
 		'curver.application',
 		],
-	package_dir={'curver': source_directory},
 	package_data={
 		'curver.application': ['icon/*', 'frames/*'],
 		},

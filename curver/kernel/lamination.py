@@ -63,16 +63,6 @@ class Lamination(object):
 		return Lamination(self.triangulation, geometric)
 	def __rmul__(self, other):
 		return self * other  # Commutative.
-	def __sub__(self, other):
-		# Haken sum.
-		if isinstance(other, Lamination):
-			if other.triangulation != self.triangulation:
-				raise ValueError('Laminations must be on the same triangulation to add them.')
-			
-			geometric = [x - y for x, y in zip(self.geometric, other.geometric)]
-			return Lamination(self.triangulation, geometric).promote()  # Have to promote.
-		else:
-			return NotImplemented
 	
 	def weight(self):
 		''' Return the geometric intersection of this lamination with its underlying triangulation. '''
