@@ -13,6 +13,7 @@ in a functions docstring:
 		If the assumptions are met then this function is guaranteed to terminate correctly.
 		If not then this a curver.AssumptionError will be raised. '''
 
+from . import crush
 from . import encoding
 from . import error
 from . import equippedtriangulation
@@ -42,6 +43,8 @@ Isometry = moves.Isometry
 EdgeFlip = moves.EdgeFlip
 Spiral = moves.Spiral
 TrainTrack = traintrack.TrainTrack
+Crush = crush.Crush
+Lift = crush.Lift
 
 norm = triangulation.norm
 UnionFind = utilities.UnionFind

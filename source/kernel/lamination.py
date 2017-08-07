@@ -316,7 +316,7 @@ class Curve(MultiCurve):
 		return [(self, 1)]
 	
 	def shorten(self):
-		''' Return an encoding which maps this curve to a curve with as little weight as possible together with its image. '''
+		''' Return an encoding which maps this curve to a curve to a short one, one with as little weight as possible, together with its image. '''
 		
 		# Repeatedly flip to reduce the weight of this curve as much as possible.
 		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
@@ -326,16 +326,24 @@ class Curve(MultiCurve):
 		
 		weight_history = [INFTY, INFTY, curve.weight()]
 		# If we ever fail to make progress more than once then the curve is as short as it's going to get.
-		while weight_history[-1] < weight_history[-3]:
+		while not curve.is_short():
 			# Find the flip which decreases our weight the most.
 			flips = [curve.triangulation.encode_flip(index) for index in curve.triangulation.indices if curve.triangulation.is_flippable(index)]
-			flip = min(flips, key=lambda flip: flip(curve).weight())
+			flip = min(flips, key=lambda flip: flip(curve).weight())  # TODO: 3) Choose flips better. Not sure this works when self is isolating.
 			
 			conjugator = flip * conjugator
 			curve = flip(curve)
 			weight_history.append(curve.weight())
 		
 		return curve, conjugator
+	
+	def is_short(self):
+		# Theorem: A curve is short iff either:
+		#  - it meets T exactly twice, or
+		#  - it meets every edge of T either 0 or 2 times and there are no double corridors.
+		is_corridor = lambda index: sum(self(edge) for edge in self.triangulation.triangle_lookup[index]) == 4
+		no_double_corridors = all(not is_corridor(index) or not is_corridor(~index) for index in self.triangulation.indices)
+		return self.weight() == 2 or (all(weight in [0, 2] for weight in self) and no_double_corridors)
 	
 	def encode_twist(self, k=1):
 		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k.
@@ -479,6 +487,36 @@ class Curve(MultiCurve):
 		
 		# TODO: 2) Implement this and the associated Move.
 		
+		short, conjugator = self.conjugate_short()
+		
+		if short.weight() == 2:  # curve is non-isolating.
+			triangulation = short.triangulation
+			# Grab the indices of the two edges we meet.
+			e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
+			
+			a, b, c, d, e = triangulation.square(e1)
+			# If the curve is going vertically through the square then ...
+			if short(a) == 1 and short(c) == 1:
+				# swap the labels round so it goes horizontally.
+				e1, e2 = e2, e1
+				a, b, c, d, e = triangulation.square(e1)
+			elif short(b) == 1 and short(d) == 1:
+				pass
+			
+			edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
+			
+			# Most triangles don't change.
+			triangles = [Triangle([edge_map[edgey] for edgey in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
+			
+			triangle_A2 = Triangle([edge_map[a], edge_map[b], edge_map[~b]])
+			triangle_B2 = Triangle([edge_map[c], edge_map[e], edge_map[~e]])
+			new_triangulation = Triangulation(triangles + [triangle_A2, triangle_B2])
+			
+			crush = curver.kernel.Crush(triangulation, new_triangulation, short)
+			
+			return conjugator.inverse() * crush * conjugator
+		else:  # curve is isolating.
+			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
 		return NotImplemented
 
 class MultiArc(Lamination):
@@ -538,7 +576,7 @@ class Arc(MultiArc):
 		arc = self
 		conjugator = arc.triangulation.id_encoding()
 		
-		while arc.weight() > 0:
+		while not arc.is_short():
 			labels = [label for label in arc.triangulation.labels if arc.dual_weight(label) < 0]
 			label = labels[0]
 			flip = arc.triangulation.encode_flip(label)
@@ -547,6 +585,9 @@ class Arc(MultiArc):
 			arc = flip(arc)
 		
 		return arc, conjugator
+	
+	def is_short(self):
+		return self.weight() == 0
 	
 	def encode_halftwist(self, k=1):
 		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the power k.
