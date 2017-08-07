@@ -53,7 +53,7 @@ class Lamination(object):
 				raise ValueError('Laminations must be on the same triangulation to add them.')
 			
 			geometric = [x + y for x, y in zip(self.geometric, other.geometric)]
-			return Lamination(self.triangulation, geometric)
+			return Lamination(self.triangulation, geometric).promote()
 		elif other == 0:  # So we can use sum.
 			return self
 		else:
@@ -72,7 +72,7 @@ class Lamination(object):
 				raise ValueError('Laminations must be on the same triangulation to add them.')
 			
 			geometric = [x - y for x, y in zip(self.geometric, other.geometric)]
-			return Lamination(self.triangulation, geometric)
+			return Lamination(self.triangulation, geometric).promote()
 		else:
 			return NotImplemented
 	
@@ -91,6 +91,10 @@ class Lamination(object):
 		corner = self.triangulation.corner_lookup[edge.label]
 		weights = [self(edge) for edge in corner]
 		return dual_weight(*weights)
+	
+	def dual_square(self, edge):
+		a, b, c, d, e = self.triangulation.square(edge)
+		return [self.dual_weight(edgey) for edgey in [a, b, c, d, e, ~e]]
 	
 	def shorten(self):
 		''' Return an encoding obtained by shortening each component in turn together with the image of self. '''
@@ -235,6 +239,12 @@ class Lamination(object):
 		''' Return all sublaminations that appear within self. '''
 		components = self.components()
 		return [sum(components).promote() for i in range(len(components)) for sub in permutations(components, i)]
+	
+	def boundary(self):
+		''' Return the boundary of a regular neighbourhood of this lamination. '''
+		
+		return sum(component for component in self.components() if isinstance(component, Arc)).boundary() + \
+			sum(multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, Curve))
 
 class MultiCurve(Lamination):
 	''' A Lamination in which every component is a Curve. '''
@@ -256,7 +266,7 @@ class MultiCurve(Lamination):
 		
 		crush = self.crush()
 		lift = crush.inverse()
-		other_prime = crush(other)
+		other_prime = crush(other).skeleton()
 		m_prime = other_prime.boundary()
 		return lift(m_prime)  # = m.
 	
@@ -414,14 +424,9 @@ class Curve(MultiCurve):
 			if triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
 			
 			a, b, c, d, e = triangulation.square(e1)
+			y, z, y2, z2, x, x2 = self.dual_square(e)
 			
-			x = (short_other(a) + short_other(b) - short_other(e)) // 2
-			y = (short_other(b) + short_other(e) - short_other(a)) // 2
-			z = (short_other(e) + short_other(a) - short_other(b)) // 2
-			x2 = (short_other(c) + short_other(d) - short_other(e)) // 2
-			y2 = (short_other(d) + short_other(e) - short_other(c)) // 2
-			z2 = (short_other(e) + short_other(c) - short_other(d)) // 2
-			
+			# This assumes that other is a curve.
 			return short_other(a) - 2 * min(x, y2, z)  # = short_other(c) - 2 * min(x2, y, z2))
 		else:
 			# TODO: 4) Implement LP to find intersection for general configuration.
@@ -503,6 +508,21 @@ class Curve(MultiCurve):
 			elif short(b) == 1 and short(d) == 1:
 				pass
 			
+			# Use the following for reference:
+			# #<----------#     #-----------#  #
+			# |     a    ^^     |     a    /  /|
+			# |         / |     |         /  / |
+			# |        /  |     |        /  /  |
+			# |       /   |     |       /  /   |
+			# |b    e/   d| --> |b   ~b/  /~e e|
+			# |     /     |     |     /  /     |
+			# |    /      |     |    /  /      |
+			# |   /       |     |   /  /       |
+			# |  /        |     |  /  /        |
+			# | /         |     | /  /         |
+			# V/    c     |     |/  /    c     |
+			# #---------->#     #  #-----------#
+			
 			edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
 			
 			# Most triangles don't change.
@@ -511,13 +531,11 @@ class Curve(MultiCurve):
 			triangle_A2 = Triangle([edge_map[a], edge_map[b], edge_map[~b]])
 			triangle_B2 = Triangle([edge_map[c], edge_map[e], edge_map[~e]])
 			new_triangulation = Triangulation(triangles + [triangle_A2, triangle_B2])
-			
-			crush = curver.kernel.Crush(triangulation, new_triangulation, short)
-			
-			return conjugator.inverse() * crush * conjugator
 		else:  # curve is isolating.
 			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
-		return NotImplemented
+		
+		crush = curver.kernel.Crush(triangulation, new_triangulation, short)
+		return conjugator.inverse() * crush * conjugator
 
 class MultiArc(Lamination):
 	''' A Lamination in which every component is an Arc. '''
@@ -654,5 +672,5 @@ class Arc(MultiArc):
 		short, conjugator = self.shorten()
 		short_other = conjugator(other)
 		
-		return sum(b for a, b in zip(short, short_other) if a == -1)
+		return sum(b for a, b in zip(short, short_other) if a == -1 if b >= 0)
 
