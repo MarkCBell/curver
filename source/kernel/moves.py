@@ -10,6 +10,13 @@ import curver
 
 class Move(object):
 	''' Implements closedleaf and openleaf which apply this move to ClosedLeaf and OpenLeaf respectively. '''
+	def __init__(self, source_triangulation, target_triangulation):
+		assert(isinstance(source_triangulation, curver.kernel.Triangulation))
+		assert(isinstance(target_triangulation, curver.kernel.Triangulation))
+		
+		self.source_triangulation = source_triangulation
+		self.target_triangulation = target_triangulation
+		self.zeta = self.source_triangulation.zeta
 	def __repr__(self):
 		return str(self)
 	def __invert__(self):
@@ -37,14 +44,9 @@ class Isometry(Move):
 		
 		It is given by a map taking each edge label of source_triangulation to a label of target_triangulation. '''
 		
-		assert(isinstance(source_triangulation, curver.kernel.Triangulation))
-		assert(isinstance(target_triangulation, curver.kernel.Triangulation))
+		super(Isometry, self).__init__(source_triangulation, target_triangulation)
+		
 		assert(isinstance(label_map, dict))
-		
-		self.source_triangulation = source_triangulation
-		self.target_triangulation = target_triangulation
-		self.zeta = self.source_triangulation.zeta
-		
 		self.label_map = dict(label_map)
 		
 		# If we are missing any labels then use a depth first search to find the missing ones.
@@ -86,15 +88,11 @@ class Isometry(Move):
 class EdgeFlip(Move):
 	''' Represents the change to a curve caused by flipping an edge. '''
 	def __init__(self, source_triangulation, target_triangulation, edge):
-		assert(isinstance(source_triangulation, curver.kernel.Triangulation))
-		assert(isinstance(target_triangulation, curver.kernel.Triangulation))
+		super(EdgeFlip, self).__init__(source_triangulation, target_triangulation)
 		
 		if isinstance(edge, curver.IntegerType): edge = self.source_triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		self.source_triangulation = source_triangulation
-		self.target_triangulation = target_triangulation
 		self.edge = edge
-		self.zeta = self.source_triangulation.zeta
 		assert(self.source_triangulation.is_flippable(self.edge))
 		
 		self.square = self.source_triangulation.square(self.edge)
@@ -167,13 +165,9 @@ class Spiral(Move):
 		
 		Because this is a mapping class, source_triangulation and target_triangulation should be equal. '''
 		
-		assert(isinstance(source_triangulation, curver.kernel.Triangulation))
-		assert(isinstance(target_triangulation, curver.kernel.Triangulation))
-		assert(source_triangulation == target_triangulation)
+		super(Spiral, self).__init__(source_triangulation, target_triangulation)
 		
-		self.source_triangulation = source_triangulation
-		self.target_triangulation = target_triangulation
-		self.zeta = self.source_triangulation.zeta
+		assert(self.source_triangulation == self.target_triangulation)
 		
 		self.edge_label = edge_label
 		self.edge_index = curver.kernel.norm(self.edge_label)
