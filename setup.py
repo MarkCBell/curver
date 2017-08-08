@@ -23,6 +23,7 @@ setup(
 		'curver',
 		'curver.kernel',
 		'curver.application',
+		'curver.tests',
 		],
 	package_data={
 		'curver.application': ['icon/*', 'frames/*'],
