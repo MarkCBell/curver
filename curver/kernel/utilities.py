@@ -53,7 +53,7 @@ class UnionFind(object):
 		if self.parent[x] == x:
 			return x
 		else:
-			self.parent[x] = self(self.parent[x])
+			self.parent[x] = self(self.parent[x])  # Recursion limit?
 			return self.parent[x]
 	def union2(self, x, y):
 		rx, ry = self(x), self(y)

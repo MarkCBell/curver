@@ -8,6 +8,7 @@ def main():
 	suite = loader.discover(start_dir)
 	
 	runner = unittest.TextTestRunner()
+	print('Running unit tests:')
 	runner.run(suite)
 
 if __name__ == '__main__':
