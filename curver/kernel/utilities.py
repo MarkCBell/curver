@@ -42,7 +42,7 @@ class UnionFind(object):
 		self.rank = dict((item, 0) for item in items)
 	def __iter__(self):
 		''' Iterate through the groups of self. '''
-		return iter(list(g) for _, g in groupby(sorted(self.parent, key=self), key=self))
+		return iter(set(g) for _, g in groupby(sorted(self.parent, key=self), key=self))
 	def __repr__(self):
 		return str(self)
 	def __str__(self):
