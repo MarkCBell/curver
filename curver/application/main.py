@@ -358,7 +358,7 @@ class CurverApplication(object):
 		
 		num_used_vertices = 0
 		for index, component in enumerate(components):
-			n = len(component) * 2 // 3  # Number of triangles.
+			n = len(component) // 3  # Number of triangles.
 			ngon = n + 2
 			
 			# Create the vertices.
@@ -377,7 +377,7 @@ class CurverApplication(object):
 				
 				return left, right
 			
-			initial_edge_index = min(i for i in component if not dual_tree[i])
+			initial_edge_index = min(edge.index for edge in component if not dual_tree[edge.index])
 			to_extend = [(num_used_vertices, num_used_vertices+1, initial_edge_index)]
 			# Hmmm, need to be more careful here to ensure that we correctly orient the edges.
 			self.create_edge(self.vertices[num_used_vertices+1], self.vertices[num_used_vertices+0], initial_edge_index, colours[initial_edge_index])

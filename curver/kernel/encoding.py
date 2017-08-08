@@ -174,11 +174,11 @@ class MappingClass(Encoding):
 	def asymptotic_translation_length(self):
 		''' Return the asymptotic translation length of this mapping class on the curve complex.
 		
-		From Algorithm 6 of Paper 3. '''
+		From Algorithm 6 of [BellWebb16b]. '''
 		
 		# TODO: 2) Fix these constants.
 		N = 1  # Some constant.
-		D = 1  # Bowditch bound on denominator.
+		D = 1  # Bowditch bound on denominator [Bow08].
 		c = self.triangulation.edge_arcs()[0].boundary()  # A "short" curve.
 		geodesic = c.geodesic((self**N)(c))
 		m = geodesic[len(geodesic)//2]  # midpoint

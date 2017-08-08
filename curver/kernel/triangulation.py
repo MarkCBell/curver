@@ -42,6 +42,8 @@ class Edge(object):
 	def __eq__(self, other):
 		if isinstance(other, Edge):
 			return self.label == other.label
+		elif isinstance(other, curver.IntegerType):
+			return self.label == other
 		else:
 			return NotImplemented
 	def __ne__(self, other):
@@ -216,15 +218,15 @@ class Triangulation(object):
 		''' Return the maximum order of a mapping class on this surface. '''
 		
 		# List of pairs of #vertices and #edges for each component.
-		VE = [(len([vertex for vertex in self.vertices if list(vertex)[0].index in component]), len(component)) for component in self.components()]
+		VE = [(len([vertex for vertex in self.vertices if list(vertex)[0] in component]), len(component) // 2) for component in self.components()]
 		# List of pairs of genus and #vertices edges for each component.
 		GV = [((2 - v + e // 3) // 2, v) for v, e in VE]
 		
 		def order(g, v):
 			# The maximum order of a periodic mapping class on S_{g, v}.
-			# These bounds follow from the 4g + 4 bound on the closed surface [Primer reference]
+			# These bounds follow from the 4g + 4 bound on the closed surface [FarbMarg12]
 			# and the Riemann removable singularity theorem which allows us to cap off the
-			# punctures when the genus > 1 without affecting this bound.
+			# punctures when the g > 1 without affecting this bound.
 			if g > 1:
 				return 4*g + 2
 			elif g == 1:
@@ -242,13 +244,15 @@ class Triangulation(object):
 		return product
 	
 	def components(self):
-		''' Return a list of of the indices in each component of self. '''
+		''' Return a list of sets of the edges in each component of self. '''
 		
-		components = curver.kernel.UnionFind(self.indices)
+		classes = curver.kernel.UnionFind(self.edges)
+		for edge in self.edges:
+			classes.union(edge, ~edge)
 		for triangle in self:
-			components.union(triangle.indices)
+			classes.union(triangle)
 		
-		return list(components)
+		return list(classes)
 	
 	def dual_tree(self):
 		''' Return a maximal tree in 1--skeleton of the dual of this triangulation.

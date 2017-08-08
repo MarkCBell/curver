@@ -280,7 +280,7 @@ class MultiCurve(Lamination):
 	def tight_paths(self, other, length):
 		''' Return the set of all tight paths from self to other that are of the given length.
 		
-		From Algorithm 3 of Paper 3. '''
+		From Algorithm 3 of [BellWebb16b]. '''
 		assert(isinstance(other, MultiCurve))
 		assert(length >= 0)
 		
@@ -447,18 +447,18 @@ class Curve(MultiCurve):
 	def all_tight_geodesic_multicurves(self, other):
 		''' Return a set that contains all multicurves in any tight geodesic from self to other.
 		
-		From the first half of Algorithm 4 of Paper 3. '''
+		From the first half of Algorithm 4 of [BellWebb16b]. '''
 		
 		assert(isinstance(other, Curve))
 		
 		guide = self.quasiconvex(other)  # U.
-		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See Richard's paper.
+		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See [Webb15].
 		return set(multicurve for length in range(L+1) for c1 in guide for c2 in guide for path in c1.tight_paths(c2, length) for multicurve in path)
 	
 	def tight_geodesic(self, other):
 		''' Return a tight geodesic in the (multi)curve complex from self to other.
 		
-		From the second half of Algorithm 4 of Paper 3. '''
+		From the second half of Algorithm 4 of [BellWebb16b]. '''
 		
 		assert(isinstance(other, Curve))
 		
@@ -478,7 +478,7 @@ class Curve(MultiCurve):
 		''' Return a geodesic in the curve complex from self to other.
 		
 		The geodesic will always come from a tight geodesic.
-		From Algorithm 5 of Paper 3. '''
+		From Algorithm 5 of [BellWebb16b]. '''
 		
 		return tuple(multicurve.peek_component() for multicurve in self.tight_geodesic(other))
 	
@@ -643,9 +643,9 @@ class Arc(MultiArc):
 		# No close up to complete the half twist. This means finding the correct isometry back to the
 		# really good triangulation. We want the isometry to be the identity on all other components
 		# and on this component (the one containing this arc) to invert this arc.
-		this_component = set([component for component in short.triangulation.components() if arc_index in component][0])
+		[this_component] = [component for component in short.triangulation.components() if arc_index in component]
 		label_map = dict(
-			[(index, index) for index in short.triangulation.indices if index not in this_component] + \
+			[(edge.label, edge.label) for edge in short.triangulation.edges if edge not in this_component] + \
 			[(arc_index, ~arc_index)]
 			)
 		half_twist = short.triangulation.find_isometry(half_twist.source_triangulation, label_map).encode() * half_twist
