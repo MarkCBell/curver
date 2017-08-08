@@ -3,6 +3,9 @@
 
 Provides: Edge, Triangle and Triangulation. '''
 
+from math import factorial
+from itertools import groupby
+
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
@@ -114,8 +117,7 @@ class Triangle(object):
 class Triangulation(object):
 	''' This represents a triangulation of a punctured surface.
 	
-	It is specified by a list of Triangles. Its edges must be
-	numbered 0, 1, ... and its vertices must be numbered 0, 1, ... '''
+	It is specified by a list of Triangles. Its edges must be numbered 0, 1, ... '''
 	def __init__(self, triangles):
 		# We will sort the triangles into a canonical ordering, the one where the edges are ordered
 		# minimally by label. This allows for fast comparisons.
@@ -136,8 +138,8 @@ class Triangulation(object):
 		self.triangle_lookup = dict((edge.label, triangle) for triangle in self for edge in triangle)
 		self.corner_lookup = dict((edge.label, Triangle(triangle.edges, rotate=index)) for triangle in triangles for index, edge in enumerate(triangle))
 		
-		# Group the edges into vertex classes.
-		# Here two edges are in the same class iff they have the same tail.
+		# Group the edges into vertex classes (vertices).
+		# Here two edges are in the same vertex iff they have the same tail.
 		classes = curver.kernel.UnionFind(self.edges)
 		for edge in self.edges:
 			classes.union(edge, ~(self.corner_lookup[edge.label][2]))
@@ -147,21 +149,7 @@ class Triangulation(object):
 		
 		self.num_vertices = len(self.vertices)
 		
-		self.euler_characteristic = self.num_vertices - self.zeta + self.num_triangles  # V - E + F.
-		# NOTE: This assumes connected.
-		self.genus = (2 - self.euler_characteristic) // 2
-		
-		# The maximum order of a periodic mapping class.
-		# These bounds follow from the 4g + 4 bound on the closed surface [Primer reference]
-		# and the Riemann removable singularity theorem which allows us to cap off the
-		# punctures when the genus > 1 without affecting this bound.
-		# NOTE: This assumes connected.
-		if self.genus > 1:
-			self.max_order = 4 * self.genus + 2
-		elif self.genus == 1:
-			self.max_order = max(self.num_vertices, 6)
-		else:
-			self.max_order = self.num_vertices
+		self.euler_characteristic = self.num_vertices - self.zeta // 3  # = V - E + F since 3F = 2E.
 		
 		# Two triangualtions are the same if and only if they have the same signature.
 		self.signature = [e.label for t in self for e in t]
@@ -223,6 +211,35 @@ class Triangulation(object):
 		return not(self == other)
 	def __hash__(self):
 		return hash(tuple(self.signature))
+	
+	def max_order(self):
+		''' Return the maximum order of a mapping class on this surface. '''
+		
+		# List of pairs of #vertices and #edges for each component.
+		VE = [(len([vertex for vertex in self.vertices if list(vertex)[0].index in component]), len(component)) for component in self.components()]
+		# List of pairs of genus and #vertices edges for each component.
+		GV = [((2 - v + e // 3) // 2, v) for v, e in VE]
+		
+		def order(g, v):
+			# The maximum order of a periodic mapping class on S_{g, v}.
+			# These bounds follow from the 4g + 4 bound on the closed surface [Primer reference]
+			# and the Riemann removable singularity theorem which allows us to cap off the
+			# punctures when the genus > 1 without affecting this bound.
+			if g > 1:
+				return 4*g + 2
+			elif g == 1:
+				return max(v, 6)
+			else:  # g == 0:
+				return v
+		
+		# List of pairs of orders and multiplicity.
+		OM = [(order(g, v), len(list(group))) for (g, v), group in groupby(sorted(GV))]
+		
+		product = 1
+		for o, m in OM:
+			product *= o * factorial(m)  # Actually need o*lcm(1, 2, ..., m), but this is easier (and not significantly larger?)
+		
+		return product
 	
 	def components(self):
 		''' Return a list of of the indices in each component of self. '''

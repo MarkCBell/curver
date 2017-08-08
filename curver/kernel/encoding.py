@@ -135,7 +135,7 @@ class MappingClass(Encoding):
 		If this has infinite order then return 0. '''
 		
 		identity = self.source_triangulation.id_encoding()
-		for i in range(1, self.source_triangulation.max_order + 1):
+		for i in range(1, self.source_triangulation.max_order() + 1):
 			if self**i == identity:
 				return i
 		return 0
