@@ -53,7 +53,7 @@ class Lamination(object):
 				raise ValueError('Laminations must be on the same triangulation to add them.')
 			
 			geometric = [x + y for x, y in zip(self.geometric, other.geometric)]
-			return Lamination(self.triangulation, geometric).promote()  # Have to promote.
+			return self.triangulation.lamination(geometric)  # Have to promote.
 		else:
 			return NotImplemented
 	def __radd__(self, other):
@@ -127,7 +127,7 @@ class Lamination(object):
 	def skeleton(self):
 		''' Return the lamination obtained by collapsing parallel components. '''
 		
-		return sum([component for component in self.components()], self.triangulation.empty_lamination()).promote()  # What if components is empty!?!
+		return sum([component for component in self.components()], self.triangulation.empty_lamination())
 	
 	def peek_component(self):
 		''' Return one component of this Lamination. '''
@@ -226,7 +226,7 @@ class Lamination(object):
 	def sublaminations(self):
 		''' Return all sublaminations that appear within self. '''
 		components = self.components()
-		return [sum(sub, self.triangulation.empty_lamination()).promote() for i in range(len(components)) for sub in permutations(components, i)]  # What if components is empty!?!
+		return [sum(sub, self.triangulation.empty_lamination()) for i in range(len(components)) for sub in permutations(components, i)]
 	
 	def multiarc(self):
 		''' Return the maximal MultiArc contained within this lamination. '''

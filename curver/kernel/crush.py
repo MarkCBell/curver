@@ -66,7 +66,7 @@ class Lift(Move):
 	def apply_lamination(self, lamination):
 		# Really should check that the dual weights around a vertex are all non-negative.
 		geometric = [sum(x * y for x, y in zip(row, lamination)) for row in self.matrix]  # Dot product.
-		return curver.kernel.Lamination(self.target_triangulation, geometric).promote()  # Have to promote.
+		return self.target_triangulation.lamination(geometric)  # Have to promote.
 	
 	def apply_homology(self, homology_class):
 		return NotImplemented  # I don't think we ever need this.
