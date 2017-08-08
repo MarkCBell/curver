@@ -40,7 +40,7 @@ class Crush(Move):
 			# TODO: 4) Implement LP to find intersection for general configuration.
 			raise curver.AssumptionError('Currently can only crush along non-isolating curves.')
 		
-		return curver.kernel.Lamination(self.target_triangulation, geometric).promote()  # Have to promote.
+		return self.target_triangulation.lamination(geometric)  # Have to promote.
 	
 	def apply_homology(self, homology_class):
 		return NotImplemented  # I don't think we ever need this.
