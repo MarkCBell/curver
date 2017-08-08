@@ -138,24 +138,14 @@ class Triangulation(object):
 		
 		# Group the edges into vertex classes.
 		# Here two edges are in the same class iff they have the same tail.
-		unused = set(self.edges)
-		self.vertex_classes = []
-		while unused:
-			new_vertex = [unused.pop()]
-			while True:
-				triangle = self.corner_lookup[new_vertex[-1].label]
-				neighbour = ~triangle.edges[2]
-				if neighbour in unused:
-					new_vertex.append(neighbour)
-					unused.remove(neighbour)
-				else:
-					break
-			
-			self.vertex_classes.append(tuple(new_vertex))
+		classes = curver.kernel.UnionFind(self.edges)
+		for edge in self.edges:
+			classes.union(edge, ~(self.corner_lookup[edge.label][2]))
+		self.vertices = list(classes)
 		
-		self.vertex_lookup = dict((edge.label, vertex_class) for vertex_class in self.vertex_classes for edge in vertex_class)
+		self.vertex_lookup = dict((edge.label, vertex) for vertex in self.vertices for edge in vertex)
 		
-		self.num_vertices = len(self.vertex_classes)
+		self.num_vertices = len(self.vertices)
 		
 		self.euler_characteristic = self.num_vertices - self.zeta + self.num_triangles  # V - E + F.
 		# NOTE: This assumes connected.
@@ -421,8 +411,8 @@ class Triangulation(object):
 		# Make a local copy as we may need to make a lot of changes.
 		label_map = dict(label_map)
 		
-		source_orders = dict([(edge.label, len(vertex_class)) for vertex_class in self.vertex_classes for edge in vertex_class])
-		target_orders = dict([(edge.label, len(vertex_class)) for vertex_class in other.vertex_classes for edge in vertex_class])
+		source_orders = dict([(edge.label, len(vertex)) for vertex in self.vertices for edge in vertex])
+		target_orders = dict([(edge.label, len(vertex)) for vertex in other.vertices for edge in vertex])
 		# We do a depth first search extending the corner map across the triangulation.
 		# This is a stack of labels that may still have consequences to check.
 		to_process = [(edge_from_label, label_map[edge_from_label]) for edge_from_label in label_map]
@@ -496,7 +486,7 @@ class Triangulation(object):
 		
 		# Remove any peripheral components before starting.
 		peripherals = [0] * self.zeta
-		for vertex in self.vertex_classes:
+		for vertex in self.vertices:
 			peripheral = INFTY
 			for edge in vertex:
 				triangle = self.corner_lookup[edge.label]
