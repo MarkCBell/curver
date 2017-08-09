@@ -82,7 +82,7 @@ class EquippedTriangulation(object):
 	def decompose_word(self, word):
 		''' Return a list of mapping_classes keys whose concatenation is word and the keys are chosen greedly.
 		
-		Raises a KeyError if the greedy decomposition fails. '''
+		Raises a TypeError if the greedy decomposition fails. '''
 		
 		assert(isinstance(word, str))
 		

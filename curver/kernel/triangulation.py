@@ -223,7 +223,7 @@ class Triangulation(object):
 		GV = [((2 - v + e // 3) // 2, v) for v, e in VE]
 		
 		def order(g, v):
-			# The maximum order of a periodic mapping class on S_{g, v}.
+			# Return the maximum order of a periodic mapping class on S_{g, v}.
 			# These bounds follow from the 4g + 4 bound on the closed surface [FarbMarg12]
 			# and the Riemann removable singularity theorem which allows us to cap off the
 			# punctures when the g > 1 without affecting this bound.
@@ -505,18 +505,7 @@ class Triangulation(object):
 		
 		assert(len(weights) == self.zeta)
 		
-		# Remove any peripheral components before starting.
-		peripherals = [0] * self.zeta
-		for vertex in self.vertices:
-			peripheral = INFTY
-			for edge in vertex:
-				triangle = self.corner_lookup[edge.label]
-				peripheral = min(peripheral, curver.kernel.lamination.dual_weight(weights[triangle.indices[1]], weights[triangle.indices[2]], weights[triangle.indices[0]]))
-			for edge in vertex:
-				peripherals[edge.index] += max(peripheral, 0)
-		weights = [weight - peripheral for weight, peripheral in zip(weights, peripherals)]  # Remove the peripheral components.
-		
-		return curver.kernel.Lamination(self, weights).promote()
+		return curver.kernel.Lamination(self, weights).remove_peripheral().promote()
 	
 	def empty_lamination(self):
 		''' Return an empty curve on this surface. '''
