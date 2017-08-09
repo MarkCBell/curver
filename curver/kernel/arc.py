@@ -12,7 +12,7 @@ class MultiArc(Shortenable):
 	def is_short(self):
 		return self.weight() == 0
 	
-	def score(self, edge):
+	def shorten_score(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
 		# Low score == bad.
@@ -44,6 +44,8 @@ class MultiArc(Shortenable):
 		
 		return conjugator.inverse()(boundary)
 	
+	# def is_filling?
+	
 	def explore_ball(self, radius):
 		''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
 		
@@ -67,17 +69,13 @@ class Arc(MultiArc):
 		''' Return an edge that this curve is parallel to. '''
 		assert(self.is_short())
 		
-		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)  # Take the minimum of two.
+		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)
 	
 	def encode_halftwist(self, k=1):
 		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the power k.
 		
 		Assumes (and checks) that this arc connects between distinct vertices. '''
 		# Will Worden checked that this works for genus <= 20.
-		
-		boundary = self.boundary()
-		if len(boundary) != 1:
-			raise curver.AssumptionError('Arc connects a vertex to itself.')
 		
 		# TODO: 4) Once we can twist about any curve we can go back to:
 		# if k % 2 == 0:  # k is even so use a Dehn twist about the boundary.
@@ -89,6 +87,10 @@ class Arc(MultiArc):
 		# We achieve this in two steps. First conjugate to make self an edge of some triangulation.
 		short, conjugator = self.shorten()
 		arc = short.parallel()
+		
+		if short.triangulation.vertex_lookup[arc.label] == short.triangulation.vertex_lookup[~arc.label]:
+			raise curver.AssumptionError('Arc connects a vertex to itself.')
+		
 		# Now keep moving edges away from this edge's initial vertex to get to a really good triangulation.
 		while len(short.triangulation.vertex_lookup[arc.label]) > 1:  # valence(initial vertex) > 1.
 			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[arc.label][2])
