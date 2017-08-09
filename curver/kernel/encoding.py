@@ -114,6 +114,9 @@ class Encoding(object):
 
 class MappingClass(Encoding):
 	''' An Encoding where self.source_triangulation == self.target_triangulation. '''
+	def is_mapping_class(self):
+		return True
+	
 	def __pow__(self, k):
 		if k == 0:
 			return self.source_triangulation.id_encoding()
