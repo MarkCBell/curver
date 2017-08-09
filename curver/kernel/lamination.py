@@ -165,7 +165,7 @@ class Lamination(object):
 		
 		return sum(m1 * m2 * max(c1.intersection(c2), 0) for c1, m1 in self.mcomponents() for c2, m2 in lamination.mcomponents())
 	
-	def is_disjoint(self, lamination):
+	def no_common_component(self, lamination):
 		''' Return that self does not share any components with the given Lamination. '''
 		assert(isinstance(lamination, Lamination))
 		
@@ -301,40 +301,6 @@ class MultiCurve(Lamination):
 		
 		return self.boundary_union(other).is_empty()
 	
-	def tight_paths(self, other, length):
-		''' Return the set of all tight paths from self to other that are of the given length.
-		
-		From Algorithm 3 of [BellWebb16b]. '''
-		assert(isinstance(other, MultiCurve))
-		assert(length >= 0)
-		
-		if length == 0:
-			return set([(self,)]) if self == other else set()
-		elif length == 1:
-			return set([(self, other)]) if self.intersection(other) == 0 and self.is_disjoint(other) else set()
-		elif length == 2:
-			m = self.boundary_union(other)  # m = \partial N(self \cup other).
-			return set([(self, m, other)]) if not m.is_empty() and self.is_disjoint(m) and other.is_disjoint(m) else set()
-		else:  # length >= 3.
-			crush = self.crush()
-			lift = crush.inverse()
-			b_prime = crush(other)
-			A_1 = set()
-			for triangulation in b_prime.eplore_ball(2*self.zeta*length + 2*self.zeta):
-				for submultiarc in triangulation.sublaminations():
-					m_prime = submultiarc.boundary()
-					m = lift(m_prime)
-					A_1.add(m)
-			
-			P = set()
-			for a_1 in A_1:
-				for multipath in a_1.tight_paths(other, length-1):  # Recurse.
-					a_2 = multipath[0]
-					if self.boundary_union(a_2) == a_1:  # (self,) + multipath is tight:
-						P.add((self,) + multipath)
-			
-			return P
-	
 	def crush(self):
 		''' Return the crush map associated to this MultiCurve. '''
 		
@@ -444,62 +410,8 @@ class Curve(MultiCurve):
 		edges = cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		
 		# This assumes that other is a curve.
-		return short_other(a) - 2*min(short_other.side_weight(edge) for edge in edges)
+		return short_other(a) - 2 * min(short_other.side_weight(edge) for edge in edges)
 	
-	def quasiconvex(self, other):
-		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains self and other. '''
-		
-		assert(isinstance(other, Curve))
-		short, conjugator = self.shorten()
-		
-		train_track = conjugator(other).train_track()
-		_, conjugator_tt = train_track.shorten()
-		encodings = [conjugator_tt[i:] for i in range(len(conjugator_tt)+1)]
-		return [conjugator.inverse()(encoding.inverse()(encoding(train_track).vertex_cycle())) for encoding in encodings]
-	
-	def all_tight_geodesic_multicurves(self, other):
-		''' Return a set that contains all multicurves in any tight geodesic from self to other.
-		
-		From the first half of Algorithm 4 of [BellWebb16b]. '''
-		
-		assert(isinstance(other, Curve))
-		
-		guide = self.quasiconvex(other)  # U.
-		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See [Webb15].
-		return set(multicurve for length in range(L+1) for c1 in guide for c2 in guide for path in c1.tight_paths(c2, length) for multicurve in path)
-	
-	def tight_geodesic(self, other):
-		''' Return a tight geodesic in the (multi)curve complex from self to other.
-		
-		From the second half of Algorithm 4 of [BellWebb16b]. '''
-		
-		assert(isinstance(other, Curve))
-		
-		vertices = list(self.all_tight_geodesic_multicurves(other))
-		edges = [(i, j) for i in range(len(vertices)) for j in range(i) if vertices[i].intersection(vertices[j]) == 0 and vertices[i].is_disjoint(vertices[j])]
-		
-		G = networkx.Graph(edges)  # Build graph.
-		indices = networkx.shortest_path(G, vertices.index(self), vertices.index(other))  # Find a geodesic from self to other.
-		geodesic = [vertices[index] for index in indices]  # Get the geodesic, however this might not be tight.
-		
-		for i in range(1, len(geodesic)-1):
-			geodesic[i] = geodesic[i-1].boundary_union(geodesic[i+1])  # Tighten.
-		
-		return tuple(geodesic)
-	
-	def geodesic(self, other):
-		''' Return a geodesic in the curve complex from self to other.
-		
-		The geodesic will always come from a tight geodesic.
-		From Algorithm 5 of [BellWebb16b]. '''
-		
-		return tuple(multicurve.peek_component() for multicurve in self.tight_geodesic(other))
-	
-	def distance(self, other):
-		''' Return the distance from self to other in the curve complex. '''
-		
-		# Could use self.tight_geodesic(other).
-		return len(self.geodesic(other)) - 1
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve.
@@ -548,6 +460,7 @@ class Curve(MultiCurve):
 		
 		crush = curver.kernel.Crush(triangulation, new_triangulation, short, matrix).encode()
 		return crush * conjugator
+
 
 class MultiArc(Lamination):
 	''' A Lamination in which every component is an Arc. '''
@@ -599,12 +512,12 @@ class MultiArc(Lamination):
 		
 		short, conjugator = self.shorten()
 		
-		X = set()
+		triangulations = set()
 		for encoding in short.triangulation.all_encodings(radius):
 			T = encoding.target_triangulation.as_lamination()
-			X.add(conjugator.inverse()(encoding.inverse()(T)))
+			triangulations.add(conjugator.inverse()(encoding.inverse()(T)))
 		
-		return X
+		return triangulations
 
 class Arc(MultiArc):
 	''' A MultiArc with a single component. '''
@@ -659,28 +572,28 @@ class Arc(MultiArc):
 		#
 		# We achieve this in two steps. First conjugate to make self an edge of some triangulation.
 		short, conjugator = self.shorten()
-		[arc_index] = [index for index in short.triangulation.indices if short(index) != 0]  # Which edge is this.  # !?!
+		arc = short.parallel()
 		# Now keep moving edges away from this edge's initial vertex to get to a really good triangulation.
-		while len(short.triangulation.vertex_lookup[arc_index]) > 1:  # valence(initial vertex) > 1.
-			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[arc_index][2])
+		while len(short.triangulation.vertex_lookup[arc.label]) > 1:  # valence(initial vertex) > 1.
+			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[arc.label][2])
 			conjugator = flip * conjugator
 			short = flip(short)
 		
 		# We can now perform the half twist. To do this we move all the edges back across to the other vertex.
 		# Again, we keep moving edges away from this edge's terminal vertex.
 		half_twist = short.triangulation.id_encoding()  # valence(terminal vertex) > 1.
-		while len(short.triangulation.vertex_lookup[~arc_index]) > 1:
-			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[~arc_index][2])
+		while len(short.triangulation.vertex_lookup[~arc.label]) > 1:
+			flip = short.triangulation.encode_flip(short.triangulation.corner_lookup[~arc.label][2])
 			half_twist = flip * half_twist
 			short = flip(short)
 		
 		# No close up to complete the half twist. This means finding the correct isometry back to the
 		# really good triangulation. We want the isometry to be the identity on all other components
 		# and on this component (the one containing this arc) to invert this arc.
-		[this_component] = [component for component in short.triangulation.components() if arc_index in component]
+		[this_component] = [component for component in short.triangulation.components() if arc in component]
 		label_map = dict(
 			[(edge.label, edge.label) for edge in short.triangulation.edges if edge not in this_component] + \
-			[(arc_index, ~arc_index)]
+			[(arc.label, ~arc.label)]
 			)
 		half_twist = short.triangulation.find_isometry(half_twist.source_triangulation, label_map).encode() * half_twist
 		
