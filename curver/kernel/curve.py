@@ -133,11 +133,8 @@ class Curve(MultiCurve, Shortenable):
 			twist = short.triangulation.id_encoding()
 			# Theorem: 3*num_tripods is the right number of flips to do.
 			# Proof: TODO.
-			for _ in range(3* num_tripods):
+			for _ in range(3*num_tripods):
 				twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
-			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
-			
-			# Relabel back.
 			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
 		
 		return conjugator.inverse() * twist**k * conjugator
