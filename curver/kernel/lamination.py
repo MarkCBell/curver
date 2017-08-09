@@ -69,7 +69,7 @@ class Lamination(object):
 		return self + other  # Commutative.
 	def __mul__(self, other):
 		geometric = [other * x for x in self]
-		return Lamination(self.triangulation, geometric)
+		return self.__class__(self.triangulation, geometric)  # Perserve promotion.
 	def __rmul__(self, other):
 		return self * other  # Commutative.
 	
