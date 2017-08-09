@@ -140,12 +140,21 @@ class Triangulation(object):
 		self.triangle_lookup = dict((edge.label, triangle) for triangle in self for edge in triangle)
 		self.corner_lookup = dict((edge.label, Triangle(triangle.edges, rotate=index)) for triangle in triangles for index, edge in enumerate(triangle))
 		
-		# Group the edges into vertex classes (vertices).
-		# Here two edges are in the same vertex iff they have the same tail.
-		classes = curver.kernel.UnionFind(self.edges)
-		for edge in self.edges:
-			classes.union(edge, ~(self.corner_lookup[edge.label][2]))
-		self.vertices = list(classes)
+		# Group the edges into vertices and ordered anti-clockwise.
+		# Here two edges are in the same class iff they have the same tail.
+		unused = set(self.edges)
+		self.vertices = []
+		while unused:
+			vertex = [unused.pop()]
+			while True:
+				neighbour = ~self.corner_lookup[vertex[-1].label][2]
+				if neighbour in unused:
+					vertex.append(neighbour)
+					unused.remove(neighbour)
+				else:
+					break
+			
+			self.vertices.append(tuple(vertex))
 		
 		self.vertex_lookup = dict((edge.label, vertex) for vertex in self.vertices for edge in vertex)
 		
