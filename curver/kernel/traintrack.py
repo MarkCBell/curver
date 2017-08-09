@@ -6,9 +6,9 @@ class TrainTrack(Shortenable):
 	''' A Lamination in which each triangle is tripod free. '''
 	
 	def is_short(self):
-		return all(self.score(edge) == 0 for edge in self.triangulation.edges)
+		return all(self.shorten_score(edge) == 0 for edge in self.triangulation.edges)
 	
-	def score(self, edge):
+	def shorten_score(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
 		if not self.triangulation.is_flippable(edge):

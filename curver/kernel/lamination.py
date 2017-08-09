@@ -268,7 +268,7 @@ class Shortenable(Lamination):
 	def is_short(self):
 		return NotImplemented
 	
-	def score(self):
+	def shorten_score(self):
 		# Low score == bad; high score == good.
 		return NotImplemented
 	
@@ -282,7 +282,7 @@ class Shortenable(Lamination):
 		
 		extra = []
 		while not lamination.is_short():
-			edge = max(extra + lamination.triangulation.edges, key=lamination.score)
+			edge = max(extra + lamination.triangulation.edges, key=lamination.shorten_score)
 			# This edge is always flippable.
 			
 			move = lamination.triangulation.encode_flip(edge)

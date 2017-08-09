@@ -54,7 +54,7 @@ class Curve(MultiCurve, Shortenable):
 		is_corridor = lambda triangle: sum(self(edge) for edge in triangle) == 4
 		return self.weight() == 2 or (all(weight in [0, 2] for weight in self) and len([triangle for triangle in self.triangulation if is_corridor(triangle)]) == 1)
 	
-	def score(self, edge):
+	def shorten_score(self, edge):
 		# This relies on the following
 		# Lemma: If there are no bipods then self(edge) \in [0,2] for each edge.
 		#
@@ -89,53 +89,30 @@ class Curve(MultiCurve, Shortenable):
 		return min([edge for edge in self.triangulation.edges if self(edge) == 0 and self.dual_weight(edge) > 0], key=lambda e: e.label)  # Take the minimum of two.
 	
 	def encode_twist(self, k=1):
-		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k.
-		
-		Currently, this must be a non-isolating curve. '''
+		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k. '''
 		
 		if k == 0: return self.triangulation.id_encoding()
 		
 		short, conjugator = self.shorten()
 		
+		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
+		
+		a = short.parallel()
 		if short.weight() == 2:  # curve is non-isolating.
-			# Get some edges.
-			a = short.parallel()
-			_, b, e = short.triangulation.corner_lookup[a.label]
-			_, c, d = short.triangulation.corner_lookup[~e.label]
-			
-			# We now have:
-			# #<----------#
-			# |     a    ^^
-			# |         / |
-			# |---->------|
-			# |       /   |
-			# |b    e/   d|
-			# |     /     |
-			# |    /      |
-			# |   /       |
-			# |  /        |
-			# | /         |
-			# V/    c     |
-			# #---------->#
-			# where b == ~d.
-			
-			twist = short.triangulation.encode([{a.label: a.label}, e.label])
-			
+			num_flips = 1
 			# TODO: 4) Once Spiral is working we can do:
 			# twist_k = triangulation.encode([(e.label, k)])
 			# return conjugator.inverse() * twist_k * conjugator
 		else:  # curve is isolating.
-			a = short.parallel()
-			
-			# Build the image of the most twisted up arc.
-			num_tripods = len([triangle for triangle in short.triangulation if sum(short(edge) for edge in triangle) == 6])
-			
-			twist = short.triangulation.id_encoding()
 			# Theorem: 3*num_tripods is the right number of flips to do.
 			# Proof: TODO.
-			for _ in range(3*num_tripods):
-				twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
-			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
+			num_tripods = len([triangle for triangle in short.triangulation if sum(short(edge) for edge in triangle) == 6])
+			num_flips = 3*num_tripods
+		
+		twist = short.triangulation.id_encoding()
+		for _ in range(num_flips):
+			twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
+		twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
 		
 		return conjugator.inverse() * twist**k * conjugator
 	
