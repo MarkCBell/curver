@@ -44,6 +44,8 @@ class UnionFind(object):
 		''' Iterate through the groups of self. '''
 		roots = [item for item in self.parent if self.parent[item] == item]
 		return iter([set([item for item in self.parent if self(item) == root]) for root in roots])
+	def __len__(self):
+		return len([item for item in self.parent if self.parent[item] == item])
 	def __repr__(self):
 		return str(self)
 	def __str__(self):
