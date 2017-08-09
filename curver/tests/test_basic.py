@@ -2,9 +2,17 @@
 import unittest
 import curver
 
+
+# Things to test:
+#  Relations in the mapping class group.
+#  Squares of half twists are twists about their boundary.
+
 class TestS_1_1(unittest.TestCase):
 	def setUp(self):
 		self.S = curver.load('S_1_1')
+		self.identity = self.S('')
+	def assertIdentity(self, word):
+		self.assertEqual(self.S(word), self.identity)
 	def test_mapping_class(self):
 		h = self.S('ab')
 		self.assertEqual(h.order(), 6)
@@ -15,8 +23,8 @@ class TestS_1_1(unittest.TestCase):
 		identity = self.S('(ab)^6')
 		self.assertEqual(identity.order(), 1)
 	def test_relations(self):
-		identity = self.S('')
-		self.assertEqual(self.S('abaBAB'), identity)
+		self.assertIdentity('abaABA')
+		self.assertIdentity('abaBAB')
 
 class TestS_1_2(unittest.TestCase):
 	def setUp(self):
