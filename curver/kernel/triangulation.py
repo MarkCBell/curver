@@ -160,7 +160,7 @@ class Triangulation(object):
 		
 		self.num_vertices = len(self.vertices)
 		
-		self.euler_characteristic = self.num_vertices - self.zeta // 3  # = V - E + F since 3F = 2E.
+		self.euler_characteristic = -self.zeta // 3  # = V - E + F since 3F = 2E.
 		
 		# Two triangualtions are the same if and only if they have the same signature.
 		self.signature = [e.label for t in self for e in t]
@@ -482,15 +482,15 @@ class Triangulation(object):
 		
 		# Isometries are determined by where a single triangle is sent.
 		# We take a corner of smallest degree.
-		source_cc = min(self.corner_classes, key=len)
-		source_corner = source_cc[0]
+		source_vertex = min(self.vertices, key=len)
+		source_edge = source_vertex[0]
 		# And find all the places where it could be sent so there are as few as possible to check.
-		target_corners = [corner for target_cc in other.corner_classes for corner in target_cc if len(target_cc) == len(source_cc)]
+		target_edges = [edge for target_vertex in other.vertices for edge in target_vertex if len(target_vertex) == len(source_vertex)]
 		
 		isometries = []
-		for target_corner in target_corners:
+		for target_edge in target_edges:
 			try:
-				isometries.append(self.find_isometry(other, {source_corner.label: target_corner.label}))
+				isometries.append(self.find_isometry(other, {source_edge.label: target_edge.label}))
 			except curver.AssumptionError:
 				pass
 		
@@ -625,7 +625,7 @@ class Triangulation(object):
 				else:  # If some edges are missing then we assume that we must be mapping back to this triangulation.
 					g = T.find_isometry(self, item).encode()
 			elif item is None:  # Identity isometry.
-				h = T.id_encoding()
+				g = T.id_encoding()
 			elif isinstance(item, tuple) and len(item) == 2 and all(isinstance(x, curver.IntegerType) for x in item):  # Spiral
 				g = T.encode_spiral(item[0], item[1])
 			elif isinstance(item, curver.kernel.Encoding):  # Encoding.
