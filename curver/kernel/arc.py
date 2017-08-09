@@ -88,6 +88,7 @@ class Arc(MultiArc):
 		short, conjugator = self.shorten()
 		arc = short.parallel()
 		
+		# Check where it connects.
 		if short.triangulation.vertex_lookup[arc.label] == short.triangulation.vertex_lookup[~arc.label]:
 			raise curver.AssumptionError('Arc connects a vertex to itself.')
 		
