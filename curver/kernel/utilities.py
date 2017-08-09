@@ -99,3 +99,12 @@ class memoize(object):
 			res = cache[key] = self.func(*args, **kw)
 		return res
 
+def cyclic_slice(L, x, y):
+	''' Return the sublist of L from x (inclusive) to y (exclusive).
+	
+	L may be cyclically permuted if needed. '''
+	i = L.index(x)
+	L = L[i:] + L[:i]  # x is now L[0].
+	j = L.index(y)
+	return L[:j]
+
