@@ -49,7 +49,7 @@ class MultiArc(Shortenable):
 		short, _ = self.shorten()
 		
 		avoid = set(index for index in short.triangulation.indices if short(index) < 0)
-		dual_tree = short.triangulation.dual_tree(avoid=avoid
+		dual_tree = short.triangulation.dual_tree(avoid=avoid)
 		
 		return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
 	
