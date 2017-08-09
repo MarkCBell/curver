@@ -2,6 +2,7 @@
 class CurveComplex(object):
 	def __init__(self, triangulation):
 		self.triangulation = triangulation
+		self.zeta = self.triangulation.zeta
 		# Put more constants here.
 	
 	def quasiconvex(self, a, b):
@@ -37,11 +38,12 @@ class CurveComplex(object):
 			m = a.boundary_union(b)  # m = \partial N(a \cup b).
 			return set([(a, m, b)]) if not m.is_empty() and a.no_common_component(m) and b.no_common_component(m) else set()
 		else:  # length >= 3.
+			if not a.fills_with(b): return set()
 			crush = a.crush()
 			lift = crush.inverse()
 			b_prime = crush(b)
 			A_1 = set()
-			for triangulation in b_prime.eplore_ball(2*self.zeta*length + 2*self.zeta):
+			for triangulation in b_prime.explore_ball(2*self.zeta*length + 2*self.zeta):
 				for submultiarc in triangulation.sublaminations():
 					m_prime = submultiarc.boundary()
 					m = lift(m_prime)
