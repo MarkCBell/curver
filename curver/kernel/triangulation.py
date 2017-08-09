@@ -432,7 +432,8 @@ class Triangulation(object):
 		
 		label_map must be a dictionary mapping self.labels to other.labels. Labels may
 		be omitted if they are determined by other given ones and these will be found
-		automatically.
+		automatically. Additionally, if an entire component is omitted then we assume
+		that the map is the identity on it.
 		
 		Assumes (and checks) that such an isometry exists and is unique. '''
 		
@@ -464,6 +465,13 @@ class Triangulation(object):
 						raise curver.AssumptionError('This label_map does not extend to an isometry.')
 					label_map[new_from_label] = new_to_label
 					to_process.append((new_from_label, new_to_label))
+		
+		# If an entire component is omitted then assume the map is the identity on it.
+		used_labels = set(label_map.keys() + label_map.values())
+		for component in self.components():
+			if not any(edge.label in used_labels for edge in component):
+				for edge in component:
+					label_map[edge.label] = edge.label
 		
 		if any(i not in label_map for i in self.labels):
 			raise curver.AssumptionError('This label_map cannot be extended to an isometry.')

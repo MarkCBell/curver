@@ -1,14 +1,16 @@
 
 import curver
-from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
+from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.
 
-class TrainTrack(Lamination):
+class TrainTrack(Shortenable):
 	''' A Lamination in which each triangle is tripod free. '''
+	
+	def is_short(self):
+		return all(self.score(edge) == 0 for edge in self.triangulation.edges)
 	
 	def score(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		# Low score == bad.
 		if not self.triangulation.is_flippable(edge):
 			return 0
 		
@@ -31,30 +33,8 @@ class TrainTrack(Lamination):
 		
 		return 4
 	
-	def shorten(self):
-		''' Return an encoding which maps this train track to one with as little weight as possible together with its image.
-		
-		This happens when every edge has a score of 0. '''
-		
-		train_track = self
-		encoding = self.triangulation.id_encoding()
-		extra = []  # Preference for next split.
-		while True:
-			to_split = max(extra + train_track.triangulation.edges, key=train_track.score)
-			if train_track.score(to_split) == 0: break
-			# This edge is always flippable.
-			
-			move = train_track.triangulation.encode_flip(to_split)
-			encoding = move * encoding
-			train_track = move(train_track)
-			
-			# TODO: 3) Accelerate!!
-			a, b, c, d, e = train_track.triangulation.square(to_split)
-			extra = [a, d]
-		
-		return train_track, encoding
-	
 	def mcomponents(self):
+		''' Return a set of pairs (component, multiplicity). '''
 		
 		short, conjugator = self.shorten()
 		

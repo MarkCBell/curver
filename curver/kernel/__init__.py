@@ -13,6 +13,9 @@ in a functions docstring:
 		If the assumptions are met then this function is guaranteed to terminate correctly.
 		If not then this a curver.AssumptionError will be raised. '''
 
+from . import arc
+from . import curve
+from . import curvecomplex
 from . import crush
 from . import encoding
 from . import error
@@ -34,10 +37,11 @@ AssumptionError = error.AssumptionError
 EquippedTriangulation = equippedtriangulation.EquippedTriangulation
 HomologyClass = homology.HomologyClass
 Lamination = lamination.Lamination
-MultiCurve = lamination.MultiCurve
-Curve = lamination.Curve
-MultiArc = lamination.MultiArc
-Arc = lamination.Arc
+Shortenable = lamination.Shortenable
+MultiCurve = curve.MultiCurve
+Curve = curve.Curve
+MultiArc = arc.MultiArc
+Arc = arc.Arc
 Move = moves.Move
 Isometry = moves.Isometry
 EdgeFlip = moves.EdgeFlip
@@ -45,6 +49,7 @@ Spiral = moves.Spiral
 TrainTrack = traintrack.TrainTrack
 Crush = crush.Crush
 Lift = crush.Lift
+CurveComple = curvecomplex.CurveComplex
 
 norm = triangulation.norm
 UnionFind = utilities.UnionFind
