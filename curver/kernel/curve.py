@@ -126,20 +126,14 @@ class Curve(MultiCurve, Shortenable):
 			# return conjugator.inverse() * twist_k * conjugator
 		else:  # curve is isolating.
 			a = short.parallel()
-			v = short.triangulation.vertex_lookup[a.label]
-			b = short.triangulation.corner_lookup[a.label][1]
 			
 			# Build the image of the most twisted up arc.
-			geometric = [2 * weight for weight in short]
-			for edge in curver.kernel.utilities.cyclic_slice(v, ~b, b) + (b,):
-				geometric[edge.index] -= 1
-			arc = curver.kernel.Arc(short.triangulation, geometric)
+			num_tripods = len([triangle for triangle in short.triangulation if sum(short(edge) for edge in triangle) == 6])
 			
 			twist = short.triangulation.id_encoding()
-			while not arc.is_short():
-				flip = arc.triangulation.encode_flip(arc.triangulation.corner_lookup[a.label][2])
-				twist = flip * twist
-				arc = flip(arc)
+			for _ in range(3* num_tripods):
+				twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
+			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
 			
 			# Relabel back.
 			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
