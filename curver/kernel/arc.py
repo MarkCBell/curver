@@ -31,6 +31,7 @@ class MultiArc(Shortenable):
 		# So its geometric vector is non-positive.
 		
 		geometric = [0 if weight < 0 else 2 for weight in short]
+		# Tighten.
 		changed = True
 		while changed:
 			changed = False
@@ -44,7 +45,13 @@ class MultiArc(Shortenable):
 		
 		return conjugator.inverse()(boundary)
 	
-	# def is_filling?
+	def is_filling(self):
+		short, _ = self.shorten()
+		
+		avoid = set(index for index in short.triangulation.indices if short(index) < 0)
+		dual_tree = short.triangulation.dual_tree(avoid=avoid
+		
+		return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
 	
 	def explore_ball(self, radius):
 		''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.

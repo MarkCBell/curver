@@ -263,21 +263,26 @@ class Triangulation(object):
 		
 		return list(classes)
 	
-	def dual_tree(self):
+	def dual_tree(self, avoid=None):
 		''' Return a maximal tree in 1--skeleton of the dual of this triangulation.
 		
 		This are given as lists of Booleans signaling if each edge is in the tree.
 		Note that when this surface is disconnected this tree is actually a forest.
-		To make this unique / well-defined we return the numerically first one. '''
+		To make this unique / well-defined we return the numerically first one.
+		
+		If avoid is provided then none of these indices will be set in the dual tree. '''
+		
+		if avoid is None: avoid = set()
 		
 		# Kruskal's algorithm.
 		dual_tree = [False] * self.zeta
 		classes = curver.kernel.UnionFind(self.triangles)
 		for index in self.indices:
-			a, b = self.triangle_lookup[index], self.triangle_lookup[~index]
-			if classes(a) != classes(b):
-				classes.union(a, b)
-				dual_tree[index] = True
+			if index not in avoid:
+				a, b = self.triangle_lookup[index], self.triangle_lookup[~index]
+				if classes(a) != classes(b):
+					classes.union(a, b)
+					dual_tree[index] = True
 		
 		return dual_tree
 	
