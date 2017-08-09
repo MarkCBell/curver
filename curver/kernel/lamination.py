@@ -11,15 +11,6 @@ from curver.kernel.utilities import memoize  # Special import needed for decorat
 
 INFTY = float('inf')
 
-def cyclic_slice(L, x, y):
-	''' Return the sublist of L from x (inclusive) to y (exclusive).
-	
-	L may be cyclically permuted if needed. '''
-	i = L.index(x)
-	L = L[i:] + L[:i]  # x is now L[0].
-	j = L.index(y)
-	return L[:j]
-
 def dual_weight(a, b, c):
 	a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
 	correction = min(a + b - c, b + c - a, c + a - b, 0)
@@ -69,7 +60,8 @@ class Lamination(object):
 		return self + other  # Commutative.
 	def __mul__(self, other):
 		geometric = [other * x for x in self]
-		return self.__class__(self.triangulation, geometric)  # Perserve promotion.
+		# TODO: 3) Could save components if they have already been computed.
+		return self.__class__(self.triangulation, geometric)  # Preserve promotion.
 	def __rmul__(self, other):
 		return self * other  # Commutative.
 	
@@ -316,25 +308,55 @@ class Curve(MultiCurve):
 	def mcomponents(self):
 		return [(self, 1)]
 	
+	def score(self, edge):
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
+		# Low score == bad.
+		if not self.triangulation.is_flippable(edge):
+			return 0
+		
+		a, b, c, d, e = self.triangulation.square(edge)
+		ia, ib, ic, id, ie = [self(edgey) for edgey in self.triangulation.square(edge)]
+		da, db, dc, dd, de = [self.dual_weight(edgey) for edgey in self.triangulation.square(edge)]
+		if ie == 0:
+			return 0
+		if max(ia+ ic, ib + id) == ie:  # Drops to zero.
+			return 10
+		if de > 0:
+			return 0
+		
+		if da > 0 and db > 0:
+			return 2
+		
+		return 1
+	
 	def shorten(self):
 		''' Return an encoding which maps this curve to a curve to a short one, one with as little weight as possible, together with its image. '''
 		
 		# Repeatedly flip to reduce the weight of this curve as much as possible.
 		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
 		
+		# This relies on the following
+		# Lemma: If there are no bipods then self(edge) \in [0,2] for each edge.
+		#
+		# This follows from the fact that if this is a tripod / monopod in every triangle then
+		# connectedness implies that there can't be any part which can't see a vertex.
+		
 		curve = self
 		conjugator = curve.triangulation.id_encoding()
 		
-		weight_history = [INFTY, INFTY, curve.weight()]
-		# If we ever fail to make progress more than once then the curve is as short as it's going to get.
+		extra = []
 		while not curve.is_short():
-			# Find the flip which decreases our weight the most.
-			flips = [curve.triangulation.encode_flip(index) for index in curve.triangulation.indices if curve.triangulation.is_flippable(index)]
-			flip = min(flips, key=lambda flip: flip(curve).weight())  # TODO: 3) Choose flips better. Not sure this works when self is isolating.
+			edge = max(extra + curve.triangulation.edges, key=curve.score)
+			# This edge is always flippable.
 			
-			conjugator = flip * conjugator
-			curve = flip(curve)
-			weight_history.append(curve.weight())
+			move = curve.triangulation.encode_flip(edge)
+			conjugator = move * conjugator
+			curve = move(curve)
+			
+			# TODO: 3) Accelerate!!
+			a, b, c, d, e = curve.triangulation.square(edge)
+			extra = [a, d]
 		
 		return curve, conjugator
 	
@@ -383,13 +405,36 @@ class Curve(MultiCurve):
 			# where b == ~d.
 			
 			twist = short.triangulation.encode([{i: i for i in short.triangulation.indices if i not in [e.index, b.index]}, e.label])
-			return conjugator.inverse() * twist**k * conjugator
 			
 			# TODO: 4) Once Spiral is working we can do:
-			twist_k = triangulation.encode([(e.label, k)])
-			return conjugator.inverse() * twist_k * conjugator
+			# twist_k = triangulation.encode([(e.label, k)])
+			# return conjugator.inverse() * twist_k * conjugator
 		else:  # curve is isolating.
-			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
+			a = short.parallel()
+			v = short.triangulation.vertex_lookup[a.label]
+			b = short.triangulation.corner_lookup[a.label][1]
+			
+			# Build the image of the most twisted up arc.
+			geometric = [2 * weight for weight in short]
+			for edge in curver.kernel.utilities.cyclic_slice(v, ~b, b) + (b,):
+				geometric[edge.index] -= 1
+			arc = Arc(short.triangulation, geometric)
+			
+			twist = short.triangulation.id_encoding()
+			while not arc.is_short():
+				flip = arc.triangulation.encode_flip(arc.triangulation.corner_lookup[a.label][2])
+				twist = flip * twist
+				arc = flip(arc)
+			
+			# Relabel back.
+			[this_component] = [component for component in twist.target_triangulation.components() if a in component]
+			label_map = dict(
+				[(edge.label, edge.label) for edge in twist.target_triangulation.edges if edge not in this_component] + \
+				[(a.label, a.label)]
+				)
+			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, label_map).encode() * twist
+		
+		return conjugator.inverse() * twist**k * conjugator
 	
 	def intersection(self, other):
 		''' Return the geometric intersection between self and the given other.
@@ -407,11 +452,10 @@ class Curve(MultiCurve):
 		
 		a = short.parallel()
 		v = self.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
-		edges = cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
+		edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		
 		# This assumes that other is a curve.
 		return short_other(a) - 2 * min(short_other.side_weight(edge) for edge in edges)
-	
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve.
@@ -469,20 +513,41 @@ class MultiArc(Lamination):
 	def is_multiarc(self):
 		return True
 	
+	def score(self, edge):
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
+		# Low score == bad.
+		if not self.triangulation.is_flippable(edge):
+			return 0
+		if self.dual_weight(edge) < 0:
+			return 1
+		
+		return 0
+	
 	def shorten(self):
-		''' Return an encoding which maps this arc to one with as little weight as possible together with its image.
+		''' Return an encoding which maps this arc to one with as little weight as possible together with its image. '''
 		
-		We obtain this by shortening each component in turn. '''
+		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
 		
-		conjugator = self.triangulation.id_encoding()
-		for component in self.components():
-			_, conj = conjugator(component).shorten()
-			conjugator = conj * conjugator
+		arc = self
+		conjugator = arc.triangulation.id_encoding()
+		extra = []
+		while not arc.is_short():
+			edge = max(extra + arc.triangulation.edges, key=arc.score)
+			# This edge is always flippable.
+			
+			move = arc.triangulation.encode_flip(edge)
+			conjugator = move * conjugator
+			curve = move(arc)
+			
+			# TODO: 3) Accelerate!!
+			a, b, c, d, e = arc.triangulation.square(edge)
+			extra = [a, d]
 		
-		return conjugator(self), conjugator
+		return arc, conjugator
 	
 	def is_short(self):
-		return all(weight <= 0 for weight in self)
+		return self.weight() == 0
 	
 	def boundary(self):
 		''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
@@ -524,34 +589,10 @@ class Arc(MultiArc):
 	def mcomponents(self):
 		return [(self, 1)]
 	
-	def shorten(self):
-		''' Return an encoding which maps this arc to one with as little weight as possible together with its image.
-		
-		Uses Mosher's arguement. '''
-		
-		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
-		
-		arc = self
-		conjugator = arc.triangulation.id_encoding()
-		
-		while not arc.is_short():
-			labels = [label for label in arc.triangulation.labels if arc.dual_weight(label) < 0]
-			label = labels[0]
-			flip = arc.triangulation.encode_flip(label)
-			
-			conjugator = flip * conjugator
-			arc = flip(arc)
-		
-		return arc, conjugator
-	
-	def is_short(self):
-		return self.weight() == 0
-	
 	def parallel(self):
-		
 		assert(self.is_short())
 		
-		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)  # Unique.
+		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)  # Take the minimum of two.
 	
 	def encode_halftwist(self, k=1):
 		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the power k.
