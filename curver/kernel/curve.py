@@ -119,7 +119,7 @@ class Curve(MultiCurve, Shortenable):
 			# #---------->#
 			# where b == ~d.
 			
-			twist = short.triangulation.encode([{i: i for i in short.triangulation.indices if i not in [e.index, b.index]}, e.label])
+			twist = short.triangulation.encode([{a.label: a.label}, e.label])
 			
 			# TODO: 4) Once Spiral is working we can do:
 			# twist_k = triangulation.encode([(e.label, k)])
@@ -131,6 +131,8 @@ class Curve(MultiCurve, Shortenable):
 			num_tripods = len([triangle for triangle in short.triangulation if sum(short(edge) for edge in triangle) == 6])
 			
 			twist = short.triangulation.id_encoding()
+			# Theorem: 3*num_tripods is the right number of flips to do.
+			# Proof: TODO.
 			for _ in range(3* num_tripods):
 				twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
 			twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
