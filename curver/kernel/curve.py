@@ -136,6 +136,8 @@ class Curve(MultiCurve, Shortenable):
 		
 		# This assumes that other is a curve.
 		return short_other(a) - 2 * min(short_other.side_weight(edge) for edge in edges)
+		# In the general case we would need something like:
+		# return short_other - sum(min(short_other.side_weight(edge), 0) + min(short_other(edge), 0) for edge in edges)
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve.
