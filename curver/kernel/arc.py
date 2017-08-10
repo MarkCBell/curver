@@ -30,6 +30,7 @@ class MultiArc(Shortenable):
 		# short is a subset of the edges of the triangulation it is defined on.
 		# So its geometric vector is non-positive.
 		
+		# TODO: 2) Make linear instead of quadratic by using a queue / stack.
 		geometric = [0 if weight < 0 else 2 for weight in short]
 		# Tighten.
 		changed = True
@@ -48,7 +49,7 @@ class MultiArc(Shortenable):
 	def is_filling(self):
 		short, _ = self.shorten()
 		
-		avoid = set(index for index in short.triangulation.indices if short(index) < 0)
+		avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
 		dual_tree = short.triangulation.dual_tree(avoid=avoid)
 		
 		return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
