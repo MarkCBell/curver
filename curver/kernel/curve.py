@@ -22,7 +22,7 @@ class MultiCurve(Lamination):
 		
 		crush = self.crush()
 		lift = crush.inverse()
-		other_prime = crush(other).skeleton()
+		other_prime = crush(other)
 		m_prime = other_prime.boundary()
 		return lift(m_prime)  # = m.
 	
