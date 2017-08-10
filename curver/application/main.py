@@ -94,6 +94,8 @@ class Drawing(object):
 			self.draw_lamination(item.empty_lamination())
 		elif isinstance(item, curver.kernel.Lamination):
 			self.draw_lamination(item)
+		elif isinstance(item, curver.kernel.MappingClass):
+			self.draw_lamination(item(item.source_triangulation.as_lamination()))
 	
 	def get_size(self):
 		# Return the size of the canvas.
@@ -525,7 +527,7 @@ class CurverApplication(object):
 	def show_about(self):
 		tkMessageBox.showinfo('About', 'curver (Version %s).\nCopyright (c) Mark Bell 2017.' % curver.__version__)
 
-def start(items):
+def start(*items):
 	root = TK.Tk()
 	root.title('curver')
 	root.minsize(300, 300)
