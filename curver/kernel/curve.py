@@ -73,7 +73,7 @@ class Curve(MultiCurve, Shortenable):
 		if ie == 0:
 			return 0
 		if max(ia+ ic, ib + id) == ie:  # Drops to zero.
-			return 10
+			return 3
 		if de > 0:
 			return 0
 		
@@ -119,9 +119,7 @@ class Curve(MultiCurve, Shortenable):
 		return conjugator.inverse() * twist**k * conjugator
 	
 	def intersection(self, other):
-		''' Return the geometric intersection between self and the given other.
-		
-		Currently assumes (and checks) that self is a non-isolating curve. '''
+		''' Return the geometric intersection between self and the given other. '''
 		
 		assert(isinstance(other, (curver.kernel.Arc, Curve)))
 		if isinstance(other, curver.kernel.Arc):
@@ -172,6 +170,7 @@ class Curve(MultiCurve, Shortenable):
 			# | /         |     | /  /         |
 			# V/    c     |     |/  /    c     |
 			# #---------->#     #  #-----------#
+			# where d == ~b.
 			
 			edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in triangulation.edges)
 			

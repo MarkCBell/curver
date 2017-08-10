@@ -38,7 +38,7 @@ class Encoding(object):
 	def __repr__(self):
 		return str(self)
 	def __str__(self):
-		return str(self.sequence)  # A backup name.
+		return str(self.sequence)
 	def __iter__(self):
 		return iter(self.sequence)
 	def __len__(self):

@@ -160,7 +160,7 @@ class Triangulation(object):
 		
 		self.num_vertices = len(self.vertices)
 		
-		self.euler_characteristic = -self.zeta // 3  # = V - E + F since 3F = 2E.
+		self.euler_characteristic = -self.zeta // 3  # = V - E + F since 3F = 2E and V = 0.
 		
 		# Two triangualtions are the same if and only if they have the same signature.
 		self.signature = [e.label for t in self for e in t]

@@ -3,7 +3,6 @@
 
 Provides: Lamination, Shortenable. '''
 
-import networkx
 from itertools import permutations
 
 import curver
@@ -91,11 +90,6 @@ class Lamination(object):
 		corner = self.triangulation.corner_lookup[edge.label]
 		return self.dual_weight(corner[1])
 	
-	def dual_square(self, edge):
-		# Remove?
-		a, b, c, d, e = self.triangulation.square(edge)
-		return [self.dual_weight(edgey) for edgey in [a, b, c, d, e, ~e]]
-	
 	def is_empty(self):
 		''' Return if this lamination has no components. '''
 		
@@ -159,10 +153,11 @@ class Lamination(object):
 	
 	def no_common_component(self, lamination):
 		''' Return that self does not share any components with the given Lamination. '''
+		
 		assert(isinstance(lamination, Lamination))
 		
-		components = self.components()
-		return not any(component in components for component, _ in other.components())
+		self_components = self.components()
+		return not any(component in self_components for component, _ in other.components())
 	
 	def train_track(self):
 		# Discards all arcs parallel to edges.
@@ -203,8 +198,7 @@ class Lamination(object):
 			dual_weights = [self.dual_weight(label) for label in triangle.labels]
 			if all(weight > 0 for weight in dual_weights):  # Type 3).
 				p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
-				i, j, k = range(self.zeta + 3*num_subdivided, self.zeta + 3*num_subdivided + 3)
-				s, t, u = [curver.kernel.Edge(i), curver.kernel.Edge(j), curver.kernel.Edge(k)]
+				s, t, u = [curver.kernel.Edge(i) for i in range(self.zeta + 3*num_subdivided, self.zeta + 3*num_subdivided + 3)]
 				triangles.append(curver.kernel.Triangle([p, ~u, t]))
 				triangles.append(curver.kernel.Triangle([q, ~s, u]))
 				triangles.append(curver.kernel.Triangle([r, ~t, s]))
@@ -261,7 +255,7 @@ class Lamination(object):
 		
 		multiarc = self.multiarc()  # Might be empty.
 		multicurve = self.multicurve()  # Might be empty.
-		return multicurve + (multiarc if multiarc.is_empty() else multiarc.boundary)
+		return multicurve + (multiarc if multiarc.is_empty() else multiarc.boundary())
 
 class Shortenable(Lamination):
 	''' A special lamination that we can put into a canonical form. '''

@@ -260,8 +260,3 @@ class Spiral(Move):
 		# inverse_corner_map = dict((self(corner), corner) for corner in self.corner_map)
 		return Spiral(self.target_triangulation, self.source_triangulation, self.edge_label, -self.power)
 
-class Crush(Move):
-	# TODO: 2) EVERYTHING!
-	pass
-
-
