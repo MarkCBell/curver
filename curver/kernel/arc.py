@@ -30,17 +30,15 @@ class MultiArc(Shortenable):
 		# short is a subset of the edges of the triangulation it is defined on.
 		# So its geometric vector is non-positive.
 		
-		# TODO: 2) Make linear instead of quadratic by using a queue / stack.
 		geometric = [0 if weight < 0 else 2 for weight in short]
-		# Tighten.
-		changed = True
-		while changed:
-			changed = False
-			for triangle in short.triangulation:
-				if sum(geometric[index] for index in triangle.indices) == 2:
-					for index in triangle.indices:
-						geometric[index] = 0
-					changed = True
+		# Tighten by retracting from any triangle where geometric meets only one side.
+		to_fix = [triangle for triangle in short.triangulation if sum(geometric[index] for index in triangle.indices) == 2]  # Stack.
+		while to_fix:
+			triangle = to_fix.pop()
+			if sum(geometric[index] for index in triangle.indices) == 2:
+				for edge in triangle:
+					geometric[edge.index] = 0
+					to_fix.append(short.triangulation.triangle_lookup[~edge.label])
 		
 		boundary = short.triangulation.lamination(geometric)
 		
@@ -94,8 +92,9 @@ class Arc(MultiArc):
 		# Will Worden checked that this works for genus <= 20.
 		
 		# Some easy cases:
-		if k == 0: return self.triangulation.id_encoding()
 		if k < 0: return self.encode_halftwist(-k).inverse()
+		if k % 2 == 0: return self.boundary().encode_twist(k // 2)
+		# So now we can assume k is odd and positive.
 		
 		# We need to get to a really good configuration, one where self
 		# is an edge of the triangulation whose valence(initial vertex) == 1.
