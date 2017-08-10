@@ -11,7 +11,7 @@ class TestS_1_1(unittest.TestCase):
 	def setUp(self):
 		self.S = curver.load('S_1_1')
 		self.identity = self.S('')
-	def assertIdentity(self, word):
+	def assertRelation(self, word):
 		self.assertEqual(self.S(word), self.identity)
 	def test_mapping_class(self):
 		h = self.S('ab')
@@ -23,8 +23,8 @@ class TestS_1_1(unittest.TestCase):
 		identity = self.S('(ab)^6')
 		self.assertEqual(identity.order(), 1)
 	def test_relations(self):
-		self.assertIdentity('abaABA')
-		self.assertIdentity('abaBAB')
+		self.assertRelation('abaABA')
+		self.assertRelation('abaBAB')
 
 class TestS_1_2(unittest.TestCase):
 	def setUp(self):
