@@ -47,6 +47,14 @@ class MultiArc(Shortenable):
 		return conjugator.inverse()(boundary)
 	
 	def is_filling(self):
+		''' Return if this MultiArc fills the surface, that is, if it cuts the surface into polygons and once-punctured polygons. '''
+		short, _ = self.shorten()
+		
+		# TODO: 3)
+		return NotImplemented
+	
+	def is_polygonalisation(self):
+		''' Return if this MultiArc is a polygonalisation, that is, if it cuts the surface into polygons. '''
 		short, _ = self.shorten()
 		
 		avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
@@ -58,6 +66,8 @@ class MultiArc(Shortenable):
 		''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
 		
 		Note that this is only well-defined if self is filling. '''
+		
+		assert(self.is_filling())
 		
 		short, conjugator = self.shorten()
 		
