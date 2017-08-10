@@ -60,7 +60,7 @@ class Lamination(object):
 		return self + other  # Commutative.
 	def __mul__(self, other):
 		geometric = [other * x for x in self]
-		# TODO: 3) Could save components if they have already been computed.
+		# TODO: 2) Could save components if they have already been computed.
 		return self.__class__(self.triangulation, geometric)  # Preserve promotion.
 	def __rmul__(self, other):
 		return self * other  # Commutative.
@@ -275,7 +275,7 @@ class Shortenable(Lamination):
 	def shorten(self):
 		''' Return an encoding which maps this lamination to a short one, together with its image. '''
 		
-		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
+		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
 		
 		lamination = self
 		conjugator = lamination.triangulation.id_encoding()
@@ -289,7 +289,7 @@ class Shortenable(Lamination):
 			conjugator = move * conjugator
 			lamination = move(lamination)
 			
-			# TODO: 3) Accelerate!!
+			# TODO: 2) Accelerate!!
 			a, b, c, d, e = lamination.triangulation.square(edge)
 			extra = [a, d]
 		

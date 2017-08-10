@@ -404,7 +404,7 @@ class Triangulation(object):
 	def all_encodings(self, num_flips):
 		''' Return all encodings that can be made using at most the given number of flips. '''
 		
-		# TODO: 2) Construct all flip sequences.
+		# TODO: 1) Construct all flip sequences.
 		
 		return NotImplemented
 	
@@ -491,7 +491,7 @@ class Triangulation(object):
 		if self.zeta != other.zeta:
 			return []
 		
-		# TODO: 4) Modify this to work on disconnected surfaces.
+		# TODO: 3) Modify this to work on disconnected surfaces.
 		
 		# Isometries are determined by where a single triangle is sent.
 		# We take a corner of smallest degree.

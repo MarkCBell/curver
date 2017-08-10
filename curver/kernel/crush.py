@@ -40,7 +40,7 @@ class Crush(Move):
 			geometric[b.index] = new_b
 			geometric[e.index] = new_e
 		else:
-			# TODO: 4) Implement LP to find intersection for general configuration.
+			# TODO: 1) Implement LP to find intersection for general configuration.
 			raise curver.AssumptionError('Currently can only crush along non-isolating curves.')
 		
 		return self.target_triangulation.lamination(geometric)  # Have to promote.

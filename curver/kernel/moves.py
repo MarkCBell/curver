@@ -155,7 +155,7 @@ class EdgeFlip(Move):
 
 class Spiral(Move):
 	''' This represents a spiral around a short curve. '''
-	# TODO: 4) Completely redo.
+	# TODO: 3) Completely redo.
 	def __init__(self, source_triangulation, target_triangulation, edge_label, power):
 		''' This represents spiralling around a short curve passing through edge_label.
 		

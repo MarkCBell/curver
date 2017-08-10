@@ -91,16 +91,18 @@ class Curve(MultiCurve, Shortenable):
 	def encode_twist(self, k=1):
 		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k. '''
 		
+		# Some easy cases:
 		if k == 0: return self.triangulation.id_encoding()
+		if k < 0: return self.encode_twist(-k).inverse()
 		
 		short, conjugator = self.shorten()
 		
-		# TODO: 3) Make polynomial-time by taking advantage of spiralling.
+		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
 		
 		a = short.parallel()
 		if short.weight() == 2:  # curve is non-isolating.
 			num_flips = 1
-			# TODO: 4) Once Spiral is working we can do:
+			# TODO: 2) Once Spiral is working we can do:
 			# twist_k = triangulation.encode([(e.label, k)])
 			# return conjugator.inverse() * twist_k * conjugator
 		else:  # curve is isolating.
@@ -182,7 +184,8 @@ class Curve(MultiCurve, Shortenable):
 			
 			matrix = [[1 if i == j or (i == b.index and j == e.index) or (i == e.index and j == b.index) else 0 for i in range(self.zeta)] for j in range(self.zeta)]
 		else:  # curve is isolating.
-			raise curver.AssumptionError('Curve is isolating.')  # TODO: 4) Handle isolating case.
+			raise curver.AssumptionError('Curve is isolating.')  # TODO: 1) Handle isolating case. Hmmm, "No tight geodesic goes through a separating curve", right?
 		
 		crush = curver.kernel.Crush(triangulation, new_triangulation, short, matrix).encode()
 		return crush * conjugator
+

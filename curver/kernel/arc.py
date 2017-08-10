@@ -84,9 +84,9 @@ class Arc(MultiArc):
 		Assumes (and checks) that this arc connects between distinct vertices. '''
 		# Will Worden checked that this works for genus <= 20.
 		
-		# TODO: 4) Once we can twist about any curve we can go back to:
-		# if k % 2 == 0:  # k is even so use a Dehn twist about the boundary.
-		#	return boundary.encode_twist(k // 2)
+		# Some easy cases:
+		if k == 0: return self.triangulation.id_encoding()
+		if k < 0: return self.encode_halftwist(-k).inverse()
 		
 		# We need to get to a really good configuration, one where self
 		# is an edge of the triangulation whose valence(initial vertex) == 1.
@@ -115,19 +115,11 @@ class Arc(MultiArc):
 		
 		# No close up to complete the half twist. This means finding the correct isometry back to the
 		# really good triangulation. We want the isometry to be the identity on all other components
-		# and on this component (the one containing this arc) to invert this arc.
+		# and on the one containing this arc to invert this arc.
 		half_twist = short.triangulation.find_isometry(half_twist.source_triangulation, {arc.label: ~arc.label}).encode() * half_twist
 		
-		# Until all twists are working we must do:
-		return conjugator.inverse() * half_twist**k * conjugator
-		
-		# TODO: 4) Afterwards we can go back to:
-		# We accelerate large powers by replacing (T^1/2_self)^2 with T_self which includes acceleration.
-		#if abs(k) == 1:
-			#return conjugator.inverse() * half_twist**k * conjugator
-		#else:  # k is odd so we need to add in an additional half twist.
-			# Note: k // 2 always rounds down, so even if k < 0 the additional half twist we need to do is positive.
-			#return boundary.encode_twist(k // 2) * conjugator.inverse() * half_twist * conjugator
+		# We handle large powers by replacing (T^1/2_self)^2 with T_boundary which includes acceleration.
+		return self.boundary().encode_twist(k // 2) * conjugator.inverse() * half_twist * conjugator
 	
 	def intersection(self, other):
 		''' Return the geometric intersection between self and the given lamination. '''

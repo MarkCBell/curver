@@ -58,5 +58,5 @@ class TrainTrack(Shortenable):
 		return components
 	
 	def vertex_cycle(self):
-		return NotImplemented  # TODO: 2).
+		return NotImplemented  # TODO: 1).
 
