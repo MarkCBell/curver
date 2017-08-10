@@ -1,4 +1,7 @@
 
+from itertools import combinations
+import curver
+
 class CurveComplex(object):
 	def __init__(self, triangulation):
 		self.triangulation = triangulation
@@ -7,6 +10,8 @@ class CurveComplex(object):
 	
 	def quasiconvex(self, a, b):
 		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains a and b. '''
+		
+		# Uses Masur--Minsky theorem.
 		
 		assert(isinstance(a, Curve))
 		assert(isinstance(b, Curve))
@@ -24,6 +29,7 @@ class CurveComplex(object):
 		''' Return the set of all tight paths from a to b that are of the given length.
 		
 		From Algorithm 3 of [BellWebb16b]. '''
+		
 		assert(isinstance(a, MultiCurve))
 		assert(isinstance(b, MultiCurve))
 		assert(a.triangulation == self.triangulation)
@@ -51,7 +57,7 @@ class CurveComplex(object):
 			
 			P = set()
 			for a_1 in A_1:
-				for multipath in a_1.tight_paths(b, length-1):  # Recurse.
+				for multipath in self.tight_paths(a_1, b, length-1):  # Recurse.
 					a_2 = multipath[0]
 					if a.boundary_union(a_2) == a_1:  # (a,) + multipath is tight:
 						P.add((a,) + multipath)
@@ -69,7 +75,7 @@ class CurveComplex(object):
 		assert(b.triangulation == self.triangulation)
 		
 		guide = self.quasiconvex(a, b)  # U.
-		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See [Webb15].  !?!
+		L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See [Webb15].
 		return set(multicurve for length in range(L+1) for c1 in guide for c2 in guide for path in self.tight_paths(c1, c2, length) for multicurve in path)
 	
 	def tight_geodesic(self, a, b):
@@ -83,11 +89,10 @@ class CurveComplex(object):
 		assert(b.triangulation == self.triangulation)
 		
 		vertices = list(self.all_tight_geodesic_multicurves(a, b))
-		edges = [(i, j) for i in range(len(vertices)) for j in range(i) if vertices[i].intersection(vertices[j]) == 0 and vertices[i].no_common_component(vertices[j])]
+		edges = [(u, v) for u, v in combinations(vertices, r=2) if u.intersection(v) == 0 and u.no_common_component(v)]
 		
 		G = networkx.Graph(edges)  # Build graph.
-		indices = networkx.shortest_path(G, vertices.index(a), vertices.index(b))  # Find a geodesic from self to other.
-		geodesic = [vertices[index] for index in indices]  # Get the geodesic, however this might not be tight.
+		geodesic = networkx.shortest_path(G, a, b)  # Find a geodesic from self to other, however this might not be tight.
 		
 		for i in range(1, len(geodesic)-1):
 			geodesic[i] = geodesic[i-1].boundary_union(geodesic[i+1])  # Tighten.
