@@ -14,6 +14,7 @@ except ImportError:  # Python 3.
 LABEL_EDGES_NONE = 'None'
 LABEL_EDGES_INDEX = 'Index'
 LABEL_EDGES_GEOMETRIC = 'Geometric'
+LABEL_EDGES_GEOMETRIC_PROJ = 'Projective geometric'
 SIZE_SMALL, SIZE_MEDIUM, SIZE_LARGE = 0, 1, 2
 # SIZE_XLARGE = 3
 
@@ -26,7 +27,6 @@ class Options(object):
 		self.show_internals_var = TK.BooleanVar(value=False)
 		self.show_orientations_var = TK.BooleanVar(value=False)
 		self.straight_laminations_var = TK.BooleanVar(value=False)
-		self.projectivise_var = TK.BooleanVar(value=False)
 		self.smooth_var = TK.BooleanVar(value=True)
 		self.label_edges_var = TK.StringVar(value=LABEL_EDGES_NONE)
 		self.size_var = TK.IntVar(value=SIZE_SMALL)
@@ -35,7 +35,6 @@ class Options(object):
 		self.show_orientations = False
 		self.straight_laminations = False
 		self.label_edges = LABEL_EDGES_NONE
-		self.projectivise = False
 		self.smooth = True
 		self.line_size = 2
 		self.dot_size = 3
@@ -45,7 +44,6 @@ class Options(object):
 		self.show_internals_var.trace('w', self.update)
 		self.show_orientations_var.trace('w', self.update)
 		self.straight_laminations_var.trace('w', self.update)
-		self.projectivise_var.trace('w', self.update)
 		self.smooth_var.trace('w', self.update)
 		self.label_edges_var.trace('w', self.update)
 		self.size_var.trace('w', self.update)
@@ -61,7 +59,6 @@ class Options(object):
 		self.show_internals = bool(self.show_internals_var.get())
 		self.show_orientations = bool(self.show_orientations_var.get())
 		self.straight_laminations = bool(self.straight_laminations_var.get())
-		self.projectivise = bool(self.projectivise_var.get())
 		self.smooth = bool(self.smooth_var.get())
 		self.label_edges = str(self.label_edges_var.get())
 		if self.size_var.get() == SIZE_SMALL:
