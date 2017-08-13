@@ -185,7 +185,7 @@ class Spiral(Move):
 		return (self.edge_label, self.power)
 	
 	def apply_lamination(self, lamination):
-		# TODO: 4) Make work on all Laminations, not just MultiCurves.
+		# TODO: 3) Make work on all Laminations, not just MultiCurves.
 		# We will begin with an easy case so we can later assume self.power != 0.
 		if self.power == 0: return lamination
 		
@@ -251,7 +251,7 @@ class Spiral(Move):
 	
 	def apply_homology(self, homology_class):
 		algebraic = list(homology_class)
-		algebraic[self.edge_index] = 0  # TODO 4)
+		algebraic[self.edge_index] = 0  # TODO 3)
 		return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
 	
 	def inverse(self):
