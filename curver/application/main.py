@@ -330,7 +330,7 @@ class Drawing(object):
 		# Only put arrows on the start so arrow heads appear in the middle.
 		for edge in self.edges:
 			if self.options.show_orientations and (edge.label >= 0 or self.edges[~edge.label].vertices[::-1] != edge.vertices):
-					self.canvas.itemconfig(edge.drawn[0], arrow='last', arrowshape=self.options.arrow_shape)
+				self.canvas.itemconfig(edge.drawn[0], arrow='last', arrowshape=self.options.arrow_shape)
 			else:
 				self.canvas.itemconfig(edge.drawn[0], arrow='')
 		

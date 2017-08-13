@@ -32,6 +32,7 @@ Edge = triangulation.Edge
 Triangle = triangulation.Triangle
 Triangulation = triangulation.Triangulation
 Encoding = encoding.Encoding
+MappingClass = encoding.MappingClass
 AbortError = error.AbortError
 AssumptionError = error.AssumptionError
 EquippedTriangulation = equippedtriangulation.EquippedTriangulation

@@ -132,7 +132,7 @@ class Arc(MultiArc):
 	def intersection(self, other):
 		''' Return the geometric intersection between self and the given lamination. '''
 		
-		assert(isinstance(other, Lamination))
+		assert(isinstance(other, curver.kernel.Lamination))
 		assert(other.triangulation == self.triangulation)
 		
 		short, conjugator = self.shorten()

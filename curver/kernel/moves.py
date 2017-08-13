@@ -33,6 +33,13 @@ class Move(object):
 		''' Return the Encoding induced by this move. '''
 		
 		return curver.kernel.Encoding([self])
+	
+	def inverse(self):
+		return NotImplemented
+	def apply_lamination(self, lamination):
+		return NotImplemented
+	def apply_homology(self, homology_class):
+		return NotImplemented
 
 class Isometry(Move):
 	''' This represents an isometry from one Triangulation to another.
@@ -171,6 +178,7 @@ class Spiral(Move):
 		
 		self.edge_label = edge_label
 		self.edge_index = curver.kernel.norm(self.edge_label)
+		self.square = self.source_triangulation.square(self.edge_label)
 		a, b, c, d, e = self.square
 		assert(b == ~d)  # Assert that b == d.
 		self.power = power
@@ -225,20 +233,22 @@ class Spiral(Move):
 			(a, b, c, d) = X
 			return a, b, a+b-d, c
 		
+		X = (ai, ci, bi, ei)
+		
 		# Take k steps in the graph. Leave unstable after t steps.
-		if config == 1:  # Stable.
+		if state == 1:  # Stable.
 			Y = F(k, X)
-		elif config == 2:  # Transition.
+		elif state == 2:  # Transition.
 			Y = F(k-1, G(X))
-		elif config == 3:  # Unstable.
+		elif state == 3:  # Unstable.
 			if k <= t:  # k steps in unstable
 				Y = F(k, X)
 			elif k == t+1:  # t steps in unstable, then into transition.
-				Y = G(F(t, x))
+				Y = G(F(t, X))
 			elif k == t+2:  # t steps in unstable, into transition, then out of transition.
-				Y = G(G(F(t, x)))
+				Y = G(G(F(t, X)))
 			else:  # k > t+2:  # t steps in unstable, into transition, out of transition, then the remaining steps in stable.
-				Y = F(k - (t + 2), G(G(F(t, x))))
+				Y = F(k - (t + 2), G(G(F(t, X))))
 		
 		_, _, new_bi, new_ei = Y  # t only really matters if in the unstable, that is, if state == 3.
 		
@@ -246,7 +256,7 @@ class Spiral(Move):
 			# Reverse the configuration if we are taking a negative power.
 			new_bi, new_ei = new_ei, new_bi
 		
-		geometric = [new_bi if index == b.index else new_e if index == e.index else lamination(index) for index in self.triangle.indices]
+		geometric = [new_bi if index == b.index else new_ei if index == e.index else lamination(index) for index in self.source_triangulation.indices]
 		return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
 	
 	def apply_homology(self, homology_class):

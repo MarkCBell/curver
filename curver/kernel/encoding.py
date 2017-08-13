@@ -182,7 +182,7 @@ class MappingClass(Encoding):
 		# TODO: 2) Fix these constants.
 		N = 1  # Some constant.
 		D = 1  # Bowditch bound on denominator [Bow08].
-		c = self.triangulation.edge_arcs()[0].boundary()  # A "short" curve.
+		c = self.source_triangulation.edge_arcs()[0].boundary()  # A "short" curve.
 		geodesic = c.geodesic((self**N)(c))
 		m = geodesic[len(geodesic)//2]  # midpoint
 		

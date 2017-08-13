@@ -157,7 +157,7 @@ class Lamination(object):
 		assert(isinstance(lamination, Lamination))
 		
 		self_components = self.components()
-		return not any(component in self_components for component, _ in other.components())
+		return not any(component in self_components for component, _ in lamination.components())
 	
 	def train_track(self):
 		# Discards all arcs parallel to edges.
@@ -242,7 +242,7 @@ class Lamination(object):
 		''' Return the maximal MultiArc contained within this lamination. '''
 		
 		empty = self.triangulation.empty_lamination()
-		return sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, curver.kernel.curver.kernel.Arc)], empty)
+		return sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, curver.kernel.Arc)], empty)
 	
 	def multicurve(self):
 		''' Return the maximal MultiCurve contained within this lamination. '''
@@ -262,7 +262,7 @@ class Shortenable(Lamination):
 	def is_short(self):
 		return NotImplemented
 	
-	def shorten_score(self):
+	def shorten_score(self, edge):
 		# Low score == bad; high score == good.
 		return NotImplemented
 	

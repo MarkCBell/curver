@@ -1,5 +1,6 @@
 
 from itertools import combinations
+import networkx
 import curver
 
 class CurveComplex(object):
@@ -13,8 +14,8 @@ class CurveComplex(object):
 		
 		# Uses Masur--Minsky theorem.
 		
-		assert(isinstance(a, Curve))
-		assert(isinstance(b, Curve))
+		assert(isinstance(a, curver.kernel.Curve))
+		assert(isinstance(b, curver.kernel.Curve))
 		assert(a.triangulation == self.triangulation)
 		assert(b.triangulation == self.triangulation)
 		
@@ -28,7 +29,7 @@ class CurveComplex(object):
 			prefix = conjugator_tt[i:]  # Get the first bit of tt_conjugator.
 			split_train_track = prefix(train_track)
 			vertex_cycle = split_train_track.vertex_cycles()[0]
-			train_track_curve = prefix.inverse()(curve)  # Pull the cycle back to the train_track.
+			train_track_curve = prefix.inverse()(vertex_cycle)  # Pull the cycle back to the train_track.
 			# Project the train track curve back to short.triangulation.
 			curve = curver.kernel.Curve(short.triangulation, train_track_curve.geometric[:self.zeta])
 			
@@ -41,8 +42,8 @@ class CurveComplex(object):
 		
 		From Algorithm 3 of [BellWebb16b]. '''
 		
-		assert(isinstance(a, MultiCurve))
-		assert(isinstance(b, MultiCurve))
+		assert(isinstance(a, curver.kernel.MultiCurve))
+		assert(isinstance(b, curver.kernel.MultiCurve))
 		assert(a.triangulation == self.triangulation)
 		assert(b.triangulation == self.triangulation)
 		assert(length >= 0)
@@ -80,8 +81,8 @@ class CurveComplex(object):
 		
 		From the first half of Algorithm 4 of [BellWebb16b]. '''
 		
-		assert(isinstance(a, Curve))
-		assert(isinstance(b, Curve))
+		assert(isinstance(a, curver.kernel.Curve))
+		assert(isinstance(b, curver.kernel.Curve))
 		assert(a.triangulation == self.triangulation)
 		assert(b.triangulation == self.triangulation)
 		
@@ -94,8 +95,8 @@ class CurveComplex(object):
 		
 		From the second half of Algorithm 4 of [BellWebb16b]. '''
 		
-		assert(isinstance(a, Curve))
-		assert(isinstance(b, Curve))
+		assert(isinstance(a, curver.kernel.Curve))
+		assert(isinstance(b, curver.kernel.Curve))
 		assert(a.triangulation == self.triangulation)
 		assert(b.triangulation == self.triangulation)
 		
@@ -117,8 +118,8 @@ class CurveComplex(object):
 		The geodesic will always come from a tight geodesic.
 		From Algorithm 5 of [BellWebb16b]. '''
 		
-		assert(isinstance(a, Curve))
-		assert(isinstance(b, Curve))
+		assert(isinstance(a, curver.kernel.Curve))
+		assert(isinstance(b, curver.kernel.Curve))
 		assert(a.triangulation == self.triangulation)
 		assert(b.triangulation == self.triangulation)
 		

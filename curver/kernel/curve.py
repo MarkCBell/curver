@@ -121,10 +121,7 @@ class Curve(MultiCurve, Shortenable):
 	def intersection(self, other):
 		''' Return the geometric intersection between self and the given other. '''
 		
-		assert(isinstance(other, (curver.kernel.Arc, Curve)))
-		if isinstance(other, curver.kernel.Arc):
-			return other.intersection(self)
-		
+		assert(isinstance(other, curver.kernel.Lamination))
 		assert(other.triangulation == self.triangulation)
 		
 		short, conjugator = self.shorten()
@@ -134,10 +131,11 @@ class Curve(MultiCurve, Shortenable):
 		v = self.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
 		edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		
-		# This assumes that other is a curve.
-		return short_other(a) - 2 * min(short_other.side_weight(edge) for edge in edges)
-		# In the general case we would need something like:
-		# return short_other - sum(min(short_other.side_weight(edge), 0) + min(short_other(edge), 0) for edge in edges)
+		around = min(short_other.side_weight(edge) for edge in edges)
+		if around > 0:  # All side_weights and edge weights are non-negative.
+			return short_other(a) - 2 * min(short_other.side_weight(edge) for edge in edges)
+		else:
+			return short_other(a) - sum(min(short_other.side_weight(edge), 0) + min(short_other(edge), 0) for edge in edges)
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve.
