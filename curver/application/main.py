@@ -493,7 +493,7 @@ class CurverApplication(object):
 		elif key == 'equal' or key == 'plus':
 			self.zoom_in()
 		elif key == 'minus' or key == 'underscore':
-			self.zoom_centre(0.95)
+			self.zoom_out()
 		elif key == '0':
 			self.zoom_to_drawing()
 		elif key == 'Up':
