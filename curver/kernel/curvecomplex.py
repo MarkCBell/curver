@@ -22,8 +22,19 @@ class CurveComplex(object):
 		
 		train_track = conjugator(b).train_track()
 		_, conjugator_tt = train_track.shorten()
-		encodings = [conjugator_tt[i:] for i in range(len(conjugator_tt)+1)]
-		return set([conjugator.inverse()(encoding.inverse()(encoding(train_track).vertex_cycles()[0])) for encoding in encodings])
+		
+		quasiconvex = set()
+		for i in range(len(conjugator_tt)+1):
+			prefix = conjugator_tt[i:]  # Get the first bit of tt_conjugator.
+			split_train_track = prefix(train_track)
+			vertex_cycle = split_train_track.vertex_cycles()[0]
+			train_track_curve = prefix.inverse()(curve)  # Pull the cycle back to the train_track.
+			# Project the train track curve back to short.triangulation.
+			curve = curver.kernel.Curve(short.triangulation, train_track_curve.geometric[:self.zeta])
+			
+			quasiconvex.add(conjugator.inverse()(curve))
+		
+		return quasiconvex
 	
 	def tight_paths(self, a, b, length):
 		''' Return the set of all tight paths from a to b that are of the given length.
