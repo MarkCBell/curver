@@ -23,7 +23,7 @@ class CurveComplex(object):
 		train_track = conjugator(b).train_track()
 		_, conjugator_tt = train_track.shorten()
 		encodings = [conjugator_tt[i:] for i in range(len(conjugator_tt)+1)]
-		return set([conjugator.inverse()(encoding.inverse()(encoding(train_track).vertex_cycle())) for encoding in encodings])
+		return set([conjugator.inverse()(encoding.inverse()(encoding(train_track).vertex_cycles()[0])) for encoding in encodings])
 	
 	def tight_paths(self, a, b, length):
 		''' Return the set of all tight paths from a to b that are of the given length.
@@ -88,10 +88,11 @@ class CurveComplex(object):
 		assert(a.triangulation == self.triangulation)
 		assert(b.triangulation == self.triangulation)
 		
+		# Build graph.
 		vertices = list(self.all_tight_geodesic_multicurves(a, b))
 		edges = [(u, v) for u, v in combinations(vertices, r=2) if u.intersection(v) == 0 and u.no_common_component(v)]
+		G = networkx.Graph(edges)
 		
-		G = networkx.Graph(edges)  # Build graph.
 		geodesic = networkx.shortest_path(G, a, b)  # Find a geodesic from self to other, however this might not be tight.
 		
 		for i in range(1, len(geodesic)-1):

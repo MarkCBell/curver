@@ -1,4 +1,6 @@
 
+import networkx
+
 import curver
 from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.
 
@@ -57,6 +59,23 @@ class TrainTrack(Shortenable):
 		
 		return components
 	
-	def vertex_cycle(self):
-		return NotImplemented  # TODO: 1).
+	def vertex_cycles(self):
+		
+		def connected_to(edge):
+			corner = self.triangulation.corner_lookup[edge.label]
+			if self.dual_weight(corner[1]): yield ~corner[2]
+			if self.dual_weight(corner[2]): yield ~corner[1]
+		
+		# Build graph.
+		edges = [(edge, edgey) for edge in self.triangulation.edges for edgey in connected_to(edge)]
+		G = networkx.DiGraph(edges)
+		
+		cycles = []
+		for cycle in networkx.simple_cycles(G):
+			geometric = [0] * self.zeta
+			for edge in cycle:
+				geometric[edge.index] += 1
+			cycles.append(curver.kernel.Curve(self.triangulation, geometric))
+		
+		return cycles
 
