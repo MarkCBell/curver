@@ -1,7 +1,7 @@
 
 ''' A module for representing and manipulating maps between Triangulations.
 
-Provides: Encoding and MappingClass. '''
+Provides: Encoding, MappingClass. '''
 
 from fractions import Fraction
 
