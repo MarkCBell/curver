@@ -1,4 +1,8 @@
 
+''' A module for representing homology classes on triangulations.
+
+Provides: HomologyClass. '''
+
 import curver
 
 class HomologyClass(object):

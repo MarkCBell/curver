@@ -1,4 +1,8 @@
 
+''' A module for representing (multi)arcs on triangulations.
+
+Provides: MultiArc, Arc. '''
+
 import curver
 from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.
 
@@ -129,16 +133,16 @@ class Arc(MultiArc):
 		# We handle large powers by replacing (T^1/2_self)^2 with T_boundary which includes acceleration.
 		return self.boundary().encode_twist(k // 2) * conjugator.inverse() * half_twist * conjugator
 	
-	def intersection(self, other):
+	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''
 		
-		assert(isinstance(other, curver.kernel.Lamination))
-		assert(other.triangulation == self.triangulation)
+		assert(isinstance(lamination, curver.kernel.Lamination))
+		assert(lamination.triangulation == self.triangulation)
 		
 		short, conjugator = self.shorten()
-		short_other = conjugator(other)
+		short_lamination = conjugator(lamination)
 		
 		arc = short.parallel()
 		
-		return max(short_other(arc), 0)
+		return max(short_lamination(arc), 0)
 

@@ -1,9 +1,15 @@
 
+''' A module for representing the curve complex of a surface.
+
+Provides: CurveComplex. '''
+
 from itertools import combinations
 import networkx
+
 import curver
 
 class CurveComplex(object):
+	''' This represents the curve complex of a surface. '''
 	def __init__(self, triangulation):
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta

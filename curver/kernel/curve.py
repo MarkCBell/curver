@@ -1,4 +1,8 @@
 
+''' A module for representing (multi)curves on triangulations.
+
+Provides: MultiCurve, Curve. '''
+
 import curver
 from curver.kernel.lamination import Lamination, Shortenable  # Special import needed for subclassing.
 
@@ -10,6 +14,8 @@ class MultiCurve(Lamination):
 		return False
 	
 	def encode_twist(self, k=1):
+		''' Return an Encoding of a left Dehn (multi)twist about the components of this multicurve, raised to the power k. '''
+		
 		h = self.triangulation.id_encoding()
 		for curve, multiplicity in self.mcomponents():
 			h = curve.encode_twist(k * multiplicity) * h
@@ -118,24 +124,24 @@ class Curve(MultiCurve, Shortenable):
 		
 		return conjugator.inverse() * twist**k * conjugator
 	
-	def intersection(self, other):
-		''' Return the geometric intersection between self and the given other. '''
+	def intersection(self, lamination):
+		''' Return the geometric intersection between self and the given lamination. '''
 		
-		assert(isinstance(other, curver.kernel.Lamination))
-		assert(other.triangulation == self.triangulation)
+		assert(isinstance(lamination, curver.kernel.Lamination))
+		assert(lamination.triangulation == self.triangulation)
 		
 		short, conjugator = self.shorten()
-		short_other = conjugator(other)
+		short_lamination = conjugator(lamination)
 		
 		a = short.parallel()
 		v = self.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
 		edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		
-		around = min(short_other.side_weight(edge) for edge in edges)
+		around = min(short_lamination.side_weight(edge) for edge in edges)
 		if around > 0:  # All side_weights and edge weights are non-negative.
-			return short_other(a) - 2 * min(short_other.side_weight(edge) for edge in edges)
+			return short_lamination(a) - 2 * min(short_lamination.side_weight(edge) for edge in edges)
 		else:
-			return short_other(a) - sum(min(short_other.side_weight(edge), 0) + min(short_other(edge), 0) for edge in edges)
+			return short_lamination(a) - sum(min(short_lamination.side_weight(edge), 0) + min(short_lamination(edge), 0) for edge in edges)
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve.

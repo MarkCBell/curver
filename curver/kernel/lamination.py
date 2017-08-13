@@ -11,6 +11,10 @@ from curver.kernel.utilities import memoize  # Special import needed for decorat
 INFTY = float('inf')
 
 def dual_weight(a, b, c):
+	''' Return the dual weight of a triple.
+	
+	This is (b + c - a) / 2 when this is non-negative and b + c - a otherwise. '''
+	
 	a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
 	correction = min(a + b - c, b + c - a, c + a - b, 0)
 	return (b + c - a + correction) // 2
@@ -96,28 +100,39 @@ class Lamination(object):
 		return not any(self)  # len(self) == 0
 	
 	def is_multicurve(self):
+		''' Return if this lamination is actually a multicurve. '''
+		
 		return not self.is_empty() and all(isinstance(component, curver.kernel.Curve) for component in self.components())
 	
 	def is_curve(self):
+		''' Return if this lamination is actually a curve. '''
+		
 		return self.is_multicurve() and len(self) == 1
 	
 	def is_multiarc(self):
+		''' Return if this lamination is actually a multiarc. '''
+		
 		return not self.is_empty() and all(isinstance(component, curver.kernel.Arc) for component in self.components())
 	
 	def is_arc(self):
+		''' Return if this lamination is actually a multiarc. '''
+		
 		return self.is_multiarc() and len(self) == 1
 	
 	def promote(self):
+		''' Return this lamination in its finest form. '''
+		
+		# Could move cache across.
 		if self.is_multicurve():
 			if self.is_curve():
-				self.__class__ = curver.kernel.Curve
+				return curver.kernel.Curve(self.triangulation, self.geometric)
 			else:
-				self.__class__ = curver.kernel.MultiCurve
+				return curver.kernel.MultiCurve(self.triangulation, self.geometric)
 		elif self.is_multiarc():
 			if self.is_arc():
-				self.__class__ = curver.kernel.Arc
+				return curver.kernel.Arc(self.triangulation, self.geometric)
 			else:
-				self.__class__ = curver.kernel.MultiArc
+				return curver.kernel.MultiArc(self.triangulation, self.geometric)
 		return self
 	
 	def remove_peripheral(self):
@@ -149,7 +164,7 @@ class Lamination(object):
 		
 		assert(isinstance(lamination, Lamination))
 		
-		return sum(m1 * m2 * max(c1.intersection(c2), 0) for c1, m1 in self.mcomponents() for c2, m2 in lamination.mcomponents())
+		return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.mcomponents())
 	
 	def no_common_component(self, lamination):
 		''' Return that self does not share any components with the given Lamination. '''
@@ -160,35 +175,20 @@ class Lamination(object):
 		return not any(component in self_components for component, _ in lamination.components())
 	
 	def train_track(self):
-		# Discards all arcs parallel to edges.
-		# Now in each triangle lamination looks like one of the following types:
-		# 0) Empty    # 1) One arc  # 2) Two arcs  # 3) Three arcs
-		#     /\      #     /\      #     /\       #     /\
-		#    /  \     #    /  \     #    /  \      #    /--\
-		#   /    \    #   /\   \    #   /\  /\     #   /\  /\
-		#  /      \   #  /  |   \   #  /  ||  \    #  /  ||  \
-		#  --------   #  --------   #  --------    #  --------
-		#
-		# 0a), 1a) or 2a); which are the same as 0), 1) and 2) but with an extra arc. For example, 2a):
-		#     /|\
-		#    / | \
-		#   /\ | /\
-		#  /  |||  \
-		#  ---------
-		# These cases are determined by the fact that (exactly) one of their dual weights is negative.
-		
+		''' Return the train track underlying this lamination. '''
+		# In each triangle where this lamination looks like:
 		# We introduce new edges to subdivide a triangle (p, q, r) as follows:
-		#            /^\
-		#           / | \
-		#          /  |  \
-		#         /   |s(i)
-		#        /    |    \
-		#     r /    / \    \ q
-		#      /   /     \   \
-		#     /  /t(j) u(k)\  \
-		#    /</             \>\
-		#   /-------------------\
-		#             p
+		#           / \                       /^\
+		#          /   \                     / | \
+		#         /     \                   /  |  \
+		#        /-------\                 /   |s(i)
+		#       /         \     ===>>     /    |    \
+		#      /\         /\           r /    / \    \ q
+		#     /  \       /  \           /   /     \   \
+		#    /    |     |    \         /  /t(j) u(k)\  \
+		#   /     |     |     \       /</             \>\
+		#  /-------------------\     /-------------------\
+		#                                      p
 		# So that afterwards every complementary region can reach a vertex.
 		
 		geometric = list(self.geometric)
@@ -260,10 +260,15 @@ class Lamination(object):
 class Shortenable(Lamination):
 	''' A special lamination that we can put into a canonical form. '''
 	def is_short(self):
+		''' Return if this lamination is short, that is, if it has as little weight as possible. '''
+		
 		return NotImplemented
 	
 	def shorten_score(self, edge):
-		# Low score == bad; high score == good.
+		''' Return a score describing how good flipping this edge is for reducing the weight of this lamination.
+		
+		The higher the score, the better this flip is for reducing weight. '''
+		
 		return NotImplemented
 	
 	def shorten(self):

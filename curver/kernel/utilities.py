@@ -1,11 +1,11 @@
 
 ''' A module of useful, generic functions; including input and output formatting. '''
 
-import curver
-
 from functools import partial
-from itertools import product, groupby
+from itertools import product
 from string import ascii_lowercase
+
+import curver
 
 def string_generator(n, skip=None):
 	''' Return a list of n usable names, none of which are in skip. '''
@@ -58,6 +58,7 @@ class UnionFind(object):
 			self.parent[x] = self(self.parent[x])  # Recursion limit?
 			return self.parent[x]
 	def union2(self, x, y):
+		''' Combine the class containing x and the class containing y. '''
 		rx, ry = self(x), self(y)
 		if self.rank[x] > self.rank[y]:
 			self.parent[ry] = rx
@@ -67,6 +68,7 @@ class UnionFind(object):
 			self.parent[ry] = rx
 			self.rank[rx] += 1
 	def union(self, *arg):
+		''' Combine all of the classes containing the given items. '''
 		if len(arg) == 1: arg = arg[0]
 		for item in arg:
 			self.union2(arg[0], item)

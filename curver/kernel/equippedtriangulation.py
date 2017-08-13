@@ -1,7 +1,7 @@
 
 ''' A module for representing triangulations along with laminations and mapping classes on them.
 
-Provides one class: EquippedTriangulation. '''
+Provides: EquippedTriangulation. '''
 
 from random import choice
 import re

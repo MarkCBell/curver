@@ -232,7 +232,7 @@ class Triangulation(object):
 		GV = [((2 - v + e // 3) // 2, v) for v, e in VE]
 		
 		def order(g, v):
-			# Return the maximum order of a periodic mapping class on S_{g, v}.
+			''' Return the maximum order of a periodic mapping class on S_{g, v}. '''
 			# These bounds follow from the 4g + 4 bound on the closed surface [FarbMarg12]
 			# and the Riemann removable singularity theorem which allows us to cap off the
 			# punctures when the g > 1 without affecting this bound.

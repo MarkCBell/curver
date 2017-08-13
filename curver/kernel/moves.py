@@ -1,15 +1,16 @@
 
 ''' A module for representing basic ways of changing triangulations.
+These moves can also track how laminations and homology classes move through those changes.
 
-Provides three classes: Isometry, EdgeFlip and LinearTransformation.
+Provides: Move, Isometry, EdgeFlip.
 
-Perhaps in the future we will add a Spiral move so that curves can be
-shortened in polynomial time. '''
+Also provides Spiral whose goal is to allow laminations to be shortened in
+polynomial-time. However this is very incomplete at the minute. '''
 
 import curver
 
 class Move(object):
-	''' Implements closedleaf and openleaf which apply this move to ClosedLeaf and OpenLeaf respectively. '''
+	''' A basic move from one triangulation to another. '''
 	def __init__(self, source_triangulation, target_triangulation):
 		assert(isinstance(source_triangulation, curver.kernel.Triangulation))
 		assert(isinstance(target_triangulation, curver.kernel.Triangulation))
@@ -35,10 +36,16 @@ class Move(object):
 		return curver.kernel.Encoding([self])
 	
 	def inverse(self):
+		''' Return the inverse of this move. '''
+		
 		return NotImplemented
 	def apply_lamination(self, lamination):
+		''' Return the lamination obtained by mapping the given lamination through this move. '''
+		
 		return NotImplemented
 	def apply_homology(self, homology_class):
+		''' Return the homology class obtained by mapping the given homology class through this move. '''
+		
 		return NotImplemented
 
 class Isometry(Move):
@@ -88,7 +95,6 @@ class Isometry(Move):
 		return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
 	
 	def inverse(self):
-		''' Return the inverse of this isometry. '''
 		
 		return Isometry(self.target_triangulation, self.source_triangulation, self.inverse_label_map)
 
@@ -154,8 +160,6 @@ class EdgeFlip(Move):
 		return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
 	
 	def inverse(self):
-		''' Return the inverse of this map. '''
-		
 		return EdgeFlip(self.target_triangulation, self.source_triangulation, ~self.edge)
 
 
@@ -227,9 +231,11 @@ class Spiral(Move):
 		t = min(max((2*bi - ai - ci) // (2*(ei - bi)) + 1, 0), k) if ei != bi else k
 		
 		def F(n, X):  # Note F(0) == Id.
+			''' Common move. '''
 			(a, b, c, d) = X
 			return a, b, (n+1)*c - n*d, n*c + (1-n)*d
 		def G(X):
+			''' Edge case. '''
 			(a, b, c, d) = X
 			return a, b, a+b-d, c
 		

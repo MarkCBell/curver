@@ -1,8 +1,13 @@
 
+''' A module for representing more advanced ways of changing triangulations.
+
+Provides: Crush, Lift. '''
+
 import curver
 from curver.kernel.moves import Move  # Special import needed for subclassing.
 
 class Crush(Move):
+	''' This represents the effect of crushing along a curve. '''
 	def __init__(self, source_triangulation, target_triangulation, curve, matrix):
 		super(Crush, self).__init__(source_triangulation, target_triangulation)
 		
@@ -19,7 +24,6 @@ class Crush(Move):
 		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
 	
 	def apply_lamination(self, lamination):
-		
 		geometric = list(lamination)
 		if self.curve.weight() == 2:
 			# Get some edges.
@@ -52,6 +56,7 @@ class Crush(Move):
 		return Lift(self.target_triangulation, self.source_triangulation, self.curve, self.matrix)
 
 class Lift(Move):
+	''' This represents the inverse of crushing along a curve. '''
 	def __init__(self, source_triangulation, target_triangulation, curve, matrix):
 		super(Lift, self).__init__(source_triangulation, target_triangulation)
 		
