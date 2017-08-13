@@ -135,9 +135,10 @@ class Arc(MultiArc):
 		assert(isinstance(other, Lamination))
 		assert(other.triangulation == self.triangulation)
 		
-		# short = [0, 0, ..., 0, -1, 0, ..., 0]
 		short, conjugator = self.shorten()
 		short_other = conjugator(other)
 		
-		return sum(b for a, b in zip(short, short_other) if a == -1 if b >= 0)
+		arc = short.parallel()
+		
+		return max(short_other(arc), 0)
 
