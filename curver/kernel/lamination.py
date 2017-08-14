@@ -179,6 +179,7 @@ class Lamination(object):
 		''' Return the train track underlying this lamination. '''
 		# In each triangle where this lamination looks like:
 		# We introduce new edges to subdivide a triangle (p, q, r) as follows:
+		#            #                         #
 		#           / \                       /^\
 		#          /   \                     / | \
 		#         /     \                   /  |  \
@@ -188,7 +189,7 @@ class Lamination(object):
 		#     /  \       /  \           /   /     \   \
 		#    /    |     |    \         /  /t(j) u(k)\  \
 		#   /     |     |     \       /</             \>\
-		#  /-------------------\     /-------------------\
+		#  #-------------------#     #-------------------#
 		#                                      p
 		# So that afterwards every complementary region can reach a vertex.
 		
