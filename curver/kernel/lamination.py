@@ -133,6 +133,7 @@ class Lamination(object):
 				return curver.kernel.Arc(self.triangulation, self.geometric)
 			else:
 				return curver.kernel.MultiArc(self.triangulation, self.geometric)
+		
 		return self
 	
 	def remove_peripheral(self):

@@ -108,9 +108,6 @@ class Curve(MultiCurve, Shortenable):
 		a = short.parallel()
 		if short.weight() == 2:  # curve is non-isolating.
 			num_flips = 1
-			# TODO: 2) Once Spiral is working we can do:
-			# twist_k = triangulation.encode([(e.label, k)])
-			# return conjugator.inverse() * twist_k * conjugator
 		else:  # curve is isolating.
 			# Theorem: 3*num_tripods is the right number of flips to do.
 			# Proof: TODO.
@@ -134,7 +131,7 @@ class Curve(MultiCurve, Shortenable):
 		short_lamination = conjugator(lamination)
 		
 		a = short.parallel()
-		v = self.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
+		v = short.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
 		edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		
 		around = min(short_lamination.side_weight(edge) for edge in edges)
@@ -144,50 +141,41 @@ class Curve(MultiCurve, Shortenable):
 			return short_lamination(a) - sum(min(short_lamination.side_weight(edge), 0) + min(short_lamination(edge), 0) for edge in edges)
 	
 	def crush(self):
-		''' Return the crush map associated to this Curve.
-		
-		Currently assumes that this a non-isolating curve. '''
+		''' Return the crush map associated to this Curve. '''
 		
 		short, conjugator = self.shorten()
 		
-		if short.weight() == 2:  # curve is non-isolating.
-			triangulation = short.triangulation
-			# Grab the indices of the two edges we meet.
-			e1, e2 = [edge_index for edge_index in short.triangulation.indices if short(edge_index) > 0]
-			
-			# We might need to swap these edge indices so we have a good frame of reference.
-			if short.triangulation.corner_lookup[e1].indices[2] != e2: e1, e2 = e2, e1
-			
-			a, b, c, d, e = triangulation.square(e1)
-			
-			# Use the following for reference:
-			# #<----------#     #-----------#  #
-			# |     a    ^^     |     a    /  /|
-			# |         / |     |         /  / |
-			# |        /  |     |        /  /  |
-			# |       /   |     |       /  /   |
-			# |b    e/   d| --> |b   ~b/  /~e e|
-			# |     /     |     |     /  /     |
-			# |    /      |     |    /  /      |
-			# |   /       |     |   /  /       |
-			# |  /        |     |  /  /        |
-			# | /         |     | /  /         |
-			# V/    c     |     |/  /    c     |
-			# #---------->#     #  #-----------#
-			# where d == ~b.
-			
-			edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in triangulation.edges)
-			
-			# Most triangles don't change.
-			triangles = [curver.kernel.Triangle([edge_map[edgey] for edgey in triangle]) for triangle in triangulation if e not in triangle and ~e not in triangle]
-			
-			triangle_A2 = curver.kernel.Triangle([edge_map[a], edge_map[b], edge_map[~b]])
-			triangle_B2 = curver.kernel.Triangle([edge_map[c], edge_map[e], edge_map[~e]])
-			new_triangulation = curver.kernel.Triangulation(triangles + [triangle_A2, triangle_B2])
-			
-			matrix = [[1 if i == j or (i == b.index and j == e.index) or (i == e.index and j == b.index) else 0 for i in range(self.zeta)] for j in range(self.zeta)]
-		else:  # curve is isolating.
-			raise curver.AssumptionError('Curve is isolating.')  # TODO: 1) Handle isolating case. Hmmm, "No tight geodesic goes through a separating curve", right?
+		# Use the following for reference:
+		#             #<----------#                #  #-----------#  #
+		#            /|     a    ^|               /|  |     a    /  /|
+		#           / |         / |              / |  |         /  / |
+		#          /  |        /  |             /  |  |        /  /  |
+		#         /   |       /   |            /   |  |       /  /   |
+		#        /    |b    e/    |    ==>>   /    |  |b   ~b/  /~e  |
+		#       /   ~b|     /~e   |          /    e|  |     /  /     |
+		#      /      |    /      |         /      |  |    /  /      |
+		#     /       |   /       |        /       |  |   /  /       |
+		#    /        |  /        |       /        |  |  /  /        |
+		#   /         | /         |      /         |  | /  /         |
+		#  /          V/          |     /          |  |/  /          |
+		# #-----------#-----------#    #-----------#  #  #-----------#
+		# Where a is parallel to short.
+		
+		a = short.parallel()
+		a, b, e = short.triangulation.corner_lookup[a.label]
+		
+		# Build the new triangulation.
+		edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in short.triangulation.edges)
+		# Remap some edges.
+		edge_map[e] = curver.kernel.Edge(~b.label)
+		edge_map[~b] = curver.kernel.Edge(e.label)
+		
+		new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgey] for edgey in triangle]) for triangle in short.triangulation])
+		
+		# Build the lifting matrix back.
+		v = short.triangulation.vertex_lookup[a.label]  # = short.triangulation.vertex_lookup[~a.label].
+		indices = [edge.index for edge in curver.kernel.utilities.cyclic_slice(v, a, ~a)[1:]]  # The indices that appear walking around v from a to ~a. Note need to exclude the initial a.
+		matrix = [[1 if i == j else indices.count(j) if i == b.index else 1 if (i == e.index and j == b.index) else 0 for i in range(self.zeta)] for j in range(self.zeta)]
 		
 		crush = curver.kernel.Crush(triangulation, new_triangulation, short, matrix).encode()
 		return crush * conjugator
