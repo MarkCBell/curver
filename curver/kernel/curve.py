@@ -138,7 +138,7 @@ class Curve(MultiCurve, Shortenable):
 		if around > 0:  # All side_weights and edge weights are non-negative.
 			return short_lamination(a) - 2 * min(short_lamination.side_weight(edge) for edge in edges)
 		else:
-			return short_lamination(a) - sum(min(short_lamination.side_weight(edge), 0) + min(short_lamination(edge), 0) for edge in edges)
+			return short_lamination(a) - sum(min(short_lamination.side_weight(edge), 0) for edge in edges) - sum(min(short_lamination(edge), 0) for edge in edges[1:])
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve. '''
