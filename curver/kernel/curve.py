@@ -134,9 +134,9 @@ class Curve(MultiCurve, Shortenable):
 		v = short.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
 		v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		
-		around_v = min(short_lamination.side_weight(edge) for edge in v_edges)
+		around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
 		out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
-		# around_v > 0 ==> out_v == 0.
+		# around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
 		return short_lamination(a) - 2 * around_v + out_v
 	
 	def crush(self):

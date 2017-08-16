@@ -25,7 +25,7 @@ class Crush(Move):
 	
 	def apply_lamination(self, lamination):
 		geometric = list(lamination)
-		if self.curve.weight() == 2:
+		if self.curve.weight() == 2:  # Non-isolating.
 			# Get some edges.
 			a = self.curve.parallel()
 			_, b, e = self.source_triangulation.corner_lookup[a.label]
@@ -33,29 +33,37 @@ class Crush(Move):
 			
 			u = self.source_triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
 			u_edges = curver.kernel.utilities.cyclic_slice(u, a, ~a)
-			around_u = min(lamination.side_weight(edge) for edge in u_edges)  # The set of edges that come out of u from a round to ~a.
+			around_u = min(max(lamination.side_weight(edge), 0) for edge in u_edges)  # The set of edges that come out of u from a round to ~a.
 			out_u = sum(max(-lamination.side_weight(edge), 0) for edge in u_edges) + sum(max(-lamination(edge), 0) for edge in u_edges[1:])
-			# around_u > 0 ==> out_u == 0.
-			geometric[b.index] = around_u if around_u > 0 else -out_u
+			# Since around_u > 0 ==> out_u == 0 & out_u > 0 ==> around_u == 0, this is equivalent to around_u if around_u > 0 else -out_u
+			geometric[b.index] = around_u - out_u
 			
 			v = self.source_triangulation.vertex_lookup[c.label]  # = self.triangulation.vertex_lookup[~c.label].
 			v_edges = curver.kernel.utilities.cyclic_slice(v, c, ~c)
-			around_v = min(lamination.side_weight(edge) for edge in v_edges)
+			around_v = min(max(lamination.side_weight(edge), 0) for edge in v_edges)
 			out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
-			geometric[e.index] = around_v if around_v > 0 else -out_v
-		else:
-			# TODO: 1) Implement LP to find intersection for general configuration.
-			raise curver.AssumptionError('Currently can only crush along non-isolating curves.')
-			
+			geometric[e.index] = around_v - out_v  # Same trick.
+		else:  # self.curve is isolating.
+			# Get some edges.
 			a = self.curve.parallel()
 			v = self.curve.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
-			edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
+			_, b, e = self.source_triangulation.corner_lookup[a.label]
 			
-			around = min(lamination.side_weight(edge) for edge in edges)
-			if around > 0:  # All side_weights and edge weights are non-negative.
-				return lamination(a) - 2 * min(lamination.side_weight(edge) for edge in edges)
-			else:
-				return lamination(a) - sum(min(lamination.side_weight(edge), 0) for edge in edges) - sum(min(lamination(edge), 0) for edge in edges[1:])
+			v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
+			around_v = min(max(lamination.side_weight(edge), 0) for edge in v_edges)
+			out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
+			# around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
+			
+			twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+			drops = [max(lamination.side_weight(edge) - (0 if index in (0, len(v_edges)) else twisting) - around_v, 0) for index, edge in enumerate(v_edges)]
+			cumulative_drops = [max(min(drops[:i+1]), min(drops[i:])) for i in range(len(v_edges))]
+			
+			# Unwind.
+			for edge, cumulative_drop in zip(v_edges, cumulative_drops)[1:]:
+				geometric[edge.index] -= twisting + cumulative_drop
+			
+			# Now have to reset b weight.
+			geometric[b.index] = around_v - out_v  # Same trick as above.
 		
 		return self.target_triangulation.lamination(geometric)  # Have to promote.
 	
