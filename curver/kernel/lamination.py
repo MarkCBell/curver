@@ -122,19 +122,26 @@ class Lamination(object):
 	def promote(self):
 		''' Return this lamination in its finest form. '''
 		
-		# Could move cache across.
 		if self.is_multicurve():
 			if self.is_curve():
-				return curver.kernel.Curve(self.triangulation, self.geometric)
+				other = curver.kernel.Curve(self.triangulation, self.geometric)
 			else:
-				return curver.kernel.MultiCurve(self.triangulation, self.geometric)
+				other = curver.kernel.MultiCurve(self.triangulation, self.geometric)
 		elif self.is_multiarc():
 			if self.is_arc():
-				return curver.kernel.Arc(self.triangulation, self.geometric)
+				other = curver.kernel.Arc(self.triangulation, self.geometric)
 			else:
-				return curver.kernel.MultiArc(self.triangulation, self.geometric)
+				other = curver.kernel.MultiArc(self.triangulation, self.geometric)
+		else:
+			other = self
 		
-		return self
+		# Move cache across.
+		try:
+			other.__cache = self.__cache
+		except AttributeError:
+			pass  # No cache.
+		
+		return other
 	
 	def remove_peripheral(self):
 		''' Return a new lamination with any peripheral components removed.

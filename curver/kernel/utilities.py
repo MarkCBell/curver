@@ -83,7 +83,6 @@ class memoize(object):
 	
 	If a memoized method is invoked directly on its class the result will not
 	be cached. Instead the method will be invoked like a static method. '''
-	
 	def __init__(self, func):
 		self.func = func
 	def __get__(self, obj, objtype=None):
