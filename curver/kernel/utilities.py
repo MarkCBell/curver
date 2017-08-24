@@ -4,6 +4,7 @@
 from functools import partial
 from itertools import product
 from string import ascii_lowercase
+from collections import defaultdict
 
 import curver
 
@@ -42,8 +43,10 @@ class UnionFind(object):
 		self.rank = dict((item, 0) for item in items)
 	def __iter__(self):
 		''' Iterate through the groups of self. '''
-		roots = [item for item in self.parent if self.parent[item] == item]
-		return iter([set([item for item in self.parent if self(item) == root]) for root in roots])
+		groups = defaultdict(list)
+		for item in self.parent:
+			groups[self(item)].append(item)
+		return iter(groups.values())
 	def __len__(self):
 		return len([item for item in self.parent if self.parent[item] == item])
 	def __repr__(self):
@@ -52,11 +55,12 @@ class UnionFind(object):
 		return ', '.join('{' + ', '.join(str(item) for item in g) + '}' for g in self)
 	def __call__(self, x):
 		''' Find the root of x. Two items are in the same group iff they have the same root. '''
-		if self.parent[x] == x:
-			return x
-		else:
-			self.parent[x] = self(self.parent[x])  # Recursion limit?
-			return self.parent[x]
+		root = x
+		while self.parent[root] != root:
+			root = self.parent[root]
+		while self.parent[x] != root:
+			x, self.parent[x] = self.parent[x], root
+		return root
 	def union2(self, x, y):
 		''' Combine the class containing x and the class containing y. '''
 		rx, ry = self(x), self(y)
