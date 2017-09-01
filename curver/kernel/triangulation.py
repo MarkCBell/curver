@@ -330,7 +330,7 @@ class Triangulation(object):
 		assert(not self.is_flippable(edge))
 		
 		# As edge_label is not flippable the triangle containing it must be (edge_label, ~edge_label, boundary_edge).
-		[boundary_edge] = [edgey for edgey in self.triangle_lookup[edge.label] if edgey.index != edge.index]
+		[boundary_edge] = [edgy for edgy in self.triangle_lookup[edge.label] if edgy.index != edge.index]
 		return boundary_edge
 	
 	def square(self, edge):
@@ -389,7 +389,7 @@ class Triangulation(object):
 		edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
 		
 		# Most triangles don't change.
-		triangles = [Triangle([edge_map[edgey] for edgey in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
+		triangles = [Triangle([edge_map[edgy] for edgy in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
 		
 		a, b, c, d, e = self.square(edge)
 		
@@ -402,11 +402,21 @@ class Triangulation(object):
 		return Triangulation(triangles + [triangle_A2, triangle_B2])
 	
 	def all_encodings(self, num_flips):
-		''' Return all encodings that can be made using at most the given number of flips. '''
+		''' Yield all encodings that can be made using at most the given number of flips.
 		
-		# TODO: 1) Construct all flip sequences.
+		Runs in exp(num_flips) time. '''
 		
-		return NotImplemented
+		if num_flips == 0:
+			yield self.id_encoding()
+		
+		# TODO: 2) Make efficient by using the fact that disjoint flips commute.
+		
+		for edge in self.positive_edges:
+			step = self.encode_flip(edge)
+			for encoding in step.target_triangulation.all_encodings(num_flips-1):
+				yield encoding * step
+		
+		return
 	
 	def relabel_edges(self, label_map):
 		''' Return a new triangulation obtained by relabelling the edges according to label_map. '''
@@ -526,6 +536,7 @@ class Triangulation(object):
 		''' Return a new lamination on this surface assigning the specified weight to each edge. '''
 		
 		assert(len(weights) == self.zeta)
+		# Should check all dual weights.
 		
 		return curver.kernel.Lamination(self, weights).remove_peripheral().promote()
 	
