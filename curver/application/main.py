@@ -400,11 +400,14 @@ class CurverApplication(object):
 		self.note.pack(fill='both', expand=True)
 		self.note.enable_traversal()
 		
-		if isinstance(items, dict):  # dict
+		if isinstance(items, list) and len(items) == 1 and isinstance(items[0], (list, dict)):  # [list / dict].
+			items = items[0]
+		
+		if isinstance(items, dict):  # dict.
 			items = [Showable(key, item) for key, item in sorted(dict(items).items(), key=lambda x: x[0])]
-		try:  # list of pairs
+		try:  # list of pairs.
 			items = [Showable(key, item) for key, item in items]
-		except (TypeError, ValueError):  # list
+		except (TypeError, ValueError):  # list.
 			items = [Showable(name, item) for name, item in curver.kernel.utilities.name_objects(items)]
 		self.items = items
 		
