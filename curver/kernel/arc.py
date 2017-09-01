@@ -65,6 +65,7 @@ class MultiArc(Shortenable):
 	def explore_ball(self, radius):
 		''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
 		
+		Runs in exp(radius) time.
 		Note that this is only well-defined if self is filling. '''
 		
 		assert(self.is_filling())
