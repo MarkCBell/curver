@@ -2,7 +2,6 @@
 import unittest
 import curver
 
-
 # Things to test:
 #  Relations in the mapping class group.
 #  Squares of half twists are twists about their boundary.
