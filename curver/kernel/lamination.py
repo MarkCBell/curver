@@ -17,6 +17,7 @@ def dual_weight(a, b, c):
 	
 	a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
 	correction = min(a + b - c, b + c - a, c + a - b, 0)
+	assert(b + c - a + correction) % 2 == 0
 	return (b + c - a + correction) // 2
 
 class Lamination(object):
@@ -36,8 +37,6 @@ class Lamination(object):
 		return str(self.geometric)
 	def __iter__(self):
 		return iter(self.geometric)
-	def __len__(self):
-		return sum(multiplicity for _, multiplicity in self.mcomponents())  # Total number of components.
 	def __call__(self, edge):
 		''' Return the geometric measure assigned to item. '''
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]
@@ -97,7 +96,7 @@ class Lamination(object):
 	def is_empty(self):
 		''' Return if this lamination has no components. '''
 		
-		return not any(self)  # len(self) == 0
+		return not any(self)  # self.num_components() == 0
 	
 	def is_multicurve(self):
 		''' Return if this lamination is actually a multicurve. '''
@@ -107,7 +106,7 @@ class Lamination(object):
 	def is_curve(self):
 		''' Return if this lamination is actually a curve. '''
 		
-		return self.is_multicurve() and len(self) == 1
+		return self.is_multicurve() and self.num_components() == 1
 	
 	def is_multiarc(self):
 		''' Return if this lamination is actually a multiarc. '''
@@ -117,7 +116,7 @@ class Lamination(object):
 	def is_arc(self):
 		''' Return if this lamination is actually a multiarc. '''
 		
-		return self.is_multiarc() and len(self) == 1
+		return self.is_multiarc() and self.num_components() == 1
 	
 	def promote(self):
 		''' Return this lamination in its finest form. '''
@@ -149,13 +148,13 @@ class Lamination(object):
 		Most functions will assume that any lamination they are given does not have any peripheral components. '''
 		
 		peripherals = [0] * self.zeta
+		geometric = list(self)
 		for vertex in self.triangulation.vertices:
 			peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
 			for edge in vertex:
-				peripherals[edge.index] += peripheral
-		weights = [weight - peripheral for weight, peripheral in zip(self, peripherals)]  # Remove the peripheral components.
+				geometric[edge.index] -= peripheral
 		
-		return Lamination(self.triangulation, weights)
+		return Lamination(self.triangulation, geometric)
 	
 	def skeleton(self):
 		''' Return the lamination obtained by collapsing parallel components. '''
@@ -241,6 +240,10 @@ class Lamination(object):
 				raise ValueError('')
 		
 		return components
+	
+	def num_components(self):
+		''' Return the total number of components. '''
+		return sum(multiplicity for _, multiplicity in self.mcomponents())
 	
 	def sublaminations(self):
 		''' Return all sublaminations that appear within self. '''
