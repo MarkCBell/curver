@@ -21,7 +21,7 @@ class TrainTrack(Shortenable):
 			return 0
 		
 		a, b, c, d, e = self.triangulation.square(edge)
-		da, db, dc, dd, de = [self.dual_weight(edgey) for edgey in self.triangulation.square(edge)]
+		da, db, dc, dd, de = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
 		if self(e) <= 0:
 			return 0
 		if b == ~d and da > 0 and db == 0 and de == 0:
@@ -55,7 +55,7 @@ class TrainTrack(Shortenable):
 			# Check for a curve here.
 			if short.triangulation.is_flippable(edge):
 				a, b, c, d, e = short.triangulation.square(edge)
-				da, db, dc, dd, de = [short.dual_weight(edgey) for edgey in short.triangulation.square(edge)]
+				da, db, dc, dd, de = [short.dual_weight(edgy) for edgy in short.triangulation.square(edge)]
 				if b == ~d and da > 0 and db == 0 and de == 0:
 					geometric = [1 if index == b.index or index == e.index else 0 for index in short.triangulation.indices]
 					component, multiplicity = curver.kernel.Curve(short.triangulation, geometric), short(e)
@@ -73,7 +73,7 @@ class TrainTrack(Shortenable):
 			if self.dual_weight(corner[2]): yield ~corner[1]
 		
 		# Build graph.
-		edges = [(edge, edgey) for edge in self.triangulation.edges for edgey in connected_to(edge)]
+		edges = [(edge, edgy) for edge in self.triangulation.edges for edgy in connected_to(edge)]
 		G = networkx.DiGraph(edges)
 		
 		cycles = []

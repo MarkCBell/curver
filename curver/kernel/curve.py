@@ -74,8 +74,8 @@ class Curve(MultiCurve, Shortenable):
 			return 0
 		
 		a, b, c, d, e = self.triangulation.square(edge)
-		ia, ib, ic, id, ie = [self(edgey) for edgey in self.triangulation.square(edge)]
-		da, db, dc, dd, de = [self.dual_weight(edgey) for edgey in self.triangulation.square(edge)]
+		ia, ib, ic, id, ie = [self(edgy) for edgy in self.triangulation.square(edge)]
+		da, db, dc, dd, de = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
 		if ie == 0:
 			return 0
 		if max(ia+ ic, ib + id) == ie:  # Drops to zero.
@@ -169,7 +169,7 @@ class Curve(MultiCurve, Shortenable):
 		edge_map[e] = curver.kernel.Edge(~b.label)
 		edge_map[~b] = curver.kernel.Edge(e.label)
 		
-		new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgey] for edgey in triangle]) for triangle in short.triangulation])
+		new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgy] for edgy in triangle]) for triangle in short.triangulation])
 		
 		# Build the lifting matrix back.
 		v = short.triangulation.vertex_lookup[a.label]  # = short.triangulation.vertex_lookup[~a.label].

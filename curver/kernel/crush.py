@@ -54,12 +54,13 @@ class Crush(Move):
 			out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
 			# around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
 			
+			# TODO: 1) WRONG!!
 			twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
 			drops = [max(lamination.side_weight(edge) - (0 if index in (0, len(v_edges)) else twisting) - around_v, 0) for index, edge in enumerate(v_edges)]
 			cumulative_drops = [max(min(drops[:i+1]), min(drops[i:])) for i in range(len(v_edges))]
 			
 			# Unwind.
-			for edge, cumulative_drop in zip(v_edges, cumulative_drops)[1:]:
+			for edge, cumulative_drop in zip(v_edges[1:], cumulative_drops):
 				geometric[edge.index] -= twisting + cumulative_drop
 			
 			# Now have to reset b weight.
