@@ -18,7 +18,7 @@ class Encoding(object):
 	def __init__(self, sequence):
 		assert(isinstance(sequence, (list, tuple)))
 		assert(len(sequence) > 0)
-		assert(all(isinstance(item, curver.kernel.Move) for item in sequence))
+		# assert(all(isinstance(item, curver.kernel.Move) for item in sequence))  # Quadratic.
 		
 		self.sequence = sequence
 		
