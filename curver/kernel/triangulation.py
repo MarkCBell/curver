@@ -650,7 +650,7 @@ class Triangulation(object):
 					g = T.find_isometry(self, item).encode()
 			elif item is None:  # Identity isometry.
 				g = T.id_encoding()
-			elif isinstance(item, tuple) and len(item) == 2 and all(isinstance(x, curver.IntegerType) for x in item):  # Spiral
+			elif isinstance(item, tuple) and len(item) == 2 and all(isinstance(x, curver.IntegerType) for x in item):  # Spiral. TODO 4) Update to Twist and HalfTwist!
 				g = T.encode_spiral(item[0], item[1])
 			elif isinstance(item, curver.kernel.Encoding):  # Encoding.
 				g = item
