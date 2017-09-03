@@ -33,7 +33,7 @@ class MultiArc(Shortenable):
 		
 		geometric = [0 if weight < 0 else 2 for weight in short]
 		# Tighten by retracting from any triangle where geometric meets only one side.
-		to_fix = [triangle for triangle in short.triangulation if sum(geometric[index] for index in triangle.indices) == 2]  # Stack.
+		to_fix = [triangle for triangle in short.triangulation if sum(geometric[index] for index in triangle.indices) == 2]  # A stack of work.
 		while to_fix:
 			triangle = to_fix.pop()
 			if sum(geometric[index] for index in triangle.indices) == 2:
