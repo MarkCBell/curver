@@ -273,9 +273,9 @@ class Shortenable(Lamination):
 	''' A special lamination that we can put into a canonical form. '''
 	
 	def is_short(self):
-		return all(self.shorten_score(edge) == 0 for edge in self.triangulation.edges)
+		return all(self.shorten_strategy(edge) == 0 for edge in self.triangulation.edges)
 	
-	def shorten_score(self, edge):
+	def shorten_strategy(self, edge):
 		''' Return a score describing how good flipping this edge is for reducing the weight of this lamination.
 		
 		The higher the score, the better this flip is for reducing weight. '''
@@ -292,8 +292,8 @@ class Shortenable(Lamination):
 		
 		extra = []
 		while True:
-			edge = max(extra + lamination.triangulation.edges, key=lamination.shorten_score)
-			if lamination.shorten_score(edge) == 0: break
+			edge = max(extra + lamination.triangulation.edges, key=lamination.shorten_strategy)
+			if lamination.shorten_strategy(edge) == 0: break
 			# This edge is always flippable.
 			
 			move = lamination.triangulation.encode_flip(edge)

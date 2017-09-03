@@ -53,10 +53,7 @@ class Curve(MultiCurve, Shortenable):
 	def mcomponents(self):
 		return [(self, 1)]
 	
-	def is_short(self):
-		return all(self.shorten_score(edge) == 0 for edge in self.triangulation.edges)
-	
-	def shorten_score(self, edge):
+	def shorten_strategy(self, edge):
 		# This relies on the following
 		# Lemma: If there are no bipods then self(edge) \in [0,2] for each edge.
 		#

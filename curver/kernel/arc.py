@@ -13,7 +13,7 @@ class MultiArc(Shortenable):
 	def is_multiarc(self):
 		return True
 	
-	def shorten_score(self, edge):
+	def shorten_strategy(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
 		# Low score == bad.

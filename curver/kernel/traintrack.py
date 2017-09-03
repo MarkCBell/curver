@@ -11,7 +11,7 @@ from curver.kernel.lamination import Shortenable  # Special import needed for su
 class TrainTrack(Shortenable):
 	''' A Lamination in which each triangle is tripod free. '''
 	
-	def shorten_score(self, edge):
+	def shorten_strategy(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
 		if not self.triangulation.is_flippable(edge):
