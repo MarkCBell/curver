@@ -100,12 +100,12 @@ class Curve(MultiCurve, Shortenable):
 		short, _ = self.shorten()
 		return short.weight() > 2
 	
-	def encode_twist(self, k=1, old=False):
-		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k. '''
+	def encode_twist(self, power=1, old=False):
+		''' Return an Encoding of a left Dehn twist about this curve, raised to the given power. '''
 		
 		short, conjugator = self.shorten()
 		
-		return conjugator.inverse() * curver.kernel.Twist(short, k).encode() * conjugator
+		return conjugator.inverse() * curver.kernel.Twist(short, power).encode() * conjugator
 	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''

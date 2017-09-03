@@ -87,8 +87,8 @@ class Arc(MultiArc):
 		
 		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)
 	
-	def encode_halftwist(self, k=1):
-		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the power k.
+	def encode_halftwist(self, power=1):
+		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the given power.
 		
 		Assumes (and checks) that this arc connects between distinct vertices. '''
 		
@@ -100,7 +100,7 @@ class Arc(MultiArc):
 		if short.triangulation.vertex_lookup[edge.label] == short.triangulation.vertex_lookup[~edge.label]:
 			raise curver.AssumptionError('Arc connects a vertex to itself.')
 		
-		return conjugator.inverse() * curver.kernel.HalfTwist(short, k).encode() * conjugator
+		return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
 	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''
