@@ -5,6 +5,7 @@ import curver
 # Things to test:
 #  Relations in the mapping class group.
 #  Squares of half twists are twists about their boundary.
+# assert(-1 <= slope <= 1 or self.curve.slope(self.encoding(lamination)) == slope - 1)
 
 class TestS_1_1(unittest.TestCase):
 	def setUp(self):

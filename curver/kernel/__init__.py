@@ -23,6 +23,7 @@ from . import equippedtriangulation
 from . import homology
 from . import lamination
 from . import moves
+from . import twist
 from . import triangulation
 from . import traintrack
 from . import utilities
@@ -46,11 +47,12 @@ Arc = arc.Arc
 Move = moves.Move
 Isometry = moves.Isometry
 EdgeFlip = moves.EdgeFlip
-Spiral = moves.Spiral
 TrainTrack = traintrack.TrainTrack
 Crush = crush.Crush
 Lift = crush.Lift
 CurveComple = curvecomplex.CurveComplex
+Twist = twist.Twist
+HalfTwist = twist.HalfTwist
 
 norm = triangulation.norm
 UnionFind = utilities.UnionFind

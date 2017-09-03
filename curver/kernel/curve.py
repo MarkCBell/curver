@@ -100,36 +100,12 @@ class Curve(MultiCurve, Shortenable):
 		short, _ = self.shorten()
 		return short.weight() > 2
 	
-	def encode_twist(self, k=1):
+	def encode_twist(self, k=1, old=False):
 		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k. '''
-		
-		# Some easy cases:
-		if k == 0: return self.triangulation.id_encoding()
-		if k < 0: return self.encode_twist(-k).inverse()
 		
 		short, conjugator = self.shorten()
 		
-		# return conjugator.inverse() * curver.kernel.Twist(short, k).encode() * conjugator
-		
-		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
-		
-		a = short.parallel()
-		if short.weight() == 2:  # curve is non-isolating.
-			num_flips = 1
-		else:  # curve is isolating.
-			# Theorem: 3*num_tripods is the right number of flips to do.
-			# Proof: TODO.
-			num_tripods = len([triangle for triangle in short.triangulation if sum(short(edge) for edge in triangle) == 6])
-			num_flips = 3*num_tripods
-		
-		twist = short.triangulation.id_encoding()
-		for _ in range(num_flips):
-			twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
-		twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
-		
-		# assert(twist**k == curver.kernel.Twist(short, k).encode())
-		
-		return conjugator.inverse() * twist**k * conjugator
+		return conjugator.inverse() * curver.kernel.Twist(short, k).encode() * conjugator
 	
 	def intersection(self, lamination):
 		''' Return the geometric intersection between self and the given lamination. '''
@@ -162,9 +138,9 @@ class Curve(MultiCurve, Shortenable):
 			raise curver.AssumptionError('Slope is undefined when curves are disjoint.')
 		
 		# Get some edges.
-		a = self.parallel()
-		v = self.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
-		_, b, e = self.triangulation.corner_lookup[a.label]
+		a = short.parallel()
+		v = short.triangulation.vertex_lookup[a.label]  # = short.triangulation.vertex_lookup[~a.label].
+		_, b, e = short.triangulation.corner_lookup[a.label]
 		
 		v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
 		around_v = min(max(lamination.side_weight(edge), 0) for edge in v_edges)
