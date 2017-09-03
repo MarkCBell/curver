@@ -270,15 +270,16 @@ class Lamination(object):
 		return multicurve + (multiarc if multiarc.is_empty() else multiarc.boundary())
 
 class Shortenable(Lamination):
-	''' A special lamination that we can put into a canonical form. '''
+	''' A special lamination that we can put into a canonical 'short' form. '''
 	
 	def is_short(self):
 		return all(self.shorten_strategy(edge) == 0 for edge in self.triangulation.edges)
 	
 	def shorten_strategy(self, edge):
-		''' Return a score describing how good flipping this edge is for reducing the weight of this lamination.
+		''' Return an integer describing how good flipping this edge is for making this lamination short.
 		
-		The higher the score, the better this flip is for reducing weight. '''
+		The higher the score, the better this flip is for reducing weight.
+		Specific laminations should implement the correct strategy for getting to the minimal weight configuration. '''
 		
 		return NotImplemented
 	
