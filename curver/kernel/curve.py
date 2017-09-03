@@ -54,11 +54,7 @@ class Curve(MultiCurve, Shortenable):
 		return [(self, 1)]
 	
 	def is_short(self):
-		# Theorem: A curve is short iff either:
-		#  - it meets T exactly twice, or
-		#  - it meets every edge of T either 0 or 2 times and has one corridor [BellWebb16a].
-		is_corridor = lambda triangle: sum(self(edge) for edge in triangle) == 4
-		return self.weight() == 2 or (all(weight in [0, 2] for weight in self) and len([triangle for triangle in self.triangulation if is_corridor(triangle)]) == 1)
+		return all(self.shorten_score(edge) == 0 for edge in self.triangulation.edges)
 	
 	def shorten_score(self, edge):
 		# This relies on the following
@@ -74,17 +70,25 @@ class Curve(MultiCurve, Shortenable):
 			return 0
 		
 		a, b, c, d, e = self.triangulation.square(edge)
-		ia, ib, ic, id, ie = [self(edgy) for edgy in self.triangulation.square(edge)]
-		da, db, dc, dd, de = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
-		if ie == 0:
+		ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
+		ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
+		if ei == 0:
 			return 0
-		if max(ia+ ic, ib + id) == ie:  # Drops to zero.
+		if max(ai+ ci, bi + di) == ei:  # Drops to zero.
 			return 3
-		if de > 0:
+		if ed > 0:
 			return 0
 		
-		if da > 0 and db > 0:
+		if ad > 0 and bd > 0:
 			return 2
+		
+		# Now have to do a global check to see if this curve is now short.
+		# Theorem: A curve is short iff either:
+		#  - it meets T exactly twice, or
+		#  - it meets every edge of T either 0 or 2 times and has one corridor [BellWebb16a].
+		num_corridors = len([triangle for triangle in self.triangulation if sum(self(edgy) for edgy in triangle) == 4])
+		if self.weight() == 2 or (all(weight in [0, 2] for weight in self) and num_corridors == 1):
+			return 0
 		
 		return 1
 	
