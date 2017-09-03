@@ -3,6 +3,7 @@
 
 Provides: MultiCurve, Curve. '''
 
+from fractions import Fraction
 import curver
 from curver.kernel.lamination import Lamination, Shortenable  # Special import needed for subclassing.
 
@@ -95,6 +96,10 @@ class Curve(MultiCurve, Shortenable):
 		
 		return min([edge for edge in self.triangulation.edges if self(edge) == 0 and self.dual_weight(edge) > 0], key=lambda e: e.label)  # Take the minimum of two.
 	
+	def is_isolating(self):
+		short, _ = self.shorten()
+		return short.weight() > 2
+	
 	def encode_twist(self, k=1):
 		''' Return an Encoding of a left Dehn twist about this curve, raised to the power k. '''
 		
@@ -103,6 +108,8 @@ class Curve(MultiCurve, Shortenable):
 		if k < 0: return self.encode_twist(-k).inverse()
 		
 		short, conjugator = self.shorten()
+		
+		# return conjugator.inverse() * curver.kernel.Twist(short, k).encode() * conjugator
 		
 		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
 		
@@ -119,6 +126,8 @@ class Curve(MultiCurve, Shortenable):
 		for _ in range(num_flips):
 			twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a.label][2]) * twist
 		twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
+		
+		# assert(twist**k == curver.kernel.Twist(short, k).encode())
 		
 		return conjugator.inverse() * twist**k * conjugator
 	
@@ -139,6 +148,33 @@ class Curve(MultiCurve, Shortenable):
 		out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
 		# around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
 		return short_lamination(a) - 2 * around_v + out_v
+	
+	def slope(self, lamination):
+		''' Return the (Fraction) slope of the given lamination about this curve.
+		
+		Assumes, and checks that this curve and the given lamination intersect. '''
+		
+		short, conjugator = self.shorten()
+		short_lamination = conjugator(lamination)
+		
+		denominator = short.intersection(short_lamination)
+		if denominator == 0:
+			raise curver.AssumptionError('Slope is undefined when curves are disjoint.')
+		
+		# Get some edges.
+		a = self.parallel()
+		v = self.triangulation.vertex_lookup[a.label]  # = self.triangulation.vertex_lookup[~a.label].
+		_, b, e = self.triangulation.corner_lookup[a.label]
+		
+		v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
+		around_v = min(max(lamination.side_weight(edge), 0) for edge in v_edges)
+		twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+		
+		numerator = twisting
+		
+		sign = -1 if lamination.side_weight(a) > around_v or lamination.side_weight(a) < 0 else +1
+		
+		return Fraction(sign * numerator, denominator)
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve. '''
