@@ -7,7 +7,9 @@ import curver
 from curver.kernel.moves import Move  # Special import needed for subclassing.
 
 class Twist(Move):
-	''' This represents the effect of twisting a curve. '''
+	''' This represents the effect of twisting a short curve.
+	
+	This format allows us to efficiently perform powers of twists. '''
 	def __init__(self, curve, power):
 		super(Twist, self).__init__(curve.triangulation, curve.triangulation)
 		
@@ -89,7 +91,9 @@ class Twist(Move):
 		return Twist(self.curve, -self.power)
 
 class HalfTwist(Move):
-	''' This represents the effect of half-twisting an arc. '''
+	''' This represents the effect of half-twisting a short arc.
+	
+	This format allows us to efficiently perform powers of twists. '''
 	def __init__(self, arc, power):
 		super(HalfTwist, self).__init__(arc.triangulation, arc.triangulation)
 		
@@ -128,7 +132,7 @@ class HalfTwist(Move):
 		# We handle large powers by replacing (T^1/2_self)^2 with T_boundary, which includes acceleration.
 		if self.power % 2 == 0:
 			self.encoding_power = self.arc.boundary().encode_twist(self.power // 2)
-		else:  # self.power % 2 == 1:
+		else:  # self.power % 2 == 1:  # Division rounds down so, regardless of power, we need an extra left half-twist.
 			self.encoding_power = self.arc.boundary().encode_twist(self.power // 2) * self.encoding
 	
 	def __str__(self):
