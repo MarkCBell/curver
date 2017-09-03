@@ -45,32 +45,45 @@ class Twist(Move):
 		if intersection == 0:  # Disjoint twists have no effect.
 			return lamination
 		
+		print(self.source_triangulation)
+		print(self.curve)
+		print(self.curve.parallel())
+		
+		# return (self.encoding**self.power)(lamination)
+		
 		power = self.power
 		while power:
 			slope = self.curve.slope(lamination)
 			if power > 0:  # Left twist. (Reduces slope)
 				if slope < -2:
 					geometric = [w + power * intersection * c for w, c in zip(lamination, self.curve)]
-					power = 0
+					power_applied = power
 				elif -2 <= slope <= 2:  # Dangerous region.
 					geometric = self.encoding(lamination).geometric
-					power = power - 1
+					power_applied = 1
 				else:  # if 2 < slope:
 					steps = min(power, int(slope-1))
-					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
-					power = power - steps
+					geometric = [w + steps * intersection * c for w, c in zip(lamination, self.curve)]
+					power_applied = steps
 			else:  # power < 0:  # Right twist.
 				if 2 < slope:
 					geometric = [w + -power * intersection * c for w, c in zip(lamination, self.curve)]
-					power = 0
+					power_applied = power
 				elif -2 <= slope <= 2:  # Dangerous region.
 					geometric = self.encoding.inverse()(lamination).geometric
-					power = power + 1
+					power_applied = -1
 				else:  # slope < -2:
 					steps = min(-power, int(-1-slope))
-					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
-					power = power + steps
-			lamination = lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
+					geometric = [w + steps * intersection * c for w, c in zip(lamination, self.curve)]
+					power_applied = -steps
+			new_lamination = lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
+			print(power, power-power_applied, str(slope), str(self.curve.slope(new_lamination)))
+			print(lamination)
+			print(new_lamination)
+			print((self.encoding**power_applied)(lamination))
+			assert(new_lamination == (self.encoding**power_applied)(lamination))
+			lamination = new_lamination
+			power -= power_applied
 		
 		return lamination
 	
