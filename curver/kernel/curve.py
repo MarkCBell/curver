@@ -148,7 +148,7 @@ class Curve(MultiCurve, Shortenable):
 		
 		numerator = twisting
 		
-		sign = -1 if lamination.side_weight(a) > around_v or lamination.side_weight(a) < 0 else +1
+		sign = -1 if lamination.side_weight(a) > around_v or lamination.dual_weight(e) < 0 else +1
 		
 		return Fraction(sign * numerator, denominator)
 	
