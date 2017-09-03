@@ -88,7 +88,7 @@ class Arc(MultiArc):
 		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)
 	
 	def encode_halftwist(self, power=1):
-		''' Return an Encoding of a left half twist about a regular neighbourhood of this arc, raised to the given power.
+		''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
 		
 		Assumes (and checks) that this arc connects between distinct vertices. '''
 		

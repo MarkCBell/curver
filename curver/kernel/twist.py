@@ -45,43 +45,39 @@ class Twist(Move):
 		if intersection == 0:  # Disjoint twists have no effect.
 			return lamination
 		
-		print(self.source_triangulation)
-		print(self.curve)
-		print(self.curve.parallel())
-		
-		# return (self.encoding**self.power)(lamination)
+		# Naive way would be to do:
+		#for i in range(self.power):
+		#	lamination = self.encoding(lamination)
+		#return lamination
+		# But we can be cleverer and perform this calculation in O(log(self.power)) instead.
 		
 		power = self.power
 		while power:
 			slope = self.curve.slope(lamination)
-			if power > 0:  # Left twist. (Reduces slope)
-				if slope < -2:
+			if power > 0:  # Right twist (increases slope).
+				if 2 < slope:
 					geometric = [w + power * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = power
 				elif -2 <= slope <= 2:  # Dangerous region.
 					geometric = self.encoding(lamination).geometric
 					power_applied = 1
-				else:  # if 2 < slope:
-					steps = min(power, int(slope-1))
-					geometric = [w + steps * intersection * c for w, c in zip(lamination, self.curve)]
+				else:  # if slope < -2:
+					steps = min(-power, int(-1-slope))
+					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = steps
-			else:  # power < 0:  # Right twist.
-				if 2 < slope:
+			else:  # power < 0:  # Left twist (decreases slope).
+				if slope < -2:
 					geometric = [w + -power * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = power
 				elif -2 <= slope <= 2:  # Dangerous region.
 					geometric = self.encoding.inverse()(lamination).geometric
 					power_applied = -1
-				else:  # slope < -2:
-					steps = min(-power, int(-1-slope))
-					geometric = [w + steps * intersection * c for w, c in zip(lamination, self.curve)]
+				else:  # 2 < slope:
+					steps = min(power, int(slope-1))
+					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = -steps
 			new_lamination = lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
-			print(power, power-power_applied, str(slope), str(self.curve.slope(new_lamination)))
-			print(lamination)
-			print(new_lamination)
-			print((self.encoding**power_applied)(lamination))
-			assert(new_lamination == (self.encoding**power_applied)(lamination))
+			# assert(new_lamination == (self.encoding**power_applied)(lamination))
 			lamination = new_lamination
 			power -= power_applied
 		
@@ -89,7 +85,7 @@ class Twist(Move):
 	
 	def apply_homology(self, homology_class):
 		# I don't think we even need this case.
-		if self.curve.is_isolating(): # Isolating ==> separating so no effect on homology.
+		if self.curve.is_isolating(): # Isolating ==> separating, so no effect on homology.
 			return homology_class
 		
 		a = self.curve.parallel()
@@ -145,7 +141,7 @@ class HalfTwist(Move):
 		# We handle large powers by replacing (T^1/2_self)^2 with T_boundary, which includes acceleration.
 		if self.power % 2 == 0:
 			self.encoding_power = self.arc.boundary().encode_twist(self.power // 2)
-		else:  # self.power % 2 == 1:  # Division rounds down so, regardless of power, we need an extra left half-twist.
+		else:  # self.power % 2 == 1:  # Division rounds down so, regardless of power, we need an extra right half-twist.
 			self.encoding_power = self.arc.boundary().encode_twist(self.power // 2) * self.encoding
 	
 	def __str__(self):

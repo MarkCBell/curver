@@ -101,7 +101,7 @@ class Curve(MultiCurve, Shortenable):
 		return short.weight() > 2
 	
 	def encode_twist(self, power=1, old=False):
-		''' Return an Encoding of a left Dehn twist about this curve, raised to the given power. '''
+		''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
 		
 		short, conjugator = self.shorten()
 		
