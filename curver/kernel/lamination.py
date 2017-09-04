@@ -60,6 +60,25 @@ class Lamination(object):
 			return NotImplemented
 	def __radd__(self, other):
 		return self + other  # Commutative.
+	@classmethod
+	def sum(cls, laminations, triangulation=None):
+		''' An efficient way of summing multiple laminations without computing intermediate values. '''
+		laminations = list(laminations)
+		if all(isinstance(lamination, Lamination) for lamination in laminations):
+			if not laminations:
+				if triangulation is None:
+					raise ValueError('Triangulation required when list of laminations is empty.')
+				else:
+					return triangulation.empty_lamination()
+			
+			if triangulation is None: triangulation = laminations[0].triangulation
+			if any(lamination.triangulation != triangulation for lamination in laminations):
+				raise ValueError('Laminations must be on the same triangulation to add them.')
+			
+			geometric = [sum(weights) for weights in zip(*laminations)]
+			return triangulation.lamination(geometric)  # Have to promote.
+		else:
+			return NotImplemented
 	def __mul__(self, other):
 		geometric = [other * x for x in self]
 		# TODO: 2) Could save components if they have already been computed.
@@ -159,7 +178,7 @@ class Lamination(object):
 	def skeleton(self):
 		''' Return the lamination obtained by collapsing parallel components. '''
 		
-		return sum([component for component in self.components()], self.triangulation.empty_lamination())
+		return Lamination.sum(self.components(), self.triangulation)
 	
 	def peek_component(self):
 		''' Return one component of this Lamination. '''
@@ -248,19 +267,17 @@ class Lamination(object):
 	def sublaminations(self):
 		''' Return all sublaminations that appear within self. '''
 		components = self.components()
-		return [sum(sub, self.triangulation.empty_lamination()) for i in range(len(components)) for sub in permutations(components, i)]
+		return [Lamination.sum(sub, self.triangulation) for i in range(len(components)) for sub in permutations(components, i)]
 	
 	def multiarc(self):
 		''' Return the maximal MultiArc contained within this lamination. '''
 		
-		empty = self.triangulation.empty_lamination()
-		return sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, curver.kernel.Arc)], empty)
+		return Lamination.sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, curver.kernel.Arc)], self.triangulation)
 	
 	def multicurve(self):
 		''' Return the maximal MultiCurve contained within this lamination. '''
 		
-		empty = self.triangulation.empty_lamination()
-		return sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, curver.kernel.Curve)], empty)
+		return Lamination.sum([multiplicity * component for component, multiplicity in self.mcomponents() if isinstance(component, curver.kernel.Curve)], self.triangulation)
 	
 	def boundary(self):
 		''' Return the boundary of a regular neighbourhood of this lamination. '''
