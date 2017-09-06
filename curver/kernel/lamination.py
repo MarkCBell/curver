@@ -282,7 +282,20 @@ class Lamination(object):
 		
 		multiarc = self.multiarc()  # Might be empty.
 		multicurve = self.multicurve()  # Might be empty.
-		return multicurve + (multiarc if multiarc.is_empty() else multiarc.boundary())
+		empty = self.triangulation.empty_lamination()  # Definitely empty.
+		
+		return (empty if multicurve.is_empty() else multicurve.boundary()) + (empty if multiarc.is_empty() else multiarc.boundary())
+	
+	def is_filling(self):
+		''' Return if this Lamination fills the surface, that is, if it cuts the surface into polygons and once-punctured polygons. '''
+		
+		for component in self.triangulation.components():
+			V, E = len([vertex for vertex in self.vertices if list(vertex)[0] in component]), len(component) // 2
+			if (V, E) != (3, 3):  # component != S_{0, 3}:
+				if all(self(edge) == 0 for edge in component):
+					return False
+		
+		return self.boundary().is_empty()
 
 class Shortenable(Lamination):
 	''' A special lamination that we can put into a canonical 'short' form. '''
