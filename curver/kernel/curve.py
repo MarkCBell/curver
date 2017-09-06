@@ -42,7 +42,9 @@ class MultiCurve(Lamination):
 		''' Return whether self \\cup other fills. '''
 		assert(isinstance(other, Lamination))
 		
-		return self.boundary_union(other).is_empty()
+		crush = self.crush()
+		other_prime = crush(other)
+		return other_prime.is_filling()
 	
 	def crush(self):
 		''' Return the crush map associated to this MultiCurve. '''
