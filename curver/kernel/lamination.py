@@ -290,7 +290,7 @@ class Lamination(object):
 		''' Return if this Lamination fills the surface, that is, if it cuts the surface into polygons and once-punctured polygons. '''
 		
 		for component in self.triangulation.components():
-			V, E = len([vertex for vertex in self.vertices if list(vertex)[0] in component]), len(component) // 2
+			V, E = len([vertex for vertex in self.triangulation.vertices if list(vertex)[0] in component]), len(component) // 2
 			if (V, E) != (3, 3):  # component != S_{0, 3}:
 				if all(self(edge) == 0 for edge in component):
 					return False
