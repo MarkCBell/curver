@@ -14,6 +14,10 @@ class MultiCurve(Lamination):
 		return True
 	def is_multiarc(self):
 		return False
+	def boundary(self):
+		return 2*self
+	def is_filling(self):
+		return False
 	
 	def encode_twist(self, k=1):
 		''' Return an Encoding of a left Dehn (multi)twist about the components of this multicurve, raised to the power k. '''
