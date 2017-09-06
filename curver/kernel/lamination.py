@@ -8,8 +8,6 @@ from itertools import permutations
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
-INFTY = float('inf')
-
 def dual_weight(a, b, c):
 	''' Return the dual weight of a triple.
 	

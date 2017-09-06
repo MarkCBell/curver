@@ -63,7 +63,7 @@ class MultiArc(Shortenable):
 		''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
 		
 		Runs in exp(radius) time.
-		Note that this is only well-defined if self is filling. '''
+		Note that this is only well-defined if this multiarc is filling. '''
 		
 		assert(self.is_filling())
 		
@@ -82,7 +82,7 @@ class Arc(MultiArc):
 		return [(self, 1)]
 	
 	def parallel(self):
-		''' Return an edge that this curve is parallel to. '''
+		''' Return an edge that this arc is parallel to. '''
 		assert(self.is_short())
 		
 		return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)

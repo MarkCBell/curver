@@ -9,8 +9,6 @@ from itertools import groupby
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
-INFTY = float('inf')
-
 def norm(number):
 	''' A map taking an edges label to its index.
 	

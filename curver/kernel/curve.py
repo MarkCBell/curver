@@ -4,6 +4,7 @@
 Provides: MultiCurve, Curve. '''
 
 from fractions import Fraction
+
 import curver
 from curver.kernel.lamination import Lamination, Shortenable  # Special import needed for subclassing.
 
@@ -97,10 +98,11 @@ class Curve(MultiCurve, Shortenable):
 		return min([edge for edge in self.triangulation.edges if self(edge) == 0 and self.dual_weight(edge) > 0], key=lambda e: e.label)  # Take the minimum of two.
 	
 	def is_isolating(self):
+		''' Return if this curve is isolating, that is, a component of S - self does not contain a puncture. '''
 		short, _ = self.shorten()
 		return short.weight() > 2
 	
-	def encode_twist(self, power=1, old=False):
+	def encode_twist(self, power=1):
 		''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
 		
 		short, conjugator = self.shorten()
@@ -126,7 +128,10 @@ class Curve(MultiCurve, Shortenable):
 		return short_lamination(a) - 2 * around_v + out_v
 	
 	def slope(self, lamination):
-		''' Return the (Fraction) slope of the given lamination about this curve.
+		''' Return the slope of the given lamination about this curve.
+		
+		This is a Fraction that increases by one each time a right Dehn twist about
+		this curve is performed unless -1 <= slope <= 1.
 		
 		Assumes, and checks that this curve and the given lamination intersect. '''
 		
