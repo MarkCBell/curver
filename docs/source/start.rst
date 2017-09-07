@@ -5,10 +5,8 @@ Getting Started
 Installation
 ~~~~~~~~~~~~
 
-`Curver <https://pypi.python.org/curver>`_ is available on the `Python Package
-Index <https://pypi.python.org>`_. The preferred method for installing the latest
-stable release is to use `pip <http://pip.readthedocs.org/en/latest/installing.html>`_
-(included in Python 2.7.9 and Python 3.4 by default)::
+`Curver <https://pypi.python.org/curver>`_ is available on the `Python Package Index <https://pypi.python.org>`_.
+The preferred method for installing the latest stable release is to use `pip <http://pip.readthedocs.org/en/latest/installing.html>`_ (included in Python 2.7.9 and Python 3.4 by default)::
 
 	> python -m pip install curver --user --upgrade
 
@@ -20,11 +18,10 @@ stable release is to use `pip <http://pip.readthedocs.org/en/latest/installing.h
 A taste of curver
 ~~~~~~~~~~~~~~~~~
 
-This sample curver program loads the mapping class group of the twice-punctured torus and
-computes the images of some arcs and curves under a mapping class::
+This sample curver program loads the mapping class group of the twice-punctured torus and computes the images of some arcs and curves under a mapping class::
 
 	import curver
-	S = curver.load('S_1_2')
+	S = curver.load('S_1_2')  # The twice-punctured torus.
 	h = S('abC')  # The monodromy of the Whitehead link.
 	a = S.lamination([0, -1, 0, 0, 0, 0])  # An arc on S.
 	
@@ -40,6 +37,7 @@ computes the images of some arcs and curves under a mapping class::
 	assert((h**4)(c).fills_with(a))  # But h^4(c) \cup a does.
 	
 	assert(h != h.inverse() and h != h**2)
+	assert(h.inverse() == h**-1)
 	assert(h.order() == 0)  # Since this has infinite order.
 	
 	curver.show(c, a, h(a))  # Start the GUI (see above warning).
@@ -47,8 +45,8 @@ computes the images of some arcs and curves under a mapping class::
 Future code
 ~~~~~~~~~~~
 
-Unfortunately, these features are currently not implemented. When they are, some of these
-will move to the examples::
+Unfortunately, these features are currently not implemented.
+When they are, some of these will move to the taster section::
 
 	import curver
 	S = curver.load('S_1_2')
@@ -67,10 +65,8 @@ will move to the examples::
 Development
 ~~~~~~~~~~~
 
-The latest development version of curver is available from
-`BitBucket <https://bitbucket.org/Mark_Bell/curver>`_.
-Alternatively, you can clone the mercurial repository directly using
-the command::
+The latest development version of curver is available from `BitBucket <https://bitbucket.org/Mark_Bell/curver>`_.
+Alternatively, you can clone the `mercurial <https://www.mercurial-scm.org/>`_ repository directly using the command::
 
 	> hg clone https://bitbucket.org/mark_bell/curver
 
