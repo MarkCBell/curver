@@ -320,19 +320,6 @@ class Triangulation(object):
 		
 		return self.triangle_lookup[edge.label] != self.triangle_lookup[~edge.label]
 	
-	def folded_boundary(self, edge):
-		''' Return the edge bounding the once-punctured monogon containing the given edge.
-		
-		The given edge must not be flippable. '''
-		
-		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
-		
-		assert(not self.is_flippable(edge))
-		
-		# As edge_label is not flippable the triangle containing it must be (edge_label, ~edge_label, boundary_edge).
-		[boundary_edge] = [edgy for edgy in self.triangle_lookup[edge.label] if edgy.index != edge.index]
-		return boundary_edge
-	
 	def square(self, edge):
 		''' Return the four edges around the given edge and the diagonal.
 		
