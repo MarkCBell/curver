@@ -394,7 +394,7 @@ class Triangulation(object):
 		if edge.sign() == +1:
 			triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
 			triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
-		else:  # edge.sign() == -1.
+		else:  # edge.sign() == -1:
 			triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
 			triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
 		return Triangulation(triangles + [triangle_A2, triangle_B2])
@@ -584,15 +584,6 @@ class Triangulation(object):
 		
 		return curver.kernel.EdgeFlip(self, new_triangulation, edge).encode()
 	
-	def encode_spiral(self, edge, power):
-		''' Return an encoding of the effect of spiraling about the given edge.
-		
-		The given edge must be spiralable. '''
-		
-		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
-		
-		return curver.kernel.Spiral(self, self, edge, power).encode()
-	
 	def encode_relabel_edges(self, label_map):
 		''' Return an encoding of the effect of flipping the given edge. '''
 		
@@ -625,7 +616,6 @@ class Triangulation(object):
 		 - A dictionary which has i or ~i as a key (for every i) represents a relabelling.
 		 - A dictionary which is missing i and ~i (for some i) represents an isometry back to this triangulation.
 		 - None represents the identity isometry.
-		 - A pair of integers (x, k) represents a Spiral about x to the power k.
 		
 		This sequence is read in reverse in order respect composition. For example:
 			self.encode([1, {1: ~2}, 2, 3, ~4])
@@ -648,8 +638,6 @@ class Triangulation(object):
 					g = T.find_isometry(self, item).encode()
 			elif item is None:  # Identity isometry.
 				g = T.id_encoding()
-			elif isinstance(item, tuple) and len(item) == 2 and all(isinstance(x, curver.IntegerType) for x in item):  # Spiral. TODO 4) Update to Twist and HalfTwist!
-				g = T.encode_spiral(item[0], item[1])
 			elif isinstance(item, curver.kernel.Encoding):  # Encoding.
 				g = item
 			elif isinstance(item, curver.kernel.Move):  # Move.
