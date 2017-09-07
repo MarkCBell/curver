@@ -71,11 +71,11 @@ class UnionFind(object):
 		elif rx != ry:
 			self.parent[ry] = rx
 			self.rank[rx] += 1
-	def union(self, *arg):
+	def union(self, *args):
 		''' Combine all of the classes containing the given items. '''
-		if len(arg) == 1: arg = arg[0]
-		for item in arg:
-			self.union2(arg[0], item)
+		if len(args) == 1: args = args[0]
+		for item in args:
+			self.union2(args[0], item)
 
 class memoize(object):
 	''' Cache the return value of a method.
