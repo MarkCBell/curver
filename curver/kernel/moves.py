@@ -2,10 +2,7 @@
 ''' A module for representing basic ways of changing triangulations.
 These moves can also track how laminations and homology classes move through those changes.
 
-Provides: Move, Isometry, EdgeFlip.
-
-Also provides Spiral whose goal is to allow laminations to be shortened in
-polynomial-time. However this is very incomplete at the minute. '''
+Provides: Move, Isometry, EdgeFlip. '''
 
 import curver
 
