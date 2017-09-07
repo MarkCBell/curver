@@ -53,7 +53,9 @@ class Isometry(Move):
 	def __init__(self, source_triangulation, target_triangulation, label_map):
 		''' This represents an isometry from source_triangulation to target_triangulation.
 		
-		It is given by a map taking each edge label of source_triangulation to a label of target_triangulation. '''
+		It is given by a map taking each edge label of source_triangulation to a label of target_triangulation.
+		
+		Assumes that this map is defined on all labels. '''
 		
 		super(Isometry, self).__init__(source_triangulation, target_triangulation)
 		

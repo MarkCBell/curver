@@ -1,17 +1,11 @@
 
 ''' The curver kernel.
 
-Some of the functions and methods have assumptions on them. We denote
-in a functions docstring:
-	Assumes that ...
-		If the assumptions are met then this function is guaranteed to terminate correctly.
-		If not then this function will either:
-			terminate correctly, OR
-			a curver.AssumptionError will be raised.
-	
-	Assumes (and checks) that ...
-		If the assumptions are met then this function is guaranteed to terminate correctly.
-		If not then this a curver.AssumptionError will be raised. '''
+Some of the functions and methods have assumptions on them. These are denoted in the docstrings
+by "Assumes that ..." meaning that:
+
+	- If the assumptions are met then this function is guaranteed to terminate correctly.
+	- If not then a curver.AssumptionError will be raised. '''
 
 from . import arc
 from . import curve

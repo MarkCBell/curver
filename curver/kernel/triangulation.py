@@ -170,10 +170,12 @@ class Triangulation(object):
 		Let T be an ideal triangulaton of the punctured (oriented) surface S. Orient
 		and edge e of T and assign an index i(e) in 0, ..., zeta-1. Now to each
 		triangle t of T associate the triple j)t) := (j(e_1), j(e_2), j(e_3)) where:
+		
 			- e_1, e_2, e_3 are the edges of t, ordered acording to the orientation of t, and
 			- j(e) = {  i(e) if the orientation of e agrees with that of t, and
 					 { ~i(e) otherwise.
-				Here ~x := -1 - x, the two's complement of x.
+		
+		Here ~x := -1 - x, the two's complement of x.
 		
 		We may describe T by the list [j(t) for t in T]. This function reconstructs
 		T from such a list.
@@ -417,7 +419,9 @@ class Triangulation(object):
 		return
 	
 	def relabel_edges(self, label_map):
-		''' Return a new triangulation obtained by relabelling the edges according to label_map. '''
+		''' Return a new triangulation obtained by relabelling the edges according to label_map.
+		
+		Assumes that label_map[index] or label_map[~index] is defined for each index. '''
 		
 		if isinstance(label_map, (list, tuple)):
 			label_map = dict(enumerate(label_map))
@@ -448,7 +452,7 @@ class Triangulation(object):
 		automatically. Additionally, if an entire component is omitted then we assume
 		that the map is the identity on it.
 		
-		Assumes (and checks) that such an isometry exists and is unique. '''
+		Assumes that such an isometry exists and is unique. '''
 		
 		assert(isinstance(label_map, dict))
 		
@@ -512,7 +516,7 @@ class Triangulation(object):
 		for target_edge in target_edges:
 			try:
 				isometries.append(self.find_isometry(other, {source_edge.label: target_edge.label}))
-			except curver.AssumptionError:
+			except curver.AssumptionError:  # Map does not extend uniquely.
 				pass
 		
 		return isometries
@@ -585,7 +589,9 @@ class Triangulation(object):
 		return curver.kernel.EdgeFlip(self, new_triangulation, edge).encode()
 	
 	def encode_relabel_edges(self, label_map):
-		''' Return an encoding of the effect of flipping the given edge. '''
+		''' Return an encoding of the effect of relabelling the edges according to label_map.
+		
+		Assumes that label_map[index] or label_map[~index] is defined for each index. '''
 		
 		if isinstance(label_map, (list, tuple)):
 			label_map = dict(enumerate(label_map))
@@ -593,6 +599,7 @@ class Triangulation(object):
 			label_map = dict(label_map)
 		
 		# Build any missing labels.
+		# We need to repeat this code so that we can build the isometry in a minute.
 		for i in self.indices:
 			if i in label_map and ~i in label_map:
 				pass
@@ -611,14 +618,17 @@ class Triangulation(object):
 		''' Return the encoding given by sequence.
 		
 		This consists of EdgeFlips, Isometries and LinearTransformations. Furthermore there are
-		several conventions that allow these to be specified by a smaller amount of information.
+		several conventions that allow these to be specified by a smaller amount of information:
+		
 		 - An integer x represents EdgeFlip(..., edge_label=x)
 		 - A dictionary which has i or ~i as a key (for every i) represents a relabelling.
 		 - A dictionary which is missing i and ~i (for some i) represents an isometry back to this triangulation.
 		 - None represents the identity isometry.
 		
 		This sequence is read in reverse in order respect composition. For example:
+		
 			self.encode([1, {1: ~2}, 2, 3, ~4])
+		
 		is the mapping class which: flips edge ~4, then 3, then 2, then relabels
 		back to the starting triangulation via the isometry which takes 1 to ~2 and
 		then finally flips edge 1. '''

@@ -88,7 +88,7 @@ class Arc(MultiArc):
 	def encode_halftwist(self, power=1):
 		''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
 		
-		Assumes (and checks) that this arc connects between distinct vertices. '''
+		Assumes that this arc connects between distinct vertices. '''
 		
 		short, conjugator = self.shorten()
 		

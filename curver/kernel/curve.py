@@ -139,7 +139,7 @@ class Curve(MultiCurve, Shortenable):
 		This is a Fraction that increases by one each time a right Dehn twist about
 		this curve is performed unless -1 <= slope <= 1.
 		
-		Assumes, and checks that this curve and the given lamination intersect. '''
+		Assumes that this curve and the given lamination intersect. '''
 		
 		short, conjugator = self.shorten()
 		short_lamination = conjugator(lamination)
