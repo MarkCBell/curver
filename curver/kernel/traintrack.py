@@ -61,7 +61,9 @@ class TrainTrack(Shortenable):
 		return components
 	
 	def vertex_cycles(self):
-		''' Return the set of vertex cycles of this train track. '''
+		''' Return the set of vertex cycles of this train track.
+		
+		These are the curves carried by this train track that run over each brach at most twice. '''
 		
 		def connected_to(edge):
 			''' Yield the edges you can reach by travelling out of the given edge. '''

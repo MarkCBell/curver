@@ -530,7 +530,7 @@ class Triangulation(object):
 		return curver.kernel.Lamination(self, weights).remove_peripheral().promote()
 	
 	def empty_lamination(self):
-		''' Return an empty curve on this surface. '''
+		''' Return the empty lamination defined on this triangulation. '''
 		
 		return self.lamination([0] * self.zeta)
 	
