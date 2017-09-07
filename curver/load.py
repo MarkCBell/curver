@@ -226,7 +226,7 @@ def example_braid_sphere(n):
 	#        |n-2   |n-1   |n      |2n-6  |2n-5
 	#        |      |      |       |      |
 	#
-	# Note that there puncture 1 is not shown here and is on the "boundary" of the disk.
+	# Note that the (n-1)st puncture is not shown here and is on the "boundary" of the disk.
 	# There are two families of triangles on the top and the bottom and two exceptional cases:
 	#  1) Top triangles are given by [i, i+2n-4, ~(i+1)] for i in range(0, n-3)],
 	#  2) Bottom triangles are given by [i, ~(i+1), ~(i+n-1)] for i in range(n-2, 2n-5),
@@ -238,25 +238,17 @@ def example_braid_sphere(n):
 		[(~0, ~(n - 2), ~(2 * n - 4)), (n - 3, 3 * n - 7, 2 * n - 5)]
 		)
 	
-	# We'll then create a curve isolating the ith and (i+1)st punctures from the others.
-	# There are four special cases and a generic case:
-	#  0) A curve isolating punctures 1 & 2, meeting edges 1, 2, ..., n-3, n-2, n-1, ..., 2n-5, 2n-4,
-	#  1) A curve isolating punctures 2 & 3, meeting edges 0, 1, n-2 and 2n-3,
-	#  2) A curve isolating punctures i & i+1, meeting edges i, i+1, i+n-3, i+n-2, i+2n-5 and i+2n-3,
-	#  3) A curve isolating punctures n-1 & n, meeting edges n-3, 2n-6, 2n-5 and 3n-7, and
-	#  4) A curve isolating punctures n & 1, meeting edges 0, 1, ..., n-3, n-2, n-1, ..., 2n-6, 3n-7.
+	# We'll then create an arc connecting the ith to (i+1)st punctures.
+	# Note that the arcs connecting (n-2)nd & (n-1)st and (n-1)st & 0th are special.
 	
-	curves = \
-		[T.lamination([1 if 1 <= j <= 2 * n - 4 else 0 for j in range(T.zeta)])] + \
-		[T.lamination([1 if j in [0, 1, n-2, 2*n - 3] else 0 for j in range(T.zeta)])] + \
-		[T.lamination([1 if j in [i, i+1, i+n-3, i+n-2, i+2*n-5, i+2*n-3] else 0 for j in range(T.zeta)]) for i in range(1, n-3)] + \
-		[T.lamination([1 if j in [n-3, 2*n - 6, 2*n - 5, 3*n - 8] else 0 for j in range(T.zeta)])] + \
-		[T.lamination([1 if 0 <= j <= 2 * n - 6 or j == 3*n - 7 else 0 for j in range(T.zeta)])]
+	arcs = [T.lamination([-1 if j == 2*n-4+i else 0 for j in range(T.zeta)]) for i in range(n-2)] + \
+		[T.lamination([-1 if j == 2*n-5 else 0 for j in range(T.zeta)])] + \
+		[T.lamination([-1 if j == 0 else 0 for j in range(T.zeta)])]
 	
 	# We take the half-twist about each of these curves as the generator \sigma_i of SB_n.
-	mapping_classes = dict(('s_%d' % index, curve.encode_halftwist()) for index, curve in enumerate(curves))
+	mapping_classes = dict(('s_%d' % index, arc.encode_halftwist()) for index, arc in enumerate(arcs))
 	
-	return curver.kernel.EquippedTriangulation(T, curves, mapping_classes)
+	return curver.kernel.EquippedTriangulation(T, arcs, mapping_classes)
 
 def load(surface):
 	''' Return the requested example EquippedTriangulation.
