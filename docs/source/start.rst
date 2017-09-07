@@ -41,6 +41,10 @@ This sample curver program loads the mapping class group of the twice-punctured 
 	assert(h.order() == 0)  # Since this has infinite order.
 	
 	curver.show(c, a, h(a))  # Start the GUI (see above warning).
+	
+	twist = c.encode_twist()
+	halftwist = a.encode_halftwist()
+	assert(twist == halftwist**2)
 
 Future code
 ~~~~~~~~~~~

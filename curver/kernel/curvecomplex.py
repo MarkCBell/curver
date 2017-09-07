@@ -46,7 +46,7 @@ class CurveComplex(object):
 	def tight_paths(self, a, b, length):
 		''' Return the set of all tight paths from a to b that are of the given length.
 		
-		From Algorithm 3 of :ref:`[BellWebb16b] <references>`. '''
+		From Algorithm 3 of [BellWebb16b]_. '''
 		
 		assert(isinstance(a, curver.kernel.MultiCurve))
 		assert(isinstance(b, curver.kernel.MultiCurve))
@@ -85,7 +85,7 @@ class CurveComplex(object):
 	def all_tight_geodesic_multicurves(self, a, b):
 		''' Return a set that contains all multicurves in any tight geodesic from a to b.
 		
-		From the first half of Algorithm 4 of :ref:`[BellWebb16b] <references>`. '''
+		From the first half of Algorithm 4 of [BellWebb16b]_. '''
 		
 		assert(isinstance(a, curver.kernel.Curve))
 		assert(isinstance(b, curver.kernel.Curve))
@@ -99,7 +99,7 @@ class CurveComplex(object):
 	def tight_geodesic(self, a, b):
 		''' Return a tight geodesic in the (multi)curve complex from a to b.
 		
-		From the second half of Algorithm 4 of :ref:`[BellWebb16b] <references>`. '''
+		From the second half of Algorithm 4 of [BellWebb16b]_. '''
 		
 		assert(isinstance(a, curver.kernel.Curve))
 		assert(isinstance(b, curver.kernel.Curve))
@@ -122,7 +122,7 @@ class CurveComplex(object):
 		''' Return a geodesic in the curve complex from a to b.
 		
 		The geodesic will always come from a tight geodesic.
-		From Algorithm 5 of :ref:`[BellWebb16b] <references>`. '''
+		From Algorithm 5 of [BellWebb16b]_. '''
 		
 		assert(isinstance(a, curver.kernel.Curve))
 		assert(isinstance(b, curver.kernel.Curve))
