@@ -400,7 +400,7 @@ class CurverApplication(object):
 		self.note.pack(fill='both', expand=True)
 		self.note.enable_traversal()
 		
-		if isinstance(items, list) and len(items) == 1 and isinstance(items[0], (list, dict)):  # [list / dict].
+		if isinstance(items, (list, tuple)) and len(items) == 1 and isinstance(items[0], (list, dict)):  # [list / dict].
 			items = items[0]
 		
 		if isinstance(items, dict):  # dict.
