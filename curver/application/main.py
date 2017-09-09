@@ -108,6 +108,7 @@ class Drawing(object):
 	######################################################################
 	
 	def create_vertex(self, point):
+		assert(isinstance(point, curver.application.Vector2))
 		self.vertices.append(curver.application.CanvasVertex(self.canvas, point, self.options))
 		return self.vertices[-1]
 	
@@ -121,25 +122,26 @@ class Drawing(object):
 		return self.triangles[-1]
 	
 	def create_curve_component(self, vertices, thin=True, smooth=False):
+		assert(all(isinstance(vertex, curver.application.Vector2) for vertex in vertices))
 		self.curve_components.append(curver.application.CurveComponent(self.canvas, vertices, self.options, thin, smooth))
 		return self.curve_components[-1]
 	
 	######################################################################
 	
 	def translate(self, dx, dy):
+		dv = curver.application.Vector2(dx, dy)
 		for vertex in self.vertices:
-			vertex[0] = vertex[0] + dx
-			vertex[1] = vertex[1] + dy
+			vertex.vector = vertex.vector + dv
 		
 		for curve_component in self.curve_components:
 			for i in range(len(curve_component.vertices)):
-				curve_component.vertices[i] = curve_component.vertices[i][0] + dx, curve_component.vertices[i][1] + dy
+				curve_component.vertices[i] = curve_component.vertices[i] + dv
 		
 		self.canvas.move('all', dx, dy)
 	
 	def zoom(self, scale):
 		for vertex in self.vertices:
-			vertex[0], vertex[1] = scale * vertex[0], scale * vertex[1]
+			vertex.vector = scale*vertex.vector
 			vertex.update()
 		for edge in self.edges:
 			edge.update()
@@ -147,7 +149,7 @@ class Drawing(object):
 			triangle.update()
 		for curve_component in self.curve_components:
 			for i in range(len(curve_component.vertices)):
-				curve_component.vertices[i] = scale * curve_component.vertices[i][0], scale * curve_component.vertices[i][1]
+				curve_component.vertices[i] = scale * curve_component.vertices[i]
 			curve_component.update()
 		self.redraw()
 	
@@ -207,7 +209,8 @@ class Drawing(object):
 			
 			# Create the vertices.
 			for i in range(ngon):
-				self.create_vertex((
+				self.create_vertex(
+					curver.application.Vector2(
 					dx * (index % p) + dx / 2 + r * sin(2 * pi * (i + 0.5) / ngon),
 					dy * int(index / p) + dy / 2 + r * cos(2 * pi * (i + 0.5) / ngon)
 					))
@@ -256,18 +259,21 @@ class Drawing(object):
 		self.draw_triangulation(lamination.triangulation)  # This starts with self.initialise().
 		
 		vb = self.options.vertex_buffer  # We are going to use this a lot.
-		master = float(max(lamination))
+		master = float(max(abs(weight) for weight in lamination))
 		if master <= 0: master = 1.0
 		
 		if lamination.weight() > MAX_DRAWABLE:
 			for triangle in self.triangles:
 				weights = [max(lamination(edge.label), 0) for edge in triangle.edges]
 				dual_weights = [lamination.dual_weight(edge.label) for edge in triangle.edges]
+				parallel_arcs = [min(-lamination(edge.label), 0) for edge in triangle.edges]
+				parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for weight in parallel_arcs]
 				for i in range(3):
+					# Dual arcs.
 					a = triangle[i-1] - triangle[i]
 					b = triangle[i-2] - triangle[i]
 					
-					if dual_weights[i] > 0:  # Should be 0 but we have a floating point approximation.
+					if dual_weights[i] > 0:
 						# We first do the edge to the left of the vertex.
 						# Correction factor to take into account the weight on this edge.
 						s_a = (1 - 2*vb) * weights[i-2] / master
@@ -280,8 +286,8 @@ class Drawing(object):
 						scale_b = (1 - s_b) / 2
 						scale_b2 = scale_b + s_b * dual_weights[i] / weights[i-1]
 						
-						S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-1], triangle[i], triangle[i-2], scale_a, scale_b)
-						S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-1], triangle[i], triangle[i-2], scale_a2, scale_b2)
+						S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-1].vector, triangle[i].vector, triangle[i-2].vector, scale_a, scale_b)
+						S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-1].vector, triangle[i].vector, triangle[i-2].vector, scale_a2, scale_b2)
 						self.create_curve_component([S1, S1, P1, Q1, E1, E1, E2, E2, Q2, P2, S2, S2, S1, S1], thin=False)
 					elif dual_weights[i] < 0: # Terminal arc.
 						s_0 = (1 - 2*vb) * weights[i] / master
@@ -289,34 +295,53 @@ class Drawing(object):
 						scale_a = (1 - s_0) / 2 + s_0 * dual_weights[i-2] / weights[i]
 						scale_a2 = scale_a + s_0 * (-dual_weights[i]) / weights[i]
 						
-						S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-2], triangle[i-1], triangle[i], scale_a, 1.0)
-						S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-2], triangle[i-1], triangle[i], scale_a2, 1.0)
+						S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-2].vector, triangle[i-1].vector, triangle[i].vector, scale_a, 1.0)
+						S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-2].vector, triangle[i-1].vector, triangle[i].vector, scale_a2, 1.0)
 						self.create_curve_component([S1, S1, P1, E1, E1, P2, S2, S2, S1, S1], thin=False)
 					else:  # dual_weights[i] == 0:  # Nothing to draw.
 						pass
+					
+					# Parallel arcs.
+					if parallel_weights[i]:
+						pass  # TODO
 		else:  # Draw everything. Caution, this is is VERY slow (O(n) not O(log(n))) so we only do it when the weight is low.
+			print(lamination)
 			for triangle in self.triangles:
 				weights = [max(lamination(edge.label), 0) for edge in triangle.edges]
 				dual_weights = [lamination.dual_weight(edge.label) for edge in triangle.edges]
-				for i in range(3):
-					if dual_weights[i] > 0:  # Should be 0 but we have a floating point approximation.
+				parallel_arcs = [max(-lamination(edge.label), 0) for edge in triangle.edges]
+				parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for edge, weight in zip(triangle.edges, parallel_arcs)]
+				print([edge.label >= 0 for edge in triangle.edges])
+				print(parallel_arcs)
+				print(parallel_weights)
+				for i in range(3):  # Dual arcs:
+					if dual_weights[i] > 0:
 						s_a = (1 - 2*vb) * weights[i-2] / master
 						s_b = (1 - 2*vb) * weights[i-1] / master
 						for j in range(dual_weights[i]):
 							scale_a = 0.5 if weights[i-2] == 1 else (1 - s_a) / 2 + s_a * j / (weights[i-2] - 1)
 							scale_b = 0.5 if weights[i-1] == 1 else (1 - s_b) / 2 + s_b * j / (weights[i-1] - 1)
 							
-							S, P, Q, E = curver.application.interpolate(triangle[i-1], triangle[i], triangle[i-2], scale_a, scale_b)
+							S, P, Q, E = curver.application.interpolate(triangle[i-1].vector, triangle[i].vector, triangle[i-2].vector, scale_a, scale_b)
 							self.create_curve_component([S, P, Q, E])
 					elif dual_weights[i] < 0: # Terminal arc.
 						s_0 = (1 - 2*vb) * weights[i] / master
 						for j in range(-dual_weights[i]):
 							scale_a = 0.5 if weights[i] == 1 else (1 - s_0) / 2 + s_0 * dual_weights[i-1] / (weights[i] - 1) + s_0 * j / (weights[i] - 1)
 							
-							S, P, Q, E = curver.application.interpolate(triangle[i-2], triangle[i-1], triangle[i], scale_a, 1.0)
+							S, P, Q, E = curver.application.interpolate(triangle[i-2].vector, triangle[i-1].vector, triangle[i].vector, scale_a, 1.0)
 							self.create_curve_component([S, P, E])
 					else:  # dual_weights[i] == 0:  # Nothing to draw.
 						pass
+					
+					# Parallel arcs:
+					S, O, E = triangle[i-2].vector, triangle[i].vector, triangle[i-1].vector
+					M = 0.5*(S + E)
+					centroid = (S + O + E) / 3.0
+					for j in range(parallel_weights[i]):
+						P = M + (j+1) * (centroid - M) / (parallel_weights[i] + 1)
+						print(S, P, E)
+						self.create_curve_component([S, P, E])
 		
 		self.lamination = lamination
 		self.zoom_to_drawing()  # Recheck.
@@ -378,13 +403,13 @@ class Drawing(object):
 				# rather than having to draw a large bounding box.
 				for offset in OFFSETS:
 					self.canvas.create_text(
-						[a+x for a, x in zip(edge.centre(), offset)],
+						[a+x for a, x in zip(edge.centre().to_tuple(), offset)],
 						text=labels[edge.label],
 						tag='label',
 						font=self.options.canvas_font,
 						fill=DEFAULT_EDGE_LABEL_BG_COLOUR)
 				
-				self.canvas.create_text(edge.centre(),
+				self.canvas.create_text(edge.centre().to_tuple(),
 					text=labels[edge.label],
 					tag='label',
 					font=self.options.canvas_font,
