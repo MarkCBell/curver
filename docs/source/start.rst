@@ -10,7 +10,8 @@ The preferred method for installing the latest stable release is to use `pip <ht
 
 	> python -m pip install curver --user --upgrade
 
-.. warning:: In order to use the curver GUI on OS X, users must first update
+.. warning::
+	In order to use the curver GUI on OS X, users must first update
 	their copy of Tk/Tcl as described `here <https://www.python.org/download/mac/tcltk/>`_.
 	Curver has been tested with `ActiveTcl 8.5.18 <http://www.activestate.com/activetcl/downloads>`_.
 
@@ -40,11 +41,17 @@ This sample curver program loads the mapping class group of the twice-punctured 
 	assert(h.inverse() == h**-1)
 	assert(h.order() == 0)  # Since this has infinite order.
 	
-	curver.show(c, a, h(a))  # Start the GUI (see above warning).
 	
 	twist = c.encode_twist()
 	halftwist = a.encode_halftwist()
 	assert(twist == halftwist**2)
+
+It's often hard to visualise what is going on on these surfaces.
+Fortunately curver can show us these curves (use Ctrl+W to quit)::
+
+	curver.show(c, a, h(a))  # Start the GUI (see above warning).
+	
+	curver.show([(h**i)(a) for i in range(10)])
 
 Future code
 ~~~~~~~~~~~
