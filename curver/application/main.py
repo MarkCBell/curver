@@ -303,7 +303,7 @@ class Drawing(object):
 					# Parallel arcs.
 					if parallel_weights[i]:
 						S, O, E = triangle[i-2].vector, triangle[i].vector, triangle[i-1].vector
-						M = (S + E / 2.0
+						M = (S + E) / 2.0
 						centroid = (S + O + E) / 3.0
 						P = M + 1.0 * (centroid - M) * (parallel_weights[i]+1) / master
 						self.create_curve_component([S, S, P, E, E, S, S], thin=False)
@@ -335,7 +335,7 @@ class Drawing(object):
 					
 					# Parallel arcs:
 					S, O, E = triangle[i-2].vector, triangle[i].vector, triangle[i-1].vector
-					M = (S + E / 2.0
+					M = (S + E) / 2.0
 					centroid = (S + O + E) / 3.0
 					for j in range(parallel_weights[i]):
 						P = M + float(j+1) / (parallel_weights[i] + 1) * (centroid - M) * (parallel_weights[i] + 1) / master
