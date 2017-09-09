@@ -260,14 +260,13 @@ class Drawing(object):
 		
 		vb = self.options.vertex_buffer  # We are going to use this a lot.
 		master = float(max(abs(weight) for weight in lamination))
-		if master <= 0: master = 1.0
 		
-		if lamination.weight() > MAX_DRAWABLE:
+		if master > MAX_DRAWABLE:
 			for triangle in self.triangles:
 				weights = [max(lamination(edge.label), 0) for edge in triangle.edges]
 				dual_weights = [lamination.dual_weight(edge.label) for edge in triangle.edges]
-				parallel_arcs = [min(-lamination(edge.label), 0) for edge in triangle.edges]
-				parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for weight in parallel_arcs]
+				parallel_arcs = [max(-lamination(edge.label), 0) for edge in triangle.edges]
+				parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for edge, weight in zip(triangle.edges, parallel_arcs)]
 				for i in range(3):
 					# Dual arcs.
 					a = triangle[i-1] - triangle[i]
@@ -303,17 +302,17 @@ class Drawing(object):
 					
 					# Parallel arcs.
 					if parallel_weights[i]:
-						pass  # TODO
+						S, O, E = triangle[i-2].vector, triangle[i].vector, triangle[i-1].vector
+						M = (S + E / 2.0
+						centroid = (S + O + E) / 3.0
+						P = M + 1.0 * (centroid - M) * (parallel_weights[i]+1) / master
+						self.create_curve_component([S, S, P, E, E, S, S], thin=False)
 		else:  # Draw everything. Caution, this is is VERY slow (O(n) not O(log(n))) so we only do it when the weight is low.
-			print(lamination)
 			for triangle in self.triangles:
 				weights = [max(lamination(edge.label), 0) for edge in triangle.edges]
 				dual_weights = [lamination.dual_weight(edge.label) for edge in triangle.edges]
 				parallel_arcs = [max(-lamination(edge.label), 0) for edge in triangle.edges]
 				parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for edge, weight in zip(triangle.edges, parallel_arcs)]
-				print([edge.label >= 0 for edge in triangle.edges])
-				print(parallel_arcs)
-				print(parallel_weights)
 				for i in range(3):  # Dual arcs:
 					if dual_weights[i] > 0:
 						s_a = (1 - 2*vb) * weights[i-2] / master
@@ -336,11 +335,10 @@ class Drawing(object):
 					
 					# Parallel arcs:
 					S, O, E = triangle[i-2].vector, triangle[i].vector, triangle[i-1].vector
-					M = 0.5*(S + E)
+					M = (S + E / 2.0
 					centroid = (S + O + E) / 3.0
 					for j in range(parallel_weights[i]):
-						P = M + (j+1) * (centroid - M) / (parallel_weights[i] + 1)
-						print(S, P, E)
+						P = M + float(j+1) / (parallel_weights[i] + 1) * (centroid - M) * (parallel_weights[i] + 1) / master
 						self.create_curve_component([S, P, E])
 		
 		self.lamination = lamination
