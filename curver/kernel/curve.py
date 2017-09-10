@@ -154,14 +154,14 @@ class Curve(MultiCurve, Shortenable):
 		_, b, e = short.triangulation.corner_lookup[a.label]
 		
 		v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
-		around_v = min(max(lamination.side_weight(edge), 0) for edge in v_edges)
-		twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+		around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
+		twisting = min(max(short_lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
 		
 		numerator = twisting
 		
-		sign = -1 if lamination.side_weight(a) > around_v or lamination.dual_weight(e) < 0 else +1
+		sign = -1 if short_lamination.side_weight(a) > around_v or lamination.dual_weight(e) < 0 else +1
 		
-		return Fraction(sign * numerator, denominator)
+		return Fraction(sign * numerator, denominator) + (1 if sign < 0 else 0)  # Curver is right biased.
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve. '''
