@@ -161,8 +161,7 @@ class Curve(MultiCurve, Shortenable):
 		
 		sign = -1 if short_lamination.side_weight(a) > around_v or lamination.dual_weight(e) < 0 else +1
 		
-		# TODO: 3) Check that this correction also applies to isolating curves.
-		return Fraction(sign * numerator, denominator) + (1 if sign < 0 else 0)  # Curver is right biased.
+		return Fraction(sign * numerator, denominator) + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve. '''
