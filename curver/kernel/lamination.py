@@ -98,7 +98,7 @@ class Lamination(object):
 		
 		corner = self.triangulation.corner_lookup[edge.label]
 		weights = [self(edge) for edge in corner]
-		return dual_weight(*weights)
+		return dual_weight(weights[0], weights[1], weights[2])
 	
 	def side_weight(self, edge):
 		''' Return the number of component of this lamination dual to the given edge.
@@ -108,7 +108,8 @@ class Lamination(object):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
 		corner = self.triangulation.corner_lookup[edge.label]
-		return self.dual_weight(corner[1])
+		weights = [self(edge) for edge in corner]
+		return dual_weight(weights[1], weights[2], weights[0])
 	
 	def is_empty(self):
 		''' Return if this lamination has no components. '''
