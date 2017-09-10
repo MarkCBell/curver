@@ -55,24 +55,24 @@ class Twist(Move):
 		while power:
 			slope = self.curve.slope(lamination)
 			if power > 0:  # Right twist (increases slope).
-				if 2 < slope:
+				if 1 < slope:
 					geometric = [w + power * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = power
-				elif -2 <= slope <= 2:  # Dangerous region.
+				elif -1 <= slope <= 1:  # Dangerous region.
 					geometric = self.encoding(lamination).geometric
 					power_applied = 1
-				else:  # if slope < -2:
+				else:  # if slope < -1:
 					steps = min(-power, int(-1-slope))
 					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = steps
 			else:  # power < 0:  # Left twist (decreases slope).
-				if slope < -2:
+				if slope < -1:
 					geometric = [w + -power * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = power
-				elif -2 <= slope <= 2:  # Dangerous region.
+				elif -1 <= slope <= 1:  # Dangerous region.
 					geometric = self.encoding.inverse()(lamination).geometric
 					power_applied = -1
-				else:  # 2 < slope:
+				else:  # 1 < slope:
 					steps = min(power, int(slope-1))
 					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = -steps
