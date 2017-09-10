@@ -19,12 +19,12 @@ class MultiCurve(Lamination):
 	def is_filling(self):
 		return False
 	
-	def encode_twist(self, k=1):
+	def encode_twist(self, power=1):
 		''' Return an Encoding of a left Dehn (multi)twist about the components of this multicurve, raised to the power k. '''
 		
 		h = self.triangulation.id_encoding()
 		for curve, multiplicity in self.mcomponents():
-			h = curve.encode_twist(k * multiplicity) * h
+			h = curve.encode_twist(power * multiplicity) * h
 		
 		return h
 	
