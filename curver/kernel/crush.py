@@ -25,6 +25,7 @@ class Crush(Move):
 	
 	def apply_lamination(self, lamination):
 		geometric = list(lamination)
+		
 		if self.curve.is_isolating():
 			# Get some edges.
 			a = self.curve.parallel()
