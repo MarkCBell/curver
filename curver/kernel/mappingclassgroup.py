@@ -42,7 +42,7 @@ class MappingClassGroup(object):
 		return str(self)
 	def __str__(self):
 		pos_keys = sorted(self.pos_mapping_classes.keys())
-		return 'Mapping class group <%s>.' % pos_keys
+		return 'Mapping class group < %s >.' % ', '.join(pos_keys)
 	
 	def random_word(self, length, positive=True, negative=True, letters=None):
 		''' Return a random word of the required length.
