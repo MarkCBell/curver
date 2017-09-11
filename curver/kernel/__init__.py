@@ -31,6 +31,7 @@ MappingClass = encoding.MappingClass
 AbortError = error.AbortError
 AssumptionError = error.AssumptionError
 MappingClassGroup = mappingclassgroup.MappingClassGroup
+MCG = MappingClassGroup  # Alias.
 HomologyClass = homology.HomologyClass
 Lamination = lamination.Lamination
 Shortenable = lamination.Shortenable
