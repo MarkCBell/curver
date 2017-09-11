@@ -13,49 +13,36 @@ class MappingClassGroup(object):
 	
 	Most importantly this object can construct a mapping class from a string descriptor.
 	See self.mapping_class for additional information. '''
-	def __init__(self, triangulation, laminations, mapping_classes):
-		assert(isinstance(triangulation, curver.kernel.Triangulation))
-		assert(isinstance(laminations, (dict, list, tuple)))
+	def __init__(self, mapping_classes):
 		assert(isinstance(mapping_classes, (dict, list, tuple)))
-		
-		self.triangulation = triangulation
-		if isinstance(laminations, dict):
-			assert(all(isinstance(key, str) for key in laminations))
-			assert(all(isinstance(laminations[key], curver.kernel.Lamination) for key in laminations))
-			assert(all(laminations[key].triangulation == self.triangulation for key in laminations))
-			self.laminations = laminations
-		else:
-			assert(all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations))
-			assert(all(lamination.triangulation == self.triangulation for lamination in laminations))
-			self.laminations = dict(list(curver.kernel.utilities.name_objects(laminations)))
+		assert(mapping_classes)
 		
 		if isinstance(mapping_classes, dict):
+			self.triangulation = list(mapping_classes.values())[0].source_triangulation
 			assert(all(isinstance(key, str) for key in mapping_classes))
-			assert(all(isinstance(mapping_classes[key], curver.kernel.Encoding) for key in mapping_classes))
+			assert(all(isinstance(mapping_classes[key], curver.kernel.MappingClass) for key in mapping_classes))
 			assert(all(mapping_classes[key].source_triangulation == self.triangulation for key in mapping_classes))
-			assert(all(mapping_classes[key].is_mapping_class() for key in mapping_classes))
 			assert(all(key.swapcase() not in mapping_classes for key in mapping_classes))
 			
 			self.pos_mapping_classes = dict(mapping_classes)
-			self.neg_mapping_classes = dict((name.swapcase(), self.pos_mapping_classes[name].inverse()) for name in self.pos_mapping_classes)
-			self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
+			# Should check keys are valid.
 		else:
+			self.triangulation = mapping_classes[0].source_triangulation
 			assert(all(isinstance(mapping_class, curver.kernel.Encoding) for mapping_class in mapping_classes))
 			assert(all(mapping_class.source_triangulation == self.triangulation for mapping_class in mapping_classes))
-			assert(all(mapping_class.is_mapping_class() for mapping_class in mapping_classes))
 			
 			self.pos_mapping_classes = dict(list(curver.kernel.utilities.name_objects(mapping_classes)))
-			self.neg_mapping_classes = dict((name.swapcase(), self.pos_mapping_classes[name].inverse()) for name in self.pos_mapping_classes)
-			self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
+		
+		self.neg_mapping_classes = dict((name.swapcase(), self.pos_mapping_classes[name].inverse()) for name in self.pos_mapping_classes)
+		self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
 		
 		self.zeta = self.triangulation.zeta
 	
 	def __repr__(self):
 		return str(self)
 	def __str__(self):
-		lam_keys = sorted(self.laminations.keys())
 		pos_keys = sorted(self.pos_mapping_classes.keys())
-		return 'Triangulation with laminations: %s and mapping classes: %s.' % (lam_keys, pos_keys)
+		return 'Mapping class group <%s>.' % pos_keys
 	
 	def random_word(self, length, positive=True, negative=True, letters=None):
 		''' Return a random word of the required length.
