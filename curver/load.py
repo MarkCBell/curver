@@ -17,7 +17,7 @@ def example_0_4():
 	c = T.lamination([0, 0, -1, 0, 0, 0])
 	d = T.lamination([0, 0, 0, -1, 0, 0])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d], {
+	return curver.kernel.MappingClassGroup(T, [a, b, c, d], {
 		'a': a.encode_halftwist(), 'b': b.encode_halftwist(),
 		'c': a.encode_halftwist(), 'd': b.encode_halftwist()
 		})
@@ -28,7 +28,7 @@ def example_1_1():
 	a = T.lamination([1, 0, 1])
 	b = T.lamination([0, 1, 1])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b], [a.encode_twist(), b.encode_twist()])
+	return curver.kernel.MappingClassGroup(T, [a, b], [a.encode_twist(), b.encode_twist()])
 
 def example_1_1m():
 	# Mirror image of S_1_1 and its standard (Twister) curves:
@@ -37,7 +37,7 @@ def example_1_1m():
 	a = T.lamination([1, 1, 0])
 	b = T.lamination([0, 1, 1])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b], [a.encode_twist(), b.encode_twist()])
+	return curver.kernel.MappingClassGroup(T, [a, b], [a.encode_twist(), b.encode_twist()])
 
 def example_1_2():
 	# S_1_2 and its standard (Twister) curves:
@@ -48,7 +48,7 @@ def example_1_2():
 	c = T.lamination([0, 1, 0, 1, 0, 1])
 	x = T.lamination([0,-1, 0, 0, 0, 0])
 	
-	return curver.kernel.EquippedTriangulation(T, {
+	return curver.kernel.MappingClassGroup(T, {
 		'a': a, 'b': b, 'c': c, 'x': x
 		}, {
 		'a': a.encode_twist(), 'b': b.encode_twist(), 'c': c.encode_twist(),
@@ -63,7 +63,7 @@ def example_1_2p():
 	b = T.lamination([1, 0, 0, 0, 1, 1])
 	c = T.lamination([0, 1, 0, 1, 0, 1])
 	
-	return curver.kernel.EquippedTriangulation(T, {
+	return curver.kernel.MappingClassGroup(T, {
 		'a': a, 'b': b, 'c': c
 		}, {
 		'a': a.encode_twist(), 'b': b.encode_twist(), 'c': c.encode_twist(),
@@ -80,7 +80,7 @@ def example_2_1():
 	e = T.lamination([0, 1, 1, 1, 1, 2, 1, 0, 1])
 	f = T.lamination([0, 0, 1, 0, 0, 0, 1, 0, 0])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d, e, f],
+	return curver.kernel.MappingClassGroup(T, [a, b, c, d, e, f],
 		[a.encode_twist(), b.encode_twist(), c.encode_twist(),
 		d.encode_twist(), e.encode_twist(), f.encode_twist()])
 
@@ -95,7 +95,7 @@ def example_2_1b():
 	e = T.lamination([0, 1, 1, 1, 2, 1, 0, 1, 1])
 	f = T.lamination([0, 1, 2, 1, 1, 1, 1, 1, 0])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d, e, f],
+	return curver.kernel.MappingClassGroup(T, [a, b, c, d, e, f],
 		[a.encode_twist(), b.encode_twist(), c.encode_twist(),
 		d.encode_twist(), e.encode_twist(), f.encode_twist()])
 
@@ -112,7 +112,7 @@ def example_3_1():
 	g = T.lamination([1, 1, 1, 0, 1, 1, 0, 1, 2, 1, 1, 1, 0, 1, 2])
 	h = T.lamination([1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 2])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d, e, f, g, h],
+	return curver.kernel.MappingClassGroup(T, [a, b, c, d, e, f, g, h],
 		[a.encode_twist(), b.encode_twist(), c.encode_twist(),
 		d.encode_twist(), e.encode_twist(), f.encode_twist(),
 		g.encode_twist(), h.encode_twist()])
@@ -133,7 +133,7 @@ def example_4_1():
 	i = T.lamination([1, 1, 1, 1, 0, 1, 1, 1, 2, 1, 0, 0, 0, 1, 2, 2, 1, 0, 1, 2, 1])
 	j = T.lamination([1, 1, 1, 1, 0, 0, 1, 1, 2, 1, 1, 0, 0, 1, 1, 2, 1, 1, 1, 1, 2])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d, e, f, g, h, i, j],
+	return curver.kernel.MappingClassGroup(T, [a, b, c, d, e, f, g, h, i, j],
 		[a.encode_twist(), b.encode_twist(), c.encode_twist(),
 		d.encode_twist(), e.encode_twist(), f.encode_twist(),
 		g.encode_twist(), h.encode_twist(), i.encode_twist(),
@@ -158,7 +158,7 @@ def example_5_1():
 	k = T.lamination([1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 2, 1, 0, 0, 0, 0, 1, 2, 2, 2, 1, 0, 1, 2, 1, 1])
 	l = T.lamination([1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0])
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b, c, d, e, f, g, h, i, j, k, l],
+	return curver.kernel.MappingClassGroup(T, [a, b, c, d, e, f, g, h, i, j, k, l],
 		[a.encode_twist(), b.encode_twist(), c.encode_twist(),
 		d.encode_twist(), e.encode_twist(), f.encode_twist(),
 		g.encode_twist(), h.encode_twist(), i.encode_twist(),
@@ -173,7 +173,7 @@ def example_12():
 	b = T.lamination([1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
 	p = T.find_isometry(T, {7: ~6})  # This is a 1/12 click.
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b], {
+	return curver.kernel.MappingClassGroup(T, [a, b], {
 		'a': a.encode_twist(), 'b': b.encode_twist(), 'p': p.encode()
 		})
 
@@ -188,7 +188,7 @@ def example_24():
 	b = T.lamination([0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
 	p = T.find_isometry(T, {13: ~12})  # This is a 1/24 click.
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b], {
+	return curver.kernel.MappingClassGroup(T, [a, b], {
 		'a': a.encode_twist(), 'b': b.encode_twist(), 'p': p.encode()
 		})
 
@@ -205,7 +205,7 @@ def example_36():
 	b = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 	p = T.find_isometry(T, {19: ~18})  # This is a 1/36 click.
 	
-	return curver.kernel.EquippedTriangulation(T, [a, b], {
+	return curver.kernel.MappingClassGroup(T, [a, b], {
 		'a': a.encode_twist(), 'b': b.encode_twist(), 'p': p.encode()
 		})
 
@@ -248,10 +248,10 @@ def example_braid_sphere(n):
 	# We take the half-twist about each of these curves as the generator \sigma_i of SB_n.
 	mapping_classes = dict(('s_%d' % index, arc.encode_halftwist()) for index, arc in enumerate(arcs))
 	
-	return curver.kernel.EquippedTriangulation(T, arcs, mapping_classes)
+	return curver.kernel.MappingClassGroup(T, arcs, mapping_classes)
 
 def load(surface):
-	''' Return the requested example EquippedTriangulation.
+	''' Return the requested example MappingClassGroup.
 	
 	Available surfaces:
 		'S_0_4', 'S_1_1', 'S_1_1m', 'S_1_2', 'S_1_2p',

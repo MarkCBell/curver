@@ -1,14 +1,14 @@
 
 ''' A module for representing triangulations along with laminations and mapping classes on them.
 
-Provides: EquippedTriangulation. '''
+Provides: MappingClassGroup. '''
 
 from random import choice
 import re
 
 import curver
 
-class EquippedTriangulation(object):
+class MappingClassGroup(object):
 	''' This represents a triangulation along with a collection of named laminations and mapping classes on it.
 	
 	Most importantly this object can construct a mapping class from a string descriptor.

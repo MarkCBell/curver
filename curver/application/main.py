@@ -88,7 +88,7 @@ class Drawing(object):
 		self.item = item
 		self.lamination = None
 		
-		if isinstance(item, curver.kernel.EquippedTriangulation):
+		if isinstance(item, curver.kernel.MappingClassGroup):
 			self.draw_lamination(item.triangulation.empty_lamination())
 		if isinstance(item, curver.kernel.Triangulation):
 			self.draw_lamination(item.empty_lamination())
