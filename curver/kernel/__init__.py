@@ -13,7 +13,7 @@ from . import curvecomplex
 from . import crush
 from . import encoding
 from . import error
-from . import equippedtriangulation
+from . import mappingclassgroup
 from . import homology
 from . import lamination
 from . import moves
@@ -30,7 +30,7 @@ Encoding = encoding.Encoding
 MappingClass = encoding.MappingClass
 AbortError = error.AbortError
 AssumptionError = error.AssumptionError
-EquippedTriangulation = equippedtriangulation.EquippedTriangulation
+EquippedTriangulation = mappingclassgroup.EquippedTriangulation
 HomologyClass = homology.HomologyClass
 Lamination = lamination.Lamination
 Shortenable = lamination.Shortenable
