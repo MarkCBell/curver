@@ -42,6 +42,9 @@ class MultiCurve(Lamination):
 		''' Return whether self \\cup other fills. '''
 		assert(isinstance(other, Lamination))
 		
+		if any(component.intersection(other) == 0 for component in self.components()):
+			return False
+		
 		crush = self.crush()
 		other_prime = crush(other)
 		return other_prime.is_filling()
