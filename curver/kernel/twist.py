@@ -35,6 +35,10 @@ class Twist(Move):
 		return 'Twist^%d %s ' % (self.power, self.curve)
 	def __reduce__(self):
 		return (self.__class__, (self.curve, self.power))
+	def package(self):
+		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
+		
+		return (self.curve.parallel().label, self.power)
 	
 	def apply_lamination(self, lamination):
 		intersection = self.curve.intersection(lamination)
@@ -144,6 +148,10 @@ class HalfTwist(Move):
 		return 'HalfTwist^%d %s ' % (self.power, self.arc)
 	def __reduce__(self):
 		return (self.__class__, (self.arc, self.power))
+	def package(self):
+		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
+		
+		return (self.curve.parallel().label, self.power)
 	
 	def apply_lamination(self, lamination):
 		return self.encoding_power(lamination)

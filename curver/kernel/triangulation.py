@@ -539,12 +539,19 @@ class Triangulation(object):
 		
 		return self.lamination([-1] * self.zeta)
 	
+	def edge_arc(self, edge):
+		''' Return the given edge as an Arc. '''
+		
+		if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+		
+		return curver.kernel.Arc(self, [0 if i != edge.index else -1 for i in range(self.zeta)])  # Could use self.lamination.
+	
 	def edge_arcs(self):
 		''' Return a list containing the Arc representing each Edge.
 		
 		As these fill, by Alexander's trick a mapping class is the identity if and only if it fixes all of them. '''
 		
-		return [curver.kernel.Arc(self, [0 if i != index else -1 for i in range(self.zeta)]) for index in self.indices]  # Could use self.lamination.
+		return [self.edge_arc(edge) for edge in self.positive_edges]  # Could use self.lamination.
 	
 	def edge_homologies(self):
 		''' Return a list containing the HomologyClass of each Edge. '''
@@ -633,6 +640,18 @@ class Triangulation(object):
 					g = T.encode_relabel_edges(item)
 				else:  # If some edges are missing then we assume that we must be mapping back to this triangulation.
 					g = T.find_isometry(self, item).encode()
+			elif isinstance(item, tuple) and len(item) == 2:  # Twist or HalfTwist.
+				label, power = item
+				edge = T.edge_lookup[label]
+				
+				arc = T.edge_arc(edge)
+				[curve] = [curve for curve in arc.boundary().components() if curve.dual_weight(edge) > 0]
+				
+				# Check where it connects.
+				if T.vertex_lookup[edge.label] == T.vertex_lookup[~edge.label]:  # Twist.
+					g = curver.kernel.Twist(curve, power).encode()
+				else:  # HalfTwist.
+					g = curver.kernel.HalfTwist(arc, power).encode()
 			elif item is None:  # Identity isometry.
 				g = T.id_encoding()
 			elif isinstance(item, curver.kernel.Encoding):  # Encoding.

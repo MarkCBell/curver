@@ -37,11 +37,12 @@ This sample curver program loads the mapping class group of the twice-punctured 
 	assert(not c.fills_with(a))  # Even c \cup a does not fill.
 	assert((h**4)(c).fills_with(a))  # But h^4(c) \cup a does.
 	
+	# Higher order functions on mapping classes.
 	assert(h != h.inverse() and h != h**2)
 	assert(h.inverse() == h**-1)
 	assert(h.order() == 0)  # Since this has infinite order.
 	
-	
+	# Build new mapping classes:
 	twist = c.encode_twist()
 	halftwist = a.encode_halftwist()
 	assert(twist == halftwist**2)
