@@ -1,0 +1,15 @@
+
+flipper
+=======
+
+The underlying framework of curver is based on `flipper <https://pypi.python.org/flipper>`_.
+This means that curver can do many of the things that flipper can, however, curver has several advantages including:
+
+	- Curves and Arcs are now proper classes.
+	- Homology is handled separately.
+	- The ability to perform Dehn twists about all curves.
+	- The ability to perform half-twists about all arcs.
+	- Fast twists and half-twists.
+	- Component extraction.
+	- The ability to crush along (multi-)curves.
+

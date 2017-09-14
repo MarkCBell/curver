@@ -40,8 +40,11 @@ class Crush(Move):
 			# TODO: 1) WRONG!!
 			twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
 			drops = [max(lamination.side_weight(edge) - (0 if index in (0, len(v_edges)) else twisting) - around_v, 0) for index, edge in enumerate(v_edges)]
-			left_tighten = [min(drops[:i+1]) for i in range(len(v_edges))]
-			right_tighten = [min(drops[i:]) for i in range(len(v_edges))]
+			left_tightens = [min(drops[:i+1]) for i in range(len(v_edges))]
+			right_tightens = [min(drops[i:]) for i in range(len(v_edges))]
+			left_survives = [drop - left_tighten for drop, left_tighten in zip(drops, left_tightens)]
+			right_survives = [drop - right_tighten for drop, right_tighten in zip(drops, right_tightens)]
+			
 			cumulative_drops = [max(min(drops[:i+1]), min(drops[i:])) for i in range(len(v_edges))]
 			
 			# Unwind.

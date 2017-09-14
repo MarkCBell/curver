@@ -14,6 +14,7 @@ Welcome to Curver's documentation!
    :caption: Contents:
 
    start.rst
+   flipper.rst
    references.rst
    citing.rst
    license.rst
