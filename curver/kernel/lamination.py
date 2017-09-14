@@ -302,10 +302,7 @@ class Lamination(object):
 		''' Return whether self \\cup other fills. '''
 		assert(isinstance(other, Lamination))
 		
-		# Lemma: self \cup other fills S if and only if (\partial self) \cup other fills S.
-		# TODO: 3) Proof
-		
-		return self.boundary().fills_with(other)
+		return NotImplemented  # TODO: 3) Implement!
 
 class Shortenable(Lamination):
 	''' A special lamination that we can put into a canonical 'short' form. '''
