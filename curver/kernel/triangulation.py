@@ -123,8 +123,8 @@ class Triangulation(object):
 		# minimally by label. This allows for fast comparisons.
 		self.triangles = sorted(triangles, key=lambda t: t.labels)
 		
-		self.edges = [edge for triangle in self for edge in triangle]
-		self.positive_edges = [edge for edge in self.edges if edge.sign() == +1]
+		self.edges = sorted([edge for triangle in self for edge in triangle], key=lambda edge: edge.label)
+		self.positive_edges = sorted([edge for edge in self.edges if edge.sign() == +1], key=lambda edge: edge.label)
 		self.labels = sorted([edge.label for edge in self.edges])
 		self.indices = sorted([edge.index for edge in self.positive_edges])
 		
