@@ -45,9 +45,6 @@ class MultiArc(Shortenable):
 		
 		return conjugator.inverse()(boundary)
 	
-	def fills_with(self, other):
-		return NotImplemented  # TODO: 3) Implement this.
-	
 	def is_polygonalisation(self):
 		''' Return if this MultiArc is a polygonalisation, that is, if it cuts the surface into polygons. '''
 		short, _ = self.shorten()
