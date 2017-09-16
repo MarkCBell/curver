@@ -151,7 +151,7 @@ class HalfTwist(Move):
 	def package(self):
 		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
 		
-		return (self.curve.parallel().label, self.power)
+		return (self.arc.parallel().label, self.power)
 	
 	def apply_lamination(self, lamination):
 		return self.encoding_power(lamination)

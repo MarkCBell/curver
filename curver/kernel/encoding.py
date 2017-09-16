@@ -146,7 +146,7 @@ class MappingClass(Encoding):
 	def is_identity(self):
 		''' Return if this mapping class is the identity. '''
 		
-		return self.is_mapping_class() and self.order() == 1
+		return self.order() == 1
 	
 	def is_periodic(self):
 		''' Return if this mapping class has finite order. '''
@@ -182,7 +182,7 @@ class MappingClass(Encoding):
 		# TODO: 2) Fix these constants.
 		N = 1  # Some constant.
 		D = 1  # Bowditch bound on denominator [Bow08].
-		c = self.source_triangulation.edge_arcs()[0].boundary()  # A "short" curve.
+		c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
 		geodesic = c.geodesic((self**N)(c))
 		m = geodesic[len(geodesic)//2]  # midpoint
 		
