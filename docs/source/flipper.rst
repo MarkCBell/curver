@@ -1,5 +1,5 @@
 
-flipper
+Flipper
 =======
 
 The underlying framework of curver is based on `flipper <https://pypi.python.org/flipper>`_.
@@ -12,4 +12,6 @@ This means that curver can do many of the things that flipper can, however, curv
 	- Fast twists and half-twists.
 	- Component extraction.
 	- The ability to crush along (multi-)curves.
+
+If you are looking for a basic framework for manipulating curves, arcs and mapping classes then you should probably base your code on curver.
 
