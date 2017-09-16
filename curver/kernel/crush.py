@@ -37,22 +37,98 @@ class Crush(Move):
 			out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
 			# around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
 			
-			# TODO: 1) WRONG!!
+			# TODO: 3) Add comments explaining what is going on here and how the different cases work.
+			# We work by manipulating the dual weights around v.
 			twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
-			drops = [max(lamination.side_weight(edge) - (0 if index in (0, len(v_edges)) else twisting) - around_v, 0) for index, edge in enumerate(v_edges)]
-			left_tightens = [min(drops[:i+1]) for i in range(len(v_edges))]
-			right_tightens = [min(drops[i:]) for i in range(len(v_edges))]
-			left_survives = [drop - left_tighten for drop, left_tighten in zip(drops, left_tightens)]
-			right_survives = [drop - right_tighten for drop, right_tighten in zip(drops, right_tightens)]
+			sides = dict()
+			for edge in v_edges:
+				if lamination.side_weight(edge) < 0:
+					sides[edge] = lamination.side_weight(edge)
+				else:  # lamination.side_weight(edge) >= 0:
+					if edge == a or edge == b:
+						sides[edge] = lamination.side_weight(edge) - around_v
+					elif edge == e:
+						sides[edge] = lamination.side_weight(edge) - 2*twisting - around_v
+					else:
+						sides[edge] = lamination.side_weight(edge) - twisting - around_v
+			parallels = dict((edge.index, max(-lamination(edge), 0)) for edge in v_edges)
 			
-			cumulative_drops = [max(min(drops[:i+1]), min(drops[i:])) for i in range(len(v_edges))]
+			# Tighten to the left.
+			drop = max(sides[a], 0) + max(-sides[b], 0)
+			for edge in v_edges[1:-1]:
+				x, y, z = lamination.triangulation.corner_lookup[edge.label].edges
+				if sides[x] >= 0 and sides[y] >= 0 and sides[z] >= 0:
+					if drop <= sides[x]:
+						sides[x] = sides[x] - drop
+					else:  # sides[x] < drop.
+						sides[x], sides[y], drop = sides[x] - drop, sides[y] + sides[x] - drop, sides[x]
+				elif sides[x] < 0:
+					sides[x], sides[y], drop = sides[x] - drop, sides[y] - drop, 0
+				elif sides[y] < 0:
+					sides[x] = sides[x] - drop
+				else:  # sides[z] < 0.
+					if drop <= sides[x]:
+						sides[x] = sides[x] - drop
+					elif sides[x] < drop <= sides[x] - sides[z]:
+						parallels[z.index] = parallels[z.index] + (drop - sides[x])
+						sides[x], sides[z], drop = 0, sides[z] + (drop - sides[x]), sides[x]
+					else:  # sides[x] - sides[z] < drop:
+						parallels[z.index] = parallels[z.index] - sides[z]
+						sides[x], sides[y], sides[z], drop = sides[x] - sides[z] - drop, sides[y] - (drop - sides[x] + sides[z]), 0, sides[x]
+				
+				if drop == 0: break  # Stop early.
 			
-			# Unwind.
-			for edge, cumulative_drop in zip(v_edges[1:], cumulative_drops):
-				geometric[edge.index] -= twisting + cumulative_drop
+			# Tighten to the right.
+			drop = max(-sides[a], 0) + max(sides[b], 0)
+			for edge in v_edges[-2:0:-1]:
+				x, y, z = lamination.triangulation.corner_lookup[edge.label].edges
+				if sides[x] >= 0 and sides[y] >= 0 and sides[z] >= 0:
+					if drop <= sides[x]:
+						sides[x] = sides[x] - drop
+					else:  # sides[x] < drop.
+						sides[x], sides[z], drop = sides[x] - drop, sides[z] + sides[x] - drop, sides[x]
+				elif sides[x] < 0:
+					sides[x], sides[z], drop = sides[x] - drop, sides[z] - drop, 0
+				elif sides[y] < 0:
+					if drop <= sides[x]:
+						sides[x] = sides[x] - drop
+					elif sides[x] < drop <= sides[x] - sides[y]:
+						parallels[x.index] = parallels[x.index] + (drop - sides[x])
+						sides[x], sides[y], drop = 0, sides[y] + (drop - sides[x]), sides[x]
+					else:  # sides[x] - sides[y] < drop:
+						parallels[x.index] = parallels[x.index] - sides[y]
+						sides[x], sides[y], sides[z], drop = sides[x] - sides[y] - drop, 0, sides[z] - (drop - sides[x] + sides[y]), sides[x]
+				else:  # sides[z] < 0.
+					sides[x] = sides[x] - drop
+				
+				if drop == 0: break  # Stop early.
 			
-			# Now have to reset b weight.
-			geometric[b.index] = around_v - out_v  # Same trick as above.
+			# Now rebuild the intersection.
+			for edge in v_edges:
+				if edge not in (a, b, e, ~b, ~e):
+					x, y, z = lamination.triangulation.corner_lookup[edge.label].edges
+					if parallels[edge.index] > 0:
+						geometric[edge.index] = -parallels[x.index]
+					else:
+						geometric[edge.index] = max(sides[x], 0) + max(sides[y], 0) + max(-sides[z], 0)
+						
+						# Sanity check:
+						x2, y2, z2 = lamination.triangulation.corner_lookup[~edge.label].edges
+						assert(geometric[edge.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
+			
+			# We have to rebuild the ~e edge separately since it now pairs with ~b.
+			x, y, z = lamination.triangulation.corner_lookup[~e.label].edges
+			if parallels[e.index] + parallels[b.index] > 0:
+				geometric[e.index] = -parallels[e.index] - parallels[b.index]
+			else:
+				geometric[e.index] = max(sides[x], 0) + max(sides[y], 0) + max(-sides[z], 0)
+				
+				# Sanity check:
+				x2, y2, z2 = lamination.triangulation.corner_lookup[~b.label].edges
+				assert(geometric[e.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
+			
+			# And finally the b edge, which is now paired with e.
+			geometric[b.index] = around_v - out_v  # Same trick as below.
 		else:  # self.curve is non-isolating.
 			# Get some edges.
 			a = self.curve.parallel()
