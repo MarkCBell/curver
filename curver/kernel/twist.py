@@ -62,7 +62,9 @@ class Twist(Move):
 					geometric = self.encoding(lamination).geometric
 					power_applied = 1
 				else:  # if slope < -1:
-					steps = min(power, int(-slope))
+					steps = min(power, -(slope.numerator // slope.denominator) - 1)  # ceil(-slope) - 1.
+					assert(steps >= 0)  # Sanity.
+					assert(-1 <= slope + steps < 0)  # Sanity.
 					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = steps
 			else:  # power < 0:  # Left twist (decreases slope).
@@ -73,7 +75,9 @@ class Twist(Move):
 					geometric = self.encoding.inverse()(lamination).geometric
 					power_applied = -1
 				else:  # 1 < slope:
-					steps = min(-power, int(slope))
+					steps = min(-power, -(-slope.numerator // slope.denominator) - 1)  # ceil(slope) - 1.
+					assert(steps >= 0)  # Sanity.
+					assert(0 < slope + -steps <= 1)  # Sanity.
 					geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
 					power_applied = -steps
 			new_lamination = lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
