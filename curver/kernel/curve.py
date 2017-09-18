@@ -161,7 +161,7 @@ class Curve(MultiCurve, Shortenable):
 		
 		numerator = twisting
 		
-		sign = -1 if short_lamination.side_weight(a) > around_v or lamination.dual_weight(e) < 0 else +1
+		sign = -1 if short_lamination.side_weight(a) > around_v or short_lamination.dual_weight(e) < 0 else +1
 		
 		return Fraction(sign * numerator, denominator) + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
 	
