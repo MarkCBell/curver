@@ -15,4 +15,5 @@ lint.html
 .DS_Store
 htmlcov/*
 test.py
+Session.vim
 
