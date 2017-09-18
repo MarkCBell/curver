@@ -133,7 +133,7 @@ class Curve(MultiCurve, Shortenable):
 		around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
 		out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
 		# around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
-		return short_lamination(a) - 2 * around_v + out_v
+		return max(short_lamination(a), 0) - 2 * around_v + out_v
 	
 	def slope(self, lamination):
 		''' Return the slope of the given lamination about this curve.
