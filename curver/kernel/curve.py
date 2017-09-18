@@ -64,6 +64,13 @@ class Curve(MultiCurve, Shortenable):
 	def mcomponents(self):
 		return [(self, 1)]
 	
+	def is_short(self):
+		# Theorem: A curve is short iff either:
+		#  - it meets T exactly twice, or
+		#  - it meets every edge of T either 0 or 2 times and has one corridor [BellWebb16a].
+		num_corridors = len([triangle for triangle in self.triangulation if sum(self(edgy) for edgy in triangle) == 4])
+		return self.weight() == 2 or (all(weight in [0, 2] for weight in self) and num_corridors == 1)
+	
 	def shorten_strategy(self, edge):
 		# This relies on the following
 		# Lemma: If there are no bipods then self(edge) \in [0,2] for each edge.
@@ -89,14 +96,6 @@ class Curve(MultiCurve, Shortenable):
 		
 		if ad > 0 and bd > 0:
 			return 2
-		
-		# Now have to do a global check to see if this curve is now short.
-		# Theorem: A curve is short iff either:
-		#  - it meets T exactly twice, or
-		#  - it meets every edge of T either 0 or 2 times and has one corridor [BellWebb16a].
-		num_corridors = len([triangle for triangle in self.triangulation if sum(self(edgy) for edgy in triangle) == 4])
-		if self.weight() == 2 or (all(weight in [0, 2] for weight in self) and num_corridors == 1):
-			return 0
 		
 		return 1
 	
