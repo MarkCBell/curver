@@ -179,7 +179,7 @@ class MappingClass(Encoding):
 		
 		From Algorithm 6 of [BellWebb16b]_. '''
 		
-		# TODO: 2) Fix these constants.
+		# TODO: 1) Fix these constants and make this work with the new CurveComplex.
 		N = 1  # Some constant.
 		D = 1  # Bowditch bound on denominator [Bow08].
 		c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
