@@ -41,6 +41,7 @@ class CurveComplex(object):
 			
 			quasiconvex.add(conjugator.inverse()(curve))
 		
+		# Hmmm, can we skip this at only the cost of increasing some constants later?
 		vertex_cycle = train_track.vertex_cycles()[0]
 		# Project the train track curve back to short.triangulation.
 		curve = curver.kernel.Curve(short.triangulation, vertex_cycle.geometric[:self.zeta])
