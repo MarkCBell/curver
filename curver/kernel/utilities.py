@@ -115,7 +115,7 @@ def cyclic_slice(L, x, y):
 	j = L.index(y)
 	return L[:j]
 
-def maxiumum(iterable, upper_bound=None, key=lambda x: x):
+def maximum(iterable, key=lambda x: x, upper_bound=None):
 	best, best_value = None, 0
 	for item in iterable:
 		value = key(item)
