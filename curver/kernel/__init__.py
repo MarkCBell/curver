@@ -45,7 +45,7 @@ EdgeFlip = moves.EdgeFlip
 TrainTrack = traintrack.TrainTrack
 Crush = crush.Crush
 Lift = crush.Lift
-CurveComple = curvecomplex.CurveComplex
+CurveComplex = curvecomplex.CurveComplex
 Twist = twist.Twist
 HalfTwist = twist.HalfTwist
 
