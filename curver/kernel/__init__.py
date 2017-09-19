@@ -8,18 +8,19 @@ by "Assumes that ..." meaning that:
 	- If not then a curver.AssumptionError will be raised. '''
 
 from . import arc
+from . import constants
+from . import crush
 from . import curve
 from . import curvecomplex
-from . import crush
 from . import encoding
 from . import error
-from . import mappingclassgroup
 from . import homology
 from . import lamination
+from . import mappingclassgroup
 from . import moves
-from . import twist
-from . import triangulation
 from . import traintrack
+from . import triangulation
+from . import twist
 from . import utilities
 
 # Set up shorter names for all of the different classes.
