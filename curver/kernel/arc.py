@@ -16,7 +16,6 @@ class MultiArc(Shortenable):
 	def shorten_strategy(self, edge):
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		# Low score == bad.
 		if not self.triangulation.is_flippable(edge):
 			return 0
 		if self.dual_weight(edge) < 0:
