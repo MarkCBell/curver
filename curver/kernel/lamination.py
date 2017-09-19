@@ -197,7 +197,7 @@ class Lamination(object):
 		assert(isinstance(lamination, Lamination))
 		
 		self_components = self.components()
-		return not any(component in self_components for component, _ in lamination.components())
+		return not any(component in self_components for component in lamination.components())
 	
 	def train_track(self):
 		''' Return the train track underlying this lamination. '''
