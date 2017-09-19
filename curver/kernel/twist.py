@@ -32,7 +32,7 @@ class Twist(Move):
 		self.encoding = twist
 	
 	def __str__(self):
-		return 'Twist^%d %s ' % (self.power, self.curve)
+		return 'Twist^%d_%s ' % (self.power, self.curve)
 	def __reduce__(self):
 		return (self.__class__, (self.curve, self.power))
 	def package(self):
@@ -150,7 +150,7 @@ class HalfTwist(Move):
 			self.encoding_power = self.arc.boundary().encode_twist(self.power // 2) * self.encoding
 	
 	def __str__(self):
-		return 'HalfTwist^%d %s ' % (self.power, self.arc)
+		return 'HalfTwist^%d_%s ' % (self.power, self.arc)
 	def __reduce__(self):
 		return (self.__class__, (self.arc, self.power))
 	def package(self):
