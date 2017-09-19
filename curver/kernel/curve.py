@@ -90,14 +90,14 @@ class Curve(MultiCurve, Shortenable):
 		if ei == 0:
 			return 0
 		if max(ai+ ci, bi + di) == ei:  # Drops to zero.
-			return 3
+			return 1  # Hmmm.
 		if ed > 0:
 			return 0
 		
 		if ad > 0 and bd > 0:
-			return 2
+			return 0.5
 		
-		return 1
+		return 0.25
 	
 	def parallel(self):
 		''' Return an edge that this curve is parallel to. '''

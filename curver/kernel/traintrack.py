@@ -18,23 +18,23 @@ class TrainTrack(Shortenable):
 			return 0
 		
 		a, b, c, d, e = self.triangulation.square(edge)
-		da, db, dc, dd, de = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
+		ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
 		if self(e) <= 0:
 			return 0
-		if b == ~d and da > 0 and db == 0 and de == 0:
+		if b == ~d and ad > 0 and bd == 0 and ed == 0:
 			return 0
-		if a == ~c and da == 0 and db > 0 and de == 0:
+		if a == ~c and ad == 0 and bd > 0 and ed == 0:
 			return 0
-		if de > 0 or da < 0 or db < 0:
-			return 1
+		if ed > 0 or ad < 0 or bd < 0:
+			return 0.25
 		
-		if (da == 0 and db == 0) or (da == 0 and de == 0) or (db == 0 and de == 0):
-			if (da > 0 and dc > 0) or (db > 0 and dd > 0):
-				return 2
+		if (ad == 0 and bd == 0) or (ad == 0 and ed == 0) or (bd == 0 and ed == 0):
+			if (ad > 0 and cd > 0) or (bd > 0 and dd > 0):
+				return 0.5
 			else:
-				return 3
+				return 0.75
 		
-		return 4
+		return 1
 	
 	def mcomponents(self):
 		''' Return a set of pairs (component, multiplicity). '''
