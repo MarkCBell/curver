@@ -116,10 +116,10 @@ def cyclic_slice(L, x, y):
 	return L[:j]
 
 def maximum(iterable, key=lambda x: x, upper_bound=None):
-	best, best_value = None, 0
+	best, best_value = None, None
 	for item in iterable:
 		value = key(item)
-		if value > best_value:
+		if best_value is None or value > best_value:
 			best, best_value = item, value
 		if upper_bound is not None and best_value >= upper_bound:
 			return best
