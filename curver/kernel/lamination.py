@@ -303,6 +303,30 @@ class Lamination(object):
 		assert(isinstance(other, Lamination))
 		
 		return NotImplemented  # TODO: 3) Implement!
+	
+	def trace(self, edge, intersection_point, length):
+		
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
+		start = (edge, intersection_point)
+		
+		assert(self(edge) > intersection_point >= 0)
+		dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
+		edges = []
+		for _ in range(length):
+			x, y, z = self.triangulation.corner_lookup[~edge.label]
+			if intersection_point < dual_weights[z]:  # Turn right.
+				edge, intersection_point = y, intersection_point
+			elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:
+				break  # Terminates.
+			else:  # Turn left.
+				edge, intersection_point = z, self(z) - self(x) + intersection_point
+			if (edge, intersection_point) == start:  # Closes up.
+				break
+			edges.append(edge)
+			assert(self(edge) > intersection_point >= 0)  # Sanity.
+		
+		return edges
 
 class Shortenable(Lamination):
 	''' A special lamination that we can put into a canonical 'short' form. '''
@@ -311,13 +335,29 @@ class Shortenable(Lamination):
 		return all(self.shorten_strategy(edge) == 0 for edge in self.triangulation.edges)
 	
 	def shorten_strategy(self, edge):
-		''' Return an integer describing how good flipping this edge is for making this lamination short.
+		''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short.
 		
 		The higher the score, the better this flip is for reducing weight.
 		Specific laminations should implement the correct strategy for getting to the minimal weight configuration. '''
 		
 		return NotImplemented
 	
+	def generic_shorten_strategy(self, edge):
+		''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
+		
+		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+		
+		if not self.triangulation.is_flippable(edge): return 0
+		
+		a, b, c, d, e = self.triangulation.square(edge)
+		ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
+		
+		if ed < 0 or (ed == 0 and ad > 0 and bd > 0):
+			return 1
+		
+		return 0
+	
+	# @profile
 	def shorten(self):
 		''' Return an encoding which maps this lamination to a short one, together with its image. '''
 		
@@ -327,18 +367,46 @@ class Shortenable(Lamination):
 		conjugator = lamination.triangulation.id_encoding()
 		
 		extra = []
-		while True:
-			edge = max(extra + lamination.triangulation.edges, key=lamination.shorten_strategy)
-			if lamination.shorten_strategy(edge) == 0: break
+		while lamination.weight() > 2*self.zeta:
+			# edge = max(extra + lamination.triangulation.edges, key=lamination.generic_shorten_strategy)
+			edge = curver.kernel.utilities.maximum(extra + lamination.triangulation.edges, key=lamination.generic_shorten_strategy, upper_bound=1)
+			if lamination.generic_shorten_strategy(edge) == 0: break
+			a, b, c, d, e = lamination.triangulation.square(edge)
+			# This edge is always flippable.
+			
+			intersection_point = lamination(e) - lamination.side_weight(e) if lamination.side_weight(e) > 0 else lamination.side_weight(a)
+			
+			trace = lamination.trace(edge, intersection_point, 2*self.zeta)
+			try:  # TODO: 2) Accelerate!!
+				trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
+				
+				indices = [edgy.index for edgy in trace]
+				curve = curver.kernel.Curve(lamination.triangulation, [indices.count(i) for i in range(self.zeta)])  # Avoids promote.
+				# assert(isinstance(curve, curver.kernel.Curve))
+				slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
+				if -1 <= slope <= 1:  # Can't accelerate.
+					raise ValueError
+				else:  # slope < -1 or 1 < slope:
+					move = curve.encode_twist(power=-int(slope))  # Round towards zero.
+				# assert(-1 <= curve.slope(move(lamination)) <= 1)
+			except (ValueError, curver.AssumptionError):
+				move = lamination.triangulation.encode_flip(edge)
+				extra = [c, d]
+			
+			conjugator = move * conjugator
+			lamination = move(lamination)
+		
+		extra = []
+		while not lamination.is_short():
+			# edge = max(extra + lamination.triangulation.edges, key=lamination.generic_shorten_strategy)
+			edge = curver.kernel.utilities.maximum(extra + lamination.triangulation.edges, key=lamination.shorten_strategy, upper_bound=1)
+			a, b, c, d, e = lamination.triangulation.square(edge)
 			# This edge is always flippable.
 			
 			move = lamination.triangulation.encode_flip(edge)
+			extra = [c, d]
 			conjugator = move * conjugator
 			lamination = move(lamination)
-			
-			# TODO: 2) Accelerate!!
-			a, b, c, d, e = lamination.triangulation.square(edge)
-			extra = [a, d]
 		
 		return lamination, conjugator
 
