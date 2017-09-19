@@ -10,6 +10,7 @@ This means that curver can do many of the things that flipper can, however, curv
 	- The ability to perform Dehn twists about all curves.
 	- The ability to perform half-twists about all arcs.
 	- Fast twists and half-twists.
+	- Polynomial-time curve simplification.
 	- Component extraction.
 	- The ability to crush along (multi-)curves.
 
