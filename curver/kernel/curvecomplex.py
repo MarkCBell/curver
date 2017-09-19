@@ -31,7 +31,7 @@ class CurveComplex(object):
 		_, conjugator_tt = train_track.shorten()
 		
 		quasiconvex = set()
-		for i in range(len(conjugator_tt)+1):
+		for i in range(len(conjugator_tt)):
 			prefix = conjugator_tt[i:]  # Get the first bit of tt_conjugator.
 			split_train_track = prefix(train_track)
 			vertex_cycle = split_train_track.vertex_cycles()[0]
@@ -40,6 +40,11 @@ class CurveComplex(object):
 			curve = curver.kernel.Curve(short.triangulation, train_track_curve.geometric[:self.zeta])
 			
 			quasiconvex.add(conjugator.inverse()(curve))
+		
+		vertex_cycle = train_track.vertex_cycles()[0]
+		# Project the train track curve back to short.triangulation.
+		curve = curver.kernel.Curve(short.triangulation, vertex_cycle.geometric[:self.zeta])
+		quasiconvex.add(conjugator.inverse()(curve))
 		
 		return quasiconvex
 	
