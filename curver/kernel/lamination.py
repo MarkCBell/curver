@@ -352,7 +352,7 @@ class Shortenable(Lamination):
 		a, b, c, d, e = self.triangulation.square(edge)
 		ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
 		
-		if (ed < 0 and (ad > 0 or bd > 0)) or (ed == 0 and ad > 0 and bd > 0):
+		if ed < 0 or (ed == 0 and ad > 0 and bd > 0):
 			return 1
 		
 		return 0
@@ -364,14 +364,17 @@ class Shortenable(Lamination):
 		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
 		
 		lamination = self
+		# print(lamination)
 		conjugator = lamination.triangulation.id_encoding()
 		
+		# Theorem: Suppose that self is not an isolating multicurve. If self.weight() > 2*self.zeta then there is a place to split.
+		# Proof: TODO.
+		
+		# Remark this is part of the reason why we can shorten Curves, Multiarcs and TrainTracks but not MultiCurves.
 		extra = []
 		edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) > 0])
 		while lamination.weight() > 2*self.zeta:
-			# edge = max(extra + lamination.triangulation.edges, key=lamination.generic_shorten_strategy)
 			edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.generic_shorten_strategy, upper_bound=1)
-			if lamination.generic_shorten_strategy(edge) == 0: break
 			a, b, c, d, e = lamination.triangulation.square(edge)
 			# This edge is always flippable.
 			
@@ -402,7 +405,6 @@ class Shortenable(Lamination):
 		
 		extra = []
 		while not lamination.is_short():
-			# edge = max(extra + lamination.triangulation.edges, key=lamination.generic_shorten_strategy)
 			edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.shorten_strategy, upper_bound=1)
 			a, b, c, d, e = lamination.triangulation.square(edge)
 			# This edge is always flippable.
