@@ -16,4 +16,4 @@ lint.html
 htmlcov/*
 test.py
 Session.vim
-
+*.lprof
