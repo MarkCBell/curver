@@ -6,7 +6,6 @@
 Welcome to Curver's documentation!
 ==================================
 
-
 .. include:: summary.rst
 
 .. toctree::
