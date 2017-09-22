@@ -1,6 +1,5 @@
 
 syntax:glob
-source/application/icon
 build/*
 dist/*
 curver/application/icon/
