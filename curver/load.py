@@ -196,7 +196,7 @@ def example_36():
 def example_braid_sphere(n):
 	# A triangulation of S_{0,n}.
 	assert(isinstance(n, curver.IntegerType))
-	assert(n >= 4)
+	assert(n >= 3)
 	
 	# We'll build the following triangulation of S_{0,n}:
 	#
@@ -241,7 +241,7 @@ def load(surface):
 		'S_0_4', 'S_1_1', 'S_1_1m', 'S_1_2', 'S_1_2p',
 		'S_2_1', 'S_3_1', 'S_4_1', 'S_5_1',
 		'E_12', 'E_24', 'E_36', and
-		'SB_n' where n is an integer >= 4. '''
+		'SB_n' where n is an integer >= 3. '''
 	
 	surfaces = {
 		'S_0_4': example_0_4,
