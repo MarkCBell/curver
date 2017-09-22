@@ -2,7 +2,6 @@
 syntax:glob
 build/*
 dist/*
-curver/application/icon/
 curver.egg-info/*
 __pycache__/*
 *.pyc

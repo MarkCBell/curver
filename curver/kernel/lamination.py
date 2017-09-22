@@ -357,15 +357,19 @@ class Shortenable(Lamination):
 		
 		return 0
 	
+	# @memoize
 	# @profile
 	def shorten(self):
 		''' Return an encoding which maps this lamination to a short one, together with its image. '''
+		
+		if hasattr(self, '_sh'):
+			return self._sh
 		
 		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
 		
 		lamination = self
 		# print(lamination)
-		conjugator = lamination.triangulation.id_encoding()
+		conjugator = None  # lamination.triangulation.id_encoding()
 		
 		# Theorem: Suppose that self is not an isolating multicurve. If self.weight() > 2*self.zeta then there is a place to split.
 		# Proof: TODO.
@@ -374,6 +378,7 @@ class Shortenable(Lamination):
 		extra = []
 		edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) > 0])
 		while lamination.weight() > 2*self.zeta:
+			print(lamination)
 			edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.generic_shorten_strategy, upper_bound=1)
 			a, b, c, d, e = lamination.triangulation.square(edge)
 			# This edge is always flippable.
@@ -390,6 +395,8 @@ class Shortenable(Lamination):
 				slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
 				if -1 <= slope <= 1:  # Can't accelerate.
 					raise ValueError
+				#elif abs(int(slope)) <= 2:
+				#	raise ValueError
 				else:  # slope < -1 or 1 < slope:
 					move = curve.encode_twist(power=-int(slope))  # Round towards zero.
 				# assert(-1 <= curve.slope(move(lamination)) <= 1)
@@ -397,7 +404,7 @@ class Shortenable(Lamination):
 				move = lamination.triangulation.encode_flip(edge)
 				extra = [c, d]
 			
-			conjugator = move * conjugator
+			conjugator = move * conjugator if conjugator is not None else move
 			lamination = move(lamination)
 			if lamination(edge) <= 0:
 				edges.discard(edge)
@@ -411,11 +418,14 @@ class Shortenable(Lamination):
 			
 			move = lamination.triangulation.encode_flip(edge)
 			extra = [c, d]
-			conjugator = move * conjugator
+			conjugator = move * conjugator if conjugator is not None else move
 			lamination = move(lamination)
 			if lamination(edge) <= 0:
 				edges.discard(edge)
 				edges.discard(~edge)
+		
+		if conjugator is None: conjugator = self.triangulation.id_encoding()
+		self._sh = (lamination, conjugator)
 		
 		return lamination, conjugator
 
