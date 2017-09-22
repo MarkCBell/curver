@@ -87,10 +87,13 @@ class Curve(MultiCurve, Shortenable):
 		a, b, c, d, e = self.triangulation.square(edge)
 		ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
 		ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
+		# if ei == 0: return 0
+		# return float(2*ei - max(ai + ci, bi + di) + 1 + (0.1 if ad > 0 and bd > 0 else 0)) / self.weight()
+		
 		if ei == 0:
 			return 0
 		if max(ai+ ci, bi + di) == ei:  # Drops to zero.
-			return 1  # Hmmm.
+			return 1  # Hmmm. We do need this but can we avoid not having 1 as the generic case?
 		if ed > 0:
 			return 0
 		
@@ -164,6 +167,23 @@ class Curve(MultiCurve, Shortenable):
 		sign = -1 if short_lamination.side_weight(a) > around_v or short_lamination.dual_weight(e) < 0 else +1
 		
 		return Fraction(sign * numerator, denominator) + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
+	
+	def relative_twising(self, b, c):
+		''' Return the relative twisting number of b about self relative to c.
+		
+		This is the number of (right) Dehn twists about self that must be applied to b in order to minimise its intersection with c. '''
+		
+		assert(isinstance(b, curver.kernel.Lamination))
+		assert(isinstance(c, curver.kernel.Lamination))
+		
+		ab = a.intersection(b)
+		ac = a.intersection(c)  # Faster than c.intersection(a) since we know a is a curve.
+		bc = b.intersection(c)
+		
+		f_lower = a.enocde_twist(power=-2*bc)(b).intersection(c)  # f(-2*bc).
+		f_upper = a.enocde_twist(power=2*bc)(b).intersection(c)  # f(2*bc).
+		
+		return Fraction(f_lower - f_upper, 2*ab*ac)
 	
 	def crush(self):
 		''' Return the crush map associated to this Curve. '''
