@@ -2,7 +2,7 @@
 Flipper
 =======
 
-The underlying framework of curver is based on `flipper <https://pypi.python.org/flipper>`_.
+The underlying framework of curver is based on `flipper <https://pypi.python.org/pypi/flipper>`_.
 This means that curver can do many of the things that flipper can, however, curver has several advantages including:
 
 	- Curves and Arcs are now proper classes.

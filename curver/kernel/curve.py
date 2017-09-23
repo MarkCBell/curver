@@ -20,7 +20,7 @@ class MultiCurve(Lamination):
 		return False
 	
 	def encode_twist(self, power=1):
-		''' Return an Encoding of a left Dehn (multi)twist about the components of this multicurve, raised to the power k. '''
+		''' Return an Encoding of a right Dehn (multi)twist about the components of this multicurve, raised to the given power. '''
 		
 		h = self.triangulation.id_encoding()
 		for curve, multiplicity in self.mcomponents():
