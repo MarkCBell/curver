@@ -103,6 +103,8 @@ class Encoding(object):
 				raise ValueError('Cannot compose Encodings over different triangulations.')
 			
 			return Encoding(self.sequence + other.sequence)
+		elif other is None:
+			return self
 		else:
 			return NotImplemented
 	def inverse(self):
