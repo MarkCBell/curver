@@ -357,54 +357,41 @@ class Shortenable(Lamination):
 		
 		return 0
 	
-	# @memoize
-	# @profile
+	@memoize
 	def shorten(self):
 		''' Return an encoding which maps this lamination to a short one, together with its image. '''
 		
-		if hasattr(self, '_sh'):
-			return self._sh
-		
-		# TODO: 2) Make polynomial-time by taking advantage of spiralling.
-		
 		lamination = self
-		# print(lamination)
-		conjugator = None  # lamination.triangulation.id_encoding()
+		conjugator = None  # We used to set conjugator = lamination.triangulation.id_encoding() but this is more efficient.
 		
 		# Theorem: Suppose that self is not an isolating multicurve. If self.weight() > 2*self.zeta then there is a place to split.
 		# Proof: TODO.
 		
-		# Remark this is part of the reason why we can shorten Curves, Multiarcs and TrainTracks but not MultiCurves.
+		# Remark: This is part of the reason why we can shorten Curves, Multiarcs and TrainTracks but not MultiCurves.
 		extra = []
 		edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) > 0])
 		while lamination.weight() > 2*self.zeta:
-			print(lamination)
 			edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.generic_shorten_strategy, upper_bound=1)
-			a, b, c, d, e = lamination.triangulation.square(edge)
 			# This edge is always flippable.
+			a, b, c, d, e = lamination.triangulation.square(edge)
 			
 			intersection_point = lamination(e) - lamination.side_weight(e) if lamination.side_weight(e) > 0 else lamination.side_weight(a)
-			
 			trace = lamination.trace(edge, intersection_point, 2*self.zeta)
-			try:  # TODO: 2) Accelerate!!
+			try:  # Accelerate!
 				trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
 				
 				indices = [edgy.index for edgy in trace]
 				curve = curver.kernel.Curve(lamination.triangulation, [indices.count(i) for i in range(self.zeta)])  # Avoids promote.
-				# assert(isinstance(curve, curver.kernel.Curve))
 				slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
-				if -1 <= slope <= 1:  # Can't accelerate.
+				if -1 <= slope <= 1:  # Can't accelerate. We should probably also skip cases where slope is too close to small to be efficient.
 					raise ValueError
-				#elif abs(int(slope)) <= 2:
-				#	raise ValueError
 				else:  # slope < -1 or 1 < slope:
 					move = curve.encode_twist(power=-int(slope))  # Round towards zero.
-				# assert(-1 <= curve.slope(move(lamination)) <= 1)
 			except (ValueError, curver.AssumptionError):
 				move = lamination.triangulation.encode_flip(edge)
 				extra = [c, d]
 			
-			conjugator = move * conjugator if conjugator is not None else move
+			conjugator = move * conjugator
 			lamination = move(lamination)
 			if lamination(edge) <= 0:
 				edges.discard(edge)
@@ -413,19 +400,18 @@ class Shortenable(Lamination):
 		extra = []
 		while not lamination.is_short():
 			edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.shorten_strategy, upper_bound=1)
-			a, b, c, d, e = lamination.triangulation.square(edge)
 			# This edge is always flippable.
+			a, b, c, d, e = lamination.triangulation.square(edge)
 			
 			move = lamination.triangulation.encode_flip(edge)
 			extra = [c, d]
-			conjugator = move * conjugator if conjugator is not None else move
+			conjugator = move * conjugator
 			lamination = move(lamination)
 			if lamination(edge) <= 0:
 				edges.discard(edge)
 				edges.discard(~edge)
 		
-		if conjugator is None: conjugator = self.triangulation.id_encoding()
-		self._sh = (lamination, conjugator)
+		if conjugator is None: conjugator = self.triangulation.id_encoding()  # Just in case we haven't done any moves at all.
 		
 		return lamination, conjugator
 
