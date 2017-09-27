@@ -8,16 +8,6 @@ from itertools import permutations
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
-def dual_weight(a, b, c):
-	''' Return the dual weight of a triple.
-	
-	This is (b + c - a) / 2 when this is non-negative and b + c - a otherwise. '''
-	
-	a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
-	correction = min(a + b - c, b + c - a, c + a - b, 0)
-	assert(b + c - a + correction) % 2 == 0
-	return (b + c - a + correction) // 2
-
 class Lamination(object):
 	''' This represents a lamination on a triangulation.
 	
@@ -28,6 +18,19 @@ class Lamination(object):
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta
 		self.geometric = geometric
+		
+		# Store some additional weights that are often used.
+		self._dual = dict()
+		self._side = dict()
+		for triangle in self.triangulation:
+			i, j, k = triangle  # Edges.
+			a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
+			a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
+			correction = min(a + b - c, b + c - a, c + a - b, 0)
+			assert((a + b + c + correction) % 2 == 0)
+			self._dual[i] = self._side[k] = (b + c - a + correction) // 2
+			self._dual[j] = self._side[i] = (c + a - b + correction) // 2
+			self._dual[k] = self._side[j] = (a + b - c + correction) // 2
 	
 	def __repr__(self):
 		return str(self)
@@ -96,9 +99,7 @@ class Lamination(object):
 		
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		corner = self.triangulation.corner_lookup[edge.label]
-		weights = [self(edge) for edge in corner]
-		return dual_weight(weights[0], weights[1], weights[2])
+		return self._dual[edge]
 	
 	def side_weight(self, edge):
 		''' Return the number of component of this lamination dual to the given edge.
@@ -107,9 +108,7 @@ class Lamination(object):
 		
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		corner = self.triangulation.corner_lookup[edge.label]
-		weights = [self(edge) for edge in corner]
-		return dual_weight(weights[1], weights[2], weights[0])
+		self._side[edge]
 	
 	def is_empty(self):
 		''' Return if this lamination has no components. '''
