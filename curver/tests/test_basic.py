@@ -4,13 +4,6 @@ import curver
 
 # Things to test:
 #  Relations in the mapping class group.
-#  Squares of half twists are twists about their boundary.
-# assert(-1 <= slope <= 1 or self.curve.slope(self.encoding(lamination)) == slope - 1)
-# h.source_triangulation.encode(h.package()) == h  # For any mapping class h.
-# c.crush()(a) == c.crush()(c.enocde_twist()(a))  # For any curve c and any lamination a.
-# c.intersection(d) >= 0
-# c.intersection(h) == h(c).intersection(h(d))
-# a.relative_twist(b, c) == h(a).relative_twist(h(b), h(c))
 
 class TestS_1_1(unittest.TestCase):
 	def setUp(self):
