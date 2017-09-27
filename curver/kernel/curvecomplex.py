@@ -1,7 +1,5 @@
 
-''' A module for representing the curve complex of a surface.
-
-Provides: CurveComplex. '''
+''' A module for representing the curve complex of a surface. '''
 
 from itertools import combinations
 import networkx

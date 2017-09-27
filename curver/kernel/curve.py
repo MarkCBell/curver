@@ -1,7 +1,5 @@
 
-''' A module for representing (multi)curves on triangulations.
-
-Provides: MultiCurve, Curve. '''
+''' A module for representing (multi)curves on triangulations. '''
 
 from fractions import Fraction
 

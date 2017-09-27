@@ -1,7 +1,5 @@
 
-''' A module for representing (multi)arcs on triangulations.
-
-Provides: MultiArc, Arc. '''
+''' A module for representing (multi)arcs on triangulations. '''
 
 import curver
 from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.

@@ -1,7 +1,5 @@
 
-''' A module for representing a triangulation of a punctured surface.
-
-Provides: Edge, Triangle and Triangulation. '''
+''' A module for representing a triangulation of a punctured surface. '''
 
 from math import factorial
 from itertools import groupby

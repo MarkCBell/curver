@@ -1,7 +1,5 @@
 
-''' A module for representing more advanced ways of changing triangulations.
-
-Provides: Crush, Lift. '''
+''' A module for representing more advanced ways of changing triangulations. '''
 
 import curver
 from curver.kernel.moves import Move  # Special import needed for subclassing.

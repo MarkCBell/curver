@@ -1,7 +1,5 @@
 
-''' A module for representing triangulations along with laminations and mapping classes on them.
-
-Provides: MappingClassGroup. '''
+''' A module for representing triangulations along with laminations and mapping classes on them. '''
 
 from random import choice
 import re

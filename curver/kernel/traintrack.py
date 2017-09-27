@@ -1,7 +1,5 @@
 
-''' A module for representing train tracks on triangulations.
-
-Provides: TrainTrack. '''
+''' A module for representing train tracks on triangulations. '''
 
 import networkx
 

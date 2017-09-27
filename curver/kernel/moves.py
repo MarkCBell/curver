@@ -1,8 +1,6 @@
 
 ''' A module for representing basic ways of changing triangulations.
-These moves can also track how laminations and homology classes move through those changes.
-
-Provides: Move, Isometry, EdgeFlip. '''
+These moves can also track how laminations and homology classes move through those changes. '''
 
 import curver
 

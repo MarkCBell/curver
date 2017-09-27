@@ -1,7 +1,5 @@
 
-''' A module for representing more advanced ways of changing triangulations.
-
-Provides: Twist, HalfTwist. '''
+''' A module for representing more advanced ways of changing triangulations. '''
 
 import curver
 from curver.kernel.moves import Move  # Special import needed for subclassing.

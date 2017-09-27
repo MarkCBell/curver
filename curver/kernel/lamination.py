@@ -1,7 +1,5 @@
 
-''' A module for representing laminations on Triangulations.
-
-Provides: Lamination, Shortenable. '''
+''' A module for representing laminations on Triangulations. '''
 
 from itertools import permutations
 
