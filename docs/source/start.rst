@@ -89,6 +89,6 @@ And then install using the command::
 
 In several places work is flagged TODO: #). The number determines the priority.
 	1) == Major feature.
-	2) == Performance (incl. polynomial time).
+	2) == Performance.
 	3) == Minor feature.
 
