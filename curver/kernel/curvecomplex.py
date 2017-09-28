@@ -20,10 +20,10 @@ class CurveComplex(object):
 		# Uniform:
 		self.D = 1  # Bowditch bound on denominator [Bow08].  # TODO: 1) Fix this constant.
 		self.XI = self.zeta // 2  # Actually should be 3g - 3 + n < 3g - 3 + 1.5n = zeta / 2
-		self.M = 28 * factorial(xi) * self.HYPERBOLICITY * self.D * self.BOUNDED_GEODESIC_IMAGE
-		E, n = self.source_triangulation.euler_characteristic, self.source_triangulation.num_vertices
+		self.M = 28 * factorial(self.XI) * self.HYPERBOLICITY * self.D * self.BOUNDED_GEODESIC_IMAGE
+		E, n = self.triangulation.euler_characteristic, self.triangulation.num_vertices
 		self.R = 18*E**2 - 30*E - 10*n  # Gadre and Tsai bound away from zero [GadreTsai].
-		self.M2 = factorial(xi) * self.BOUNDED_GEODESIC_IMAGE * R
+		self.M2 = factorial(self.XI) * self.BOUNDED_GEODESIC_IMAGE * self.R
 	
 	def quasiconvex(self, a, b):
 		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains a and b. '''
