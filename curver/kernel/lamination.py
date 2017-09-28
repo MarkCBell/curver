@@ -106,7 +106,7 @@ class Lamination(object):
 		
 		if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
 		
-		self._side[edge]
+		return self._side[edge]
 	
 	def is_empty(self):
 		''' Return if this lamination has no components. '''
