@@ -52,14 +52,6 @@ curver\.kernel\.encoding module
     :undoc-members:
     :show-inheritance:
 
-curver\.kernel\.equippedtriangulation module
---------------------------------------------
-
-.. automodule:: curver.kernel.equippedtriangulation
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 curver\.kernel\.error module
 ----------------------------
 
@@ -80,6 +72,14 @@ curver\.kernel\.lamination module
 ---------------------------------
 
 .. automodule:: curver.kernel.lamination
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+curver\.kernel\.mappingclassgroup module
+----------------------------------------
+
+.. automodule:: curver.kernel.mappingclassgroup
     :members:
     :undoc-members:
     :show-inheritance:
