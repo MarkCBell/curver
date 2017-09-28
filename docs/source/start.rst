@@ -46,6 +46,9 @@ This sample curver program loads the mapping class group of the twice-punctured 
 	twist = c.encode_twist()
 	halftwist = a.encode_halftwist()
 	assert(twist == halftwist**2)
+	
+	# This can take a *very* long time.
+	print(h.nielsen_thurston_type())
 
 It's often hard to visualise what is going on on these surfaces.
 Fortunately curver can show us these curves (use Ctrl+W to quit)::
@@ -68,9 +71,7 @@ When they are, some of these will move to the taster section::
 	
 	print(a.fills_with(c))
 	
-	print(h.asymptotic_translation_length())  # Need crush.
-	
-	print(h.nielsen_thurston_type())  # Need asymptotic translation length.
+	print(h.asymptotic_translation_length())  # Need Bowditch's constant.
 	
 	S_3_4 = curver.load('(3, 4)')  # Need to port Will Worden's code.
 
