@@ -3,6 +3,7 @@
 
 from itertools import combinations
 import networkx
+from math import factorial
 
 import curver
 
@@ -11,7 +12,18 @@ class CurveComplex(object):
 	def __init__(self, triangulation):
 		self.triangulation = triangulation
 		self.zeta = self.triangulation.zeta
-		# Put more constants here.
+		# Constants:
+		# Universal:
+		self.QUASICONVEXITY = 10  # Masur-Minsky.  # Ask Katie Vokes about this.
+		self.BOUNDED_GEODESIC_IMAGE = 100  # BGIT.
+		self.HYPERBOLICITY = 17  # Curve complex delta-hyperbolicity.
+		# Uniform:
+		self.D = 1  # Bowditch bound on denominator [Bow08].  # TODO: 1) Fix this constant.
+		self.XI = self.zeta // 2  # Actually should be 3g - 3 + n < 3g - 3 + 1.5n = zeta / 2
+		self.M = 28 * factorial(xi) * self.HYPERBOLICITY * self.D * self.BOUNDED_GEODESIC_IMAGE
+		E, n = self.source_triangulation.euler_characteristic, self.source_triangulation.num_vertices
+		self.R = 18*E**2 - 30*E - 10*n  # Gadre and Tsai bound away from zero [GadreTsai].
+		self.M2 = factorial(xi) * self.BOUNDED_GEODESIC_IMAGE * R
 	
 	def quasiconvex(self, a, b):
 		''' Return a polynomial-sized K--quasiconvex subset of the curve complex that contains a and b. '''
