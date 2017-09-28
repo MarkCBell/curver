@@ -4,11 +4,10 @@
 Some of the functions and methods have assumptions on them. These are denoted in the docstrings
 by "Assumes that ..." meaning that:
 
-	- If the assumptions are met then this function is guaranteed to terminate correctly.
-	- If not then a curver.AssumptionError will be raised. '''
+    - If the assumptions are met then this function is guaranteed to terminate correctly.
+    - If not then a curver.AssumptionError will be raised. '''
 
 from . import arc
-from . import constants
 from . import crush
 from . import curve
 from . import curvecomplex

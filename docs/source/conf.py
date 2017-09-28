@@ -96,6 +96,7 @@ html_theme = 'alabaster'
 # documentation.
 #
 # html_theme_options = {}
+# 'page_width': '1200px',  # Set the width of the content area. Defaults to '900px'
 html_favicon = '../../curver/application/icon/icon.ico'
 html_logo = '../../curver/application/icon/icon.svg'
 

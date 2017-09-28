@@ -12,14 +12,6 @@ curver\.kernel\.arc module
     :undoc-members:
     :show-inheritance:
 
-curver\.kernel\.constants module
---------------------------------
-
-.. automodule:: curver.kernel.constants
-    :members:
-    :undoc-members:
-    :show-inheritance:
-
 curver\.kernel\.crush module
 ----------------------------
 
