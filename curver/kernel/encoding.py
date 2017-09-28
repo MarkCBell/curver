@@ -154,7 +154,7 @@ class MappingClass(Encoding):
 		return self.order() > 0
 	
 	def is_reducible(self):
-		''' Return if this mapping class is reducible and NOT periodic. '''
+		''' Return if this mapping class is reducible (and *not* periodic). '''
 		
 		return self.nielsen_thurston_type() == NT_TYPE_REDUCIBLE
 	
@@ -168,27 +168,38 @@ class MappingClass(Encoding):
 		
 		if self.is_periodic():
 			return NT_TYPE_PERIODIC
-		
-		if self.asymptotic_translation_length() == 0:
+		elif self.positive_asymptotic_translation_length():
+			return NT_TYPE_PSEUDO_ANOSOV
+		else:  # self.asymptotic_translation_length() == 0:
 			return NT_TYPE_REDUCIBLE
-		
-		return NT_TYPE_PSEUDO_ANOSOV
 	
 	def asymptotic_translation_length(self):
 		''' Return the asymptotic translation length of this mapping class on the curve complex.
 		
 		From Algorithm 6 of [BellWebb16b]_. '''
 		
-		# TODO: 1) Fix these constants and make this work with the new CurveComplex.
-		N = 1  # Some constant.
-		D = 1  # Bowditch bound on denominator [Bow08].
+		C = curver.kernel.CurveComplex(self.source_triangulation)
 		c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
-		geodesic = c.geodesic((self**N)(c))
+		geodesic = C.geodesic(c, (self**C.M)(c))
 		m = geodesic[len(geodesic)//2]  # midpoint
 		
-		n = m.distance((self**N)(m))  # Numerator.
-		d = N  # Denominator.
-		return Fraction(n, d).limit_denominator(D)
+		numerator = C.distance(m, (self**C.M)(m))
+		denominator = C.M
+		return Fraction(numerator, denominator).limit_denominator(D)
+	
+	def positive_asymptotic_translation_length(self):
+		''' Return whether the asymptotic translation length of this mapping class on the curve complex is positive
+		
+		This uses Remark 4.7 of [BellWebb16b]_ and so is more efficient than doing::
+		
+			self.asymptotic_translation_length() > 0 '''
+		
+		C = curver.kernel.CurveComplex(self.source_triangulation)
+		c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
+		geodesic = C.geodesic(c, (self**C.M2)(c))
+		m = geodesic[len(geodesic)//2]  # midpoint
+		
+		return C.distance(m, (self**C.M2)(m)) > 4
 
 
 def create_encoding(source_triangulation, sequence):
