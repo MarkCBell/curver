@@ -13,7 +13,7 @@ class AbortError(Exception):
 		return str(self.message)
 
 class AssumptionError(Exception):
-	''' An exception for when an assumptions is false. '''
+	''' An exception for when an assumption is false. '''
 	
 	def __init__(self, message=None):
 		super(AssumptionError, self).__init__()
