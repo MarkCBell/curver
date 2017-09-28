@@ -30,6 +30,11 @@ class Move(object):
 		
 		return curver.kernel.Encoding([self])
 	
+	def package(self):
+		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
+		
+		return NotImplemented
+	
 	def inverse(self):
 		''' Return the inverse of this move. '''
 		
@@ -76,8 +81,6 @@ class Isometry(Move):
 	def __reduce__(self):
 		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.label_map))
 	def package(self):
-		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
-		
 		if not all(self.label_map[i] == i for i in self.source_triangulation.indices):  # If self is not the identity isometry.
 			return {i: self.label_map[i] for i in self.source_triangulation.labels}
 		else:
@@ -112,8 +115,6 @@ class EdgeFlip(Move):
 	def __reduce__(self):
 		return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge))
 	def package(self):
-		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
-		
 		return self.edge.label
 	
 	def apply_lamination(self, lamination):

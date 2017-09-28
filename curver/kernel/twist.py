@@ -34,8 +34,6 @@ class Twist(Move):
 	def __reduce__(self):
 		return (self.__class__, (self.curve, self.power))
 	def package(self):
-		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
-		
 		return (self.curve.parallel().label, self.power)
 	
 	def apply_lamination(self, lamination):
@@ -150,8 +148,6 @@ class HalfTwist(Move):
 	def __reduce__(self):
 		return (self.__class__, (self.arc, self.power))
 	def package(self):
-		''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
-		
 		return (self.arc.parallel().label, self.power)
 	
 	def apply_lamination(self, lamination):
