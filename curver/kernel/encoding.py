@@ -185,7 +185,7 @@ class MappingClass(Encoding):
         
         numerator = C.distance(m, (self**C.M)(m))
         denominator = C.M
-        return Fraction(numerator, denominator).limit_denominator(D)
+        return Fraction(numerator, denominator).limit_denominator(C.D)
     
     def positive_asymptotic_translation_length(self):
         ''' Return whether the asymptotic translation length of this mapping class on the curve complex is positive

@@ -174,12 +174,12 @@ class Curve(MultiCurve, Shortenable):
         assert(isinstance(b, curver.kernel.Lamination))
         assert(isinstance(c, curver.kernel.Lamination))
         
-        ab = a.intersection(b)
-        ac = a.intersection(c)  # Faster than c.intersection(a) since we know a is a curve.
+        ab = self.intersection(b)
+        ac = self.intersection(c)  # Faster than c.intersection(a) since we know a is a curve.
         bc = b.intersection(c)
         
-        f_lower = a.enocde_twist(power=-2*bc)(b).intersection(c)  # f(-2*bc).
-        f_upper = a.enocde_twist(power=2*bc)(b).intersection(c)  # f(2*bc).
+        f_lower = self.encode_twist(power=-2*bc)(b).intersection(c)  # f(-2*bc).
+        f_upper = self.encode_twist(power=2*bc)(b).intersection(c)  # f(2*bc).
         
         return Fraction(f_lower - f_upper, 2*ab*ac)
     

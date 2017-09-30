@@ -2,8 +2,8 @@
 ''' A module for representing the curve complex of a surface. '''
 
 from itertools import combinations
-import networkx
 from math import factorial
+import networkx
 
 import curver
 
@@ -109,7 +109,7 @@ class CurveComplex(object):
         assert(b.triangulation == self.triangulation)
         
         guide = self.quasiconvex(a, b)  # U.
-        L = 6*curver.kernel.constants.QUASICONVEXITY + 2  # See [Webb15].
+        L = 6*self.QUASICONVEXITY + 2  # See [Webb15].
         return set(multicurve for length in range(L+1) for c1 in guide for c2 in guide for path in self.tight_paths(c1, c2, length) for multicurve in path)
     
     def tight_geodesic(self, a, b):

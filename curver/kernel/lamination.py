@@ -302,6 +302,10 @@ class Lamination(object):
         return NotImplemented  # TODO: 3) Implement!
     
     def trace(self, edge, intersection_point, length):
+        ''' Return the sequence of edges encountered by following along this lamination.
+        
+        We start at the given edge and intersection point for the specified number of steps.
+        However we terminate early if the lamination closes up before this number of steps is completed. '''
         
         if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
         
@@ -329,6 +333,8 @@ class Shortenable(Lamination):
     ''' A special lamination that we can put into a canonical 'short' form. '''
     
     def is_short(self):
+        ''' Return whether this lamination is already short. '''
+        
         return all(self.shorten_strategy(edge) == 0 for edge in self.triangulation.edges)
     
     def shorten_strategy(self, edge):
