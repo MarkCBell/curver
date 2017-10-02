@@ -3,6 +3,7 @@
 
 from math import factorial
 from itertools import groupby
+from collections import Counter
 
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
@@ -526,6 +527,11 @@ class Triangulation(object):
         # Should check all dual weights.
         
         return curver.kernel.Lamination(self, weights).remove_peripheral().promote()
+    
+    def lamination_from_cut_sequence(self, sequence):
+        
+        count = Counter(sequence)
+        return self.lamination([count[i] + count[~i] for i in range(self.zeta)])
     
     def empty_lamination(self):
         ''' Return the empty lamination defined on this triangulation. '''
