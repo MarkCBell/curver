@@ -543,6 +543,22 @@ class Triangulation(object):
         
         return self.lamination([-1] * self.zeta)
     
+    def sum(self, laminations):
+        ''' An efficient way of summing multiple laminations without computing intermediate values. '''
+        
+        laminations = list(laminations)
+        if all(isinstance(lamination, Lamination) for lamination in laminations):
+            if not laminations:
+                return self.empty_lamination()
+            
+            if any(lamination.triangulation != self for lamination in laminations):
+                raise ValueError('Laminations must all be defined on this triangulation to add them.')
+            
+            geometric = [sum(weights) for weights in zip(*laminations)]
+            return self.lamination(geometric)  # Have to promote.
+        else:
+            return NotImplemented
+    
     def edge_arc(self, edge):
         ''' Return the given edge as an Arc. '''
         
