@@ -1,6 +1,10 @@
 
 import curver
 
+# Based on code by William Worden.
+
+# TODO: 3) Document all of these cases.
+
 def S_0_n(n):
     # A triangulation of S_{0,n}.
     assert(n >= 3)
