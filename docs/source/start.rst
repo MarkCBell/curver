@@ -22,8 +22,8 @@ A taste of curver
 This sample curver program loads the mapping class group of the twice-punctured torus and computes the images of some arcs and curves under a mapping class::
 
 	import curver
-	S = curver.load('S_1_2')  # The twice-punctured torus.
-	h = S('abC')  # The monodromy of the Whitehead link.
+	S = curver.load(1, 2)  # The twice-punctured torus.
+	h = S('a_0.b_0.P_1')  # The monodromy of the Whitehead link.
 	a = S.lamination([0, -1, 0, 0, 0, 0])  # An arc on S.
 	
 	assert(isinstance(a, curver.kernel.Arc))
@@ -46,9 +46,6 @@ This sample curver program loads the mapping class group of the twice-punctured 
 	twist = c.encode_twist()
 	halftwist = a.encode_halftwist()
 	assert(twist == halftwist**2)
-	
-	# This can take a *very* long time.
-	print(h.nielsen_thurston_type())
 
 It's often hard to visualise what is going on on these surfaces.
 Fortunately curver can show us these curves (use Ctrl+W to quit)::
@@ -57,23 +54,25 @@ Fortunately curver can show us these curves (use Ctrl+W to quit)::
 	
 	curver.show([(h**i)(a) for i in range(10)])
 
+Curver can automatically create the mapping class group of any punctured surface.
+It also includes all of the flipper / Twister example surfaces::
+
+	S = curver.load(3, 17)  # Genus 3 with 17 punctures.
+	S = curver.load('S_1_2')  # Flippers twice-punctured torus.
+
+Curver can also perform some hard calculations with mapping classes.
+These run in polynomial time but, thanks to large constants, can still take a *very* long time::
+
+	print(h.nielsen_thurston_type())
+
 Future code
 ~~~~~~~~~~~
 
 Unfortunately, these features are currently not implemented.
 When they are, some of these will move to the taster section::
 
-	import curver
-	S = curver.load('S_1_2')
-	h = S('abC')
-	a = S.lamination([0, -1, 0, 0, 0, 0])
-	c = a.boundary()
-	
 	print(a.fills_with(c))
-	
 	print(h.asymptotic_translation_length())  # Need Bowditch's constant.
-	
-	S_3_4 = curver.load('(3, 4)')  # Need to port Will Worden's code.
 
 Development
 ~~~~~~~~~~~
