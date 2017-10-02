@@ -5,6 +5,7 @@ from functools import partial
 from itertools import product
 from string import ascii_lowercase
 from collections import defaultdict
+import re
 
 import curver
 
@@ -127,3 +128,13 @@ def maximum(iterable, key=lambda x: x, upper_bound=None):
             return best
     return best
 
+def alphanum_key(strn):
+    ''' Return a list of string and number chunks from a string. '''
+    
+    def tryint(strn):
+        try:
+            return int(strn)
+        except:
+            return strn
+    
+    return [tryint(chunk) for chunk in re.split('([0-9]+)', strn)]
