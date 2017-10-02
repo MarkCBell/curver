@@ -1,201 +1,8 @@
 
-''' Some standard example surfaces with mapping classes defined on them.
-Mainly used for running tests on. These can be accessed through
-the load(SURFACE) function. '''
-
-import re
-
 import curver
 
-REGEX_IS_SPHERE_BRAID = re.compile(r'SB_(?P<num_strands>\d+)$')
-
-def example_0_4():
-    T = curver.create_triangulation((0, 1, 4), (2, 3, ~4), (~0, ~3, 5), (~1, ~5, ~2))
-    
-    a = T.lamination([-1, 0, 0, 0, 0, 0])
-    b = T.lamination([0, -1, 0, 0, 0, 0])
-    c = T.lamination([0, 0, -1, 0, 0, 0])
-    d = T.lamination([0, 0, 0, -1, 0, 0])
-    
-    return curver.kernel.MappingClassGroup({'a': a.encode_halftwist(), 'b': b.encode_halftwist(), 'c': a.encode_halftwist(), 'd': b.encode_halftwist()})
-
-def example_1_1():
-    T = curver.create_triangulation((0, 2, 1), (~0, ~2, ~1))
-    
-    a = T.lamination([1, 0, 1])
-    b = T.lamination([0, 1, 1])
-    
-    return curver.kernel.MappingClassGroup([a.encode_twist(), b.encode_twist()])
-
-def example_1_1m():
-    # Mirror image of S_1_1 and its standard (Twister) curves:
-    T = curver.create_triangulation((0, 1, 2), (~0, ~1, ~2))
-    
-    a = T.lamination([1, 1, 0])
-    b = T.lamination([0, 1, 1])
-    
-    return curver.kernel.MappingClassGroup([a.encode_twist(), b.encode_twist()])
-
-def example_1_2():
-    # S_1_2 and its standard (Twister) curves:
-    T = curver.create_triangulation((1, 3, 2), (~2, 0, 4), (~1, 5, ~0), (~5, ~4, ~3))
-    
-    a = T.lamination([0, 0, 1, 1, 1, 0])
-    b = T.lamination([1, 0, 0, 0, 1, 1])
-    c = T.lamination([0, 1, 0, 1, 0, 1])
-    x = T.lamination([0,-1, 0, 0, 0, 0])
-    
-    return curver.kernel.MappingClassGroup({'a': a.encode_twist(), 'b': b.encode_twist(), 'c': c.encode_twist(), 'x': x.encode_halftwist()})
-
-def example_1_2p():
-    # S_1_2 without the half twist
-    T = curver.create_triangulation((1, 3, 2), (~2, 0, 4), (~1, 5, ~0), (~5, ~4, ~3))
-    
-    a = T.lamination([0, 0, 1, 1, 1, 0])
-    b = T.lamination([1, 0, 0, 0, 1, 1])
-    c = T.lamination([0, 1, 0, 1, 0, 1])
-    
-    return curver.kernel.MappingClassGroup([a.encode_twist(), b.encode_twist(), c.encode_twist()])
-
-def example_2_1():
-    # S_2_1 and its standard (Twister) curves:
-    T = curver.create_triangulation((0, 4, 1), (5, ~4, ~3), (2, ~5, 6), (7, ~6, ~2), (3, ~7, 8), (~0, ~8, ~1))
-    
-    a = T.lamination([0, 1, 1, 0, 1, 1, 2, 1, 1])
-    b = T.lamination([0, 1, 0, 1, 1, 0, 0, 0, 1])
-    c = T.lamination([1, 0, 0, 1, 1, 0, 0, 0, 1])
-    d = T.lamination([0, 1, 1, 1, 1, 0, 1, 2, 1])
-    e = T.lamination([0, 1, 1, 1, 1, 2, 1, 0, 1])
-    f = T.lamination([0, 0, 1, 0, 0, 0, 1, 0, 0])
-    
-    return curver.kernel.MappingClassGroup([a.encode_twist(), b.encode_twist(), c.encode_twist(), d.encode_twist(), e.encode_twist(), f.encode_twist()])
-
-def example_2_1b():
-    ''' Nathans origional version. '''
-    T = curver.create_triangulation((1, 2, 4), (5, 3, 0), (~2, 6, ~1), (~3, ~0, 7), (~4, ~5, 8), (~7, ~8, ~6))
-    
-    a = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0])
-    b = T.lamination([0, 0, 1, 0, 1, 0, 1, 0, 1])
-    c = T.lamination([1, 0, 0, 0, 0, 1, 0, 1, 1])
-    d = T.lamination([0, 1, 1, 1, 0, 1, 2, 1, 1])
-    e = T.lamination([0, 1, 1, 1, 2, 1, 0, 1, 1])
-    f = T.lamination([0, 1, 2, 1, 1, 1, 1, 1, 0])
-    
-    return curver.kernel.MappingClassGroup([
-        a.encode_twist(), b.encode_twist(), c.encode_twist(),
-        d.encode_twist(), e.encode_twist(), f.encode_twist()
-        ])
-
-def example_3_1():
-    T = curver.create_triangulation((0, 6, 1), (7, ~6, ~5), (8, 2, ~7), (9, ~8, ~4), (10, 3, ~9), (11, ~10, ~3),
-        (12, 4, ~11), (13, ~12, ~2), (14, 5, ~13), (~0, ~14, ~1))
-    
-    a = T.lamination([0, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1])
-    b = T.lamination([0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0])
-    c = T.lamination([0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0])
-    d = T.lamination([0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0])
-    e = T.lamination([0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
-    f = T.lamination([1, 1, 1, 0, 1, 1, 2, 1, 0, 1, 1, 1, 2, 1, 0])
-    g = T.lamination([1, 1, 1, 0, 1, 1, 0, 1, 2, 1, 1, 1, 0, 1, 2])
-    h = T.lamination([1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 2])
-    
-    return curver.kernel.MappingClassGroup([
-        a.encode_twist(), b.encode_twist(), c.encode_twist(),
-        d.encode_twist(), e.encode_twist(), f.encode_twist(),
-        g.encode_twist(), h.encode_twist()
-        ])
-
-def example_4_1():
-    T = curver.create_triangulation((~8, 1, 2), (3, 4, ~9), (6, ~10, 5), (~0, ~11, 7), (~12, ~1, ~2),
-                                    (~13, ~3, ~4), (~14, ~5, ~6), (~15, ~7, 0), (8, 9, ~16), (11, ~17, 10),
-                                    (13, ~18, 12), (~19, 14, 15), (~20, 16, 17), (18, 19, 20))
-    
-    a = T.lamination([0, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2])
-    b = T.lamination([0, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 1, 2])
-    c = T.lamination([0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 2])
-    d = T.lamination([0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 2])
-    e = T.lamination([0, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 2])
-    f = T.lamination([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 1])
-    g = T.lamination([0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1])
-    h = T.lamination([1, 1, 1, 1, 0, 1, 1, 1, 0, 1, 2, 2, 2, 1, 0, 0, 1, 2, 1, 0, 1])
-    i = T.lamination([1, 1, 1, 1, 0, 1, 1, 1, 2, 1, 0, 0, 0, 1, 2, 2, 1, 0, 1, 2, 1])
-    j = T.lamination([1, 1, 1, 1, 0, 0, 1, 1, 2, 1, 1, 0, 0, 1, 1, 2, 1, 1, 1, 1, 2])
-    
-    return curver.kernel.MappingClassGroup([
-        a.encode_twist(), b.encode_twist(), c.encode_twist(),
-        d.encode_twist(), e.encode_twist(), f.encode_twist(),
-        g.encode_twist(), h.encode_twist(), i.encode_twist(),
-        j.encode_twist()
-        ])
-
-def example_5_1():
-    T = curver.create_triangulation((~10, 1, 2), (~11, 3, 4), (6, ~12, 5), (7, 8, ~13), (~0, ~14, 9),
-                                    (~2, ~15, ~1), (~4, ~16, ~3), (~6, ~17, ~5), (~8, ~18, ~7), (0, ~19, ~9),
-                                    (11, ~20, 10), (12, 13, ~21), (15, ~22, 14), (~23, 16, 17), (19, ~24, 18),
-                                    (20, 21, ~25), (~26, 22, 23), (24, 25, 26))
-    
-    a = T.lamination([0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0])
-    b = T.lamination([0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0])
-    c = T.lamination([0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 1, 1, 0, 1, 2, 1])
-    d = T.lamination([0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 2, 1])
-    e = T.lamination([0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 2, 1])
-    f = T.lamination([0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 1, 1, 0, 1, 1, 2, 1])
-    g = T.lamination([0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 2, 0, 2, 2])
-    h = T.lamination([0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1])
-    i = T.lamination([0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1])
-    j = T.lamination([1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 0, 0, 1, 2, 2, 2, 2, 1, 0, 0, 0, 1, 2, 1, 0, 1, 1])
-    k = T.lamination([1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 2, 2, 1, 0, 0, 0, 0, 1, 2, 2, 2, 1, 0, 1, 2, 1, 1])
-    l = T.lamination([1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 2, 2, 0, 0, 0, 0, 0, 0, 2, 2, 2, 0, 0, 0, 2, 2, 0])
-    
-    return curver.kernel.MappingClassGroup([
-        a.encode_twist(), b.encode_twist(), c.encode_twist(),
-        d.encode_twist(), e.encode_twist(), f.encode_twist(),
-        g.encode_twist(), h.encode_twist(), i.encode_twist(),
-        j.encode_twist(), k.encode_twist(), l.encode_twist()
-        ])
-
-def example_12():
-    # A 12-gon:
-    T = curver.create_triangulation((6, 7, 0), (8, 1, ~7), (~8, 9, 2), (~9, 10, 3), (11, 4, ~10), (12, 5, ~11), (~12, 13, ~0),
-        (14, ~1, ~13), (~14, 15, ~2), (~15, 16, ~3), (~16, 17, ~4), (~6, ~5, ~17))
-    
-    a = T.lamination([1, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0])
-    b = T.lamination([1, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0])
-    p = T.find_isometry(T, {7: ~6})  # This is a 1/12 click.
-    
-    return curver.kernel.MappingClassGroup({'a': a.encode_twist(), 'b': b.encode_twist(), 'p': p.encode()})
-
-def example_24():
-    # A 24-gon.
-    T = curver.create_triangulation((12, 13, 0), (14, 1, ~13), (15, 2, ~14), (~15, 16, 3), (17, 4, ~16),
-        (~17, 18, 5), (~18, 19, 6), (20, 7, ~19), (21, 8, ~20), (~21, 22, 9), (~22, 23, 10), (24, 11, ~23),
-        (25, ~0, ~24), (~25, 26, ~1), (~26, 27, ~2), (28, ~3, ~27), (29, ~4, ~28), (~29, 30, ~5), (~30, 31, ~6),
-        (32, ~7, ~31), (33, ~8, ~32), (~33, 34, ~9), (~34, 35, ~10), (~12, ~11, ~35))
-    
-    a = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    b = T.lamination([0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0])
-    p = T.find_isometry(T, {13: ~12})  # This is a 1/24 click.
-    
-    return curver.kernel.MappingClassGroup({'a': a.encode_twist(), 'b': b.encode_twist(), 'p': p.encode()})
-
-def example_36():
-    # A 36-gon
-    T = curver.create_triangulation((18, 19, 0), (20, 1, ~19), (21, 2, ~20), (~21, 22, 3), (~22, 23, 4),
-        (24, 5, ~23), (25, 6, ~24), (~25, 26, 7), (27, 8, ~26), (~27, 28, 9), (~28, 29, 10), (30, 11, ~29),
-        (31, 12, ~30), (~31, 32, 13), (~32, 33, 14), (34, 15, ~33), (35, 16, ~34), (~35, 36, 17), (~36, 37, ~0),
-        (38, ~1, ~37), (39, ~2, ~38), (~39, 40, ~3), (~40, 41, ~4), (42, ~5, ~41), (43, ~6, ~42), (~43, 44, ~7),
-        (~44, 45, ~8), (46, ~9, ~45), (47, ~10, ~46), (~47, 48, ~11), (~48, 49, ~12), (50, ~13, ~49),
-        (51, ~14, ~50), (~51, 52, ~15), (~52, 53, ~16), (~18, ~17, ~53))
-    
-    a = T.lamination([1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    b = T.lamination([0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    p = T.find_isometry(T, {19: ~18})  # This is a 1/36 click.
-    
-    return curver.kernel.MappingClassGroup({'a': a.encode_twist(), 'b': b.encode_twist(), 'p': p.encode()})
-
-def example_braid_sphere(n):
+def S_0_n(n):
     # A triangulation of S_{0,n}.
-    assert(isinstance(n, curver.IntegerType))
     assert(n >= 3)
     
     # We'll build the following triangulation of S_{0,n}:
@@ -234,36 +41,331 @@ def example_braid_sphere(n):
     
     return curver.kernel.MappingClassGroup(mapping_classes)
 
-def load(surface):
+def S_1_n(n):
+    assert(n >= 1)
+    
+    if n == 1:
+        T = curver.create_triangulation((0, 1, 2), (~0, ~1, ~2))
+        
+        a_0 = T.lamination([1, 0, 1])
+        b_0 = T.lamination([1, 1, 0])
+        
+        return curver.kernel.MappingClassGroup({
+            'a_0': a_0.encode_twist(),
+            'b_0': b_0.encode_twist()
+            })
+    else:  # n > 1:
+        T = curver.create_triangulation(
+            [(0, 1, 2)] + \
+            [(~(1+2*i), 1+2*i+2, 1+2*i+3) for i in range(n-1)] + \
+            [(2*n+1, ~(2*n), ~(2*n-1))] + \
+            [(2*n+1 + i, ~(2*n-2*i), ~(2*n + i)) for i in range(1, n-1)] + \
+            [(~0, ~(3*n-1), ~2)]
+            )
+        
+        mapping_classes = dict()
+        mapping_classes['a_0'] = T.lamination_from_cut_sequence([0, 1, 4, 3*n-1]).encode_twist()
+        mapping_classes['b_0'] = T.lamination_from_cut_sequence([0, 2]).encode_twist()
+        # The twists obtained by pushing a_0 across the punctures.
+        # Note that if the loop ran with i=0 then it would create p_0 == a_0.
+        for i in range(1, n-1):
+            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([0, 1] + [3 + j*2 for j in range(i)] + [3 + 2*i + 1] + [3*n-1 - j for j in range(i+1)]).encode_twist()
+        mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([0, 1] + [3 + j*2 for j in range(n-1)] + [] + [3*n-1 - j for j in range(n-1)]).encode_twist()
+        # The half-twists that permute the ith and (i+1)st punctures.
+        for i in range(n-1):
+            mapping_classes['s_%d' % i] = T.lamination([0] * (4 + 2*i) + [-1] + [0] * (3*n - 4 - 2*i - 1)).encode_halftwist()
+        
+        return curver.kernel.MappingClassGroup(mapping_classes)
+
+def S_2_n(n):
+    assert(n >= 1)
+    
+    if n == 1:
+        T = curver.create_triangulation(
+            (0, 1, 2), (~1, 3, 4), (~2, ~3, ~4),
+            (~0, 5, 6), (~5, 7, 8), (~6, ~7, ~8)
+            )
+        
+        a_0 = T.lamination([0, 1, 1, 1, 0, 0, 0, 0, 0])
+        b_0 = T.lamination([0, 1, 1, 0, 1, 0, 0, 0, 0])
+        c_0 = T.lamination([2, 1, 1, 1, 0, 1, 1, 1, 0])
+        a_1 = T.lamination([0, 0, 0, 0, 0, 1, 1, 1, 0])
+        b_1 = T.lamination([0, 0, 0, 0, 0, 1, 1, 0, 1])
+        
+        return curver.kernel.MappingClassGroup({
+            'a_0': a_0.encode_twist(),
+            'a_1': a_1.encode_twist(),
+            'b_0': b_0.encode_twist(),
+            'b_1': b_1.encode_twist(),
+            'c_0': c_0.encode_twist()
+            })
+    else:  # n > 1:
+        T = curver.create_triangulation(
+            [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (~0, 5, 6), (~6, ~(3*n+5), ~8)] + \
+            [(~(5+2*i), 5+2*i+2, 5+2*i+3) for i in range(n)] + \
+            [(2*n+7, ~(2*n+6), ~(2*n+5))] + \
+            [(2*n+7+i, ~(2*n+6 - 2*i), ~(2*n+6+i)) for i in range(1, n-1)]
+            )
+        
+        mapping_classes = dict()
+        mapping_classes['a_0'] = T.lamination_from_cut_sequence([1, 2, 3]).encode_twist()
+        mapping_classes['a_1'] = T.lamination_from_cut_sequence([5, 6, 7, 10, 3*n+5]).encode_twist()
+        mapping_classes['b_0'] = T.lamination_from_cut_sequence([1, 2, 4]).encode_twist()
+        mapping_classes['b_1'] = T.lamination_from_cut_sequence([5, 6, 8]).encode_twist()
+        mapping_classes['c_0'] = T.lamination_from_cut_sequence([0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 7, 10, 3*n+5, 6]).encode_twist()
+        # The twists obtained by pushing a_1 across the punctures.
+        # Note that if the loop ran with i=0 then it would create p_0 == a_1.
+        for i in range(1, n-1):
+            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([6, 5] + [7 + j*2 for j in range(i)] + [8 + 2*i] + [3*n+5 - j for j in range(i)]).encode_twist()
+        mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n)] + [] + [3*n+5 - j for j in range(n-1)]).encode_twist()
+        # The half-twists that permute the ith and (i+1)st punctures.
+        for i in range(n-1):
+            mapping_classes['s_%d' % i] = T.lamination([0] * (10 + 2*i) + [-1] + [0] * (3*n + 5 - (10 + 2*i))).encode_halftwist()
+        
+        return curver.kernel.MappingClassGroup(mapping_classes)
+
+def S_3_n(n):
+    assert(n >= 1)
+    
+    if n == 1:
+        T = curver.create_triangulation(
+            (0, 1, 2), (~1, 3, 4), (~2, ~3, ~4),
+            (5, 6, 7), (~6, 8, 9), (~7, ~8, ~9),
+            (10, 11, 12), (~11, 13, 14), (~12, ~13, ~14),
+            (~0, ~5, ~10)
+            )
+        #                   0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14
+        a_0 = T.lamination([0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        a_1 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0])
+        a_2 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
+        b_0 = T.lamination([0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        b_0 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0])
+        b_0 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1])
+        c_0 = T.lamination([2, 1, 3, 1, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0])
+        c_1 = T.lamination([0, 0, 0, 0, 0, 2, 1, 3, 1, 2, 2, 1, 1, 1, 0])
+        
+        return curver.kernel.MappingClassGroup({
+            'a_0': a_0.encode_twist(),
+            'a_1': a_1.encode_twist(),
+            'a_2': a_2.encode_twist(),
+            'b_0': b_0.encode_twist(),
+            'b_1': b_1.encode_twist(),
+            'b_2': b_2.encode_twist(),
+            'c_0': c_0.encode_twist(),
+            'c_1': c_1.encode_twist()
+            })
+    else:  # n > 1:
+        T = curver.create_triangulation(
+            [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (5, 6, 7), (~6, 8, 9), (~7, ~8, ~9)] + \
+            [(10, 11, 12), (~11, 13, 14), (~12, ~(3*n+11), ~14)] + \
+            [(~(13+2*i), 13+2*i+2, 13+2*i+3) for i in range(n-1)] + \
+            [(2*n+13, ~(2*n+12), ~(2*n+11))] + \
+            [(2*n+13+i, ~(2*n+12-2*i), ~(2*n+12+i)) for i in range(1, n-1)] + \
+            [(~0, ~5, ~10)]
+            )
+        
+        mapping_classes = dict()
+        mapping_classes['a_0'] = T.lamination_from_cut_sequence([1, 2, 3]).encode_twist()
+        mapping_classes['a_1'] = T.lamination_from_cut_sequence([6, 7, 8]).encode_twist()
+        mapping_classes['a_2'] = T.lamination_from_cut_sequence([11, 12, 13, 16, 3*n+11]).encode_twist()
+        mapping_classes['b_0'] = T.lamination_from_cut_sequence([1, 2, 4]).encode_twist()
+        mapping_classes['b_1'] = T.lamination_from_cut_sequence([6, 7, 9]).encode_twist()
+        mapping_classes['b_2'] = T.lamination_from_cut_sequence([11, 12, 14]).encode_twist()
+        mapping_classes['c_0'] = T.lamination_from_cut_sequence([0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 7, 8, 6, 5]).encode_twist()
+        mapping_classes['c_1'] = T.lamination_from_cut_sequence([5, 7, 9, 8, 7, 6, 9, 7, 5, 10, 12, 3*n+11, 16, 13, 11, 10]).encode_twist()
+        # The twists obtained by pushing a_2 across the punctures.
+        # Note that if the loop ran with i=0 then it would create p_0 == a_2.
+        for i in range(1, n-1):
+            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([12, 11] + [13 + j*2 for j in range(i)] + [14 + 2*i] + [3*n+11 - j for j in range(i)]).encode_twist()
+        mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n)] + [] + [3*n+11 - j for j in range(n-1)]).encode_twist()
+        # The half-twists that permute the ith and (i+1)st punctures.
+        for i in range(n-1):
+            mapping_classes['s_%d' % i] = T.lamination([0] * (16 + 2*i) + [-1] + [0] * (3*n + 11 - (16 + 2*i))).encode_halftwist()
+        
+        return curver.kernel.MappingClassGroup(mapping_classes)
+
+def S_g_n(g, n):
+    assert(g >= 4)
+    assert(n >= 1)
+    
+    if n == 1:
+        T = curver.create_triangulation(
+            # Build the fins using the first 5g edges.
+            [(5*i+0, 5*i+1, 5*i+2) for i in range(g)] + \
+            [(~(5*i+1), 5*i+3, 5*i+4) for i in range(g)] + \
+            [(~(5*i+2), ~(5*i+3), ~(5*i+4)) for i in range(g)] + \
+            # Finally triangulate the centre polygon using the last g - 3 edges.
+            [(~0, ~5, 5*g)] + \
+            [(5*g+1+i, ~(5*g+i), ~(5*i+10)) for i in range(g-4)] + \
+            [(~(5*g+g-4), ~(5*g-10), ~(5*g-5))]
+            )  # 0, ..., 6g - 4.
+        
+        mapping_classes = dict()
+        for i in range(g):
+            mapping_classes['a_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+3]).encode_twist()
+            mapping_classes['b_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+4]).encode_twist()
+        mapping_classes['c_%d' % 0] = T.lamination_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
+        for i in range(1, g-2):
+            mapping_classes['c_%d' % i] = T.lamination_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + i - 1, 5*g + i - 1]).encode_twist()
+        mapping_classes['c_%d' % (g-2)] = T.lamination_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
+        
+        return curver.kernel.MappingClassGroup(mapping_classes)
+    else:  # n > 1:
+        T = curver.create_triangulation(
+            # Build the fins using the first 5g edges.
+            [(5*i+0, 5*i+1, 5*i+2) for i in range(g)] + \
+            [(~(5*i+1), 5*i+3, 5*i+4) for i in range(g)] + \
+            [(~(5*i+2), ~(5*i+3), ~(5*i+4)) for i in range(g-1)] + \
+            # Don't forget the last one is special.
+            [(~(5*(g-1)+2), ~(5*(g-1)+4+(3*n-3)), ~(5*(g-1)+4))] + \
+            # Now fold to put in the additional punctures using the next 3n - 3 edges.
+            [(~(5*g-2 + 2*i), 5*g-2 + 2*i + 2, 5*g-2 + 2*i + 3)  for i in range(n-1)] + \
+            [(5*g-2 + 2*(n-1) + 2, ~(5*g-2 + 2*(n-1) + 1), ~(5*g-2 + 2*(n-1)))] + \
+            [(5*g-2 + 2*(n-1) + 2 + i, ~(5*g-2 + 2*(n-1) + 1 - 2*i), ~(5*g-2 + 2*(n-1) + 2 + i - 1)) for i in range(1, n-1)] + \
+            # Finally triangulate the centre polygon using the last g - 3 edges.
+            [(~0, ~5, 5*g+3*n-3)] + \
+            [(5*g+3*n-3+1+i, ~(5*g+3*n-3+i), ~(5*i+10)) for i in range(g-4)] + \
+            [(~(5*g+3*n-3+g-4), ~(5*g-10), ~(5*g-5))]
+            )
+        
+        mapping_classes = dict()
+        for i in range(g-1):
+            mapping_classes['a_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+3]).encode_twist()
+        mapping_classes['a_%d' % (g-1)] = T.lamination_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2, 5*(g-1)+3, 5*(g-1)+6, 5*(g-1)+3*n+1]).encode_twist()
+        for i in range(g):
+            mapping_classes['b_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+4]).encode_twist()
+        mapping_classes['c_%d' % 0] = T.lamination_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
+        for i in range(1, g-2):
+            mapping_classes['c_%d' % i] = T.lamination_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + 3*n - 3 + i - 1, 5*g + 3*n - 3 + i - 1]).encode_twist()
+        mapping_classes['c_%d' % (g-2)] = T.lamination_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 11, 5+3*n+1, 7, 5]]).encode_twist()
+        # The twists obtained by pushing a_{g-1} across the punctures.
+        # Note that if the loop ran with i=0 then it would create p_0 == a_{g-1}.
+        for i in range(1, n-1):
+            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(i+1)] + [5*(g-1)+6 + 2*i] + [5*(g-1)+3*n+1 - j for j in range(i+1)]).encode_twist()
+        mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*(g-1)+3*n+1 - j for j in range(n-1)]).encode_twist()
+        # The half-twists that permute the ith and (i+1)st punctures.
+        for i in range(n-1):
+            mapping_classes['s_%d' % i] = T.lamination([0] * (5*g + 2*i) + [-1] + [0] * (g + 3*n  - 7 - 2*i)).encode_halftwist()
+        
+        return curver.kernel.MappingClassGroup(mapping_classes)
+
+def load_old(surface):
+    if surface == 'S_0_4':
+        S = load(0, 4)
+        return curver.kernel.MappingClassGroup({
+            'a': S('s_1'),
+            'b': S('s_2'),
+            'c': S('s_3'),
+            'd': S('s_0'),
+            })
+    elif surface == 'S_1_1':
+        S = load(1, 1)
+        return curver.kernel.MappingClassGroup({
+            'a': S('a_0'),
+            'b': S('b_0'),
+            })
+    elif surface == 'S_1_2':
+        S = load(1, 2)
+        return curver.kernel.MappingClassGroup({
+            'a': S('a_0'),
+            'b': S('b_0'),
+            'c': S('p_1'),
+            'x': S('s_0'),
+            })
+    elif surface == 'S_1_2p':
+        S = load(1, 2)
+        return curver.kernel.MappingClassGroup({
+            'a': S('a_0'),
+            'b': S('b_0'),
+            'c': S('p_0'),
+            })
+    elif surface == 'S_2_1':
+        S = load(2, 1)
+        return curver.kernel.MappingClassGroup({
+            'a': S('b_0'),
+            'b': S('c_0'),
+            'c': S('b_1'),
+            'd': S('a_1'),
+            'e': S('(a_0.b_0.c_0)^4.A_1'),
+            'f': S('a_0'),
+            })
+    elif surface == 'S_3_1':
+        S = load(3, 1)
+        return curver.kernel.MappingClassGroup({
+            'a': S('b_0'),
+            'b': S('c_0'),
+            'c': S('b_1'),
+            'd': S('c_1'),
+            'e': S('b_2'),
+            'f': S('(a_0.b_0.c_0.b_1.c_1)^6.A_2'),
+            'g': S('a_2'),
+            'h': S('a_1'),
+            })
+    elif surface == 'S_4_1':
+        S = load(4, 1)
+        return curver.kernel.MappingClassGroup({
+            'a': S('b_0'),
+            'b': S('c_0'),
+            'c': S('b_1'),
+            'd': S('c_1'),
+            'e': S('b_2'),
+            'f': S('c_2'),
+            'g': S('b_3'),
+            'h': S('(a_0.b_0.c_0.b_1.c_1.b_2.c_2)^8.A_3'),
+            'i': S('a_3'),
+            'j': S('a_2'),
+            })
+    elif surface == 'S_5_1':
+        S = load(5, 1)
+        return curver.kernel.MappingClassGroup({
+            'a': S('b_0'),
+            'b': S('c_0'),
+            'c': S('b_1'),
+            'd': S('c_1'),
+            'e': S('b_2'),
+            'f': S('c_2'),
+            'g': S('b_3'),
+            'h': S('c_3'),
+            'i': S('b_4'),
+            'j': S('(a_0.b_0.c_0.b_1.c_1.b_2.c_2.b_3.c_3)^10.A_4'),
+            'k': S('a_4'),
+            'l': S('a_3'),
+            })
+    else:
+        raise ValueError('Unknown surface: %s' % surface)
+
+def load(*args):
     ''' Return the requested example MappingClassGroup.
     
-    Available surfaces:
-        'S_0_4', 'S_1_1', 'S_1_1m', 'S_1_2', 'S_1_2p',
-        'S_2_1', 'S_3_1', 'S_4_1', 'S_5_1',
-        'E_12', 'E_24', 'E_36', and
-        'SB_n' where n is an integer >= 3. '''
+    The mapping class group can either be specified by:
     
-    surfaces = {
-        'S_0_4': example_0_4,
-        'S_1_1': example_1_1,
-        'S_1_1m': example_1_1m,
-        'S_1_2': example_1_2,
-        'S_1_2p': example_1_2p,
-        'S_2_1': example_2_1,
-        'S_3_1': example_3_1,
-        'S_4_1': example_4_1,
-        'S_5_1': example_5_1,
-        'E_12': example_12,
-        'E_24': example_24,
-        'E_36': example_36
-        }
+        - a pair (g, n) in which case the Lickorish generating set is returned (see Figures 4.5 and 4.10 of [FarbMarg12]), or
+        - a string 'S_g_n' in which case the corresponding flipper / Twister generating set is returned.
     
-    surface = str(surface)
+    '''
     
-    if surface in surfaces:
-        return surfaces[surface]()
-    elif REGEX_IS_SPHERE_BRAID.match(surface):
-        return example_braid_sphere(int(REGEX_IS_SPHERE_BRAID.match(surface).groupdict()['num_strands']))
-    
-    raise KeyError('Unknown surface: %s' % surface)
+    if len(args) == 1:  # Load an old flipper surface.
+        surface = args[0]
+        return load_old(surface)
+    elif len(args) == 2:  # Build Mod(S_{g, n}).
+        g, n = args
+        assert(isinstance(g, curver.IntegerType))
+        assert(isinstance(n, curver.IntegerType))
+        
+        zeta = 6*g + 3*n - 6
+        if g < 0 or n < 0 or zeta < 3:
+            raise curver.AssumptionError('Surface cannot be triangulated.')
+        
+        if g == 0:  # and n >= 3.
+            return S_0_n(n)
+        elif g == 1:
+            return S_1_n(n)
+        elif g == 2:
+            return S_2_n(n)
+        elif g == 3:
+            return S_3_n(n)
+        else:  # g >= 4:
+            return S_g_n(g, n)
+    else:  # len(args) > 2:
+        raise ValueError('Expected a string or pair of integers.')
 
