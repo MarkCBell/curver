@@ -58,7 +58,7 @@ Curver can automatically create the mapping class group of any punctured surface
 It also includes all of the flipper / Twister example surfaces::
 
 	S = curver.load(3, 17)  # Genus 3 with 17 punctures.
-	S = curver.load('S_1_2')  # Flippers twice-punctured torus.
+	S = curver.load('S_1_2')  # Flipper's twice-punctured torus.
 
 Curver can also perform some hard calculations with mapping classes.
 These run in polynomial time but, thanks to large constants, can still take a *very* long time::
