@@ -111,13 +111,17 @@ class HalfTwist(Move):
         self.arc = arc
         self.power = power
         
-        edge = self.arc.parallel()
-        
         conjugator = arc.triangulation.id_encoding()
-        # We need to get to a really good configuration, one where self.curve is not just short
-        # but where valence(self.curve.initial_vertex) == 1.
+        # We need to get to a really good configuration, one where self.arc is not just short
+        # but where valence(self.arc.initial_vertex) == 1.
         
-        # Since self.curve is short it is an edge of the triangulation so we just keep moving
+        edge = self.arc.parallel()
+        # Reverse the orientation if the valence of the other end is less.
+        # This reduces the number of flips needed to reach a really good configuration.
+        if len(arc.triangulation.vertex_lookup[edge.label]) > len(arc.triangulation.vertex_lookup[~edge.label]):
+            edge = ~edge
+        
+        # Since self.arc is short it is an edge of the triangulation so we just keep moving
         # edges away from this edge's initial vertex to get to a really good triangulation.
         while len(conjugator.target_triangulation.vertex_lookup[edge.label]) > 1:  # valence(initial vertex) > 1.
             flip = conjugator.target_triangulation.encode_flip(conjugator.target_triangulation.corner_lookup[edge.label][2])
@@ -126,7 +130,7 @@ class HalfTwist(Move):
         # We can now perform the half twist. To do this we move all the edges back across to the other vertex.
         # Again, we keep moving edges away from this edge's terminal vertex.
         # TODO: 4) Prove this always works.
-        # NOTE: Will Worden checked that this works for genus <= 20.
+        # NOTE: William Worden checked that this works for genus <= 20.
         half_twist = conjugator.target_triangulation.id_encoding()  # valence(terminal vertex) > 1.
         while len(half_twist.target_triangulation.vertex_lookup[~edge.label]) > 1:
             flip = half_twist.target_triangulation.encode_flip(half_twist.target_triangulation.corner_lookup[~edge.label][2])
