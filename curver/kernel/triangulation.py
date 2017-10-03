@@ -187,7 +187,7 @@ class Triangulation(object):
         assert(isinstance(edge_labels, (list, tuple)))
         assert(all(isinstance(labels, (list, tuple)) for labels in edge_labels))
         assert(all(len(labels) == 3 for labels in edge_labels))
-        assert(len(edge_labels) > 0)
+        assert(edge_labels)
         
         zeta = len(edge_labels) * 3 // 2
         
@@ -529,6 +529,7 @@ class Triangulation(object):
         return curver.kernel.Lamination(self, weights).remove_peripheral().promote()
     
     def lamination_from_cut_sequence(self, sequence):
+        ''' Return a new lamination on this surface based on the sequence of edges that this Curve / Arc crosses. '''
         
         count = Counter(sequence)
         return self.lamination([count[i] + count[~i] for i in range(self.zeta)])
@@ -547,7 +548,7 @@ class Triangulation(object):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''
         
         laminations = list(laminations)
-        if all(isinstance(lamination, Lamination) for lamination in laminations):
+        if all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
             if not laminations:
                 return self.empty_lamination()
             
@@ -648,7 +649,7 @@ class Triangulation(object):
         then finally flips edge 1. '''
         
         assert(isinstance(sequence, (list, tuple)))
-        assert(len(sequence) > 0)
+        assert(sequence)
         
         T = self
         h = None

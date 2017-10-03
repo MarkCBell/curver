@@ -139,7 +139,7 @@ class MappingClassGroup(object):
         
         # This can fail with a TypeError.
         sequence = [item for letter in self.decompose_word(word) for item in self.mapping_classes[letter]]
-        return curver.kernel.Encoding(sequence) if len(sequence) > 0 else self.triangulation.id_encoding()
+        return curver.kernel.Encoding(sequence) if sequence else self.triangulation.id_encoding()
     
     def __call__(self, word):
         ''' A shortcut for self.mapping_class(...). '''

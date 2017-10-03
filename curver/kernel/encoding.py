@@ -15,7 +15,7 @@ class Encoding(object):
     The map is given by a sequence of Moves which act from right to left. '''
     def __init__(self, sequence):
         assert(isinstance(sequence, (list, tuple)))
-        assert(len(sequence) > 0)
+        assert(sequence)
         # assert(all(isinstance(item, curver.kernel.Move) for item in sequence))  # Quadratic.
         
         self.sequence = sequence
