@@ -131,10 +131,11 @@ def maximum(iterable, key=lambda x: x, upper_bound=None):
 def alphanum_key(strn):
     ''' Return a list of string and number chunks from a string. '''
     
-    def tryint(strn):
+    blocks = []
+    for chunk in re.split('([0-9]+)', strn):
         try:
-            return int(strn)
-        except:
-            return strn
+            blocks.append(int(strn))
+        except ValueError:
+            blocks.append(strn)
     
-    return [tryint(chunk) for chunk in re.split('([0-9]+)', strn)]
+    return blocks
