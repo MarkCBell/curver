@@ -262,6 +262,11 @@ class Triangulation(object):
         
         return list(classes)
     
+    def is_connected(self):
+        ''' Return if this triangulation has a single component. '''
+        
+        return len(self.components()) == 1
+    
     def dual_tree(self, avoid=None):
         ''' Return a maximal tree in 1--skeleton of the dual of this triangulation.
         
