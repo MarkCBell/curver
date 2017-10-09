@@ -50,6 +50,8 @@ class TestS_1_1alt(unittest.TestCase):
         self.assert(-1 <= slope <= 1 or curve.slope(self.encode_twist()(lamination)) == slope - 1)
     def test_package(self, encoding):
         self.assertEqual(encoding, encoding.source_triangulation.encode(encoding.package()))
+    def test_components(self, lamination, encoding):
+        self.assertEqual(encoding(lamination).components(), {encoding(component) for component in lamination.components})
     def test_crush(self, curve, lamination):
         crush = curve.crush()
         self.assertEqual(crush(lamination), crush(curve.encode_twist()(lamination)))
