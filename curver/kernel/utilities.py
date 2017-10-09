@@ -78,6 +78,7 @@ class UnionFind(object):
         for item in args:
             self.union2(args[0], item)
 
+# TODO: 3) Make this use @wraps to ensure that docstrings etc. are preserved.
 class memoize(object):
     ''' Cache the return value of a method.
     
@@ -139,3 +140,4 @@ def alphanum_key(strn):
             blocks.append(strn)
     
     return blocks
+
