@@ -78,6 +78,7 @@ def S_1_n(n):
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
             mapping_classes['s_%d' % i] = T.lamination([0] * (4 + 2*i) + [-1] + [0] * (3*n - 4 - 2*i - 1)).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (4 + 2*(n-2) - 1) + [-1] + [0] * (3*n - 4 - 2*(n-2) + 1 - 1)).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -125,6 +126,7 @@ def S_2_n(n):
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
             mapping_classes['s_%d' % i] = T.lamination([0] * (10 + 2*i) + [-1] + [0] * (3*n + 5 - (10 + 2*i))).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (10 + 2*(n-2) - 1) + [-1] + [0] * (3*n + 5 - (10 + 2*(n-2)) + 1)).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -185,6 +187,7 @@ def S_3_n(n):
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
             mapping_classes['s_%d' % i] = T.lamination([0] * (16 + 2*i) + [-1] + [0] * (3*n + 11 - (16 + 2*i))).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (16 + 2*(n-2) - 1) + [-1] + [0] * (3*n + 11 - (16 + 2*(n-2)) + 1)).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -250,6 +253,7 @@ def S_g_n(g, n):
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
             mapping_classes['s_%d' % i] = T.lamination([0] * (5*g + 2*i) + [-1] + [0] * (g + 3*n  - 7 - 2*i)).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (5*g + 2*(n-2) - 1) + [-1] + [0] * (g + 3*n  - 7 - 2*(n-2) + 1)).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -274,7 +278,7 @@ def load_old(surface):
             'a': S('a_0'),
             'b': S('b_0'),
             'c': S('p_1'),
-            'x': S('s_0'),
+            'x': S('s_1'),
             })
     elif surface == 'S_1_2p':
         S = load(1, 2)
