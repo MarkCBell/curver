@@ -27,8 +27,8 @@ class TestS_1_1(unittest.TestCase):
 class TestS_1_2(unittest.TestCase):
     def setUp(self):
         self.S = curver.load('S_1_2')
-        self.a = self.S.lamination([17, 44, 12, 12, 41, 18])
-        self.b = self.S.lamination([5719512847871531, 2642919316191732, 524642836301528, 2118276479890152, 5194870011570003, 6611446870756195])
+        self.a = self.S.lamination([4, 3, 1, 2, 1, 3])
+        self.b = self.S.lamination([195039444271276, 143576284551183, 259248710713939, 119795766434662, 23780518116521, 96015248318141])
         self.h = self.S('abc')
         self.g = self.S('abcaaabxx')
         self.identity = self.S('')
@@ -36,15 +36,15 @@ class TestS_1_2(unittest.TestCase):
         self.assertEqual(self.S('a^2b^3'), self.S('aabbb'))
     def test_mcomponents(self):
         self.assertEqual(self.a.triangulation.sum([mult*comp for comp, mult in self.a.mcomponents()]), self.a)
-        self.assertTrue(isinstance(self.b, curver.kernel.MultiArc))
+        self.assertTrue(isinstance(self.b, curver.kernel.Curve))
     def test_mapping_class(self):
         self.assertEqual(self.h, self.h)
         self.assertEqual(self.h.order(), 4)
         self.assertEqual((self.h**(self.h.order())), self.identity)
         self.assertEqual(self.S('xx'), self.S('(ab)^6'))
     def test_images(self):
-        self.assertEqual((self.g**0)(self.a), self.S.lamination([17, 32, 0, 12, 29, 6]))
-        self.assertEqual((self.g**1)(self.a), self.S.lamination([213, 143, 32, 59, 181, 216]))
+        self.assertEqual((self.g**0)(self.a), self.S.lamination([4, 3, 1, 2, 1, 3]))
+        self.assertEqual((self.g**1)(self.a), self.S.lamination([9, 10, 11, 8, 2, 6]))
         self.assertEqual((self.g**20)(self.a), self.b)
     def test_intersection(self):
         self.assertEqual(self.S('').intersection_matrix(), [[-1, 0, 0, 0, 0, 0], [0, -1, 0, 0, 0, 0], [0, 0, -1, 0, 0, 0], [0, 0, 0, -1, 0, 0], [0, 0, 0, 0, -1, 0], [0, 0, 0, 0, 0, -1]])
