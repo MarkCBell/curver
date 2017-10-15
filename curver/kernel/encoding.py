@@ -176,7 +176,7 @@ class MappingClass(Encoding):
     def asymptotic_translation_length(self):
         ''' Return the asymptotic translation length of this mapping class on the curve complex.
         
-        From Algorithm 6 of [BellWebb16b]_. '''
+        From Algorithm 6 of [BellWebb16]_. '''
         
         C = curver.kernel.CurveComplex(self.source_triangulation)
         c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
@@ -190,7 +190,7 @@ class MappingClass(Encoding):
     def positive_asymptotic_translation_length(self):
         ''' Return whether the asymptotic translation length of this mapping class on the curve complex is positive
         
-        This uses Remark 4.7 of [BellWebb16b]_ and so is more efficient than doing::
+        This uses Remark 4.7 of [BellWebb16]_ and so is more efficient than doing::
         
             self.asymptotic_translation_length() > 0 '''
         
