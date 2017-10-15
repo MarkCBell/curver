@@ -38,7 +38,7 @@ class Lamination(object):
         return iter(self.geometric)
     def __call__(self, edge):
         ''' Return the geometric measure assigned to item. '''
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return self.geometric[edge.index]
     def __eq__(self, other):
@@ -76,7 +76,7 @@ class Lamination(object):
         
         Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return self._dual[edge]
     
@@ -85,7 +85,7 @@ class Lamination(object):
         
         Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return self._side[edge]
     
@@ -288,7 +288,7 @@ class Lamination(object):
         We start at the given edge and intersection point for the specified number of steps.
         However we terminate early if the lamination closes up before this number of steps is completed. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         start = (edge, intersection_point)
         
@@ -329,7 +329,7 @@ class Shortenable(Lamination):
     def generic_shorten_strategy(self, edge):
         ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         if not self.triangulation.is_flippable(edge): return 0
         

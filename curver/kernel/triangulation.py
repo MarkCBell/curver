@@ -121,19 +121,13 @@ class Triangulation(object):
         # We will sort the triangles into a canonical ordering, the one where the edges are ordered
         # minimally by label. This allows for fast comparisons.
         self.triangles = sorted(triangles, key=lambda t: t.labels)
-        
-        self.edges = sorted([edge for triangle in self for edge in triangle], key=lambda edge: edge.label)
-        self.positive_edges = sorted([edge for edge in self.edges if edge.sign() == +1], key=lambda edge: edge.label)
-        self.labels = sorted([edge.label for edge in self.edges])
-        self.indices = sorted([edge.index for edge in self.positive_edges])
-        
         self.num_triangles = len(self.triangles)
-        self.zeta = len(self.positive_edges)
-        assert(self.zeta == self.num_triangles * 3 // 2)
-        # Check that the edges have indices 0, ..., zeta-1.
-        assert(set(self.labels) == set([i for i in range(self.zeta)] + [~i for i in range(self.zeta)]))
+        self.zeta = self.num_triangles * 3 // 2  # = self.num_edges.
+        self.indices = [index for index in range(self.zeta)]
+        self.labels = [label for label in range(-self.zeta, self.zeta)]
+        self.edges = [Edge(label) for label in self.labels]
+        self.positive_edges = [Edge(index) for index in self.indices]
         
-        self.edge_lookup = dict((edge.label, edge) for edge in self.edges)
         self.triangle_lookup = dict((edge.label, triangle) for triangle in self for edge in triangle)
         self.corner_lookup = dict((edge.label, Triangle(triangle.edges, rotate=index)) for triangle in triangles for index, edge in enumerate(triangle))
         
@@ -300,7 +294,7 @@ class Triangulation(object):
         for index in self.indices:
             row = [0] * self.zeta
             if dual_tree[index]:
-                edge = self.edge_lookup[index]
+                edge = Edge(index)
                 while True:
                     corner = self.corner_lookup[edge.label]
                     edge = corner.edges[2]
@@ -320,7 +314,7 @@ class Triangulation(object):
         
         An edge is flippable if and only if it lies in two distinct triangles. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return self.triangle_lookup[edge.label] != self.triangle_lookup[~edge.label]
     
@@ -329,7 +323,7 @@ class Triangulation(object):
         
         The given edge must be flippable. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         assert(self.is_flippable(edge))
         
@@ -358,7 +352,7 @@ class Triangulation(object):
         
         The chosen edge must be flippable. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         assert(self.is_flippable(edge))
         
@@ -568,7 +562,7 @@ class Triangulation(object):
     def edge_arc(self, edge):
         ''' Return the given edge as an Arc. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return curver.kernel.Arc(self, [0 if i != edge.index else -1 for i in range(self.zeta)])  # Could use self.lamination.
     
@@ -600,7 +594,7 @@ class Triangulation(object):
         
         The given edge must be flippable. '''
         
-        if isinstance(edge, curver.IntegerType): edge = self.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         assert(self.is_flippable(edge))
         
@@ -668,7 +662,7 @@ class Triangulation(object):
                     g = T.find_isometry(self, item).encode()
             elif isinstance(item, tuple) and len(item) == 2:  # Twist or HalfTwist.
                 label, power = item
-                edge = T.edge_lookup[label]
+                edge = Edge(label)
                 
                 arc = T.edge_arc(edge)
                 [curve] = [curve for curve in arc.boundary().components() if curve.dual_weight(edge) > 0]

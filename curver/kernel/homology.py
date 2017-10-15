@@ -21,7 +21,7 @@ class HomologyClass(object):
         return iter(self.algebraic)
     def __call__(self, edge):
         ''' Return the geometric measure assigned to item. '''
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return self.algebraic[edge.index] * edge.sign()
     def __eq__(self, other):

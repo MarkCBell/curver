@@ -77,7 +77,7 @@ class Isometry(Move):
         self.inverse_index_map = dict((index, curver.kernel.norm(self.inverse_label_map[index])) for index in self.source_triangulation.indices)
     
     def __str__(self):
-        return 'Isometry ' + str([self.target_triangulation.edge_lookup[self.label_map[i]] for i in self.source_triangulation.indices])
+        return 'Isometry ' + str([curver.kernel.Edge(self.label_map[index]) for index in self.source_triangulation.indices])
     def __reduce__(self):
         return (self.__class__, (self.source_triangulation, self.target_triangulation, self.label_map))
     def package(self):
@@ -103,7 +103,7 @@ class EdgeFlip(Move):
     def __init__(self, source_triangulation, target_triangulation, edge):
         super(EdgeFlip, self).__init__(source_triangulation, target_triangulation)
         
-        if isinstance(edge, curver.IntegerType): edge = self.source_triangulation.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         self.edge = edge
         assert(self.source_triangulation.is_flippable(self.edge))

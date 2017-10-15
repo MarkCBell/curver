@@ -76,7 +76,7 @@ class Curve(MultiCurve, Shortenable):
         # This follows from the fact that if this is a tripod / monopod in every triangle then
         # connectedness implies that there can't be any part which can't see a vertex.
         
-        if isinstance(edge, curver.IntegerType): edge = self.triangulation.edge_lookup[edge]  # If given an integer instead.
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         # Low score == bad.
         if not self.triangulation.is_flippable(edge):
