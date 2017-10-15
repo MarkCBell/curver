@@ -64,6 +64,7 @@ Curver can also perform some hard calculations with mapping classes.
 These run in polynomial time but, thanks to large constants, can still take a *very* long time::
 
 	print(h.nielsen_thurston_type())
+	print(h.asymptotic_translation_length())
 
 Future code
 ~~~~~~~~~~~
@@ -72,7 +73,6 @@ Unfortunately, these features are currently not implemented.
 When they are, some of these will move to the taster section::
 
 	print(a.fills_with(c))
-	print(h.asymptotic_translation_length())  # Need Bowditch's constant.
 
 Development
 ~~~~~~~~~~~
