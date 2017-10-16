@@ -134,7 +134,7 @@ class Triangulation(object):
         # Group the edges into vertices and ordered anti-clockwise.
         # Here two edges are in the same class iff they have the same tail.
         unused = set(self.edges)
-        self.vertices = []
+        self.vertices = set()
         while unused:
             vertex = [unused.pop()]
             while True:
@@ -145,7 +145,7 @@ class Triangulation(object):
                 else:
                     break
             
-            self.vertices.append(tuple(vertex))
+            self.vertices.add(tuple(vertex))
         
         self.vertex_lookup = dict((edge.label, vertex) for vertex in self.vertices for edge in vertex)
         
@@ -220,7 +220,7 @@ class Triangulation(object):
         ''' Return the maximum order of a mapping class on this surface. '''
         
         # List of pairs of #vertices and #edges for each component.
-        VE = [(len([vertex for vertex in self.vertices if list(vertex)[0] in component]), len(component) // 2) for component in self.components()]
+        VE = [(len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2) for component in self.components()]
         # List of pairs of genus and #vertices edges for each component.
         GV = [((2 - v + e // 3) // 2, v) for v, e in VE]
         
