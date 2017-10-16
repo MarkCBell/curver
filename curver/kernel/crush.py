@@ -54,7 +54,7 @@ class Crush(Move):
             # Tighten to the left.
             drop = max(sides[a], 0) + max(-sides[b], 0)
             for edge in v_edges[1:-1]:
-                x, y, z = lamination.triangulation.corner_lookup[edge.label].edges
+                x, y, z = lamination.triangulation.corner_lookup[edge.label]
                 if sides[x] >= 0 and sides[y] >= 0 and sides[z] >= 0:
                     if drop <= sides[x]:
                         sides[x] = sides[x] - drop
@@ -79,7 +79,7 @@ class Crush(Move):
             # Tighten to the right.
             drop = max(-sides[a], 0) + max(sides[b], 0)
             for edge in v_edges[-2:0:-1]:
-                x, y, z = lamination.triangulation.corner_lookup[edge.label].edges
+                x, y, z = lamination.triangulation.corner_lookup[edge.label]
                 if sides[x] >= 0 and sides[y] >= 0 and sides[z] >= 0:
                     if drop <= sides[x]:
                         sides[x] = sides[x] - drop
@@ -104,25 +104,25 @@ class Crush(Move):
             # Now rebuild the intersection.
             for edge in v_edges:
                 if edge not in (a, b, e, ~b, ~e):
-                    x, y, z = lamination.triangulation.corner_lookup[edge.label].edges
+                    x, y, z = lamination.triangulation.corner_lookup[edge.label]
                     if parallels[edge.index] > 0:
                         geometric[edge.index] = -parallels[x.index]
                     else:
                         geometric[edge.index] = max(sides[x], 0) + max(sides[y], 0) + max(-sides[z], 0)
                         
                         # Sanity check:
-                        x2, y2, z2 = lamination.triangulation.corner_lookup[~edge.label].edges
+                        x2, y2, z2 = lamination.triangulation.corner_lookup[~edge.label]
                         assert(geometric[edge.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
             
             # We have to rebuild the ~e edge separately since it now pairs with ~b.
-            x, y, z = lamination.triangulation.corner_lookup[~e.label].edges
+            x, y, z = lamination.triangulation.corner_lookup[~e.label]
             if parallels[e.index] + parallels[b.index] > 0:
                 geometric[e.index] = -parallels[e.index] - parallels[b.index]
             else:
                 geometric[e.index] = max(sides[x], 0) + max(sides[y], 0) + max(-sides[z], 0)
                 
                 # Sanity check:
-                x2, y2, z2 = lamination.triangulation.corner_lookup[~b.label].edges
+                x2, y2, z2 = lamination.triangulation.corner_lookup[~b.label]
                 assert(geometric[e.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
             
             # And finally the b edge, which is now paired with e.
