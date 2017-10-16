@@ -42,8 +42,8 @@ class TestS_1_1alt(unittest.TestCase):
         self.identity = self.S('')
         self.empty = self.S.triangulation.empty_lamination()
     @given(laminations(S))
-    def test_mcomponents(self, lamination):
-        self.assertEqual(lamination.triangulation.sum([mult*comp for comp, mult in lamination.mcomponents().items()]), lamination)
+    def test_components(self, lamination):
+        self.assertEqual(lamination.triangulation.sum([mult*comp for comp, mult in lamination.components().items()]), lamination)
     def test_slope_twist(self, curve, lamination):
         assume(curve.intersection(lamination) > 0)
         slope = curve.slope(lamination)

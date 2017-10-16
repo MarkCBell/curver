@@ -70,7 +70,7 @@ class MultiArc(Shortenable):
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
-    def mcomponents(self):
+    def components(self):
         return {self: 1}
     
     def parallel(self):

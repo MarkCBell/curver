@@ -21,7 +21,7 @@ class MultiCurve(Lamination):
         ''' Return an Encoding of a right Dehn (multi)twist about the components of this multicurve, raised to the given power. '''
         
         h = self.triangulation.id_encoding()
-        for curve, multiplicity in self.mcomponents().items():
+        for curve, multiplicity in self.components().items():
             h = curve.encode_twist(power * multiplicity) * h
         
         return h
@@ -59,7 +59,7 @@ class MultiCurve(Lamination):
 
 class Curve(MultiCurve, Shortenable):
     ''' A MultiCurve with a single component. '''
-    def mcomponents(self):
+    def components(self):
         return {self: 1}
     
     def is_short(self):

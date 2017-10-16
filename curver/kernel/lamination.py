@@ -97,7 +97,7 @@ class Lamination(object):
     def is_multicurve(self):
         ''' Return if this lamination is actually a multicurve. '''
         
-        return not self.is_empty() and all(isinstance(component, curver.kernel.Curve) for component in self.mcomponents())
+        return not self.is_empty() and all(isinstance(component, curver.kernel.Curve) for component in self.components())
     
     def is_curve(self):
         ''' Return if this lamination is actually a curve. '''
@@ -107,7 +107,7 @@ class Lamination(object):
     def is_multiarc(self):
         ''' Return if this lamination is actually a multiarc. '''
         
-        return not self.is_empty() and all(isinstance(component, curver.kernel.Arc) for component in self.mcomponents())
+        return not self.is_empty() and all(isinstance(component, curver.kernel.Arc) for component in self.components())
     
     def is_arc(self):
         ''' Return if this lamination is actually a multiarc. '''
@@ -155,27 +155,27 @@ class Lamination(object):
     def skeleton(self):
         ''' Return the lamination obtained by collapsing parallel components. '''
         
-        return self.triangulation.sum(self.mcomponents())
+        return self.triangulation.sum(self.components())
     
     def peek_component(self):
         ''' Return one component of this Lamination. '''
         
-        return next(iter(self.mcomponents()))
+        return next(iter(self.components()))
     
     def intersection(self, lamination):
         ''' Return the geometric intersection number between this lamination and the given one. '''
         
         assert(isinstance(lamination, Lamination))
         
-        return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.mcomponents().items())
+        return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.components().items())
     
     def no_common_component(self, lamination):
         ''' Return that self does not share any components with the given Lamination. '''
         
         assert(isinstance(lamination, Lamination))
         
-        self_components = self.mcomponents()
-        return not any(component in self_components for component in lamination.mcomponents())
+        self_components = self.components()
+        return not any(component in self_components for component in lamination.components())
     
     def train_track(self):
         ''' Return the train track underlying this lamination. '''
@@ -216,17 +216,12 @@ class Lamination(object):
         T = curver.kernel.Triangulation(triangles)
         return curver.kernel.TrainTrack(T, geometric)
     
-    def components(self):
-        ''' Return the set of Arcs and Curves that appear within self. '''
-        
-        return set(self.mcomponents())
-    
     @memoize
-    def mcomponents(self):
+    def components(self):
         ''' Return a dictionary mapping components to their multiplicities '''
         
         components = dict()
-        for component, multiplicity in self.train_track().mcomponents().items():
+        for component, multiplicity in self.train_track().components().items():
             # Project an Arc or Curve on T back to self.triangulation.
             if isinstance(component, curver.kernel.Curve):
                 components[curver.kernel.Curve(self.triangulation, component.geometric[:self.zeta])] = multiplicity
@@ -239,22 +234,22 @@ class Lamination(object):
     
     def num_components(self):
         ''' Return the total number of components. '''
-        return sum(self.mcomponents().values())
+        return sum(self.components().values())
     
     def sublaminations(self):
         ''' Return all sublaminations that appear within self. '''
-        components = self.mcomponents()
+        components = self.components()
         return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]
     
     def multiarc(self):
         ''' Return the maximal MultiArc contained within this lamination. '''
         
-        return self.triangulation.sum([multiplicity * component for component, multiplicity in self.mcomponents().items() if isinstance(component, curver.kernel.Arc)])
+        return self.triangulation.sum([multiplicity * component for component, multiplicity in self.components().items() if isinstance(component, curver.kernel.Arc)])
     
     def multicurve(self):
         ''' Return the maximal MultiCurve contained within this lamination. '''
         
-        return self.triangulation.sum([multiplicity * component for component, multiplicity in self.mcomponents().items() if isinstance(component, curver.kernel.Curve)])
+        return self.triangulation.sum([multiplicity * component for component, multiplicity in self.components().items() if isinstance(component, curver.kernel.Curve)])
     
     def boundary(self):
         ''' Return the boundary of a regular neighbourhood of this lamination. '''

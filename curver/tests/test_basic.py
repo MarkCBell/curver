@@ -34,8 +34,8 @@ class TestS_1_2(unittest.TestCase):
         self.identity = self.S('')
     def test_group(self):
         self.assertEqual(self.S('a^2b^3'), self.S('aabbb'))
-    def test_mcomponents(self):
-        self.assertEqual(self.a.triangulation.sum([mult*comp for comp, mult in self.a.mcomponents().items()]), self.a)
+    def test_components(self):
+        self.assertEqual(self.a.triangulation.sum([mult*comp for comp, mult in self.a.components().items()]), self.a)
         self.assertTrue(isinstance(self.b, curver.kernel.Curve))
     def test_mapping_class(self):
         self.assertEqual(self.h, self.h)
