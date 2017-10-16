@@ -129,7 +129,7 @@ class Triangulation(object):
         self.positive_edges = [Edge(index) for index in self.indices]
         
         self.triangle_lookup = dict((edge.label, triangle) for triangle in self for edge in triangle)
-        self.corner_lookup = dict((edge.label, Triangle(triangle.edges, rotate=index)) for triangle in triangles for index, edge in enumerate(triangle))
+        self.corner_lookup = dict((edge.label, Triangle(triangle.edges, rotate=index)) for triangle in self for index, edge in enumerate(triangle))
         
         # Group the edges into vertices and ordered anti-clockwise.
         # Here two edges are in the same class iff they have the same tail.
@@ -154,7 +154,7 @@ class Triangulation(object):
         self.euler_characteristic = -self.zeta // 3  # = V - E + F since 3F = 2E and V = 0.
         
         # Two triangualtions are the same if and only if they have the same signature.
-        self.signature = [e.label for t in self for e in t]
+        self.signature = [edge.label for triangle in self for edge in triangle]
     
     @classmethod
     def from_tuple(cls, *edge_labels):
