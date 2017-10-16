@@ -35,17 +35,17 @@ class TrainTrack(Shortenable):
         return 1
     
     def mcomponents(self):
-        ''' Return a set of pairs (component, multiplicity). '''
+        ''' Return a dictionary mapping components to their multiplicities '''
         
         short, conjugator = self.shorten()
         
-        components = set()
+        components = dict()
         for edge in short.triangulation.positive_edges:  # Only need to check half of them.
             # Check for an Arc here.
             if short(edge) < 0:
                 geometric = [-1 if index == edge.index else 0 for index in short.triangulation.indices]
                 component, multiplicity = curver.kernel.Arc(short.triangulation, geometric), abs(short(edge))
-                components.add((conjugator.inverse()(component), multiplicity))  # Map it back onto self.
+                components[conjugator.inverse()(component)] = multiplicity  # Map it back onto self.
             
             # Check for a curve here.
             if short.triangulation.is_flippable(edge):
@@ -54,7 +54,7 @@ class TrainTrack(Shortenable):
                 if b == ~d and da > 0 and db == 0 and de == 0:
                     geometric = [1 if index == b.index or index == e.index else 0 for index in short.triangulation.indices]
                     component, multiplicity = curver.kernel.Curve(short.triangulation, geometric), short(e)
-                    components.add((conjugator.inverse()(component), multiplicity))  # Map it back onto self.
+                    components[conjugator.inverse()(component)] = multiplicity  # Map it back onto self.
         
         return components
     

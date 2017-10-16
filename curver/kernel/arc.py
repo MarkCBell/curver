@@ -71,7 +71,7 @@ class MultiArc(Shortenable):
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
     def mcomponents(self):
-        return [(self, 1)]
+        return {self: 1}
     
     def parallel(self):
         ''' Return an edge that this arc is parallel to. '''
