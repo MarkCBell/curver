@@ -559,6 +559,34 @@ class Triangulation(object):
         else:
             return NotImplemented
     
+    def disjoint_sum(self, laminations):
+        ''' An efficient way of summing multiple disjoint laminations without computing intermediate values. '''
+        
+        laminations = list(laminations)
+        if all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
+            if any(lamination.triangulation != self for lamination in laminations):
+                raise ValueError('Laminations must all be defined on this triangulation to add them.')
+            
+            num_components = sum(lamination.num_components() for lamination in laminations)
+            if num_components == 0:
+                return self.empty_lamination()
+            
+            geometric = [sum(weights) for weights in zip(*laminations)]
+            if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):
+                if num_components == 1:
+                    return curver.kernel.Arc(self, geometric)
+                else:  # num_components > 1:
+                    return curver.kernel.MultiArc(self, geometric)
+            elif all(isinstance(lamination, curver.kernel.MultiCurve) for lamination in laminations):
+                if num_components == 1:
+                    return curver.kernel.Curve(self, geometric)
+                else:  # num_components > 1:
+                    return curver.kernel.MultiCurve(self, geometric)
+            else:  # Mixed.
+                return curver.kernel.Lamination(self, geometric)
+        else:
+            return NotImplemented
+    
     def edge_arc(self, edge):
         ''' Return the given edge as an Arc. '''
         
