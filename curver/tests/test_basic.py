@@ -35,7 +35,7 @@ class TestS_1_2(unittest.TestCase):
     def test_group(self):
         self.assertEqual(self.S('a^2b^3'), self.S('aabbb'))
     def test_components(self):
-        self.assertEqual(self.a.triangulation.sum([mult*comp for comp, mult in self.a.components().items()]), self.a)
+        self.assertEqual(self.a.triangulation.sum([multiplicity * component for component, multiplicity in self.a.components().items()]), self.a)
         self.assertTrue(isinstance(self.b, curver.kernel.Curve))
     def test_mapping_class(self):
         self.assertEqual(self.h, self.h)

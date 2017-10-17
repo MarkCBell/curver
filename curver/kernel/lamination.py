@@ -222,22 +222,25 @@ class Lamination(object):
         
         components = dict()
         for component, multiplicity in self.train_track().components().items():
+            assert(component not in components)
             # Project an Arc or Curve on T back to self.triangulation.
             if isinstance(component, curver.kernel.Curve):
                 components[curver.kernel.Curve(self.triangulation, component.geometric[:self.zeta])] = multiplicity
             elif isinstance(component, curver.kernel.Arc):
                 components[curver.kernel.Arc(self.triangulation, component.geometric[:self.zeta])] = multiplicity
             else:
-                raise ValueError('')
+                raise RuntimeError('self.train_track().components() returned a non Curve / Arc.')
         
         return components
     
     def num_components(self):
         ''' Return the total number of components. '''
+        
         return sum(self.components().values())
     
     def sublaminations(self):
         ''' Return all sublaminations that appear within self. '''
+        
         components = self.components()
         return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]
     

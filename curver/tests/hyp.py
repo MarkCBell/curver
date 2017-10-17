@@ -43,7 +43,7 @@ class TestS_1_1alt(unittest.TestCase):
         self.empty = self.S.triangulation.empty_lamination()
     @given(laminations(S))
     def test_components(self, lamination):
-        self.assertEqual(lamination.triangulation.sum([mult*comp for comp, mult in lamination.components().items()]), lamination)
+        self.assertEqual(lamination.triangulation.sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
     def test_slope_twist(self, curve, lamination):
         assume(curve.intersection(lamination) > 0)
         slope = curve.slope(lamination)
@@ -51,7 +51,7 @@ class TestS_1_1alt(unittest.TestCase):
     def test_package(self, encoding):
         self.assertEqual(encoding, encoding.source_triangulation.encode(encoding.package()))
     def test_components(self, lamination, encoding):
-        self.assertEqual(encoding(lamination).components(), {encoding(component) for component in lamination.components})  # !?!
+        self.assertEqual(set(encoding(lamination).components()), {encoding(component) for component in lamination.components})
     def test_crush(self, curve, lamination):
         crush = curve.crush()
         self.assertEqual(crush(lamination), crush(curve.encode_twist()(lamination)))

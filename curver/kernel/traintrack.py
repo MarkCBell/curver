@@ -35,8 +35,6 @@ class TrainTrack(Shortenable):
         return 1
     
     def components(self):
-        ''' Return a dictionary mapping components to their multiplicities '''
-        
         short, conjugator = self.shorten()
         
         components = dict()
