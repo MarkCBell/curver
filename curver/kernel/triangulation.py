@@ -90,15 +90,15 @@ class Triangle(object):
         return (self.__class__, (self.edges,))
     def __eq__(self, other):
         if isinstance(other, Triangle):
-            return self.labels == other.labels
+            return self.edges == other.edges
         else:
             return NotImplemented
     def __ne__(self, other):
         return not (self == other)
     def __hash__(self):
-        return hash(tuple(self.labels))
+        return hash(tuple(self.edges))
     def __len__(self):
-        return 3  # This is needed for revered(triangle) to work.
+        return 3  # This is needed for reversed(triangle) to work.
     
     # Note that this is NOT the same convention as used in pieces.
     # There iterating and index accesses return vertices.
@@ -468,15 +468,14 @@ class Triangulation(object):
                     label_map[new_from_label] = new_to_label
                     to_process.append((new_from_label, new_to_label))
         
-        # If an entire component is omitted then assume the map is the identity on it.
+        # Now assume that the map is the identity on all unmapped edges.
+        # If we have gotten this far then the and unmapped edges must be entire components.
         used_labels = set(label_map.keys() + label_map.values())
-        for component in self.components():
-            if not any(edge.label in used_labels for edge in component):
-                for edge in component:
-                    label_map[edge.label] = edge.label
-        
-        if any(i not in label_map for i in self.labels):
-            raise curver.AssumptionError('This label_map cannot be extended to an isometry.')
+        for edge in self.edges:
+            if not edge.label in used_labels:
+                if self.corner_lookup[edge.label] != other.corner_lookup[edge.label]:
+                    raise curver.AssumptionError('This label_map does not extend to an isometry.')
+                label_map[edge.label] = edge.label
         
         return curver.kernel.Isometry(self, other, label_map)
     

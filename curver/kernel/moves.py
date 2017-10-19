@@ -65,11 +65,8 @@ class Isometry(Move):
         assert(isinstance(label_map, dict))
         self.label_map = dict(label_map)
         
-        # If we are missing any labels then use a depth first search to find the missing ones.
-        # Hmmm, should always we do this just to check consistency?
-        for i in self.source_triangulation.labels:
-            if i not in self.label_map:
-                raise curver.AssumptionError('This label_map not defined on edge %d.' % i)
+        # Quick sanity check.
+        assert(all(i in self.label_map for i in self.source_triangulation.labels))
         
         self.index_map = dict((i, curver.kernel.norm(self.label_map[i])) for i in self.source_triangulation.indices)
         # Store the inverses too while we're at it.
