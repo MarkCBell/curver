@@ -48,11 +48,12 @@ class TestS_1_1alt(unittest.TestCase):
     @given(laminations(S))
     def test_components(self, lamination):
         self.assertEqual(lamination.triangulation.sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
+        self.assertEqual(lamination.triangulation.disjoint_sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
     @given(curves(S), laminations(S))
     def test_slope_twist(self, curve, lamination):
         assume(curve.intersection(lamination) > 0)
         slope = curve.slope(lamination)
-        # self.assert(-1 <= slope <= 1 or curve.slope(self.encode_twist()(lamination)) == slope - 1)
+        self.assertTrue(-1 <= slope <= 1 or curve.slope(self.encode_twist()(lamination)) == slope - 1)
     @given(encodings(S))
     def test_package(self, encoding):
         self.assertEqual(encoding, encoding.source_triangulation.encode(encoding.package()))
