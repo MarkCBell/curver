@@ -2,7 +2,7 @@
 ''' A module for representing a triangulation of a punctured surface. '''
 
 from math import factorial
-from itertools import groupby
+from itertools import groupby, product
 from collections import Counter
 
 import curver
@@ -487,23 +487,22 @@ class Triangulation(object):
         if self.zeta != other.zeta:
             return []
         
-        # TODO: 3) Modify this to work on disconnected surfaces.
+        # TODO: 2) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
-        # We take a corner of smallest degree.
-        source_vertex = min(self.vertices, key=len)
-        source_edge = source_vertex[0]
-        # And find all the places where it could be sent so there are as few as possible to check.
-        target_edges = [edge for target_vertex in other.vertices for edge in target_vertex if len(target_vertex) == len(source_vertex)]
+        sources = [min(component, key=lambda edge: len(self.vertex_lookup[edge.label])) for component in self.components()]
+        degrees = [len(self.vertex_lookup[edge.label]) for edge in sources]
+        targets = [[edge for edge in other.edges if len(other.vertex_lookup[edge.label]) == degree] for degree in degrees]
         
         isometries = []
-        for target_edge in target_edges:
+        for chosen_targets in product(targets):
             try:
-                isometries.append(self.find_isometry(other, {source_edge.label: target_edge.label}))
+                isometries.append(self.find_isometry(other, dict(zip(sources, chosen_targets))))
             except curver.AssumptionError:  # Map does not extend uniquely.
                 pass
         
         return isometries
+        
     
     def self_isometries(self):
         ''' Return a list of isometries taking this triangulation to itself. '''
