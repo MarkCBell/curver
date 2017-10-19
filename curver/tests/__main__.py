@@ -5,9 +5,8 @@ import argparse
 
 def main(hypothesis=False):
     loader = unittest.TestLoader()
-    if hypothesis: loader.testMethodPrefix = 'hyp'
     start_dir = os.path.dirname(__file__)
-    suite = loader.discover(start_dir)
+    suite = loader.discover(start_dir, pattern='hyp*.py' if hypothesis else 'test*.py')
     
     runner = unittest.TextTestRunner()
     print('Running unit tests:')
