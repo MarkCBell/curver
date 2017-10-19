@@ -1,7 +1,7 @@
 
 ''' A module of useful, generic functions; including input and output formatting. '''
 
-from functools import partial
+from functools import wraps
 from itertools import product
 from string import ascii_lowercase
 from collections import defaultdict
@@ -94,7 +94,11 @@ class memoize(object):
     def __get__(self, obj, objtype=None):
         if obj is None:
             return self.func
-        return partial(self, obj)
+        # By doing the wrapping ourselves, instead of just using partial(self, obj), we can use @wraps to move docstrings etc. over also.
+        @wraps(self.func)
+        def partialfunc(*args, **kwargs):
+            return self.func(*((obj,) + args), **kwargs)
+        return partialfunc
     def __call__(self, *args, **kw):
         obj = args[0]
         try:
