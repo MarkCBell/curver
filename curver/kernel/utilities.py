@@ -94,22 +94,19 @@ class memoize(object):
     def __get__(self, obj, objtype=None):
         if obj is None:
             return self.func
-        # By doing the wrapping ourselves, instead of just using partial(self, obj), we can use @wraps to move docstrings etc. over also.
-        @wraps(self.func)
-        def partialfunc(*args, **kwargs):
-            return self.func(*((obj,) + args), **kwargs)
-        return partialfunc
-    def __call__(self, *args, **kw):
+        # By doing the wrapping ourselves, instead of just using partial(self, obj), we can use wraps to move docstrings etc. over also.
+        return wraps(self.func)(lambda *args, **kwargs: self(*((obj,) + args), **kwargs))
+    def __call__(self, *args, **kwargs):
         obj = args[0]
         try:
             cache = obj.__cache
         except AttributeError:
             cache = obj.__cache = {}
-        key = (self.func, args[1:], frozenset(kw.items()))
+        key = (self.func, args[1:], frozenset(kwargs.items()))
         try:
             res = cache[key]
         except KeyError:
-            res = cache[key] = self.func(*args, **kw)
+            res = cache[key] = self.func(*args, **kwargs)
         return res
 
 def cyclic_slice(L, x, y):
