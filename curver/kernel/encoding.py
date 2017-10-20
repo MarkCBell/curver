@@ -78,7 +78,7 @@ class Encoding(object):
                 raise ValueError('Cannot compare Encodings between different triangulations.')
             
             return all(self(arc) == other(arc) for arc in self.source_triangulation.edge_arcs()) and \
-                all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())
+                all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
         else:
             return NotImplemented
     def __ne__(self, other):
