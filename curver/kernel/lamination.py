@@ -7,9 +7,9 @@ import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 class Lamination(object):
-    ''' This represents a lamination on a triangulation.
+    ''' This represents an (integral) lamination on a triangulation.
     
-    Users can use Triangulation.lamination(). '''
+    Users should create these via Triangulation.lamination(). '''
     def __init__(self, triangulation, geometric):
         assert(isinstance(triangulation, curver.kernel.Triangulation))
         
@@ -290,21 +290,21 @@ class Lamination(object):
         
         start = (edge, intersection_point)
         
-        assert(self(edge) > intersection_point >= 0)
+        assert(0 <= intersection_point < self(edge))  # Sanity.
         dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
         edges = []
         for _ in range(length):
             x, y, z = self.triangulation.corner_lookup[~edge.label]
             if intersection_point < dual_weights[z]:  # Turn right.
                 edge, intersection_point = y, intersection_point
-            elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:
-                break  # Terminates.
+            elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:  # Terminate.
+                break
             else:  # Turn left.
                 edge, intersection_point = z, self(z) - self(x) + intersection_point
             if (edge, intersection_point) == start:  # Closes up.
                 break
             edges.append(edge)
-            assert(self(edge) > intersection_point >= 0)  # Sanity.
+            assert(0 <= intersection_point < self(edge))  # Sanity.
         
         return edges
 
