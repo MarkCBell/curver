@@ -357,7 +357,7 @@ class Shortenable(Lamination):
             # This edge is always flippable.
             a, b, c, d, e = lamination.triangulation.square(edge)
             
-            intersection_point = lamination(e) - lamination.side_weight(e) if lamination.side_weight(e) > 0 else lamination.side_weight(a)
+            intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
             trace = lamination.trace(edge, intersection_point, 2*self.zeta)
             try:  # Accelerate!
                 trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
