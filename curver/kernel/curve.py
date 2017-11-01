@@ -56,6 +56,11 @@ class MultiCurve(Lamination):
             g = h * g
         
         return g
+    
+    def is_separating(self):
+        ''' Return if this multicurve separates. '''
+        
+        return len(self.crush().target_triangulation.components()) > 1
 
 class Curve(MultiCurve, Shortenable):
     ''' A MultiCurve with a single component. '''
