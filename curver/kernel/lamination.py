@@ -352,7 +352,7 @@ class Shortenable(Lamination):
         # Remark: This is part of the reason why we can shorten Curves, Multiarcs and TrainTracks but not MultiCurves.
         extra = []
         edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) > 0])
-        while lamination.weight() > 2*self.zeta:
+        while any(lamination.dual_weight(edge) < 0 for edge in edges) or any(len([edge for edge in triangle if lamination.dual_weight(edge) > 0]) == 2 for triangle in lamination.triangulation):
             edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.generic_shorten_strategy, upper_bound=1)
             # This edge is always flippable.
             a, b, c, d, e = lamination.triangulation.square(edge)
@@ -362,8 +362,7 @@ class Shortenable(Lamination):
             try:  # Accelerate!
                 trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
                 
-                indices = [edgy.index for edgy in trace]
-                curve = curver.kernel.Curve(lamination.triangulation, [indices.count(i) for i in range(self.zeta)])  # Avoids promote.
+                curve = lamination.triangulation.curve_from_cut_sequence(trace)  # Avoids promote.
                 slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
                 if -1 <= slope <= 1:  # Can't accelerate. We should probably also skip cases where slope is too close to small to be efficient.
                     raise ValueError
