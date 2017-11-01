@@ -690,13 +690,13 @@ class Triangulation(object):
                 label, power = item
                 edge = Edge(label)
                 
-                arc = T.edge_arc(edge)
-                [curve] = [curve for curve in arc.boundary().components() if curve.dual_weight(edge) > 0]
-                
                 # Check where it connects.
                 if T.vertex_lookup[edge.label] == T.vertex_lookup[~edge.label]:  # Twist.
+                    edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge.label], edge, ~edge)[1:]
+                    curve = T.lamination_from_cut_sequence(edges)
                     g = curver.kernel.Twist(curve, power).encode()
                 else:  # HalfTwist.
+                    arc = T.edge_arc(edge)
                     g = curver.kernel.HalfTwist(arc, power).encode()
             elif item is None:  # Identity isometry.
                 g = T.id_encoding()
