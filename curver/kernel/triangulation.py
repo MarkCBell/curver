@@ -531,6 +531,14 @@ class Triangulation(object):
         count = Counter(sequence)
         return self.lamination([count[i] + count[~i] for i in range(self.zeta)])
     
+    def curve_from_cut_sequence(self, sequence):
+        ''' Return a new curve on this surface based on the sequence of edges that this Curve crosses.
+        
+        Note that this method does NOT check that this produces a curve. '''
+        
+        count = Counter(sequence)
+        return curver.kernel.Curve(self, [count[i] + count[~i] for i in range(self.zeta)])
+    
     def empty_lamination(self):
         ''' Return the empty lamination defined on this triangulation. '''
         
@@ -693,7 +701,7 @@ class Triangulation(object):
                 # Check where it connects.
                 if T.vertex_lookup[edge.label] == T.vertex_lookup[~edge.label]:  # Twist.
                     edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge.label], edge, ~edge)[1:]
-                    curve = T.lamination_from_cut_sequence(edges)
+                    curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
                     g = curver.kernel.Twist(curve, power).encode()
                 else:  # HalfTwist.
                     arc = T.edge_arc(edge)
