@@ -57,10 +57,17 @@ class MultiCurve(Lamination):
         
         return g
     
+    def topological_type(self):
+        ''' Return the topological type of this multicurve.
+        
+        This is the (sorted) list of (genus, #punctures) for each component of the surface after it has been crushed along this multicurve. '''
+        
+        return self.crush().target_triangulation.surface()
+    
     def is_separating(self):
         ''' Return if this multicurve separates. '''
         
-        return len(self.crush().target_triangulation.components()) > 1
+        return len(self.topological_type()) > 1
 
 class Curve(MultiCurve, Shortenable):
     ''' A MultiCurve with a single component. '''

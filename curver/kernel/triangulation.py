@@ -216,13 +216,18 @@ class Triangulation(object):
     def __hash__(self):
         return hash(tuple(self.signature))
     
-    def max_order(self):
-        ''' Return the maximum order of a mapping class on this surface. '''
+    def surface(self):
+        ''' This return the (sorted) list of (genus, #punctures) for each component of this surface. '''
         
         # List of pairs of #vertices and #edges for each component.
         VE = [(len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2) for component in self.components()]
         # List of pairs of genus and #vertices edges for each component.
-        GV = [((2 - v + e // 3) // 2, v) for v, e in VE]
+        GV = sorted(((2 - v + e // 3) // 2, v) for v, e in VE)
+        
+        return GV
+    
+    def max_order(self):
+        ''' Return the maximum order of a mapping class on this surface. '''
         
         def order(g, v):
             ''' Return the maximum order of a periodic mapping class on S_{g, v}. '''
@@ -235,6 +240,9 @@ class Triangulation(object):
                 return max(v, 6)
             else:  # g == 0:
                 return v
+        
+        # List of pairs of genus and #vertices edges for each component.
+        GV = self.surface()
         
         # List of pairs of orders and multiplicity.
         OM = [(order(g, v), len(list(group))) for (g, v), group in groupby(sorted(GV))]
