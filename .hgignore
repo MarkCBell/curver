@@ -16,3 +16,4 @@ test.py
 Session.vim
 *.lprof
 .hypothesis
+experiments
