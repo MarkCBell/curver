@@ -15,7 +15,7 @@ This means that curver can do many of the things that flipper can, however, curv
 	- The ability to crush along (multi-)curves.
 	- The ability to procedurally generate the mapping class group of any surface.
 
-At some point someone(\\'s graduate student) should port these features back to flipper.
+At some point someone(’s graduate student) should port these features back to flipper.
 
 If you are looking for a basic framework for manipulating curves, arcs and mapping classes then you should probably base your code on curver.
 
