@@ -60,7 +60,8 @@ class MultiCurve(Lamination):
     def topological_type(self):
         ''' Return the topological type of this multicurve.
         
-        This is the (sorted) list of (genus, #punctures) for each component of the surface after it has been crushed along this multicurve. '''
+        This is the surface obtained by crushing this surface along this multicurve.
+        It is given by the (sorted) list of (genus, #punctures) for each component of the crushed surface. '''
         
         return self.crush().target_triangulation.surface()
     
