@@ -1,7 +1,7 @@
 
 ''' A module of useful, generic functions; including input and output formatting. '''
 
-from functools import wraps
+from functools import wraps, partial
 from itertools import product
 from string import ascii_lowercase
 from collections import defaultdict
@@ -78,35 +78,16 @@ class UnionFind(object):
         for item in args:
             self.union2(args[0], item)
 
-class memoize(object):
-    ''' Cache the return value of a method.
+def memoize(function):
+    @wraps(function)
+    def caching(self):
+        if not hasattr(self, '__cache'):
+            self.__cache = dict()
+        if function.func_name not in self.__cache:
+            self.__cache[function.func_name] = function(self)
+        return self.__cache[function.func_name]
     
-    This class is meant to be used as a decorator of methods. The return value
-    from a given method invocation will be cached on the instance whose method
-    was invoked. All arguments passed to a method decorated with memoize must
-    be hashable.
-    
-    If a memoized method is invoked directly on its class the result will not
-    be cached. Instead the method will be invoked like a static method. '''
-    def __init__(self, func):
-        self.func = func
-    def __get__(self, obj, objtype=None):
-        if obj is None:
-            return self.func
-        # By doing the wrapping ourselves, instead of just using partial(self, obj), we can use wraps to move docstrings etc. over also.
-        return wraps(self.func)(lambda *args, **kwargs: self(*((obj,) + args), **kwargs))
-    def __call__(self, *args, **kwargs):
-        obj = args[0]
-        try:
-            cache = obj.__cache
-        except AttributeError:
-            cache = obj.__cache = {}
-        key = (self.func, args[1:], frozenset(kwargs.items()))
-        try:
-            res = cache[key]
-        except KeyError:
-            res = cache[key] = self.func(*args, **kwargs)
-        return res
+    return caching
 
 def cyclic_slice(L, x, y):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
