@@ -84,7 +84,7 @@ Alternatively, you can clone the `mercurial <https://www.mercurial-scm.org/>`_ r
 
 And then install using the command::
 
-	> python -m pip install --editable .
+	> python -m pip install --editable . --user
 
 In several places work is flagged TODO: #). The number determines the priority.
 	1) == Major feature.
