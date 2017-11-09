@@ -60,15 +60,10 @@ class MultiCurve(Lamination):
     def topological_type(self):
         ''' Return the topological type of this multicurve.
         
-        This is the surface obtained by crushing this surface along this multicurve.
-        It is given by the (sorted) list of (genus, #punctures) for each component of the crushed surface. '''
+        Two multicurves are in the same mapping class group orbit if and only if they have the same topological type. '''
         
-        return self.crush().target_triangulation.surface()
-    
-    def is_separating(self):
-        ''' Return if this multicurve separates. '''
-        
-        return len(self.topological_type()) > 1
+        # TODO: 3) Implement.
+        return NotImplemented
 
 class Curve(MultiCurve, Shortenable):
     ''' A MultiCurve with a single component. '''
@@ -235,4 +230,14 @@ class Curve(MultiCurve, Shortenable):
         
         crush = curver.kernel.Crush(short.triangulation, new_triangulation, short, matrix).encode()
         return crush * conjugator
+    
+    def topological_type(self):
+        ''' Return the topological type of this curve.
+        
+        Two curves are in the same mapping class group orbit if and only if they have the same topological type.
+        
+        This is the surface obtained by crushing this surface along this multicurve.
+        It is given by the (sorted) list of (genus, #punctures) for each component of the crushed surface. '''
+        
+        return self.crush().target_triangulation.surface()
 
