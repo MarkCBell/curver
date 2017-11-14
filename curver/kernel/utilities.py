@@ -80,12 +80,13 @@ class UnionFind(object):
 
 def memoize(function):
     @wraps(function)
-    def caching(self):
+    def caching(self, *args, **kwargs):
         if not hasattr(self, '__cache'):
             self.__cache = dict()
-        if function.func_name not in self.__cache:
-            self.__cache[function.func_name] = function(self)
-        return self.__cache[function.func_name]
+        key = (function, args, frozenset(kwargs.items()))
+        if key not in self.__cache:
+            self.__cache[key] = function(self, *args, **kwargs)
+        return self.__cache[key]
     
     return caching
 
