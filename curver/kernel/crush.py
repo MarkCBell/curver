@@ -173,7 +173,7 @@ class Lift(Move):
     def apply_lamination(self, lamination):
         # Really should check that the dual weights around a vertex are all non-negative.
         geometric = [sum(x * y for x, y in zip(row, lamination)) for row in self.matrix]  # Dot product.
-        return self.target_triangulation.lamination(geometric)  # Have to promote.
+        return lamination.__class__(self.target_triangulation, geometric)  # Avoid promote since the lift has to be the same type as the given lamination.
     
     def apply_homology(self, homology_class):
         return NotImplemented  # I don't think we ever need this.
