@@ -2,6 +2,8 @@
 ''' A module for representing (multi)curves on triangulations. '''
 
 from fractions import Fraction
+from collections import Counter, defaultdict
+import networkx
 
 import curver
 from curver.kernel.lamination import Lamination, Shortenable  # Special import needed for subclassing.
@@ -60,10 +62,35 @@ class MultiCurve(Lamination):
     def topological_type(self):
         ''' Return the topological type of this multicurve.
         
-        Two multicurves are in the same mapping class group orbit if and only if they have the same topological type. '''
+        Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
+        These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
         
         # TODO: 3) Implement.
-        return NotImplemented
+        crush = self.crush()
+        lift = crush.inverse()
+        triangulation = crush.target_triangulation
+        components = self.components()  # The components of this multicurves.
+        
+        graph = networkx.MultiGraph()
+        half_edges = defaultdict(list)
+        for index, component in enumerate(triangulation.components()):
+            vertices = [vertex for vertex in triangulation.vertices if vertex[0] in component]  # The vertices that are in this component.
+            V, E = len(vertices), len(component) // 2  # Number of vertices and edges in this component.
+            G = (2 - V + E // 3) // 2  # Genus.
+            
+            graph.add_node(index, genus=G, vertices=V)
+            
+            for vertex in vertices:
+                count = Counter([edge.index for edge in vertex])
+                curve = curver.kernel.Lamination(triangulation, [count[i] for i in range(self.zeta)])
+                lifted_curve = lift(curve)
+                if lifted_curve in components:
+                    half_edges[lifted_curve].append(index)
+        
+        for curve, (i, j) in half_edges.items():
+            graph.add_edge(i, j, weight=components[curve])
+        
+        return curver.kernel.CurvePartitionGraph(self, graph)
 
 class Curve(MultiCurve, Shortenable):
     ''' A MultiCurve with a single component. '''
@@ -230,14 +257,4 @@ class Curve(MultiCurve, Shortenable):
         
         crush = curver.kernel.Crush(short.triangulation, new_triangulation, short, matrix).encode()
         return crush * conjugator
-    
-    def topological_type(self):
-        ''' Return the topological type of this curve.
-        
-        Two curves are in the same mapping class group orbit if and only if they have the same topological type.
-        
-        This is the surface obtained by crushing this surface along this multicurve.
-        It is given by the (sorted) list of (genus, #punctures) for each component of the crushed surface. '''
-        
-        return self.crush().target_triangulation.surface()
 

@@ -17,6 +17,7 @@ from . import homology
 from . import lamination
 from . import mappingclassgroup
 from . import moves
+from . import partition
 from . import traintrack
 from . import triangulation
 from . import twist
@@ -48,6 +49,7 @@ Lift = crush.Lift
 CurveComplex = curvecomplex.CurveComplex
 Twist = twist.Twist
 HalfTwist = twist.HalfTwist
+CurvePartitionGraph = partition.CurvePartitionGraph
 
 norm = triangulation.norm
 UnionFind = utilities.UnionFind
