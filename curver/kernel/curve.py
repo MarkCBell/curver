@@ -65,7 +65,6 @@ class MultiCurve(Lamination):
         Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
         These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
         
-        # TODO: 3) Implement.
         crush = self.crush()
         lift = crush.inverse()
         triangulation = crush.target_triangulation
