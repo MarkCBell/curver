@@ -65,10 +65,10 @@ class MultiCurve(Lamination):
         Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
         These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
         
+        components = self.components()  # The components of this multicurves.
         crush = self.crush()
         lift = crush.inverse()
         triangulation = crush.target_triangulation
-        components = self.components()  # The components of this multicurves.
         
         graph = networkx.MultiGraph()
         half_edges = defaultdict(list)
@@ -80,8 +80,7 @@ class MultiCurve(Lamination):
             graph.add_node(index, genus=G, vertices=V)
             
             for vertex in vertices:
-                count = Counter([edge.index for edge in vertex])
-                curve = curver.kernel.Lamination(triangulation, [count[i] for i in range(self.zeta)])
+                curve = triangulation.peripheral_curve(vertex)
                 lifted_curve = lift(curve)
                 if lifted_curve in components:
                     half_edges[lifted_curve].append(index)
