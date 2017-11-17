@@ -5,7 +5,7 @@ Getting Started
 Installation
 ~~~~~~~~~~~~
 
-`Curver <https://pypi.python.org/curver>`_ is available on the `Python Package Index <https://pypi.python.org>`_.
+`Curver <https://pypi.python.org/pypi/curver>`_ is available on the `Python Package Index <https://pypi.python.org>`_.
 The preferred method for installing the latest stable release is to use `pip <http://pip.readthedocs.org/en/latest/installing.html>`_ (included in Python 2.7.9 and Python 3.4 by default)::
 
 	> python -m pip install curver --user --upgrade
