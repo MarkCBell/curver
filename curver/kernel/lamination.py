@@ -307,6 +307,44 @@ class Lamination(object):
             assert(0 <= intersection_point < self(edge))  # Sanity.
         
         return edges
+    
+    def topological_type(self):
+        ''' Return the topological type of this lamination..
+        
+        Two laminations are in the same mapping class group orbit if and only their topological types are equal.
+        These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
+        
+        return NotImplemented  # TODO: 3) Implement.
+        
+        if self.is_empty():
+            return curver.kernel.CurvePartitionGraph(self, networkx.MultiGraph())  # Empty graph.
+        
+        components = self.components()  # The components of this multicurves.
+        crush = self.multicurve().crush()
+        lift = crush.inverse()
+        short, conjugator = crush(self).shorten()
+        triangulation = conjugator.target_triangulation
+        
+        graph = networkx.MultiGraph()
+        half_edges = defaultdict(list)
+        for index, component in enumerate(triangulation.components()):
+            vertices = [vertex for vertex in triangulation.vertices if vertex[0] in component]  # The vertices that are in this component.
+            V, E = len(vertices), len(component) // 2  # Number of vertices and edges in this component.
+            G = (2 - V + E // 3) // 2  # Genus.
+            
+            # !?! This node also needs to be decorated with the topological type of short|_component.
+            graph.add_node(index, genus=G, vertices=V)
+            
+            for vertex in vertices:
+                curve = triangulation.peripheral_curve(vertex)
+                lifted_curve = lift(conjugator.inverse()(curve))
+                if lifted_curve in components:
+                    half_edges[lifted_curve].append(index)
+        
+        for curve, (i, j) in half_edges.items():
+            graph.add_edge(i, j, weight=components[curve])
+        
+        return curver.kernel.CurvePartitionGraph(self, graph)
 
 class Shortenable(Lamination):
     ''' A special lamination that we can put into a canonical 'short' form. '''

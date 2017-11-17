@@ -67,6 +67,14 @@ class MultiArc(Shortenable):
             triangulations.add(conjugator.inverse()(encoding.inverse()(T)))
         
         return triangulations
+    
+    def topological_type(self):
+        ''' Return the topological type of this multiarc.
+        
+        Two multiarcs are in the same mapping class group orbit if and only their topological types are equal.
+        These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
+        
+        return NotImplemented  # TODO: 3) Implement.
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
