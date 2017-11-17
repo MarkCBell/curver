@@ -83,7 +83,7 @@ def memoize(function):
     def caching(self, *args, **kwargs):
         if not hasattr(self, '__cache'):
             self.__cache = dict()
-        key = (function, args, frozenset(kwargs.items()))
+        key = (function.func_name, args, frozenset(kwargs.items()))
         if key not in self.__cache:
             self.__cache[key] = function(self, *args, **kwargs)
         return self.__cache[key]
