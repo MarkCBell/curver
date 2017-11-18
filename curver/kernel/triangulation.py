@@ -247,11 +247,11 @@ class Triangulation(object):
         # List of pairs of orders and multiplicity.
         OM = [(order(g, v), len(list(group))) for (g, v), group in groupby(sorted(GV))]
         
-        product = 1
+        prod = 1
         for o, m in OM:
-            product *= o * factorial(m)  # Actually need o*lcm(1, 2, ..., m), but this is easier (and not significantly larger?)
+            prod *= o * factorial(m)  # Actually need o*lcm(1, 2, ..., m), but this is easier (and not significantly larger?)
         
-        return product
+        return prod
     
     def components(self):
         ''' Return a list of sets of the edges in each component of self. '''
