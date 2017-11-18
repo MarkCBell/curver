@@ -63,7 +63,15 @@ class MultiCurve(Lamination):
         ''' Return the topological type of this multicurve.
         
         Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
-        These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
+        These are labelled graphs and so equal means 'label isomorphic', so we return a CurvePartitionGraph class that uses networkx.is_isomorphic to determine equality. '''
+        
+        # We build the CurvePartitionGraph as follows:
+        #  1) Crush along all curve components to obtain S'.
+        #  2) Create a graph with a vertex for each component of S'.
+        #  3) Label each vertex with the topological type of its component.
+        #  4) Connect two vertices with an edge for each curve that you crushed along.
+        #  5) Label each edge with the multiplicity of the corresponding curve.
+        # Then two multicurves are in the same mapping class group orbit iff there is a label-preserving isomorphism between their graphs.
         
         components = self.components()  # The components of this multicurves.
         crush = self.crush()
