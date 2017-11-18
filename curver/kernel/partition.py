@@ -1,8 +1,11 @@
 
+''' A module for representing partition graphs. '''
+
 import networkx
 import curver
 
 class CurvePartitionGraph(object):
+    ''' This represents a partition graph of a MultiCurve. '''
     def __init__(self, multicurve, graph):
         self.multicurve = multicurve
         self.graph = graph
