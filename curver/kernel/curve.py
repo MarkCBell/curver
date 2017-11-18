@@ -2,7 +2,7 @@
 ''' A module for representing (multi)curves on triangulations. '''
 
 from fractions import Fraction
-from collections import Counter, defaultdict
+from collections import defaultdict
 import networkx
 
 import curver
