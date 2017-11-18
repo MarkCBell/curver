@@ -1,7 +1,7 @@
 
 ''' A module of useful, generic functions; including input and output formatting. '''
 
-from functools import wraps, partial
+from functools import wraps
 from itertools import product
 from string import ascii_lowercase
 from collections import defaultdict
@@ -79,8 +79,12 @@ class UnionFind(object):
             self.union2(args[0], item)
 
 def memoize(function):
+    ''' A decorator that memoizes a method of a class. '''
     @wraps(function)
     def caching(self, *args, **kwargs):
+        ''' The cached version of function.
+        
+        Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
         if not hasattr(self, '__cache'):
             self.__cache = dict()
         key = (function.func_name, args, frozenset(kwargs.items()))
