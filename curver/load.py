@@ -1,5 +1,9 @@
 
+import re
+
 import curver
+
+REGEX_IS_SPHERE_BRAID = re.compile(r'SB_(?P<num_strands>\d+)$')
 
 # Based on code by William Worden.
 
@@ -339,6 +343,8 @@ def load_old(surface):
             'k': S('a_4'),
             'l': S('a_3'),
             })
+    elif REGEX_IS_SPHERE_BRAID.match(surface):
+        return S_0_n(int(REGEX_IS_SPHERE_BRAID.match(surface).groupdict()['num_strands']))
     else:
         raise ValueError('Unknown surface: %s' % surface)
 
