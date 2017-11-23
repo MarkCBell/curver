@@ -162,7 +162,7 @@ class Triangulation(object):
         
         Let T be an ideal triangulaton of the punctured (oriented) surface S. Orient
         and edge e of T and assign an index i(e) in 0, ..., zeta-1. Now to each
-        triangle t of T associate the triple j)t) := (j(e_1), j(e_2), j(e_3)) where:
+        triangle t of T associate the triple j(t) := (j(e_1), j(e_2), j(e_3)) where:
         
             - e_1, e_2, e_3 are the edges of t, ordered acording to the orientation of t, and
             - j(e) = {  i(e) if the orientation of e agrees with that of t, and
