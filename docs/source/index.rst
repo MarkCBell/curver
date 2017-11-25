@@ -14,6 +14,7 @@ Welcome to Curver's documentation!
 
    start.rst
    flipper.rst
+   surfaces.rst
    references.rst
    citing.rst
    license.rst
