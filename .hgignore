@@ -17,3 +17,7 @@ Session.vim
 *.lprof
 .hypothesis
 experiments
+*.aux
+*.log
+*.pdf
+*.svg
