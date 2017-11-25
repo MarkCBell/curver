@@ -40,9 +40,8 @@ def S_0_n(n):
     # We'll then create an arc connecting the ith to (i+1)st punctures.
     # Note that the arcs connecting (n-2)nd & (n-1)st and (n-1)st & 0th are special.
     
-    arcs = [T.lamination([-1 if j == 2*n-4+i else 0 for j in range(T.zeta)]) for i in range(n-2)] + \
-        [T.lamination([-1 if j == 2*n-5 else 0 for j in range(T.zeta)])] + \
-        [T.lamination([-1 if j == 0 else 0 for j in range(T.zeta)])]
+        
+    arcs = [T.edge_arc(2*n-4+i) for i in range(n-2)] + [T.edge_arc(2*n-5), T.edge_arc(0)]
     
     # We take the half-twist about each of these curves as the generator \sigma_i of SB_n.
     mapping_classes = dict(('s_%d' % index, arc.encode_halftwist()) for index, arc in enumerate(arcs))
@@ -81,8 +80,8 @@ def S_1_n(n):
         mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([0, 1] + [3 + j*2 for j in range(n-1)] + [] + [3*n-1 - j for j in range(n-1)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
-            mapping_classes['s_%d' % i] = T.lamination([0] * (4 + 2*i) + [-1] + [0] * (3*n - 4 - 2*i - 1)).encode_halftwist()
-        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (4 + 2*(n-2) - 1) + [-1] + [0] * (3*n - 4 - 2*(n-2) + 1 - 1)).encode_halftwist()
+            mapping_classes['s_%d' % i] = T.edge_arc(4 + 2*i).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.edge_arc(4 + 2*(n-2) - 1).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -129,8 +128,8 @@ def S_2_n(n):
         mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n)] + [] + [3*n+5 - j for j in range(n-1)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
-            mapping_classes['s_%d' % i] = T.lamination([0] * (10 + 2*i) + [-1] + [0] * (3*n + 5 - (10 + 2*i))).encode_halftwist()
-        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (10 + 2*(n-2) - 1) + [-1] + [0] * (3*n + 5 - (10 + 2*(n-2)) + 1)).encode_halftwist()
+            mapping_classes['s_%d' % i] = T.edge_arc(10 + 2*i).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.edge_arc(10 + 2*(n-2) - 1).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -190,8 +189,8 @@ def S_3_n(n):
         mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n)] + [] + [3*n+11 - j for j in range(n-1)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
-            mapping_classes['s_%d' % i] = T.lamination([0] * (16 + 2*i) + [-1] + [0] * (3*n + 11 - (16 + 2*i))).encode_halftwist()
-        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (16 + 2*(n-2) - 1) + [-1] + [0] * (3*n + 11 - (16 + 2*(n-2)) + 1)).encode_halftwist()
+            mapping_classes['s_%d' % i] = T.edge_arc(16 + 2*i).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.edge_arc(16 + 2*(n-2) - 1).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
@@ -256,8 +255,8 @@ def S_g_n(g, n):
         mapping_classes['p_%d' % (n-1)] = T.lamination_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*(g-1)+3*n+1 - j for j in range(n-1)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         for i in range(n-1):
-            mapping_classes['s_%d' % i] = T.lamination([0] * (5*g + 2*i) + [-1] + [0] * (g + 3*n  - 7 - 2*i)).encode_halftwist()
-        mapping_classes['s_%d' % (n-1)] = T.lamination([0] * (5*g + 2*(n-2) - 1) + [-1] + [0] * (g + 3*n  - 7 - 2*(n-2) + 1)).encode_halftwist()
+            mapping_classes['s_%d' % i] = T.edge_arc(5*g + 2*i).encode_halftwist()
+        mapping_classes['s_%d' % (n-1)] = T.edge_arc(5*g + 2*(n-2) - 1).encode_halftwist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
 
