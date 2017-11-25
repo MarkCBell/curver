@@ -14,7 +14,7 @@ This means that curver can do many of the things that flipper can, however, curv
 	- Component extraction.
 	- The ability to crush along (multi-)curves.
 	- The ability to determine the topological type of a multicurve.
-	- The ability to procedurally generate the mapping class group of any surface :ref:`Surfaces`_.
+	- The ability to procedurally generate the mapping class group of any :ref:`surface <Surfaces>`.
 
 At some point someone(’s graduate student) should port these features back to flipper.
 
