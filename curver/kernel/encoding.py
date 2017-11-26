@@ -111,6 +111,16 @@ class Encoding(object):
         return Encoding([item.inverse() for item in reversed(self.sequence)])
     def __invert__(self):
         return self.inverse()
+    
+    def vertex_map(self):
+        ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
+        
+        When self is a MappingClass this is a permutation of the vertices. '''
+        
+        source_vertices = dict((vertex, self.source_triangulation.peripheral_curve(vertex)) for vertex in self.source_triangulation.vertices)
+        target_vertices_inverse = dict((self.target_triangulation.peripheral_curve(vertex), vertex) for vertex in self.target_triangulation.vertices)
+        
+        return dict((vertex, target_vertices_inverse[self(source_vertices[vertex])]) for vertex in self.source_triangulation.vertices)
 
 class MappingClass(Encoding):
     ''' An Encoding where self.source_triangulation == self.target_triangulation. '''
