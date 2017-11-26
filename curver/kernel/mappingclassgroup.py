@@ -83,7 +83,7 @@ class MappingClassGroup(object):
                         subword = subword[len(letter):]
                         break
                 else:
-                    raise TypeError('After extracting %s, the remaining %s cannot be greedly decomposed as a concatination of self.mapping_classes.' % ('.'.join(decomposition), word))
+                    raise TypeError('After extracting %s, the remaining %s cannot be greedly decomposed as a concatination of self.mapping_classes.' % ('.'.join(decomposition), subword))
         
         return decomposition
     
