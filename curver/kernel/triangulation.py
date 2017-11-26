@@ -136,7 +136,8 @@ class Triangulation(object):
         unused = set(self.edges)
         self.vertices = set()
         while unused:
-            vertex = [unused.pop()]
+            vertex = [min(unused)]  # Make canonical by starting at min.
+            unused.discard(vertex[0])
             while True:
                 neighbour = ~self.corner_lookup[vertex[-1].label][2]
                 if neighbour in unused:
