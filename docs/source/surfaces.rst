@@ -17,6 +17,16 @@ Of course this generating set is redundant::
     >>> S = curver.load(2, 5)
     >>> S('(a_0.b_0.c_0.b_1)^10') == S('(s_1.s_2.s_3.s_4)^5')
     True
+    >>> S = curver.load(4, 4)
+    >>> S('a_0.b_0.c_0.b_1.c_1.b_2.c_2.b_3')**18 == S('s_1.s_2.s_3')**4
+    True
+    >>> S = curver.load(5, 4)
+    >>> h = S('b_3.c_2.b_2.a_2.c_1.b_1.b_2.c_1.c_2.b_2.b_3.c_2.a_2.b_2.c_1.b_1')  # From the proof of Theorem 4.14 [FarbMarg12].
+    >>> h * S('a_1') * h**-1 == S('a_3')
+    True
+    >>> S = curver.load(3, 2)
+    >>> S('a_0.b_0.c_0.b_1.c_1.b_2.p_1').order()
+    8
 
 As expected, when :math:`g = 0` only the half-twists are provided:
 
