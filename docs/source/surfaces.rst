@@ -18,9 +18,10 @@ For example::
     >>> S
     Mapping class group < a_0, a_1, a_2, a_3, a_4, b_0, b_1, b_2, b_3, b_4, c_0, c_1, c_2, c_3, p_1, p_2, p_3, s_0, s_1, s_2, s_3 >
 
-Of course, as shown by Humphries, this generating set is redundant::
+Of course, as shown by Humphries, this generating set is redundant.
+For example, following the proof of Theorem 4.14 of [FarbMarg12]_::
 
-    >>> h = S('b_3.c_2.b_2.a_2.c_1.b_1.b_2.c_1.c_2.b_2.b_3.c_2.a_2.b_2.c_1.b_1')  # From the proof of Theorem 4.14 [FarbMarg12].
+    >>> h = S('b_3.c_2.b_2.a_2.c_1.b_1.b_2.c_1.c_2.b_2.b_3.c_2.a_2.b_2.c_1.b_1')  # h(a_1) == a_3.
     >>> h * S('a_1') * h**-1 == S('a_3')
     True
 
@@ -34,8 +35,8 @@ There are also many relations in these generating sets::
     >>> S('(a_0.b_0.c_0.b_1)^10') == S('(s_1.s_2.s_3.s_4)^5')  # Chain.
     True
     
-    >>> S = curver.load(3, 2)  # Another chain.
-    >>> S('a_0.b_0.c_0.b_1.c_1.b_2.p_1').order()
+    >>> S = curver.load(3, 2)
+    >>> S('a_0.b_0.c_0.b_1.c_1.b_2.p_1').order()  # Another chain.
     8
 
 As expected, when :math:`g = 0` only the half-twists are provided:
@@ -46,11 +47,12 @@ As expected, when :math:`g = 0` only the half-twists are provided:
     :target: _images/sphere.svg
     :align: center
 
-Alternatively, this function can also load a flipper surface with generators correctly named.
+Alternatively, this function can also be used to load a flipper surface with its corresponding generators.
+For low-complexity surfaces these often have simpler names.
 For example::
 
-    >>> curver.load(1, 2)
-    Mapping class group < a_0, b_0, p_1, s_0, s_1 >
     >>> curver.load('S_1_2')
     Mapping class group < a, b, c, x >
+    >>> curver.load(1, 2)
+    Mapping class group < a_0, b_0, p_1, s_0, s_1 >
 
