@@ -39,7 +39,13 @@ There are also many relations in these generating sets::
     >>> S('a_0.b_0.c_0.b_1.c_1.b_2.p_1').order()  # Another chain.
     8
 
-As expected, when :math:`g = 0` only the half-twists are provided:
+As expected, when :math:`g = 0` only the half-twists are provided::
+
+    >>> S = curver.load(0, 6)
+    >>> S
+    Mapping class group < s_0, s_1, s_2, s_3, s_4, s_5 >
+
+These correspond to the half-twists :math:`s_i` that interchange the :math:`i^{\textrm{th}}` and :math:`(i+1)^{\textrm{st}}` punctures:
 
 .. image:: ./figures/sphere.svg
     :height: 300
@@ -48,7 +54,7 @@ As expected, when :math:`g = 0` only the half-twists are provided:
     :align: center
 
 Alternatively, this function can also be used to load a flipper surface with its corresponding generators.
-For low-complexity surfaces these often have simpler names.
+For low-complexity surfaces these generators often have simpler names.
 For example::
 
     >>> curver.load('S_1_2')
