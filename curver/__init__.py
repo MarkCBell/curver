@@ -14,6 +14,7 @@ with warnings.catch_warnings():
 
 # Set up really short names for the most commonly used classes and functions by users.
 create_triangulation = curver.kernel.create_triangulation
+triangulation_from_sig = curver.kernel.triangulation_from_sig
 
 AbortError = curver.kernel.AbortError
 AssumptionError = curver.kernel.AssumptionError
