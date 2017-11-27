@@ -9,7 +9,7 @@ import re
 
 import curver
 
-ALPHABET = ascii_lowercase + ascii_uppercase + digits + '+/'
+ALPHABET = digits + ascii_lowercase + ascii_uppercase + '+/'
 
 def b64encode(n):
     ''' Return n in base 64. '''
