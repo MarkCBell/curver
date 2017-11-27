@@ -16,7 +16,7 @@ For example::
 
     >>> S = curver.load(5, 4)
     >>> S
-    Mapping class group < a_0, a_1, a_2, a_3, a_4, b_0, b_1, b_2, b_3, b_4, c_0, c_1, c_2, c_3, p_1, p_2, p_3, s_0, s_1, s_2, s_3 >
+    Mapping class group < a_0, a_1, a_2, a_3, a_4, b_0, b_1, b_2, b_3, b_4, c_0, c_1, c_2, c_3, p_1, p_2, p_3, s_0, s_1, s_2, s_3 > on A-0wUXPZwTTUvsjvktbsTgIgjJ7aqCDyJNKbtky0Ajvrz4SWEQ+5CjlC9F1
 
 Of course, as shown by Humphries, this generating set is redundant.
 For example, following the proof of Theorem 4.14 of [FarbMarg12]_::
@@ -58,7 +58,7 @@ For low-complexity surfaces these generators often have simpler names.
 For example::
 
     >>> curver.load('S_1_2')
-    Mapping class group < a, b, c, x >
+    Mapping class group < a, b, c, x > on 6-WKSv
     >>> curver.load(1, 2)
-    Mapping class group < a_0, b_0, p_1, s_0, s_1 >
+    Mapping class group < a_0, b_0, p_1, s_0, s_1 > on 6-WKSv
 
