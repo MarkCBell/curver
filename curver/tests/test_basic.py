@@ -28,7 +28,7 @@ class TestS_1_2(unittest.TestCase):
     def setUp(self):
         self.S = curver.load('S_1_2')
         self.a = self.S.lamination([4, 3, 1, 2, 1, 3])
-        self.b = self.S.lamination([195039444271276, 143576284551183, 259248710713939, 119795766434662, 23780518116521, 96015248318141])
+        self.b = self.S.lamination([132850561265956, 65400512582539, 176586519996019, 16198032099502, 81598544682041, 97796576781543])
         self.h = self.S('abc')
         self.g = self.S('abcaaabxx')
         self.identity = self.S('')
@@ -44,7 +44,7 @@ class TestS_1_2(unittest.TestCase):
         self.assertEqual(self.S('xx'), self.S('(ab)^6'))
     def test_images(self):
         self.assertEqual((self.g**0)(self.a), self.S.lamination([4, 3, 1, 2, 1, 3]))
-        self.assertEqual((self.g**1)(self.a), self.S.lamination([9, 10, 11, 8, 2, 6]))
+        self.assertEqual((self.g**1)(self.a), self.S.lamination([5, 4, 7, 1, 5, 6]))
         self.assertEqual((self.g**20)(self.a), self.b)
     def test_intersection(self):
         self.assertEqual(self.S('').intersection_matrix(), [[-1, 0, 0, 0, 0, 0], [0, -1, 0, 0, 0, 0], [0, 0, -1, 0, 0, 0], [0, 0, 0, -1, 0, 0], [0, 0, 0, 0, -1, 0], [0, 0, 0, 0, 0, -1]])
