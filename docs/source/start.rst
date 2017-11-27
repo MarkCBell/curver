@@ -21,50 +21,59 @@ A taste of curver
 
 This sample curver program loads the mapping class group of the twice-punctured torus and computes the images of some arcs and curves under a mapping class::
 
-	import curver
-	S = curver.load(1, 2)  # The twice-punctured torus.
-	h = S('a_0.b_0.P_1')  # The monodromy of the Whitehead link.
-	a = S.lamination([0, -1, 0, 0, 0, 0])  # An arc on S.
+	>>> import curver
+	>>> S = curver.load(1, 2)  # The twice-punctured torus.
+	>>> a = S.lamination([0, -1, 0, 0, 0, 0])  # An arc on S.
+	>>> print(a)
+	Arc [0, -1, 0, 0, 0, 0] on [(~5, ~2, ~0), (~4, ~3, 5), (~1, 3, 4), (0, 1, 2)]
 	
-	assert(isinstance(a, curver.kernel.Arc))
+	>>> h = S('a_0.b_0.P_1')  # The monodromy of the Whitehead link.
+	>>> print(h(a))  # Its image under h.
+	Arc [2, 1, 1, 1, 0, 0] on [(~5, ~2, ~0), (~4, ~3, 5), (~1, 3, 4), (0, 1, 2)]
 	
-	print(h(a))  # Its image under h.
+	>>> c = a.boundary()  # The boundary of a regular neighbourhood.
+	>>> print(c)
+	MultiCurve [2, 0, 2, 1, 1, 2] on [(~5, ~2, ~0), (~4, ~3, 5), (~1, 3, 4), (0, 1, 2)]
+	>>> h(c) == h(a).boundary()
+	True
+	>>> c.is_filling()  # A single curve cannot fill.
+	False
+	>>> c.fills_with(a)  # Even c \cup a does not fill.
+	False
+	>>> (h**4)(c).fills_with(a)  # But h^4(c) \cup a does.
+	True
 	
-	c = a.boundary()  # The boundary of a regular neighbourhood.
-	assert(h(c) == h(a).boundary())
+	>>> # Higher order functions on mapping classes.
+	>>> h != h.inverse() and h != h**2
+	True
+	>>> h.inverse() == h**-1
+	True
+	>>> h.order()  # 0 == infinite order.
+	0
 	
-	assert(not c.is_filling())  # A single curve cannot fill.
-	assert(not c.fills_with(a))  # Even c \cup a does not fill.
-	assert((h**4)(c).fills_with(a))  # But h^4(c) \cup a does.
-	
-	# Higher order functions on mapping classes.
-	assert(h != h.inverse() and h != h**2)
-	assert(h.inverse() == h**-1)
-	assert(h.order() == 0)  # Since this has infinite order.
-	
-	# Build new mapping classes:
-	twist = c.encode_twist()
-	halftwist = a.encode_halftwist()
-	assert(twist == halftwist**2)
+	>>> twist = c.encode_twist()  # Build new mapping classes:
+	>>> halftwist = a.encode_halftwist()
+	>>> twist == halftwist**2
+	True
 
 It's often hard to visualise what is going on on these surfaces.
 Fortunately curver can show us these curves (use Ctrl+W to quit)::
 
-	curver.show(c, a, h(a))  # Start the GUI (see above warning).
+	>>> curver.show(c, a, h(a))  # Start the GUI (see above warning).
 	
-	curver.show([(h**i)(a) for i in range(10)])
+	>>> curver.show([(h**i)(a) for i in range(10)])
 
 Curver can automatically create the mapping class group of any punctured surface.
 It also includes all of the flipper / Twister example surfaces::
 
-	S = curver.load(3, 17)  # Genus 3 with 17 punctures.
-	S = curver.load('S_1_2')  # Flipper's twice-punctured torus.
+	>>> S = curver.load(3, 17)  # Genus 3 with 17 punctures.
+	>>> S = curver.load('S_1_2')  # Flipper's twice-punctured torus.
 
 Curver can also perform some hard calculations with mapping classes.
 These run in polynomial time but, thanks to large constants, can still take a *very* long time::
 
-	print(h.nielsen_thurston_type())
-	print(h.asymptotic_translation_length())
+	>>> print(h.nielsen_thurston_type())
+	>>> print(h.asymptotic_translation_length())
 
 Future code
 ~~~~~~~~~~~
@@ -72,7 +81,7 @@ Future code
 Unfortunately, these features are currently not implemented.
 When they are, some of these will move to the taster section::
 
-	print(a.fills_with(c))
+	>>> print(a.fills_with(c))
 
 Development
 ~~~~~~~~~~~
