@@ -6,41 +6,43 @@ import re
 
 import curver
 
+REGEX_IS_NAME = re.compile(r'[a-z]\w*$')
+
 class MappingClassGroup(object):
-    ''' This represents a triangulation along with a collection of named laminations and mapping classes on it.
+    ''' This represents a triangulation along with a collection of named mapping classes on it.
     
     Most importantly this object can construct a mapping class from a string descriptor.
     See self.mapping_class for additional information. '''
-    def __init__(self, mapping_classes):
-        assert(isinstance(mapping_classes, (dict, list, tuple)))
-        assert(mapping_classes)
+    def __init__(self, pos_mapping_classes):
+        assert(pos_mapping_classes)
         
-        if isinstance(mapping_classes, dict):
-            self.triangulation = list(mapping_classes.values())[0].source_triangulation
-            assert(all(isinstance(key, str) for key in mapping_classes))
-            assert(all(isinstance(mapping_classes[key], curver.kernel.MappingClass) for key in mapping_classes))
-            assert(all(mapping_classes[key].source_triangulation == self.triangulation for key in mapping_classes))
-            assert(all(key.swapcase() not in mapping_classes for key in mapping_classes))
-            
-            self.pos_mapping_classes = dict(mapping_classes)
-            # Should check keys are valid.
-        else:
-            self.triangulation = mapping_classes[0].source_triangulation
-            assert(all(isinstance(mapping_class, curver.kernel.Encoding) for mapping_class in mapping_classes))
-            assert(all(mapping_class.source_triangulation == self.triangulation for mapping_class in mapping_classes))
-            
-            self.pos_mapping_classes = dict(list(curver.kernel.utilities.name_objects(mapping_classes)))
+        if not isinstance(pos_mapping_classes, dict):
+            pos_mapping_classes = dict(curver.kernel.utilities.name_objects(pos_mapping_classes))
         
-        self.neg_mapping_classes = dict((name.swapcase(), self.pos_mapping_classes[name].inverse()) for name in self.pos_mapping_classes)
-        self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
-        
+        self.triangulation = list(pos_mapping_classes.values())[0].source_triangulation
         self.zeta = self.triangulation.zeta
+        
+        assert(all(isinstance(key, str) for key in pos_mapping_classes))
+        assert(all(isinstance(pos_mapping_class, curver.kernel.MappingClass) for pos_mapping_class in pos_mapping_classes.values()))
+        assert(all(pos_mapping_class.source_triangulation == self.triangulation for pos_mapping_class in pos_mapping_classes.values()))
+        # assert(all(key.swapcase() not in pos_mapping_classes for key in pos_mapping_classes))
+        assert(all(REGEX_IS_NAME.match(name) for name in pos_mapping_classes))
+        # Should check keys are valid.
+        
+        self.pos_mapping_classes = dict(pos_mapping_classes)
+        self.neg_mapping_classes = dict((name.swapcase(), pos_mapping_class.inverse()) for name, pos_mapping_class in self.pos_mapping_classes.items())
+        self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
     
     def __repr__(self):
         return str(self)
     def __str__(self):
         pos_keys = sorted(self.pos_mapping_classes.keys(), key=curver.kernel.utilities.alphanum_key)
         return 'Mapping class group < %s >' % ', '.join(pos_keys)
+    
+    def __eq__(self, other):
+        return self.triangulation == other.triangulation and self.mapping_classes == other.mapping_classes
+    def __ne__(self, other):
+        return not (self == other)
     
     def random_word(self, length, positive=True, negative=True, letters=None):
         ''' Return a random word of the required length.
