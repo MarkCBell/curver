@@ -3,11 +3,21 @@
 
 from functools import wraps
 from itertools import product
-from string import ascii_lowercase
+from string import ascii_lowercase, ascii_uppercase, digits
 from collections import defaultdict
 import re
 
 import curver
+
+ALPHABET = ascii_lowercase + ascii_uppercase + digits + '+/'
+
+def b64encode(n):
+    ''' Return n in base 64. '''
+    out = []
+    while n:
+        n, r = divmod(n, 64)
+        out.append(ALPHABET[r])
+    return ''.join(out)
 
 def string_generator(n, skip=None):
     ''' Return a list of n usable names, none of which are in skip. '''
