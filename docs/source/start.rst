@@ -23,20 +23,23 @@ This sample curver program loads the mapping class group of the twice-punctured 
 
 	>>> import curver
 	>>> S = curver.load(1, 2)  # The twice-punctured torus.
-	>>> a = S.lamination([0, -1, 0, 0, 0, 0])  # An arc on S.
+	>>> print(S)
+	Mapping class group < a_0, b_0, p_1, s_0, s_1 > on 6-WKSv
+	
+	>>> a = S.lamination([0, 0, 0, -1, 0, 0])  # An arc on S.
 	>>> print(a)
-	Arc [0, -1, 0, 0, 0, 0] on [(~5, ~2, ~0), (~4, ~3, 5), (~1, 3, 4), (0, 1, 2)]
+	Arc [0, 0, 0, -1, 0, 0] on 6-WKSv
 	
 	>>> h = S('a_0.b_0.P_1')  # The monodromy of the Whitehead link.
-	>>> print(h(a))  # Its image under h.
-	Arc [2, 1, 1, 1, 0, 0] on [(~5, ~2, ~0), (~4, ~3, 5), (~1, 3, 4), (0, 1, 2)]
+	>>> print(h(a))  # The image of a under h.
+	Arc [1, 1, 0, 0, 0, 0] on 6-WKSv
 	
 	>>> c = a.boundary()  # The boundary of a regular neighbourhood.
 	>>> print(c)
-	MultiCurve [2, 0, 2, 1, 1, 2] on [(~5, ~2, ~0), (~4, ~3, 5), (~1, 3, 4), (0, 1, 2)]
+	Curve [2, 2, 2, 0, 2, 2] on 6-WKSv
 	>>> h(c) == h(a).boundary()
 	True
-	>>> c.is_filling()  # A single curve cannot fill.
+	>>> c.is_filling()  # A single curve cannot fill S_{1,2}.
 	False
 	>>> c.fills_with(a)  # Even c \cup a does not fill.
 	False
