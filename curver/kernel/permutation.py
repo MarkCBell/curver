@@ -27,7 +27,7 @@ class Permutation(object):
         symbols = list(range(N))
         while symbols:
             f = f // len(symbols)
-            i, k = divmod(k, f)
+            i, index = divmod(index, f)
             P.append(symbols[i])
             symbols = symbols[:i] + symbols[i+1:]
         return cls(P)
