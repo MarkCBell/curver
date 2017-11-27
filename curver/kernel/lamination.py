@@ -31,9 +31,9 @@ class Lamination(object):
             self._dual[k] = self._side[j] = (a + b - c + correction) // 2
     
     def __repr__(self):
-        return str(self)
+        return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
     def __str__(self):
-        return str(self.geometric)
+        return '%s %s on %s' % (self.__class__.__name__, self.geometric, self.triangulation)
     def __iter__(self):
         return iter(self.geometric)
     def __call__(self, edge):
