@@ -202,7 +202,7 @@ class Triangulation(object):
         
         zeta, index = [curver.kernel.utilities.b64decode(x) for x in sig.split('-')]
         perm = curver.kernel.Permutation.from_index(2*zeta, index)
-        tuples = [(perm(i) - zeta, perm(i+1) - zeta, perm(i+2) - zeta) for i in range(0, 2*zeta, 3)]
+        tuples = [(perm[i] - zeta, perm[i+1] - zeta, perm[i+2] - zeta) for i in range(0, 2*zeta, 3)]
         return cls.from_tuple(tuples)
     
     def __repr__(self):
