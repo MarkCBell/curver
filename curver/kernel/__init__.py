@@ -18,6 +18,7 @@ from . import lamination
 from . import mappingclassgroup
 from . import moves
 from . import partition
+from . import permutation
 from . import traintrack
 from . import triangulation
 from . import twist
@@ -50,6 +51,7 @@ CurveComplex = curvecomplex.CurveComplex
 Twist = twist.Twist
 HalfTwist = twist.HalfTwist
 CurvePartitionGraph = partition.CurvePartitionGraph
+Permutation = permutation.Permutation
 
 norm = triangulation.norm
 UnionFind = utilities.UnionFind
