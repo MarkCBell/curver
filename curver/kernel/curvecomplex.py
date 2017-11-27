@@ -78,7 +78,7 @@ class CurveComplex(object):
             return set([(a, b)]) if a.intersection(b) == 0 and a.no_common_component(b) else set()
         elif length == 2:
             m = a.boundary_union(b)  # m = \partial N(a \cup b).
-            return set([(a, m, b)]) if not m.is_empty() and a.no_common_component(m) and b.no_common_component(m) else set()
+            return set([(a, m, b)]) if not m.is_peripheral() and a.no_common_component(m) and b.no_common_component(m) else set()
         else:  # length >= 3.
             if not a.fills_with(b): return set()
             crush = a.crush()

@@ -114,6 +114,11 @@ class Lamination(object):
         
         return self.is_multiarc() and self.num_components() == 1
     
+    def is_peripheral(self):
+        ''' Return whether this lamination consists entirely of parallel components. '''
+        
+        return self.peripheral() == self
+    
     def promote(self):
         ''' Return this lamination in its finest form. '''
         
@@ -138,19 +143,27 @@ class Lamination(object):
         
         return other
     
-    def remove_peripheral(self):
-        ''' Return a new lamination with any peripheral components removed.
+    def peripheral(self):
+        ''' Return the peripheral components of this Lamination. '''
         
-        Most functions will assume that any lamination they are given does not have any peripheral components. '''
+        geometric = [0] * self.zeta
+        for vertex in self.triangulation.vertices:
+            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
+            for edge in vertex:
+                geometric[edge.index] += peripheral
         
-        peripherals = [0] * self.zeta
+        return self.triangulation.lamination(geometric)  # Have to promote.
+    
+    def non_peripheral(self):
+        ''' Return the non-peripheral components of this Lamination. '''
+        
         geometric = list(self)
         for vertex in self.triangulation.vertices:
             peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
             for edge in vertex:
                 geometric[edge.index] -= peripheral
         
-        return Lamination(self.triangulation, geometric)
+        return self.triangulation.lamination(geometric)  # Have to promote.
     
     def skeleton(self):
         ''' Return the lamination obtained by collapsing parallel components. '''
@@ -222,14 +235,16 @@ class Lamination(object):
         
         components = dict()
         for component, multiplicity in self.train_track().components().items():
-            assert(component not in components)
             # Project an Arc or Curve on T back to self.triangulation.
             if isinstance(component, curver.kernel.Curve):
-                components[curver.kernel.Curve(self.triangulation, component.geometric[:self.zeta])] = multiplicity
+                component = curver.kernel.Curve(self.triangulation, component.geometric[:self.zeta])
             elif isinstance(component, curver.kernel.Arc):
-                components[curver.kernel.Arc(self.triangulation, component.geometric[:self.zeta])] = multiplicity
+                component = curver.kernel.Arc(self.triangulation, component.geometric[:self.zeta])
             else:
                 raise RuntimeError('self.train_track().components() returned a non Curve / Arc.')
+            
+            assert(component not in components)
+            components[component] = multiplicity
         
         return components
     
@@ -272,7 +287,7 @@ class Lamination(object):
                 if all(self(edge) == 0 for edge in component):
                     return False
         
-        return self.boundary().is_empty()
+        return self.boundary().is_peripheral()
     
     def fills_with(self, other):
         ''' Return whether self \\cup other fills. '''

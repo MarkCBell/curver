@@ -12,7 +12,7 @@ class Twist(Move):
         super(Twist, self).__init__(curve.triangulation, curve.triangulation)
         
         assert(isinstance(curve, curver.kernel.Curve))
-        assert(curve.is_short())
+        assert(curve.is_short() and not curve.is_peripheral())
         
         self.curve = curve
         self.power = power

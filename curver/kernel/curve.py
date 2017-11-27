@@ -104,7 +104,9 @@ class Curve(MultiCurve, Shortenable):
         return {self: 1}
     
     def is_short(self):
-        # Theorem: A curve is short iff either:
+        if self.is_peripheral(): return True
+        
+        # Theorem: A non-peripheral curve is short iff either:
         #  - it meets T exactly twice, or
         #  - it meets every edge of T either 0 or 2 times and has one corridor [BellWebb16a].
         num_corridors = len([triangle for triangle in self.triangulation if sum(self(edgy) for edgy in triangle) == 4])
@@ -142,18 +144,29 @@ class Curve(MultiCurve, Shortenable):
         return 0.25
     
     def parallel(self):
-        ''' Return an edge that this curve is parallel to. '''
-        assert(self.is_short())
+        ''' Return an edge that this curve is parallel to.
+        
+        Note that this is only defined for short, non-peripheral curves. '''
+        
+        assert(self.is_short() and not self.is_peripheral())
         
         return min([edge for edge in self.triangulation.edges if self(edge) == 0 and self.dual_weight(edge) > 0], key=lambda e: e.label)  # Take the minimum of two.
     
     def is_isolating(self):
-        ''' Return if this curve is isolating, that is, a component of S - self does not contain a puncture. '''
+        ''' Return if this curve is isolating, that is, a component of S - self does not contain a puncture.
+        
+        This curve must be non-peripheral. '''
+        
+        assert(not self.is_peripheral())
+        
         short, _ = self.shorten()
         return short.weight() > 2
     
     def encode_twist(self, power=1):
         ''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
+        
+        if self.is_peripheral():  # Boring case.
+            return self.triangulation.id_encoding()
         
         short, conjugator = self.shorten()
         
@@ -164,6 +177,9 @@ class Curve(MultiCurve, Shortenable):
         
         assert(isinstance(lamination, curver.kernel.Lamination))
         assert(lamination.triangulation == self.triangulation)
+        
+        if self.is_peripheral():  # Boring case.
+            return sum(max(-self(edge) * lamination(edge), 0) for edge in self.triangulation.edges)
         
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
@@ -183,7 +199,10 @@ class Curve(MultiCurve, Shortenable):
         This is a Fraction that increases by one each time a right Dehn twist about
         this curve is performed unless -1 <= slope <= 1.
         
-        Assumes that this curve and the given lamination intersect. '''
+        Assumes that this curve and the given lamination intersect.
+        This curve must be non-peripheral. '''
+        
+        assert(not self.is_peripheral())
         
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
@@ -210,22 +229,31 @@ class Curve(MultiCurve, Shortenable):
     def relative_twising(self, b, c):
         ''' Return the relative twisting number of b about self relative to c.
         
-        This is the number of (right) Dehn twists about self that must be applied to b in order to minimise its intersection with c. '''
+        This is the number of (right) Dehn twists about self that must be applied to b in order to minimise its intersection with c.
+        
+        Assumes that this curve and the given laminations intersect.
+        This curve must be non-peripheral. '''
         
         assert(isinstance(b, curver.kernel.Lamination))
         assert(isinstance(c, curver.kernel.Lamination))
+        assert(not self.is_peripheral())
         
         ab = self.intersection(b)
+        if ab == 0: raise curver.AssumptionError('Relative slope is undefined when self and b are disjoint.')
         ac = self.intersection(c)  # Faster than c.intersection(a) since we know a is a curve.
+        if ac == 0: raise curver.AssumptionError('Relative slope is undefined when self and c are disjoint.')
         bc = b.intersection(c)
         
         f_lower = self.encode_twist(power=-2*bc)(b).intersection(c)  # f(-2*bc).
         f_upper = self.encode_twist(power=2*bc)(b).intersection(c)  # f(2*bc).
         
-        return Fraction(f_lower - f_upper, 2*ab*ac)
+        return Fraction(f_lower - f_upper, 2*ab*ac)  # No division by zero thanks to our previous checks.
     
     def crush(self):
         ''' Return the crush map associated to this Curve. '''
+        
+        if self.is_peripheral():  # Boring case.
+            return self.triangulation.id_encoding()
         
         short, conjugator = self.shorten()
         

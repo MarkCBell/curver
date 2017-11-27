@@ -547,7 +547,7 @@ class Triangulation(object):
         assert(len(weights) == self.zeta)
         # Should check all dual weights.
         
-        return curver.kernel.Lamination(self, weights).remove_peripheral().promote()
+        return curver.kernel.Lamination(self, weights).promote()
     
     def lamination_from_cut_sequence(self, sequence):
         ''' Return a new lamination on this surface based on the sequence of edges that this Curve / Arc crosses. '''
@@ -577,7 +577,7 @@ class Triangulation(object):
         ''' Return the curve that runs around the given vertex. '''
         
         count = Counter([edge.index for edge in vertex])
-        return curver.kernel.Lamination(self, [count[i] for i in range(self.zeta)])
+        return self.lamination([count[i] for i in range(self.zeta)])
     
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''

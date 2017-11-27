@@ -38,7 +38,13 @@ class MultiArc(Shortenable):
                     geometric[edge.index] = 0
                     to_fix.append(short.triangulation.triangle_lookup[~edge.label])
         
-        boundary = short.triangulation.lamination(geometric)
+        # Remove any extra peripheral components we may have accidentally created.
+        for vertex in self.triangulation.vertices:
+            if all(short(edge) == 0 for edge in vertex):  # This vertex is disjoint from short:
+                for edge in short:
+                    geometric[edge.index] -= 1
+        
+        boundary = short.triangulation.lamination(geometric)  # Have to promote.
         
         return conjugator.inverse()(boundary)
     
