@@ -197,9 +197,9 @@ class Triangulation(object):
         return cls([Triangle([Edge(label) for label in labels]) for labels in edge_labels])
     
     def __repr__(self):
-        return str(self)
-    def __str__(self):
         return str(list(self))
+    def __str__(self):
+        return self.sig()
     def __iter__(self):
         return iter(self.triangles)
     def __getitem__(self, index):
@@ -216,6 +216,12 @@ class Triangulation(object):
         return not(self == other)
     def __hash__(self):
         return hash(tuple(self.signature))
+    
+    def sig(self):
+        ''' Return the signature of this triangulation. '''
+        
+        return curver.kernel.utilities.b64encode(self.zeta) + '-' + \
+            curver.kernel.utilities.b64encode(curver.kernel.Permutation([x + self.zeta for x in self.signature]).index())
     
     def surface(self):
         ''' This return the (sorted) list of (genus, #punctures) for each component of this surface. '''

@@ -37,7 +37,7 @@ class MappingClassGroup(object):
         return str(self)
     def __str__(self):
         pos_keys = sorted(self.pos_mapping_classes.keys(), key=curver.kernel.utilities.alphanum_key)
-        return 'Mapping class group < %s >' % ', '.join(pos_keys)
+        return 'Mapping class group < %s > on %s' % (', '.join(pos_keys), self.triangulation)
     
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.mapping_classes == other.mapping_classes
