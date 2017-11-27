@@ -13,11 +13,17 @@ ALPHABET = digits + ascii_lowercase + ascii_uppercase + '+/'
 
 def b64encode(n):
     ''' Return n in base 64. '''
+    
     out = []
     while n:
         n, r = divmod(n, 64)
         out.append(ALPHABET[r])
     return ''.join(out)
+
+def b64decode(strn):
+    ''' Return the integer with base 64 encoding strn. '''
+    
+    return sum(ALPHABET.index(c) * 64**i for i, c in enumerate(strn))
 
 def string_generator(n, skip=None):
     ''' Return a list of n usable names, none of which are in skip. '''
