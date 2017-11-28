@@ -21,3 +21,4 @@ experiments
 *.log
 *.pdf
 *.svg
+.tox
