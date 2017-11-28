@@ -1,0 +1,4 @@
+hypothesis
+sphinx
+tox
+twine
