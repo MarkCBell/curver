@@ -6,7 +6,9 @@ Installation
 ~~~~~~~~~~~~
 
 `Curver <https://pypi.python.org/pypi/curver>`_ is available on the `Python Package Index <https://pypi.python.org>`_.
-The preferred method for installing the latest stable release is to use `pip <http://pip.readthedocs.org/en/latest/installing.html>`_ (included in Python 2.7.9 and Python 3.4 by default)::
+The preferred method for installing the latest stable release is to use `pip <http://pip.readthedocs.org/en/latest/installing.html>`_ (included in Python 2.7.9+ and Python 3.4+ by default):
+
+.. code-block:: shell
 
     > python -m pip install curver --user --upgrade
 
@@ -90,11 +92,15 @@ Development
 ~~~~~~~~~~~
 
 The latest development version of curver is available from `BitBucket <https://bitbucket.org/Mark_Bell/curver>`_.
-Alternatively, you can clone the `mercurial <https://www.mercurial-scm.org/>`_ repository directly using the command::
+Alternatively, you can clone the `mercurial <https://www.mercurial-scm.org/>`_ repository directly using the command:
+
+.. code-block:: shell
 
     > hg clone https://bitbucket.org/mark_bell/curver
 
-And then install using the command::
+And then install using the command:
+
+.. code-block:: shell
 
     > python -m pip install --editable . --user
 
