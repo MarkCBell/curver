@@ -2,7 +2,7 @@
 ''' A module of useful, generic functions; including input and output formatting. '''
 
 from functools import wraps
-from itertools import product
+from itertools import product, imap
 from string import ascii_lowercase, ascii_uppercase, digits
 from collections import defaultdict
 import re
@@ -121,15 +121,14 @@ def cyclic_slice(L, x, y):
 
 def maximum(iterable, key=lambda x: x, upper_bound=None):
     ''' Return the maximum of iterable but terminate early when given an upper_bound. '''
-    
-    best, best_value = None, None
-    for item in iterable:
-        value = key(item)
-        if best_value is None or value > best_value:
-            best, best_value = item, value
-        if upper_bound is not None and best_value >= upper_bound:
-            return best
-    return best
+
+    def helper():
+        ''' A generator that yeilds elements from iterable up to and including one such that key(item) >= upper_bound. '''
+        for item in imap(key, iterable):
+            yield item
+            if upper_bound is not None and item >= upper_bound: break
+
+    return max(helper())
 
 def alphanum_key(strn):
     ''' Return a list of string and number chunks from a string. '''
