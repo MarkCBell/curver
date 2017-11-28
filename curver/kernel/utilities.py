@@ -103,7 +103,7 @@ def memoize(function):
         Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
         if not hasattr(self, '__cache'):
             self.__cache = dict()
-        key = (function.func_name, args, frozenset(kwargs.items()))
+        key = (function.__name__, args, frozenset(kwargs.items()))
         if key not in self.__cache:
             self.__cache[key] = function(self, *args, **kwargs)
         return self.__cache[key]
