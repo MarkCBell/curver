@@ -43,16 +43,15 @@ class TrainTrack(Shortenable):
             if short(edge) < 0:
                 component, multiplicity = short.triangulation.edge_arc(edge), abs(short(edge))
                 components[conjugator.inverse()(component)] = multiplicity  # Map it back onto self.
-            
-            if short.triangulation.is_flippable(edge):  # Check for a curve here.
-                a, b, c, d, e = short.triangulation.square(edge)
-                da, db, dc, dd, de = [short.dual_weight(edgy) for edgy in short.triangulation.square(edge)]
-                if b == ~d and da > 0 and db == 0 and de == 0:
-                    geometric = [1 if index == b.index or index == e.index else 0 for index in short.triangulation.indices]
-                    component, multiplicity = curver.kernel.Curve(short.triangulation, geometric), short(e)
-                    components[conjugator.inverse()(component)] = multiplicity  # Map it back onto self.
-            else:  # Check for a peripheral curve here.
-                if short(edge) > 0:
+            elif short(edge) > 0:
+                if short.triangulation.is_flippable(edge):  # Check for a non-peripheral curve here.
+                    a, b, c, d, e = short.triangulation.square(edge)
+                    da, db, dc, dd, de = [short.dual_weight(edgy) for edgy in short.triangulation.square(edge)]
+                    if b == ~d and db == 0 and de == 0:
+                        geometric = [1 if index == b.index or index == e.index else 0 for index in short.triangulation.indices]
+                        component, multiplicity = curver.kernel.Curve(short.triangulation, geometric), short(e)
+                        components[conjugator.inverse()(component)] = multiplicity  # Map it back onto self.
+                else:  # Check for a peripheral curve here.
                     geometric = [1 if index == edge.index else 0 for index in short.triangulation.indices]
                     component, multiplicity = curver.kernel.Curve(short.triangulation, geometric), short(edge)
                     components[conjugator.inverse()(component)] = multiplicity  # Map it back onto self.
