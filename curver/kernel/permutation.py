@@ -1,4 +1,6 @@
 
+''' A module for representing permutations in Sym(N). '''
+
 from bisect import bisect, insort
 from itertools import combinations
 from math import factorial
@@ -22,6 +24,8 @@ class Permutation(object):
     
     @classmethod
     def from_index(cls, N, index):
+        ''' Return the permutation in Sym(N) with the given index. '''
+        
         P = []
         f = factorial(N)
         symbols = list(range(N))
@@ -33,6 +37,8 @@ class Permutation(object):
         return cls(P)
     
     def index(self):
+        ''' Return the index of this permutation in the (sorted) list of all permutations on this many symbols. '''
+        
         symbols = sorted(self.perm)
         index = 0
         for p in self:
@@ -42,5 +48,7 @@ class Permutation(object):
         return index
     
     def is_even(self):
+        ''' Return whether this permutation is the composition of an even number of transposiions. '''
+        
         return sum(1 if a > b else 0 for a, b in combinations(self, r=2) if a > b) % 2 == 0
 
