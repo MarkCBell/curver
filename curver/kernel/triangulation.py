@@ -2,6 +2,7 @@
 ''' A module for representing a triangulation of a punctured surface. '''
 
 from math import factorial
+from functools import total_ordering
 from itertools import groupby, product
 from collections import Counter
 
@@ -15,6 +16,7 @@ def norm(number):
     
     return max(number, ~number)
 
+@total_ordering
 class Edge(object):
     ''' This represents an oriented edge, labelled with an integer.
     
@@ -45,6 +47,13 @@ class Edge(object):
             return NotImplemented
     def __ne__(self, other):
         return not (self == other)
+    def __lt__(self, other):
+        if isinstance(other, Edge):
+            return self.label < other.label
+        elif isinstance(other, curver.IntegerType):
+            return self.label < other
+        else:
+            return NotImplemented
     def __hash__(self):
         return hash(self.label)
     
@@ -494,7 +503,7 @@ class Triangulation(object):
         
         # Now assume that the map is the identity on all unmapped edges.
         # If we have gotten this far then the and unmapped edges must be entire components.
-        used_labels = set(label_map.keys() + label_map.values())
+        used_labels = set(x for key_value in label_map.items() for x in key_value)
         for edge in self.edges:
             if not edge.label in used_labels:
                 if self.corner_lookup[edge.label] != other.corner_lookup[edge.label]:
