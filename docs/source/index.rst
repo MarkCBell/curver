@@ -18,6 +18,7 @@ Welcome to Curver's documentation!
    references.rst
    citing.rst
    license.rst
+   development.rst
 
 .. .. automodule:: curver.kernel
 .. .. autoclass:: curver.kernel.Encoding
