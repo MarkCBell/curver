@@ -41,7 +41,7 @@ class MultiArc(Shortenable):
         # Remove any extra peripheral components we may have accidentally created.
         for vertex in self.triangulation.vertices:
             if all(short(edge) == 0 for edge in vertex):  # This vertex is disjoint from short:
-                for edge in short:
+                for edge in vertex:
                     geometric[edge.index] -= 1
         
         boundary = short.triangulation.lamination(geometric)  # Have to promote.
