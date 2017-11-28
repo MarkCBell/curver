@@ -43,7 +43,7 @@ As expected, when :math:`g = 0` only the half-twists are provided::
 
     >>> S = curver.load(0, 6)
     >>> S
-    Mapping class group < s_0, s_1, s_2, s_3, s_4, s_5 >
+    Mapping class group < s_0, s_1, s_2, s_3, s_4, s_5 > on c-ZlgeM906o/354
 
 These correspond to the half-twists :math:`s_i` that interchange the :math:`i^{\textrm{th}}` and :math:`(i+1)^{\textrm{st}}` punctures:
 
