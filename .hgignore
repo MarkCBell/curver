@@ -20,6 +20,5 @@ experiments
 *.aux
 *.log
 *.pdf
-*.svg
 .tox
 .cache
