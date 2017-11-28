@@ -23,16 +23,22 @@ class TrainTrack(Shortenable):
             return 0
         if a == ~c and ad == 0 and bd > 0 and ed == 0:
             return 0
-        if ed > 0 or ad < 0 or bd < 0:
-            return 0.25
         
-        if (ad == 0 and bd == 0) or (ad == 0 and ed == 0) or (bd == 0 and ed == 0):
+        num_bad = [ed > 0, ad < 0, bd < 0].count(True)
+        num_good = [ed < 0, ad > 0, bd > 0].count(True)
+        
+        if num_bad > 0:
+            return 0.5
+        
+        if num_good == 3:
+            return 1
+        elif num_good == 2:
+            return 1
+        else:  # num_good == 1:
             if (ad > 0 and cd > 0) or (bd > 0 and dd > 0):
                 return 0.5
             else:
                 return 0.75
-        
-        return 1
     
     def components(self):
         short, conjugator = self.shorten()

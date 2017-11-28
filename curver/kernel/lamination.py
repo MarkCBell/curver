@@ -137,7 +137,7 @@ class Lamination(object):
         
         # Move cache across.
         try:
-            other.__cache = self.__cache
+            other.__cache = self.__cache  #pylint: disable=attribute-defined-outside-init
         except AttributeError:
             pass  # No cache.
         
@@ -345,7 +345,7 @@ class Shortenable(Lamination):
         
         return all(self.shorten_strategy(edge) == 0 for edge in self.triangulation.edges)
     
-    def shorten_strategy(self, edge):
+    def shorten_strategy(self, edge):  #pylint: disable=no-self-use,unused-argument
         ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short.
         
         The higher the score, the better this flip is for reducing weight.

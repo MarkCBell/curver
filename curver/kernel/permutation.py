@@ -1,7 +1,7 @@
 
 ''' A module for representing permutations in Sym(N). '''
 
-from bisect import bisect, insort
+from bisect import bisect
 from itertools import combinations
 from math import factorial
 

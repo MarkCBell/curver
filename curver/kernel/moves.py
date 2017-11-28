@@ -30,20 +30,20 @@ class Move(object):
         
         return curver.kernel.Encoding([self])
     
-    def package(self):
+    def package(self):  #pylint: disable=no-self-use
         ''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
         
         return NotImplemented
     
-    def inverse(self):
+    def inverse(self):  #pylint: disable=no-self-use
         ''' Return the inverse of this move. '''
         
         return NotImplemented
-    def apply_lamination(self, lamination):
+    def apply_lamination(self, lamination):  #pylint: disable=no-self-use,unused-argument
         ''' Return the lamination obtained by mapping the given lamination through this move. '''
         
         return NotImplemented
-    def apply_homology(self, homology_class):
+    def apply_homology(self, homology_class):  #pylint: disable=no-self-use,unused-argument
         ''' Return the homology class obtained by mapping the given homology class through this move. '''
         
         return NotImplemented
