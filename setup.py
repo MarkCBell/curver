@@ -1,7 +1,7 @@
 
 import os
 try:
-    from setuptools import setup
+    from setuptools import setup, find_packages
 except ImportError:
     print('Unable to import setuptools, using distutils instead.')
     from distutils.core import setup
@@ -17,13 +17,8 @@ setup(
     author='Mark Bell',
     author_email='mcbell@illinois.edu',
     url='https://bitbucket.org/Mark_Bell/curver',
-    # Remember to update these if the directory structure changes.
-    packages=[
-        'curver',
-        'curver.kernel',
-        'curver.application',
-        'curver.tests',
-        ],
+    license='GPLv3',
+    packages=find_packages(),
     package_data={
         'curver.application': ['icon/*', 'frames/*'],
         },
