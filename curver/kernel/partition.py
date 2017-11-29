@@ -1,6 +1,7 @@
 
 ''' A module for representing partition graphs. '''
 
+from itertools import permutations, combinations_with_replacement
 import networkx
 import curver
 
