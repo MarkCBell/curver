@@ -3,10 +3,6 @@
 
 from functools import wraps
 from itertools import product
-try:
-    from itertools import imap
-except ImportError:  # Python3.
-    imap = map
 from string import ascii_lowercase, ascii_uppercase, digits
 from collections import defaultdict
 import re
@@ -128,11 +124,11 @@ def maximum(iterable, key=lambda x: x, upper_bound=None):
 
     def helper():
         ''' A generator that yeilds elements from iterable up to and including one such that key(item) >= upper_bound. '''
-        for item in imap(key, iterable):
+        for item in iterable:
             yield item
-            if upper_bound is not None and item >= upper_bound: return
+            if upper_bound is not None and key(item) >= upper_bound: return
 
-    return max(helper())
+    return max(helper(), key=key)
 
 def alphanum_key(strn):
     ''' Return a list of string and number chunks from a string. '''
