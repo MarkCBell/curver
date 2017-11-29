@@ -209,7 +209,7 @@ class Triangulation(object):
     def from_sig(cls, sig):
         ''' Return the Triangulation defined by this signature. '''
         
-        zeta, index = [curver.kernel.utilities.b64decode(x) for x in sig.split('-')]
+        zeta, index = [curver.kernel.utilities.b64decode(x) for x in sig.split('_')]
         perm = curver.kernel.Permutation.from_index(2*zeta, index)
         tuples = [(perm[i] - zeta, perm[i+1] - zeta, perm[i+2] - zeta) for i in range(0, 2*zeta, 3)]
         return cls.from_tuple(tuples)
@@ -238,7 +238,7 @@ class Triangulation(object):
     def sig(self):
         ''' Return the signature of this triangulation. '''
         
-        return curver.kernel.utilities.b64encode(self.zeta) + '-' + \
+        return curver.kernel.utilities.b64encode(self.zeta) + '_' + \
             curver.kernel.utilities.b64encode(curver.kernel.Permutation([x + self.zeta for x in self.signature]).index())
     
     def surface(self):
