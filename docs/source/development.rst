@@ -39,7 +39,7 @@ This is automatically built by readthedocs when changes are pushed to the reposi
     > make html
 
 In several places work is flagged TODO: #).
-These number roughly correspond to:
+These numbers roughly correspond to:
 
 1. Major feature.
 2. Performance.
