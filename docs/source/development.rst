@@ -37,10 +37,11 @@ This is automatically built by readthedocs when changes are pushed to the reposi
 
     > cd ./docs
     > make html
-    > open ./build/html/index.html
 
-In several places work is flagged TODO: #). The number determines the priority.
-    1) == Major feature.
-    2) == Performance.
-    3) == Minor feature.
+In several places work is flagged TODO: #).
+These number roughly correspond to:
+
+1. Major feature.
+2. Performance.
+3. Minor feature.
 
