@@ -10,7 +10,7 @@ The preferred method for installing the latest stable release is to use `pip <ht
 
 .. code-block:: shell
 
-    > python -m pip install curver --user --upgrade
+    > pip install curver --user --upgrade
 
 .. warning::
     In order to use the curver GUI on OS X, users must first update
