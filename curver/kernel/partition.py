@@ -11,8 +11,11 @@ class CurvePartitionGraph(object):
         self.graph = graph
     
     def __str__(self):
-        return '-'.join('%d,%d' % (g, v) for g, v in sorted((d['genus'], d['vertices']) for _, d in self.graph.nodes(data=True))) + \
-                ' (' + '-'.join([str(e['weight']) for _, _, e in self.graph.edges(data=True)]) + ')'
+        G = self.graph
+        N = G.nodes(data=True)
+        
+        return min(','.join('%d:%d' % (N[p]['genus'], N[p]['vertices']) for p in perm) + '-' + ','.join([':'.join(str(x) for x in sorted(d['weight'] for d in G.get_edge_data(i, j, default={}).values())) for i, j in combinations_with_replacement(perm, r=2)]) for perm in permutations(range(len(G))))
+    
     def __repr__(self):
         return str(self)
     
