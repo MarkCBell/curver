@@ -12,7 +12,7 @@ def permutations(draw, N=None):
     return curver.kernel.Permutation(draw(st.permutations(range(N))))
 
 
-class TestPermutations(unittest.TestCase):
+class TestPermutation(unittest.TestCase):
     @given(permutations())
     def test_pickle(self, perm):
         strn = pickle.dumps(perm)

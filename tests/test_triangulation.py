@@ -60,7 +60,7 @@ def triangulations(draw):
     return curver.triangulation_from_sig(sig)
 
 
-class TestTriangulations(unittest.TestCase):
+class TestTriangulation(unittest.TestCase):
     @given(triangulations())
     def test_pickle(self, triangulation):
         strn = pickle.dumps(triangulation)

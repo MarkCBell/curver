@@ -15,7 +15,7 @@ def homology_classes(draw, triangulation=None):
     return curver.kernel.HomologyClass(triangulation, algebraic)
 
 
-class TestHomology(unittest.TestCase):
+class TestHomologyClass(unittest.TestCase):
     @given(homology_classes())
     def test_pickle(self, hc):
         strn = pickle.dumps(hc)

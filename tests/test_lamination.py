@@ -38,7 +38,7 @@ def laminations(draw, triangulation=None, min_weight=None, max_weight=None):
     return triangulation.lamination(geometric)
 
 
-class TestLaminations(unittest.TestCase):
+class TestLamination(unittest.TestCase):
     @given(laminations())
     def test_pickle(self, lamination):
         strn = pickle.dumps(lamination)
