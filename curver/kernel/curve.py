@@ -2,7 +2,7 @@
 ''' A module for representing (multi)curves on triangulations. '''
 
 from fractions import Fraction
-from collections import defaultdict
+from collections import Counter, defaultdict
 import networkx
 
 import curver
@@ -286,8 +286,8 @@ class Curve(MultiCurve, Shortenable):
         
         # Build the lifting matrix back.
         v = short.triangulation.vertex_lookup[a.label]  # = short.triangulation.vertex_lookup[~a.label].
-        indices = [edge.index for edge in curver.kernel.utilities.cyclic_slice(v, a, ~a)[1:]]  # The indices that appear walking around v from a to ~a. Note need to exclude the initial a.
-        matrix = [[indices.count(j) if i == b.index else 1 if (i == e.index and j == b.index) else 1 if i == j else 0 for i in range(self.zeta)] for j in range(self.zeta)]
+        indices = Counter([edge.index for edge in curver.kernel.utilities.cyclic_slice(v, a, ~a)[1:]])  # The indices that appear walking around v from a to ~a. Note need to exclude the initial a.
+        matrix = [[indices[j] if i == b.index else 1 if (i == e.index and j == b.index) else 1 if i == j else 0 for i in range(self.zeta)] for j in range(self.zeta)]
         
         crush = curver.kernel.Crush(short.triangulation, new_triangulation, short, matrix).encode()
         return crush * conjugator
