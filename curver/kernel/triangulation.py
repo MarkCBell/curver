@@ -528,14 +528,13 @@ class Triangulation(object):
         targets = [[edge for edge in other.edges if len(other.vertex_lookup[edge.label]) == degree] for degree in degrees]
         
         isometries = []
-        for chosen_targets in product(targets):
+        for chosen_targets in product(*targets):
             try:
                 isometries.append(self.find_isometry(other, dict(zip(sources, chosen_targets))))
             except curver.AssumptionError:  # Map does not extend uniquely.
                 pass
         
         return isometries
-        
     
     def self_isometries(self):
         ''' Return a list of isometries taking this triangulation to itself. '''
