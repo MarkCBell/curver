@@ -179,7 +179,7 @@ class Curve(MultiCurve, Shortenable):
         assert(lamination.triangulation == self.triangulation)
         
         if self.is_peripheral():  # Boring case.
-            return sum(max(-self(edge) * lamination(edge), 0) for edge in self.triangulation.edges)
+            return sum(max(-lamination(edge), 0) + max(-lamination.side_weight(edge), 0) for edge in self.triangulation.edges if self(edge) == 1)
         
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
