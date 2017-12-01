@@ -2,6 +2,7 @@
 from hypothesis import given
 import hypothesis.strategies as st
 from math import factorial
+import pickle
 import unittest
 
 import curver
@@ -34,6 +35,11 @@ class TestPermutations(unittest.TestCase):
     def test_involution(self, perm):
         identity = curver.kernel.Permutation.from_index(len(perm), 0)
         self.assertTrue(perm.order() <= 2 or perm != ~perm)
+    
+    @given(permutations())
+    def test_pickle(self, perm):
+        strn = pickle.dumps(perm)
+        self.assertEqual(perm, pickle.loads(strn))
     
     @given(permutations())
     def test_inverse(self, perm):
