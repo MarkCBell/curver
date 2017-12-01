@@ -11,7 +11,7 @@ class Permutation(object):
     ''' This represents a permutation on 0, 1, ..., N-1. '''
     def __init__(self, perm):
         self.perm = perm
-        assert(len(self) == len(set(self)))
+        assert(set(self) == set(range(len(self))))
     
     def __str__(self):
         return str(self.perm)
