@@ -146,8 +146,8 @@ def S_3_n(n):
         a_1 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0])
         a_2 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
         b_0 = T.lamination([0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        b_0 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0])
-        b_0 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1])
+        b_1 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0])
+        b_2 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1])
         c_0 = T.lamination([2, 1, 3, 1, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0])
         c_1 = T.lamination([0, 0, 0, 0, 0, 2, 1, 3, 1, 2, 2, 1, 1, 1, 0])
         
@@ -353,7 +353,6 @@ def load(*args):
     
         - a pair (g, n) in which case the Lickorish generating set is returned (see Figures 4.5 and 4.10 of [FarbMarg12]), or
         - a string 'S_g_n' in which case the corresponding flipper / Twister generating set is returned.
-    
     '''
     
     if len(args) == 1:  # Load an old flipper surface.
