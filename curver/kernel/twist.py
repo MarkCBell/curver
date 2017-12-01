@@ -35,6 +35,13 @@ class Twist(Move):
         return (self.__class__, (self.curve, self.power))
     def package(self):
         return (self.curve.parallel().label, self.power)
+    def __eq__(self, other):
+        if isinstance(other, Twist):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.power == other.power
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
     
     def apply_lamination(self, lamination):
         intersection = self.curve.intersection(lamination)
@@ -153,6 +160,13 @@ class HalfTwist(Move):
         return (self.__class__, (self.arc, self.power))
     def package(self):
         return (self.arc.parallel().label, self.power)
+    def __eq__(self, other):
+        if isinstance(other, HalfTwist):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.arc == other.arc and self.power == other.power
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
     
     def apply_lamination(self, lamination):
         return self.encoding_power(lamination)

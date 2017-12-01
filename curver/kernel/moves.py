@@ -120,6 +120,13 @@ class EdgeFlip(Move):
         return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge))
     def package(self):
         return self.edge.label
+    def __eq__(self, other):
+        if isinstance(other, EdgeFlip):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.edge == other.edge
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
     
     def apply_lamination(self, lamination):
         L = lamination  # Shorter name.

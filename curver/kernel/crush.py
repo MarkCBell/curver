@@ -20,6 +20,13 @@ class Crush(Move):
         return 'Crush ' + str(self.curve)
     def __reduce__(self):
         return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
+    def __eq__(self, other):
+        if isinstance(other, Crush):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.matrix == other.matrix
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
     
     def apply_lamination(self, lamination):
         geometric = list(lamination)
@@ -169,6 +176,13 @@ class Lift(Move):
         return 'Lift ' + str(self.curve)
     def __reduce__(self):
         return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
+    def __eq__(self, other):
+        if isinstance(other, Lift):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.matrix == other.matrix
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
     
     def apply_lamination(self, lamination):
         # Really should check that the dual weights around a vertex are all non-negative.
