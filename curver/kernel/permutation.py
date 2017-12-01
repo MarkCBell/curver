@@ -11,7 +11,7 @@ class Permutation(object):
     ''' This represents a permutation on 0, 1, ..., N-1. '''
     def __init__(self, perm):
         self.perm = perm
-        assert(len(self.perm) == len(set(self.perm)))
+        assert(len(self) == len(set(self)))
     
     def __str__(self):
         return str(self.perm)
@@ -19,8 +19,61 @@ class Permutation(object):
         return '%s(%s)' % (self.__class__.__name__, self.perm)
     def __getitem__(self, item):
         return self.perm[item]
+    def __call__(self, item):
+        return self[item]
     def __iter__(self):
         return iter(self.perm)
+    def __len__(self):
+        return len(self.perm)
+    def __eq__(self, other):
+        if isinstance(other, Permutation):
+            if len(self) != len(other):
+                raise ValueError('Cannot compare permutations defined over different number of elements.')
+            
+            return self.perm == other.perm
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
+    
+    def inverse(self):
+        ''' Return the inverse of this permutation. '''
+        
+        return Permutation(sorted(range(len(self)), key=self))
+    def __invert__(self):
+        return self.inverse()
+    
+    def order(self):
+        ''' Return the order of this permutation. '''
+        
+        identity = Permutation(list(range(len(self))))
+        power = self
+        i = 1
+        while True:
+            if power == identity: return i
+            i += 1
+            power = power * self
+    
+    def __mul__(self, other):
+        if isinstance(other, Permutation):
+            if len(self) != len(other):
+                raise ValueError('Cannot compose permutations defined over different number of elements.')
+            
+            return Permutation([self(other(i)) for i in range(len(self))])
+        else:
+            return NotImplemented
+    
+    def __pow__(self, n):
+        if n < 0: return (~self)**(-n)
+        
+        result = Permutation(list(range(len(self))))
+        while n:
+            if n % 2 == 1:
+                result = result * self
+                n = n - 1
+            self = self * self
+            n = n // 2
+        return result
     
     @classmethod
     def from_index(cls, N, index):
