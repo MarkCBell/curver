@@ -82,6 +82,13 @@ class Isometry(Move):
             return {i: self.label_map[i] for i in self.source_triangulation.labels}
         else:
             return None
+    def __eq__(self, other):
+        if isinstance(other, Isometry):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.label_map == other.label_map
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not (self == other)
     
     def apply_lamination(self, lamination):
         geometric = [lamination(self.inverse_index_map[index]) for index in self.source_triangulation.indices]

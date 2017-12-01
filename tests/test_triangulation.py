@@ -77,4 +77,10 @@ class TestTriangulations(unittest.TestCase):
         triangulation = data.draw(triangulations())
         edge = data.draw(st.sampled_from(triangulation.edges))
         self.assertEqual(triangulation.surface(), triangulation.flip_edge(edge).surface())
+        
+    @given(st.data())
+    def test_isometry(self, data):
+        triangulation = data.draw(triangulations())
+        identity = triangulation.find_isometry(triangulation, {})
+        self.assertIn(identity, triangulation.self_isometries())
 
