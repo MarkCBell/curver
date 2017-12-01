@@ -35,6 +35,8 @@ class Permutation(object):
             return NotImplemented
     def __ne__(self, other):
         return not (self == other)
+    def __hash__(self):
+        return hash(tuple(self.perm))
     
     def inverse(self):
         ''' Return the inverse of this permutation. '''
