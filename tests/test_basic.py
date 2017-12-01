@@ -1,10 +1,13 @@
 
 import unittest
+import pytest
+
 import curver
 
 # Things to test:
 #  Relations in the mapping class group.
 
+@pytest.mark.slow
 class TestS_1_1(unittest.TestCase):
     def setUp(self):
         self.S = curver.load('S_1_1')
@@ -24,6 +27,7 @@ class TestS_1_1(unittest.TestCase):
         self.assertRelation('abaABA')
         self.assertRelation('abaBAB')
 
+@pytest.mark.slow
 class TestS_1_2(unittest.TestCase):
     def setUp(self):
         self.S = curver.load('S_1_2')
@@ -48,7 +52,4 @@ class TestS_1_2(unittest.TestCase):
         self.assertEqual((self.g**20)(self.a), self.b)
     def test_intersection(self):
         self.assertEqual(self.S('').intersection_matrix(), [[-1, 0, 0, 0, 0, 0], [0, -1, 0, 0, 0, 0], [0, 0, -1, 0, 0, 0], [0, 0, 0, -1, 0, 0], [0, 0, 0, 0, -1, 0], [0, 0, 0, 0, 0, -1]])
-
-if __name__ == '__main__':
-    unittest.main()
 

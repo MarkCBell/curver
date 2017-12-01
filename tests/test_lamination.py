@@ -2,6 +2,7 @@
 from hypothesis import given
 import hypothesis.strategies as st
 import pickle
+import pytest
 import unittest
 
 from test_triangulation import triangulations
@@ -38,6 +39,7 @@ def laminations(draw, triangulation=None, min_weight=None, max_weight=None):
     return triangulation.lamination(geometric)
 
 
+@pytest.mark.slow
 class TestLamination(unittest.TestCase):
     @given(laminations())
     def test_pickle(self, lamination):

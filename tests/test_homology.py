@@ -2,6 +2,7 @@
 from hypothesis import given
 import hypothesis.strategies as st
 import pickle
+import pytest
 import unittest
 
 from test_triangulation import triangulations

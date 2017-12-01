@@ -2,6 +2,7 @@
 from hypothesis import given
 import hypothesis.strategies as st
 import pickle
+import pytest
 import unittest
 
 import curver
@@ -78,9 +79,13 @@ class TestTriangulation(unittest.TestCase):
         edge = data.draw(st.sampled_from(triangulation.edges))
         self.assertEqual(triangulation.surface(), triangulation.flip_edge(edge).surface())
         
-    @given(st.data())
-    def test_isometry(self, data):
-        triangulation = data.draw(triangulations())
-        identity = triangulation.find_isometry(triangulation, {})
+    @given(triangulations())
+    def test_isometry(self, triangulation):
+        identity = triangulation.id_isometry()
         self.assertIn(identity, triangulation.self_isometries())
+        self.assertTrue(triangulation.is_isometric_to(triangulation))
+
+    @given(triangulations())
+    def test_sig(self, triangulation):
+        self.assertEqual(triangulation, curver.triangulation_from_sig(triangulation.sig()))
 
