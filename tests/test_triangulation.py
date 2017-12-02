@@ -55,9 +55,11 @@ TRIANGULATIONS = {
     (5, 2): 'u_0wUXPZw7sxaMvf+HM6p0m50javFCeVyOYYsOtrBCvcH21',
     }
 
+SIGNATURES = [TRIANGULATIONS[key] for key in sorted(TRIANGULATIONS)]
+
 @st.composite
 def triangulations(draw):
-    sig = draw(st.sampled_from(TRIANGULATIONS.values()))
+    sig = draw(st.sampled_from(SIGNATURES)
     return curver.triangulation_from_sig(sig)
 
 
