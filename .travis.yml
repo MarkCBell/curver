@@ -15,6 +15,6 @@ script:
     - tox
 after_success:
     - if [[ $ENV == python=3.* ]]; then
-        coveralls
+        coveralls;
     fi
 
