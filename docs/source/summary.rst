@@ -5,7 +5,7 @@
 .. image:: https://img.shields.io/pypi/l/curver.svg
     :target: https://pypi.python.org/pypi/curver
 
-.. image:: https://img.shields.io/travis/markcbell/curver.svg
+.. image:: https://api.travis-ci.org/MarkCBell/curver.svg
     :alt: Curver build status
     :target: https://travis-ci.org/MarkCBell/curver
 
