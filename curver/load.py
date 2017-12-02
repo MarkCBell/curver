@@ -53,13 +53,11 @@ def S_1_n(n):
     if n == 1:
         T = curver.create_triangulation((0, 1, 2), (~0, ~1, ~2))
         
-        a_0 = T.lamination([1, 0, 1])
-        b_0 = T.lamination([1, 1, 0])
+        mapping_classes = dict()
+        mapping_classes['a_0'] = T.curve_from_cut_sequence([0, 2]).encode_twist()
+        mapping_classes['b_0'] = T.curve_from_cut_sequence([0, 1]).encode_twist()
         
-        return curver.kernel.MappingClassGroup({
-            'a_0': a_0.encode_twist(),
-            'b_0': b_0.encode_twist()
-            })
+        return curver.kernel.MappingClassGroup(mapping_classes)
     else:  # n > 1:
         T = curver.create_triangulation(
             [(0, 1, 2)] + \
@@ -92,19 +90,14 @@ def S_2_n(n):
             (~0, 5, 6), (~5, 7, 8), (~6, ~7, ~8)
             )
         
-        a_0 = T.lamination([0, 1, 1, 1, 0, 0, 0, 0, 0])
-        b_0 = T.lamination([0, 1, 1, 0, 1, 0, 0, 0, 0])
-        c_0 = T.lamination([2, 1, 1, 1, 0, 1, 1, 1, 0])
-        a_1 = T.lamination([0, 0, 0, 0, 0, 1, 1, 1, 0])
-        b_1 = T.lamination([0, 0, 0, 0, 0, 1, 1, 0, 1])
+        mapping_classes = dict()
+        mapping_classes['a_0'] = T.curve_from_cut_sequence([1, 2, 3]).encode_twist()
+        mapping_classes['a_1'] = T.curve_from_cut_sequence([5, 6, 7]).encode_twist()
+        mapping_classes['b_0'] = T.curve_from_cut_sequence([1, 2, 4]).encode_twist()
+        mapping_classes['b_1'] = T.curve_from_cut_sequence([5, 6, 8]).encode_twist()
+        mapping_classes['c_0'] = T.curve_from_cut_sequence([0, 1, 2, 3, 0, 5, 6, 7]).encode_twist()
         
-        return curver.kernel.MappingClassGroup({
-            'a_0': a_0.encode_twist(),
-            'a_1': a_1.encode_twist(),
-            'b_0': b_0.encode_twist(),
-            'b_1': b_1.encode_twist(),
-            'c_0': c_0.encode_twist()
-            })
+        return curver.kernel.MappingClassGroup(mapping_classes)
     else:  # n > 1:
         T = curver.create_triangulation(
             [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (~0, 5, 6), (~6, ~(3*n+5), ~8)] + \
@@ -140,26 +133,18 @@ def S_3_n(n):
             (10, 11, 12), (~11, 13, 14), (~12, ~13, ~14),
             (~0, ~5, ~10)
             )
-        #                   0, 1, 2, 3, 4, 5, 6, 7, 8, 9,10,11,12,13,14
-        a_0 = T.lamination([0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        a_1 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0])
-        a_2 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0])
-        b_0 = T.lamination([0, 1, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-        b_1 = T.lamination([0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 0])
-        b_2 = T.lamination([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1])
-        c_0 = T.lamination([2, 1, 3, 1, 2, 2, 1, 1, 1, 0, 0, 0, 0, 0, 0])
-        c_1 = T.lamination([0, 0, 0, 0, 0, 2, 1, 3, 1, 2, 2, 1, 1, 1, 0])
         
-        return curver.kernel.MappingClassGroup({
-            'a_0': a_0.encode_twist(),
-            'a_1': a_1.encode_twist(),
-            'a_2': a_2.encode_twist(),
-            'b_0': b_0.encode_twist(),
-            'b_1': b_1.encode_twist(),
-            'b_2': b_2.encode_twist(),
-            'c_0': c_0.encode_twist(),
-            'c_1': c_1.encode_twist()
-            })
+        mapping_classes = dict()
+        mapping_classes['a_0'] = T.curve_from_cut_sequence([1, 2, 3]).encode_twist()
+        mapping_classes['a_1'] = T.curve_from_cut_sequence([6, 7, 8]).encode_twist()
+        mapping_classes['a_2'] = T.curve_from_cut_sequence([11, 12, 13]).encode_twist()
+        mapping_classes['b_0'] = T.curve_from_cut_sequence([1, 2, 4]).encode_twist()
+        mapping_classes['b_1'] = T.curve_from_cut_sequence([6, 7, 9]).encode_twist()
+        mapping_classes['b_2'] = T.curve_from_cut_sequence([11, 12, 14]).encode_twist()
+        mapping_classes['c_0'] = T.curve_from_cut_sequence([0, 2, 4, 1, 2, 3, 4, 2, 0, 5, 6, 8, 7, 5]).encode_twist()
+        mapping_classes['c_1'] = T.curve_from_cut_sequence([5, 7, 9, 6, 7, 8, 9, 7, 5, 10, 11, 13, 12, 10]).encode_twist()
+        
+        return curver.kernel.MappingClassGroup(mapping_classes)
     else:  # n > 1:
         T = curver.create_triangulation(
             [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (5, 6, 7), (~6, 8, 9), (~7, ~8, ~9)] + \
