@@ -9,12 +9,12 @@ env:
     - TOXENV="py${PYTHONVERSION//./}"
 
 install:
-    pip install tox
-    pip install coveralls
+    - pip install tox
+    - pip install coveralls
 script:
-    tox
+    - tox
 after_success:
-    if [[ $ENV == python=3.* ]]; then
+    - if [[ $ENV == python=3.* ]]; then
         coveralls
     fi
 
