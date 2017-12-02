@@ -71,12 +71,12 @@ def S_1_n(n):
             )
         
         mapping_classes = dict()
-        mapping_classes['a_0'] = T.lamination_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1)] + [] + [2*n+1 + j for j in range(n-1)]).encode_twist()
-        mapping_classes['b_0'] = T.lamination_from_cut_sequence([0, 2]).encode_twist()
+        mapping_classes['a_0'] = T.curve_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1)] + [] + [2*n+1 + j for j in range(n-1)]).encode_twist()
+        mapping_classes['b_0'] = T.curve_from_cut_sequence([0, 2]).encode_twist()
         # The twists obtained by pushing a_0 across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_0.
         for i in range(1, n):
-            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1-i)] + [2*n + 2 - 2*i] + [2*n+i + j for j in range(n-i)]).encode_twist()
+            mapping_classes['p_%d' % i] = T.curve_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1-i)] + [2*n + 2 - 2*i] + [2*n+i + j for j in range(n-i)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         mapping_classes['s_0'] = T.edge_arc(2*n - 1).encode_halftwist()
         for i in range(1, n):
@@ -115,15 +115,15 @@ def S_2_n(n):
             )
         
         mapping_classes = dict()
-        mapping_classes['a_0'] = T.lamination_from_cut_sequence([1, 2, 3]).encode_twist()
-        mapping_classes['a_1'] = T.lamination_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n)] + [] + [2*n+7 + j for j in range(n-1)]).encode_twist()
-        mapping_classes['b_0'] = T.lamination_from_cut_sequence([1, 2, 4]).encode_twist()
-        mapping_classes['b_1'] = T.lamination_from_cut_sequence([5, 6, 8]).encode_twist()
-        mapping_classes['c_0'] = T.lamination_from_cut_sequence([6, 0, 2, 4, 1, 2, 3, 4, 2, 0, 5] + [7 + j*2 for j in range(n)] + [] + [2*n+7 + j for j in range(n-1)]).encode_twist()
+        mapping_classes['a_0'] = T.curve_from_cut_sequence([1, 2, 3]).encode_twist()
+        mapping_classes['a_1'] = T.curve_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n)] + [] + [2*n+7 + j for j in range(n-1)]).encode_twist()
+        mapping_classes['b_0'] = T.curve_from_cut_sequence([1, 2, 4]).encode_twist()
+        mapping_classes['b_1'] = T.curve_from_cut_sequence([5, 6, 8]).encode_twist()
+        mapping_classes['c_0'] = T.curve_from_cut_sequence([6, 0, 2, 4, 1, 2, 3, 4, 2, 0, 5] + [7 + j*2 for j in range(n)] + [] + [2*n+7 + j for j in range(n-1)]).encode_twist()
         # The twists obtained by pushing a_1 across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_1.
         for i in range(1, n):
-            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n-i)] + [2*n + 8 - 2*i] + [2*n+6+i + j for j in range(n-i)]).encode_twist()
+            mapping_classes['p_%d' % i] = T.curve_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n-i)] + [2*n + 8 - 2*i] + [2*n+6+i + j for j in range(n-i)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         mapping_classes['s_0'] = T.edge_arc(2*n + 5).encode_halftwist()
         for i in range(1, n):
@@ -172,18 +172,18 @@ def S_3_n(n):
             )
         
         mapping_classes = dict()
-        mapping_classes['a_0'] = T.lamination_from_cut_sequence([1, 2, 3]).encode_twist()
-        mapping_classes['a_1'] = T.lamination_from_cut_sequence([6, 7, 8]).encode_twist()
-        mapping_classes['a_2'] = T.lamination_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n)] + [] + [2*n+13 + j for j in range(n-1)]).encode_twist()
-        mapping_classes['b_0'] = T.lamination_from_cut_sequence([1, 2, 4]).encode_twist()
-        mapping_classes['b_1'] = T.lamination_from_cut_sequence([6, 7, 9]).encode_twist()
-        mapping_classes['b_2'] = T.lamination_from_cut_sequence([11, 12, 14]).encode_twist()
-        mapping_classes['c_0'] = T.lamination_from_cut_sequence([0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 7, 8, 6, 5]).encode_twist()
-        mapping_classes['c_1'] = T.lamination_from_cut_sequence([12, 10, 5, 7, 9, 6, 7, 8, 9, 7, 5, 10, 11] + [13 + j*2 for j in range(n)] + [] + [2*n+13 + j for j in range(n-1)]).encode_twist()
+        mapping_classes['a_0'] = T.curve_from_cut_sequence([1, 2, 3]).encode_twist()
+        mapping_classes['a_1'] = T.curve_from_cut_sequence([6, 7, 8]).encode_twist()
+        mapping_classes['a_2'] = T.curve_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n)] + [] + [2*n+13 + j for j in range(n-1)]).encode_twist()
+        mapping_classes['b_0'] = T.curve_from_cut_sequence([1, 2, 4]).encode_twist()
+        mapping_classes['b_1'] = T.curve_from_cut_sequence([6, 7, 9]).encode_twist()
+        mapping_classes['b_2'] = T.curve_from_cut_sequence([11, 12, 14]).encode_twist()
+        mapping_classes['c_0'] = T.curve_from_cut_sequence([0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 7, 8, 6, 5]).encode_twist()
+        mapping_classes['c_1'] = T.curve_from_cut_sequence([12, 10, 5, 7, 9, 6, 7, 8, 9, 7, 5, 10, 11] + [13 + j*2 for j in range(n)] + [] + [2*n+13 + j for j in range(n-1)]).encode_twist()
         # The twists obtained by pushing a_2 across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_2.
         for i in range(1, n):
-            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n-i)] + [2*n + 14 - 2*i] + [2*n+12+i + j for j in range(n-i)]).encode_twist()
+            mapping_classes['p_%d' % i] = T.curve_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n-i)] + [2*n + 14 - 2*i] + [2*n+12+i + j for j in range(n-i)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         mapping_classes['s_0'] = T.edge_arc(2*n + 11).encode_halftwist()
         for i in range(1, n):
@@ -209,12 +209,12 @@ def S_g_n(g, n):
         
         mapping_classes = dict()
         for i in range(g):
-            mapping_classes['a_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+3]).encode_twist()
-            mapping_classes['b_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+4]).encode_twist()
-        mapping_classes['c_%d' % 0] = T.lamination_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
+            mapping_classes['a_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+3]).encode_twist()
+            mapping_classes['b_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+4]).encode_twist()
+        mapping_classes['c_%d' % 0] = T.curve_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
         for i in range(1, g-2):
-            mapping_classes['c_%d' % i] = T.lamination_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + i - 1, 5*g + i - 1]).encode_twist()
-        mapping_classes['c_%d' % (g-2)] = T.lamination_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
+            mapping_classes['c_%d' % i] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + i - 1, 5*g + i - 1]).encode_twist()
+        mapping_classes['c_%d' % (g-2)] = T.curve_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
         
         return curver.kernel.MappingClassGroup(mapping_classes)
     else:  # n > 1:
@@ -237,21 +237,21 @@ def S_g_n(g, n):
         
         mapping_classes = dict()
         for i in range(g-1):
-            mapping_classes['a_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+3]).encode_twist()
-        mapping_classes['a_%d' % (g-1)] = T.lamination_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)]).encode_twist()
+            mapping_classes['a_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+3]).encode_twist()
+        mapping_classes['a_%d' % (g-1)] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)]).encode_twist()
         
         for i in range(g):
-            mapping_classes['b_%d' % i] = T.lamination_from_cut_sequence([5*i+1, 5*i+2, 5*i+4]).encode_twist()
-        mapping_classes['c_%d' % 0] = T.lamination_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
+            mapping_classes['b_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+4]).encode_twist()
+        mapping_classes['c_%d' % 0] = T.curve_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]]).encode_twist()
         for i in range(1, g-2):
-            mapping_classes['c_%d' % i] = T.lamination_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + 3*n - 3 + i - 1, 5*g + 3*n - 3 + i - 1]).encode_twist()
+            mapping_classes['c_%d' % i] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + 3*n - 3 + i - 1, 5*g + 3*n - 3 + i - 1]).encode_twist()
         
-        mapping_classes['c_%d' % (g-2)] = T.lamination_from_cut_sequence([5*(g-2) + j for j in [7, 5, 0, 2, 4, 1, 2, 3, 4, 2, 0, 5, 6]] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)]).encode_twist()
+        mapping_classes['c_%d' % (g-2)] = T.curve_from_cut_sequence([5*(g-2) + j for j in [7, 5, 0, 2, 4, 1, 2, 3, 4, 2, 0, 5, 6]] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)]).encode_twist()
         
         # The twists obtained by pushing a_{g-1} across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_{g-1}.
         for i in range(1, n):
-            mapping_classes['p_%d' % i] = T.lamination_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n-i)] + [5*g + 2*n - 1 - 2*i] + [5*g+2*n-3+i + j for j in range(n-i)]).encode_twist()
+            mapping_classes['p_%d' % i] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n-i)] + [5*g + 2*n - 1 - 2*i] + [5*g+2*n-3+i + j for j in range(n-i)]).encode_twist()
         # The half-twists that permute the ith and (i+1)st punctures.
         mapping_classes['s_0'] = T.edge_arc(5*g + 2*n - 4).encode_halftwist()
         for i in range(1, n):
