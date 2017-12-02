@@ -8,6 +8,11 @@ python:
 env:
     - TOXENV="py${PYTHONVERSION//./}"
 
-install: pip install tox
-script: tox
+install:
+    pip install tox
+    pip install coveralls
+script:
+    tox
+after_success:
+    coveralls
 
