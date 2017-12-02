@@ -636,7 +636,7 @@ class Triangulation(object):
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return curver.kernel.Arc(self, [0 if i != edge.index else -1 for i in range(self.zeta)])  # Could use self.lamination.
+        return curver.kernel.Arc(self, [0 if i != edge.index else -1 for i in range(self.zeta)])  # Avoids promote.
     
     def edge_arcs(self):
         ''' Return a list containing the Arc representing each Edge.
