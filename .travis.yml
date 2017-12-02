@@ -4,17 +4,13 @@ os: linux
 python:
     - 2.7
     - 3.6
-
 env:
     - TOXENV="py${PYTHONVERSION//./}"
-
 install:
     - pip install tox
     - pip install coveralls
 script:
     - tox
 after_success:
-    - if [[ $ENV == python=3.* ]]; then
-        coveralls;
-    fi
+    - coveralls
 
