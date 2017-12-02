@@ -65,7 +65,7 @@ class UnionFind(object):
             groups[self(item)].append(item)
         return iter(groups.values())
     def __len__(self):
-        return len([item for item in self.parent if self.parent[item] == item])
+        return sum(1 if self.parent[item] == item else 0 for item in self.parent)
     def __repr__(self):
         return str(self)
     def __str__(self):
