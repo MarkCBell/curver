@@ -44,11 +44,16 @@ class MappingClassGroup(object):
     def __ne__(self, other):
         return not (self == other)
     
+    def __getitem__(self, item):
+        return self.mapping_classes[item]
+    def __iter__(self):
+        return iter(self.mapping_classes)
+    
     def random_word(self, length, positive=True, negative=True, letters=None):
         ''' Return a random word of the required length.
         
         The letters to choose from can be specified or, alternatively, the set
-        of positive, negative or all (default) mapping classes can be used by using the 
+        of positive, negative or all (default) mapping classes can be used by using the
         flags postive and negative. '''
         
         if letters is None:
