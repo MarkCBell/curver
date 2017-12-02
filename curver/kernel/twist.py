@@ -149,7 +149,10 @@ class HalfTwist(Move):
         self.encoding = conjugator.inverse() * half_twist * conjugator
         
         # We handle large powers by replacing (T^1/2_self)^2 with T_boundary, which includes acceleration.
-        if self.power % 2 == 0:
+        # We handle small powers separately to increase performance.
+        if abs(self.power) <= 1:
+            self.encoding_power = self.encoding**self.power
+        elif self.power % 2 == 0:
             self.encoding_power = self.arc.boundary().encode_twist(self.power // 2)
         else:  # self.power % 2 == 1:  # Division rounds down so, regardless of power, we need an extra right half-twist.
             self.encoding_power = self.arc.boundary().encode_twist(self.power // 2) * self.encoding
