@@ -7,7 +7,7 @@
 
 .. image:: https://img.shields.io/travis/markcbell/curver.svg
     :alt: Curver build status
-    :target: https://travis-ci.com/MarkCBell/curver
+    :target: https://travis-ci.org/MarkCBell/curver
 
 Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm [BellWebb16]_ to determine the Nielsen--Thurston type of a mapping class.
