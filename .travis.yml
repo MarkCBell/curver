@@ -14,5 +14,7 @@ install:
 script:
     tox
 after_success:
-    coveralls
+    if [[ $ENV == python=3.* ]]; then
+        coveralls
+    fi
 
