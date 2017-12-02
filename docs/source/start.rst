@@ -48,7 +48,7 @@ This sample curver program loads the mapping class group of the twice-punctured 
     >>> (h**4)(c).fills_with(a)  # But h^4(c) \cup a does.
     True
     
-    >>> # Higher order functions on mapping classes.
+    # Higher order functions on mapping classes.
     >>> h != h.inverse() and h != h**2
     True
     >>> h.inverse() == h**-1
@@ -56,7 +56,8 @@ This sample curver program loads the mapping class group of the twice-punctured 
     >>> h.order()  # 0 == infinite order.
     0
     
-    >>> twist = c.encode_twist()  # Build new mapping classes:
+    # Build new mapping classes:
+    >>> twist = c.encode_twist(
     >>> halftwist = a.encode_halftwist()
     >>> twist == halftwist**2
     True
