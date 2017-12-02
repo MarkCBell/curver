@@ -40,7 +40,6 @@ def S_0_n(n):
     # We'll then create an arc connecting the ith to (i+1)st punctures.
     # Note that the arcs connecting (n-2)nd & (n-1)st and (n-1)st & 0th are special.
     
-        
     arcs = [T.edge_arc(2*n-4+i) for i in range(n-2)] + [T.edge_arc(2*n-5), T.edge_arc(0)]
     
     # We take the half-twist about each of these curves as the generator \sigma_i of SB_n.
