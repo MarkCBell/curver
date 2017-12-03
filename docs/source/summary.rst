@@ -5,15 +5,15 @@
 .. image:: https://img.shields.io/pypi/l/curver.svg
     :target: https://pypi.python.org/pypi/curver
 
-.. image:: https://api.travis-ci.org/MarkCBell/curver.svg
+.. image:: https://img.shields.io/travis/MarkCBell/curver.svg
     :target: https://travis-ci.org/MarkCBell/curver
     :alt: Curver build status
 
-.. image:: https://readthedocs.org/projects/curver/badge/?version=latest
+.. image:: https://img.shields.io/readthedocs/curver.svg
     :target: http://curver.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation status
 
-.. image:: https://coveralls.io/repos/github/MarkCBell/curver/badge.svg?branch=master
+.. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg
     :target: https://coveralls.io/github/MarkCBell/curver?branch=master
     :alt: Coveralls status
 
