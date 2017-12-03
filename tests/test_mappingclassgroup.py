@@ -14,7 +14,6 @@ def mcgs(draw):
     return draw(st.sampled_from(MCGS))
 
 
-@pytest.mark.slow
 class TestMCG(unittest.TestCase):
     @given(mcgs())
     @settings(max_examples=2, deadline=None)
