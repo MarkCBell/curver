@@ -279,7 +279,15 @@ class Lamination(object):
         return (empty if multicurve.is_empty() else multicurve.boundary()) + (empty if multiarc.is_empty() else multiarc.boundary())
     
     def is_filling(self):
-        ''' Return if this Lamination fills the surface, that is, if it cuts the surface into polygons and once-punctured polygons. '''
+        ''' Return if this Lamination fills the surface, that is, if it intersects all curves on the surface.
+        
+        Note that this is equivalent to:
+            - it meets every non S_{0,3} component of the surface, and
+            - its boundary is peripheral.
+        Furthermore, if any component of this lamination is a curve then it cannot fill. '''
+        
+        if any(isinstance(component, curver.kernel.Curve) for component in self.components):
+            return False
         
         for component in self.triangulation.components():
             V, E = len([vertex for vertex in self.triangulation.vertices if vertex[0] in component]), len(component) // 2
