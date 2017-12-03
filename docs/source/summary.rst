@@ -6,8 +6,17 @@
     :target: https://pypi.python.org/pypi/curver
 
 .. image:: https://api.travis-ci.org/MarkCBell/curver.svg
-    :alt: Curver build status
     :target: https://travis-ci.org/MarkCBell/curver
+    :alt: Curver build status
+
+.. image:: https://readthedocs.org/projects/curver/badge/?version=latest
+    :target: http://curver.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation status
+
+.. image:: https://coveralls.io/repos/github/MarkCBell/curver/badge.svg?branch=master
+    :target: https://coveralls.io/github/MarkCBell/curver?branch=master
+    :alt: Coveralls status
+
 
 Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm [BellWebb16]_ to determine the Nielsen--Thurston type of a mapping class.
