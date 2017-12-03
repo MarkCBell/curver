@@ -115,7 +115,7 @@ class Arc(MultiArc):
         
         Assumes that this arc connects between distinct vertices. '''
         
-        if not self.connects_distinct_vertices()  # Check where it connects.
+        if not self.connects_distinct_vertices():  # Check where it connects.
             raise curver.AssumptionError('Arc connects a vertex to itself.')
         
         short, conjugator = self.shorten()
