@@ -85,7 +85,7 @@ class Encoding(object):
         return not (self == other)
     def __hash__(self):
         # In fact this hash is perfect unless the surface is S_{1,1}.
-        return hash(tuple(weight for arc in self.source_triangulation.edge_arcs() for weight in self(arc)))
+        return hash(tuple(entry for row in self.intersection_matrix() for entry in row))
     
     def __call__(self, other):
         if self.source_triangulation != other.triangulation:
@@ -112,6 +112,14 @@ class Encoding(object):
     def __invert__(self):
         return self.inverse()
     
+    def intersection_matrix(self):
+        ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
+        Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
+        
+        Except when on S_{1,1}, this uniquely determines self. '''
+        
+        return [list(self(arc)) for arc in self.source_triangulation.edge_arcs()]
+    
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
@@ -134,13 +142,6 @@ class MappingClass(Encoding):
             return MappingClass(self.sequence * k)
         else:
             return self.inverse()**abs(k)
-    
-    def intersection_matrix(self):
-        ''' Return the matrix M = {signed_intersection(self(e_i), e_j)}_{ij} where e_i are the edges of self.source_triangulation.
-        
-        Except when self.source_triangulation == S_{1,1}, this uniquely determines self. '''
-        
-        return [list(self(arc)) for arc in self.source_triangulation.edge_arcs()]
     
     def order(self):
         ''' Return the order of this mapping class.
