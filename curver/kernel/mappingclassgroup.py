@@ -11,9 +11,22 @@ REGEX_IS_NAME = re.compile(r'[a-z]\w*$')
 class MappingClassGroup(object):
     ''' This represents a triangulation along with a collection of named mapping classes on it.
     
+    It can also be given a list of curves and arcs, in which case the twists and half-twists about
+    these are also added to the list of known mapping classes.
     Most importantly this object can construct a mapping class from a string descriptor.
     See self.mapping_class for additional information. '''
-    def __init__(self, pos_mapping_classes):
+    def __init__(self, pos_mapping_classes=None, curves=None, arcs=None):
+        if pos_mapping_classes is None: pos_mapping_classes = dict()
+        if curves is None: curves = dict()
+        if arcs is None: arcs = dict()
+        
+        for name, arc in arcs.items():
+            assert(name not in pos_mapping_classes)
+            pos_mapping_classes[name] = arc.encode_halftwist()
+        for name, curve in curves.items():
+            assert(name not in pos_mapping_classes)
+            pos_mapping_classes[name] = curve.encode_twist()
+        
         assert(pos_mapping_classes)
         
         if not isinstance(pos_mapping_classes, dict):
@@ -25,13 +38,14 @@ class MappingClassGroup(object):
         assert(all(isinstance(key, str) for key in pos_mapping_classes))
         assert(all(isinstance(pos_mapping_class, curver.kernel.MappingClass) for pos_mapping_class in pos_mapping_classes.values()))
         assert(all(pos_mapping_class.source_triangulation == self.triangulation for pos_mapping_class in pos_mapping_classes.values()))
-        # assert(all(key.swapcase() not in pos_mapping_classes for key in pos_mapping_classes))
         assert(all(REGEX_IS_NAME.match(name) for name in pos_mapping_classes))
-        # Should check keys are valid.
         
         self.pos_mapping_classes = dict(pos_mapping_classes)
         self.neg_mapping_classes = dict((name.swapcase(), pos_mapping_class.inverse()) for name, pos_mapping_class in self.pos_mapping_classes.items())
         self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
+        
+        self.arcs = arcs
+        self.curves = curves
     
     def __repr__(self):
         return str(self)

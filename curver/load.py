@@ -46,12 +46,7 @@ def S_0_n(n):
     arcs['s_%d' % (n-2)] = T.edge_arc(2*n-5)
     arcs['s_%d' % (n-1)] = T.edge_arc(0)
     
-    # We take the half-twist about each of these curves as the generator \sigma_i of SB_n.
-    mapping_classes = dict((name, lamination.encode_twist() if isinstance(lamination, curver.kernel.Curve) else lamination.encode_halftwist()) for name, lamination in list(arcs.items()) + list(curves.items()))
-    S = curver.kernel.MappingClassGroup(mapping_classes)
-    S.curves = curves
-    S.arcs = arcs
-    return S
+    return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def S_1_n(n):
     assert(n >= 1)
@@ -82,11 +77,7 @@ def S_1_n(n):
         for i in range(1, n):
             arcs['s_%d' % i] = T.edge_arc(2*n + 2 - 2*i)
     
-    mapping_classes = dict((name, lamination.encode_twist() if isinstance(lamination, curver.kernel.Curve) else lamination.encode_halftwist()) for name, lamination in list(arcs.items()) + list(curves.items()))
-    S = curver.kernel.MappingClassGroup(mapping_classes)
-    S.curves = curves
-    S.arcs = arcs
-    return S
+    return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def S_2_n(n):
     assert(n >= 1)
@@ -125,11 +116,8 @@ def S_2_n(n):
         for i in range(1, n):
             arcs['s_%d' % i] = T.edge_arc(2*n + 8 - 2*i)
     
-    mapping_classes = dict((name, lamination.encode_twist() if isinstance(lamination, curver.kernel.Curve) else lamination.encode_halftwist()) for name, lamination in list(arcs.items()) + list(curves.items()))
-    S = curver.kernel.MappingClassGroup(mapping_classes)
-    S.curves = curves
-    S.arcs = arcs
-    return S
+    return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
+
 
 def S_3_n(n):
     assert(n >= 1)
@@ -178,11 +166,7 @@ def S_3_n(n):
         for i in range(1, n):
             arcs['s_%d' % i] = T.edge_arc(2*n + 14 - 2*i)
     
-    mapping_classes = dict((name, lamination.encode_twist() if isinstance(lamination, curver.kernel.Curve) else lamination.encode_halftwist()) for name, lamination in list(arcs.items()) + list(curves.items()))
-    S = curver.kernel.MappingClassGroup(mapping_classes)
-    S.curves = curves
-    S.arcs = arcs
-    return S
+    return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def S_g_n(g, n):
     assert(g >= 4)
@@ -247,11 +231,7 @@ def S_g_n(g, n):
         for i in range(1, n):
             arcs['s_%d' % i] = T.edge_arc(5*g + 2*n - 1 - 2*i)
     
-    mapping_classes = dict((name, lamination.encode_twist() if isinstance(lamination, curver.kernel.Curve) else lamination.encode_halftwist()) for name, lamination in list(arcs.items()) + list(curves.items()))
-    S = curver.kernel.MappingClassGroup(mapping_classes)
-    S.curves = curves
-    S.arcs = arcs
-    return S
+    return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def load_old(surface):
     if surface == 'S_0_4':
