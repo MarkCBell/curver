@@ -20,7 +20,7 @@ def mapping_classes(draw, mcg=None):
 def encodings(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     encoding = triangulation.id_encoding()
-    num_flips = draw(st.integers(min_value=0))
+    num_flips = draw(st.integers(min_value=0, max_value=20))
     for _ in range(num_flips):
         T = encoding.target_triangulation
         edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
@@ -43,6 +43,13 @@ class TestEncoding(unittest.TestCase):
         h = data.draw(encodings(g.target_triangulation))
         self.assertEqual(~(~g), g)
         self.assertEqual(~g * ~h, ~(h * g))
+    
+    @given(encodings())
+    @settings(deadline=None)
+    def test_intersection_matrix(self, h):
+        matrix = h.intersection_matrix()
+        matrix_transpose = [list(row) for row in zip(*matrix)]
+        self.assertEqual(matrix_transpose, (~h).intersection_matrix())
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())
