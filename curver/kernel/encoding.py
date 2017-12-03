@@ -55,6 +55,8 @@ class Encoding(object):
             if start == stop:
                 if 0 <= start < len(self):
                     return self.sequence[start].target_triangulation.id_encoding()
+                elif start == len(self):
+                    return self.source_triangulation.id_encoding()
                 else:
                     raise IndexError('list index out of range')
             elif stop < start:
