@@ -8,8 +8,6 @@ import unittest
 import curver
 import strategies
 
-
-
 @pytest.mark.slow
 class TestLamination(unittest.TestCase):
     @given(strategies.laminations())

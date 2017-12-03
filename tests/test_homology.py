@@ -8,7 +8,6 @@ import unittest
 import curver
 import strategies
 
-
 class TestHomologyClass(unittest.TestCase):
     @given(strategies.homology_classes())
     def test_pickle(self, hc):

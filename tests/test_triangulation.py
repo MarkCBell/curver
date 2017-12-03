@@ -8,8 +8,6 @@ import unittest
 import curver
 import strategies
 
-
-
 class TestTriangulation(unittest.TestCase):
     @given(strategies.triangulations())
     def test_pickle(self, triangulation):

@@ -8,8 +8,6 @@ import unittest
 import curver
 import strategies
 
-
-
 class TestMCG(unittest.TestCase):
     @given(strategies.mcgs())
     @settings(max_examples=2, deadline=None)
