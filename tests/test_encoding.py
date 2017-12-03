@@ -15,6 +15,7 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
     
     @given(st.data())
+    @settings(deadline=None)
     def test_slice(self, data):
         h = data.draw(strategies.encodings())
         i = data.draw(st.integers(min_value=0, max_value=len(h)))
