@@ -15,7 +15,7 @@ from collections import Counter
 
 
 class TestCrush(unittest.TestCase):
-    # Crush is not pickleable since it doesn't implement .package().
+    # Crush / Lift are not pickleable since they doesn't implement .package().
     #@given(curves())
     #@settings(max_examples=1, deadline=None)
     #def test_pickle(self, curve):
