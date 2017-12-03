@@ -93,7 +93,7 @@ class MultiCurve(Lamination):
                 if lifted_curve in components:
                     half_edges[lifted_curve].append(index)
         
-        dummy_index= len(graph)
+        dummy_index = len(graph)
         graph.add_node(dummy_index, genus=0, vertices=0)  # Dummy node for peripheral components.
         
         for curve, nodes in half_edges.items():
