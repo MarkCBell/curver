@@ -6,6 +6,7 @@ import pytest
 import unittest
 
 from test_triangulation import triangulations
+from test_mappingclass import mapping_classes
 
 import curver
 
@@ -30,5 +31,16 @@ def multicurves(draw, triangulation=None):
 
 
 class TestCurve(unittest.TestCase):
-    pass
+    #@given(curves())
+    #@settings(max_examples=10, deadline=None)
+    #def test_boundary_intersection(self, curve):
+    #    boundary = curve.boundary()
+    #    self.assertEqual(curve.intersection(boundary), 0)
+    
+    @given(st.data())
+    @settings(max_examples=10, deadline=None)
+    def test_topological_type(self, data):
+        h = data.draw(mapping_classes())
+        curve = data.draw(curves(h.source_triangulation))
+        self.assertEqual(curve.topological_type(), h(curve).topological_type())
 
