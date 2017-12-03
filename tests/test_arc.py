@@ -25,7 +25,6 @@ class TestArc(unittest.TestCase):
     @given(arcs())
     @settings(max_examples=10, deadline=None)
     def test_halftwist(self, arc):
-        vertices = arc.vertices()
-        if vertices[0] != vertices[1]:
+        if arc.connects_distinct_vertices():
             self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 

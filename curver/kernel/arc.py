@@ -105,19 +105,22 @@ class Arc(MultiArc):
         assert(len(vertices) == 2)
         return vertices
     
+    def connects_distinct_vertices(self):
+        ''' Return whether this arc connects between distict vertices of its underlying triangulation. '''
+        
+        return len(set(self.vertices())) == 2
+    
     def encode_halftwist(self, power=1):
         ''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
         
         Assumes that this arc connects between distinct vertices. '''
         
+        if not self.connects_distinct_vertices()  # Check where it connects.
+            raise curver.AssumptionError('Arc connects a vertex to itself.')
+        
         short, conjugator = self.shorten()
         
         edge = short.parallel()
-        
-        # Check where it connects.
-        vertices = short.vertices()
-        if vertices[0] == vertices[1]:
-            raise curver.AssumptionError('Arc connects a vertex to itself.')
         
         return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
     
