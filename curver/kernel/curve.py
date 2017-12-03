@@ -93,8 +93,14 @@ class MultiCurve(Lamination):
                 if lifted_curve in components:
                     half_edges[lifted_curve].append(index)
         
-        for curve, (i, j) in half_edges.items():
-            graph.add_edge(i, j, weight=components[curve])
+        dummy_index= len(graph)
+        graph.add_node(dummy_index, genus=0, vertices=0)  # Dummy node for peripheral components.
+        
+        for curve, nodes in half_edges.items():
+            if len(nodes) == 2:
+                graph.add_edge(nodes[0], nodes[1], weight=components[curve])
+            else:  # len(nodes) == 1:
+                graph.add_edge(nodes[0], dummy_index, weight=components[curve])
         
         return curver.kernel.CurvePartitionGraph(self, graph)
 
