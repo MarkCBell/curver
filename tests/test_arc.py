@@ -1,29 +1,21 @@
 
-from hypothesis import given, settings
+from hypothesis import given, assume, settings
 import hypothesis.strategies as st
 import pickle
 import pytest
 import unittest
 
-from test_triangulation import triangulations
-
 import curver
-
-@st.composite
-def arcs(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    edge = draw(st.sampled_from(triangulation.edges))
-    return triangulation.lamination_from_cut_sequence([edge])
-
+import strategies
 
 class TestArc(unittest.TestCase):
-    @given(arcs())
+    @given(strategies.arcs())
     @settings(max_examples=50, deadline=None)
     def test_boundary_intersection(self, arc):
         boundary = arc.boundary()
         self.assertEqual(arc.intersection(boundary), 0)
     
-    @given(arcs())
+    @given(strategies.arcs())
     @settings(max_examples=10, deadline=None)
     def test_halftwist(self, arc):
         if arc.connects_distinct_vertices():

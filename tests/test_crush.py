@@ -5,30 +5,26 @@ import pickle
 import pytest
 import unittest
 
-from test_curve import curves
-from test_lamination import laminations
-from test_triangulation import triangulations
-
 import curver
+import strategies
 
 from collections import Counter
 
-
 class TestCrush(unittest.TestCase):
-    # Crush / Lift are not pickleable since they doesn't implement .package().
-    #@given(curves())
-    #@settings(max_examples=1, deadline=None)
-    #def test_pickle(self, curve):
-    #    crush = curve.crush()
-    #    self.assertEqual(crush, pickle.loads(pickle.dumps(crush)))
+    @pytest.mark.skip('Crush / Lift are not pickleable since they do not implement .package().')
+    @given(strategies.curves())
+    @settings(max_examples=1, deadline=None)
+    def test_pickle(self, curve):
+        crush = curve.crush()
+        self.assertEqual(crush, pickle.loads(pickle.dumps(crush)))
     
-    @given(curves())
+    @given(strategies.curves())
     @settings(max_examples=10, deadline=None)
     def test_inverse(self, curve):
         crush = curve.crush()
         self.assertEqual(crush, ~(~crush))
     
-    @given(curves())
+    @given(strategies.curves())
     @settings(deadline=None)
     def test_lift(self, curve):
         crush = curve.crush()
@@ -41,9 +37,9 @@ class TestCrush(unittest.TestCase):
     @given(st.data())
     @settings(deadline=None)
     def test_twist(self, data):
-        triangulation = data.draw(triangulations())
-        curve = data.draw(curves(triangulation))
-        lamination = data.draw(curves(triangulation))
+        triangulation = data.draw(strategies.triangulations())
+        curve = data.draw(strategies.curves(triangulation))
+        lamination = data.draw(strategies.curves(triangulation))
         
         crush = curve.crush()
         twist = curve.encode_twist()

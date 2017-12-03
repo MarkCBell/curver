@@ -7,6 +7,7 @@ from string import ascii_lowercase
 import unittest
 
 import curver
+import strategies
 
 class UnionFindRules(RuleBasedStateMachine):
     def __init__(self):

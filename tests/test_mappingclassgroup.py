@@ -6,16 +6,12 @@ import pytest
 import unittest
 
 import curver
+import strategies
 
-MCGS = [curver.load(g, p) for g in range(0, 5) for p in range(1, 5) if 6*g + 3*p - 6 >= 3]
-
-@st.composite
-def mcgs(draw):
-    return draw(st.sampled_from(MCGS))
 
 
 class TestMCG(unittest.TestCase):
-    @given(mcgs())
+    @given(strategies.mcgs())
     @settings(max_examples=2, deadline=None)
     def test_pickle(self, mcg):
         self.assertEqual(mcg, pickle.loads(pickle.dumps(mcg)))
@@ -23,7 +19,7 @@ class TestMCG(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=50, deadline=None)
     def test_curve_intersection(self, data):
-        mcg = data.draw(mcgs())
+        mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.curves)))
         name2 = data.draw(st.sampled_from(sorted(mcg.curves)))
         curve1 = mcg.curves[name1]
@@ -35,7 +31,7 @@ class TestMCG(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=50, deadline=None)
     def test_arc_intersection(self, data):
-        mcg = data.draw(mcgs())
+        mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.arcs)))
         name2 = data.draw(st.sampled_from(sorted(mcg.arcs)))
         arc1 = mcg.arcs[name1]
@@ -45,7 +41,7 @@ class TestMCG(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=50, deadline=None)
     def test_curve_relation(self, data):
-        mcg = data.draw(mcgs())
+        mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.curves)))
         name2 = data.draw(st.sampled_from(sorted(mcg.curves)))
         curve1 = mcg.curves[name1]
@@ -59,7 +55,7 @@ class TestMCG(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=50, deadline=None)
     def test_arc_relation(self, data):
-        mcg = data.draw(mcgs())
+        mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.arcs)))
         name2 = data.draw(st.sampled_from(sorted(mcg.arcs)))
         arc1 = mcg.arcs[name1]
