@@ -6,7 +6,7 @@ import pytest
 import unittest
 
 from test_triangulation import triangulations
-from test_mappingclass import mapping_classes
+from test_encoding import mapping_classes
 
 import curver
 
