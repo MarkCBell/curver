@@ -6,11 +6,13 @@ import pytest
 import unittest
 
 from test_triangulation import triangulations
+from test_arc import arcs
+from test_curve import curves
 
 import curver
 
 @st.composite
-def laminations(draw, triangulation=None, min_weight=None, max_weight=None):
+def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
     if triangulation is None: triangulation = draw(triangulations())
     geometric = [None] * triangulation.zeta
     for index in triangulation.indices:
@@ -37,6 +39,12 @@ def laminations(draw, triangulation=None, min_weight=None, max_weight=None):
              e = draw(st.integers())
         geometric[index] = e
     return triangulation.lamination(geometric)
+
+@st.composite
+def laminations(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    pieces = draw(st.lists(elements=st.tuples(st.one_of(curves(triangulation), arcs(triangulation)), st.integers(min_value=1)).map(lambda c, m: m*c)))
+    return triangulation.sum(pieces)
 
 
 @pytest.mark.slow
