@@ -21,7 +21,8 @@ def curves(draw, triangulation=None):
         path.append(edge)
         edge = ~draw(st.sampled_from(triangulation.corner_lookup[edge.label].edges[1:]))
     start = path.index(edge)
-    return triangulation.curve_from_cut_sequence(path[start:])
+    multicurve = triangulation.lamination_from_cut_sequence(path[start:])
+    return multicurve.peek_component()
 
 @st.composite
 def multicurves(draw, triangulation=None):
