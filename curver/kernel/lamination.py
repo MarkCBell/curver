@@ -60,9 +60,23 @@ class Lamination(object):
     def __radd__(self, other):
         return self + other  # Commutative.
     def __mul__(self, other):
+        assert(isinstance(other, curver.IntegerType))
+        assert(other >= 0)
+        
+        if other == 0:
+            new_class = Lamination
+        elif other == 1:
+            new_class = self.__class__
+        elif isinstance(other, curver.kernel.MultiArc):  # or Arc.
+            new_class = curver.kernel.MultiArc
+        elif isinstance(other, curver.kernel.MultiCurve):  # or Curve.
+            new_class = curver.kernel.MultiCurve
+        else:
+            new_class = Lamination
+        
         geometric = [other * x for x in self]
         # TODO: 2) Could save components if they have already been computed.
-        return self.__class__(self.triangulation, geometric)  # Preserve promotion.
+        return new_class(self.triangulation, geometric)  # Preserve promotion.
     def __rmul__(self, other):
         return self * other  # Commutative.
     
