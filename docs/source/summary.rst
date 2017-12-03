@@ -1,20 +1,22 @@
 
 .. image:: https://img.shields.io/pypi/v/curver.svg
     :target: https://pypi.python.org/pypi/curver
+    :alt: PyPI version
 
 .. image:: https://img.shields.io/pypi/l/curver.svg
     :target: https://pypi.python.org/pypi/curver
+    :alt: PyPI license
 
 .. image:: https://img.shields.io/travis/MarkCBell/curver.svg
     :target: https://travis-ci.org/MarkCBell/curver
     :alt: Curver build status
 
 .. image:: https://img.shields.io/readthedocs/curver.svg
-    :target: http://curver.readthedocs.io/en/latest/?badge=latest
+    :target: https://curver.readthedocs.io
     :alt: Documentation status
 
 .. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg
-    :target: https://coveralls.io/github/MarkCBell/curver?branch=master
+    :target: https://coveralls.io/github/MarkCBell/curver
     :alt: Coveralls status
 
 
