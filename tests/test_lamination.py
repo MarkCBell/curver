@@ -65,3 +65,24 @@ class TestLamination(unittest.TestCase):
         edge = data.draw(st.sampled_from(lamination.triangulation.edges))
         self.assertEqual(lamination(edge), lamination(~edge))
 
+    @given(laminations())
+    def test_components(self, lamination):
+        self.assertEqual(lamination.triangulation.sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
+        self.assertEqual(lamination.triangulation.disjoint_sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
+        for component in lamination:
+            self.assertEqual(component.intersection(component), 0)
+    
+    @given(st.data())
+    def test_components_image(self, data):
+        lamination = data.draw(laminations())
+        encoding = data.draw(encodings(lamination.triangulation))
+        self.assertEqual(set(encoding(lamination).components()), {encoding(component) for component in lamination.components()})
+    
+    @given(st.data())
+    def test_intersection(self, data):
+        lamination1 = data.draw(laminations())
+        lamination2 = data.draw(laminations(lamination1.triangulation))
+        encoding = data.draw(encodings(lamination1.triangulation))
+        self.assertGreaterEqual(lamination.intersection(lamination2), 0)
+        self.assertEqual(lamination.intersection(lamination2), encoding(lamination).intersection(encoding(lamination2)))
+
