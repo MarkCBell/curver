@@ -31,7 +31,7 @@ class TestTriangulation(unittest.TestCase):
     def test_isometry(self, triangulation):
         self.assertTrue(triangulation.is_isometric_to(triangulation))
         identity = triangulation.id_isometry()
-        isometries= triangulation.self_isometries()
+        isometries = triangulation.self_isometries()
         self.assertIn(identity, isometries)
 
     @given(strategies.triangulations())

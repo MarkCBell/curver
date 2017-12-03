@@ -127,7 +127,7 @@ def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
             parity = (c + d) % 2
             e = draw(st.integers().map(lambda x: x + 1 if x % 2 != parity and lower < x < upper else x))
         else:
-             e = draw(st.integers())
+            e = draw(st.integers())
         geometric[index] = e
     return triangulation.lamination(geometric)
 
