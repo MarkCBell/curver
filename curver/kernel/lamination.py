@@ -399,7 +399,7 @@ class Shortenable(Lamination):
             try:  # Accelerate!
                 trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
                 
-                curve = lamination.triangulation.lamination_from_cut_sequence(trace)  # Avoids promote.
+                curve = lamination.triangulation.lamination_from_cut_sequence(trace)
                 if not isinstance(curve, curver.kernel.Curve):
                     raise ValueError
                 
