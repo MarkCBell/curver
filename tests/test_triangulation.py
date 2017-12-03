@@ -94,6 +94,7 @@ class TestTriangulation(unittest.TestCase):
         self.assertTrue(triangulation.is_isometric_to(triangulation))
 
     @given(triangulations())
+    @settings(deadline=None)
     def test_sig(self, triangulation):
         self.assertEqual(triangulation, curver.triangulation_from_sig(triangulation.sig()))
 
