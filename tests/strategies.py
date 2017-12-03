@@ -82,6 +82,7 @@ def arcs(draw, triangulation=None):
     edge = draw(st.sampled_from(triangulation.edges))
     return triangulation.lamination_from_cut_sequence([edge])
 
+# TODO: 1) Non-isolating curves are *very* rare in this strategy.
 @st.composite
 def curves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
