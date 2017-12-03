@@ -53,6 +53,13 @@ TRIANGULATIONS = {
     (4, 9): 'J_0wtlMF+uKu-uOzqzZ+7kU2Lq4I3BEeaaVa57q2C0lhFS7iV1YBCH7IbI-L3HePt7iIGBe5WgA282',
     (5, 1): 'r_0wUXPZwUD9uA4K-fmxT93jrye5mW+6QUPZVGQU1',
     (5, 2): 'u_0wUXPZw7sxaMvf+HM6p0m50javFCeVyOYYsOtrBCvcH21',
+    (5, 3): 'x_0wUXPZwTnJKfEIppmxHddHc+ER8yCqQ445v0d2Q101uZCcV6u01',
+    (5, 4): 'A_0wUXPZwTTUvsjvktbsTgIgjJ7aqCDyJNKbtky0Ajvrz4SWEQ+5CjlC9F1',
+    (5, 5): 'D_0wUXPZwTHMJ9w2zmjkrNnNtK7FwyVbF-mL4UHfta7eN54N2lZekGdxwvKMt1Om4',
+    (5, 6): 'G_0wUXPZwTHYiyz+sdTFf3khZz195gt99PeEiX+MLv9mUa4O4yfOqo3b--xuvog9dP2fO9i',
+    (5, 7): 'J_0wUXPZwTH0cWeOU-yEvWsxsiJOElP-Vml7Bi2JyY24itGFBv1Z0bif-hsK1c9zL-QETRIcKg9pP1',
+    (5, 8): 'M_0wUXPZwTH0cRiVJPBRoeCnlyjorpiQI8coG+UQtINlFoP-I6sOedoZGzA8cPUK3lFgQIaV7vSIaoDajr1h',
+    (5, 9): 'P_0wUXPZwTH0sVLX2dmkM054OZAYTbfU7OhNURAF5-lmsXhmepRzsMjqrme2wP+y2oFw16Ud-04jQ7uCBbFXMocr5F3',
     }
 
 SIGNATURES = [TRIANGULATIONS[key] for key in sorted(TRIANGULATIONS)]
