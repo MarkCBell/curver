@@ -7,7 +7,7 @@ import unittest
 
 import curver
 
-# TRIANGULATIONS = {(g, p): str(curver.load(g, p).triangulation) for g in range(10) for p in range(1, 10) if 6*g + 3*p - 6 >= 3}
+# TRIANGULATIONS = {(g, p): curver.load(g, p).triangulation.sig() for g in range(10) for p in range(1, 10) if 6*g + 3*p - 6 >= 3}
 TRIANGULATIONS = {
     (0, 3): '3_p',
     (0, 4): '6_JDky1',
