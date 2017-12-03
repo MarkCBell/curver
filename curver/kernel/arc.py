@@ -116,7 +116,7 @@ class Arc(MultiArc):
         
         # Check where it connects.
         vertices = short.vertices()
-        if vertices[0] != vertices[1]:
+        if vertices[0] == vertices[1]:
             raise curver.AssumptionError('Arc connects a vertex to itself.')
         
         return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
