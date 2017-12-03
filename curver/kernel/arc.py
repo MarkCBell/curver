@@ -39,7 +39,7 @@ class MultiArc(Shortenable):
                     to_fix.append(short.triangulation.triangle_lookup[~edge.label])
         
         # Remove any extra peripheral components we may have accidentally created.
-        for vertex in self.triangulation.vertices:
+        for vertex in short.triangulation.vertices:
             if all(short(edge) == 0 for edge in vertex):  # This vertex is disjoint from short:
                 for edge in vertex:
                     geometric[edge.index] -= 1
@@ -93,6 +93,18 @@ class Arc(MultiArc):
         
         return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)
     
+    def vertices(self):
+        ''' Return the pair of vertices that this arc connects from / to. '''
+        
+        vertices = []
+        for vertex in self.triangulation.vertices:
+            for edge in vertex:
+                if self(edge) < 0: vertices.append(vertex)
+                if self.side_weight(edge) == -1: vertices.append(vertex)
+                if self.side_weight(edge) == -2: vertices += [vertex, vertex]
+        assert(len(vertices) == 2)
+        return vertices
+    
     def encode_halftwist(self, power=1):
         ''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
         
@@ -103,7 +115,8 @@ class Arc(MultiArc):
         edge = short.parallel()
         
         # Check where it connects.
-        if short.triangulation.vertex_lookup[edge.label] == short.triangulation.vertex_lookup[~edge.label]:
+        vertices = short.vertices()
+        if vertices[0] != vertices[1]:
             raise curver.AssumptionError('Arc connects a vertex to itself.')
         
         return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
