@@ -88,7 +88,7 @@ class MultiCurve(Lamination):
             graph.add_node(index, genus=G, vertices=V)
             
             for vertex in vertices:
-                curve = triangulation.peripheral_curve(vertex)
+                curve = triangulation.curve_from_cut_sequence(vertex)
                 lifted_curve = lift(curve)
                 if lifted_curve in components:
                     half_edges[lifted_curve].append(index)

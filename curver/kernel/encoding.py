@@ -125,8 +125,8 @@ class Encoding(object):
         
         When self is a MappingClass this is a permutation of the vertices. '''
         
-        source_vertices = dict((vertex, self.source_triangulation.peripheral_curve(vertex)) for vertex in self.source_triangulation.vertices)
-        target_vertices_inverse = dict((self.target_triangulation.peripheral_curve(vertex), vertex) for vertex in self.target_triangulation.vertices)
+        source_vertices = dict((vertex, self.source_triangulation.curve_from_cut_sequence(vertex)) for vertex in self.source_triangulation.vertices)
+        target_vertices_inverse = dict((self.target_triangulation.curve_from_cut_sequence(vertex), vertex) for vertex in self.target_triangulation.vertices)
         
         return dict((vertex, target_vertices_inverse[self(source_vertices[vertex])]) for vertex in self.source_triangulation.vertices)
 

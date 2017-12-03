@@ -581,12 +581,6 @@ class Triangulation(object):
         
         return self.lamination([-1] * self.zeta)
     
-    def peripheral_curve(self, vertex):
-        ''' Return the curve that runs around the given vertex. '''
-        
-        count = Counter([edge.index for edge in vertex])
-        return self.lamination([count[i] for i in range(self.zeta)])
-    
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''
         
