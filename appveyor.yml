@@ -7,19 +7,17 @@ environment:
       PYTHON_VERSION: "2.7.8"
       PYTHON_ARCH: "32"
 
-    #- PYTHON: "C:\\Python36"
-      #PYTHON_VERSION: "3.6.3"
-      #PYTHON_ARCH: "32"
+    - PYTHON: "C:\\Python36"
+      PYTHON_VERSION: "3.6.3"
+      PYTHON_ARCH: "32"
 
 init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "%PYTHON%/Scripts/pip.exe install pytest pytest-cov"
-  - "%PYTHON%/Scripts/pip.exe install hypothesis"
+  - "%PYTHON%/Scripts/pip.exe install -r requirements-dev.txt"
   - "%PYTHON%/Scripts/pip.exe install --editable . --user"
 
 test_script:
-  # Run the project tests
   - "%PYTHON%/Scripts/py.test.exe"
 

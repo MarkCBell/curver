@@ -4,9 +4,7 @@ python:
     - 2.7
     - 3.6
 install:
-    - pip install pytest pytest-cov
-    - pip install hypothesis
-    - pip install coveralls
+    - pip install -r requirements-dev.txt
     - pip install --editable .
 script:
     - py.test --cov=curver/kernel

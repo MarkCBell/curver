@@ -1,4 +1,9 @@
 coverage
+coveralls
+hypothesis
+pylint
+pytest
+pytest-cov
 sphinx
 tox
 twine
