@@ -9,7 +9,11 @@
 
 .. image:: https://img.shields.io/travis/MarkCBell/curver.svg
     :target: https://travis-ci.org/MarkCBell/curver
-    :alt: Curver build status
+    :alt: Travis build status
+
+.. image:: https://img.shields.io/appveyor/ci/MarkCBell/curver.svg
+    :target: https://ci.appveyor.com/project/MarkCBell/curver
+    :alt: AppVeyor build status
 
 .. image:: https://img.shields.io/readthedocs/curver.svg
     :target: https://curver.readthedocs.io
