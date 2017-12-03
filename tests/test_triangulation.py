@@ -66,8 +66,7 @@ def triangulations(draw):
 class TestTriangulation(unittest.TestCase):
     @given(triangulations())
     def test_pickle(self, triangulation):
-        strn = pickle.dumps(triangulation)
-        self.assertEqual(triangulation, pickle.loads(strn))
+        self.assertEqual(triangulation, pickle.loads(pickle.dumps(triangulation)))
     
     @given(st.data())
     def test_hash(self, data):

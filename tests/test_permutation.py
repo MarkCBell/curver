@@ -16,8 +16,7 @@ def permutations(draw, N=None):
 class TestPermutation(unittest.TestCase):
     @given(permutations())
     def test_pickle(self, perm):
-        strn = pickle.dumps(perm)
-        self.assertEqual(perm, pickle.loads(strn))
+        self.assertEqual(perm, pickle.loads(pickle.dumps(perm)))
     
     @given(st.data())
     def test_hash(self, data):

@@ -19,8 +19,7 @@ def homology_classes(draw, triangulation=None):
 class TestHomologyClass(unittest.TestCase):
     @given(homology_classes())
     def test_pickle(self, hc):
-        strn = pickle.dumps(hc)
-        self.assertEqual(hc, pickle.loads(strn))
+        self.assertEqual(hc, pickle.loads(pickle.dumps(hc)))
     
     @given(st.data())
     def test_hash(self, data):
