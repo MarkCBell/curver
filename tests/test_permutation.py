@@ -37,6 +37,7 @@ class TestPermutation(unittest.TestCase):
         perm1 = data.draw(permutations())
         perm2 = data.draw(permutations(len(perm1)))
         identity = curver.kernel.Permutation.from_index(len(perm1), 0)
+        self.assertEqual(~(~perm1), perm1)
         self.assertEqual(perm1 * ~perm1, identity)
         self.assertEqual(~perm1 * perm1, identity)
         self.assertEqual(~(perm1 * perm2), ~perm2 * ~perm1)

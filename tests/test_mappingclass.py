@@ -36,6 +36,7 @@ class TestMappingClass(unittest.TestCase):
         mcg = data.draw(mcgs())
         g = data.draw(mapping_classes(mcg))
         h = data.draw(mapping_classes(mcg))
+        self.assertEqual(~(~g), g)
         self.assertEqual(~g * ~h, ~(h * g))
     
     @given(mapping_classes())
