@@ -24,7 +24,7 @@ class TestMCG(unittest.TestCase):
         name2 = data.draw(st.sampled_from(sorted(mcg.curves)))
         curve1 = mcg.curves[name1]
         curve2 = mcg.curves[name2]
-        intersection= curve1.intersection(curve2)
+        intersection = curve1.intersection(curve2)
         self.assertGreaterEqual(intersection, 0)
         self.assertLessEqual(intersection, 1)
     
@@ -46,7 +46,7 @@ class TestMCG(unittest.TestCase):
         name2 = data.draw(st.sampled_from(sorted(mcg.curves)))
         curve1 = mcg.curves[name1]
         curve2 = mcg.curves[name2]
-        intersection= curve1.intersection(curve2)
+        intersection = curve1.intersection(curve2)
         self.assertTrue(
             (intersection != 0 or mcg(name1 + name2) == mcg(name2 + name1)) or \
             (intersection == 1 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2))

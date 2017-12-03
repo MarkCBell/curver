@@ -99,8 +99,8 @@ def curves(draw, triangulation=None):
 @st.composite
 def multicurves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
-    curves = draw(st.lists(elements=curves(triangulation), min_size=1))
-    return triangulation.sum(curves)
+    curve_list = draw(st.lists(elements=curves(triangulation), min_size=1))
+    return triangulation.sum(curve_list)
 
 @st.composite
 def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
@@ -146,7 +146,7 @@ def mcgs(draw):
 @st.composite
 def mapping_classes(draw, mcg=None):
     if mcg is None: mcg = draw(mcgs())
-    word = draw(st.lists(elements=st.sampled_from(sorted(mcg)), max_size=10).map(lambda letters: '.'.join(letters)))
+    word = draw(st.lists(elements=st.sampled_from(sorted(mcg)), max_size=10).map('.'.join))
     return mcg(word)
 
 @st.composite

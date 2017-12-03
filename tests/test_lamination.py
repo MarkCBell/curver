@@ -46,6 +46,6 @@ class TestLamination(unittest.TestCase):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))
         encoding = data.draw(strategies.encodings(lamination1.triangulation))
-        self.assertGreaterEqual(lamination.intersection(lamination2), 0)
-        self.assertEqual(lamination.intersection(lamination2), encoding(lamination).intersection(encoding(lamination2)))
+        self.assertGreaterEqual(lamination1.intersection(lamination2), 0)
+        self.assertEqual(lamination1.intersection(lamination2), encoding(lamination1).intersection(encoding(lamination2)))
 

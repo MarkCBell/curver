@@ -1,5 +1,5 @@
 
-from hypothesis import given, settings
+from hypothesis import given, assume, settings
 import hypothesis.strategies as st
 import pickle
 import pytest
@@ -34,7 +34,7 @@ class TestCurve(unittest.TestCase):
         assume(curve.intersection(lamination1) > 0)
         assume(curve.intersection(lamination2) > 0)
         h = data.draw(strategies.encodings(curve.triangulation))
-        self.assertEqual(curve.relative_twist(lamination, lamination2), h(curve).relative_twist(h(lamination), h(lamination2)))
+        self.assertEqual(curve.relative_twist(lamination1, lamination2), h(curve).relative_twist(h(lamination1), h(lamination2)))
     
     @given(st.data())
     @settings(max_examples=10, deadline=None)
