@@ -154,7 +154,6 @@ def multicurves1(draw, triangulation=None):
     pieces = draw(st.lists(elements=st.tuples(curves(triangulation), st.integers(min_value=1, max_value=10), max_size=10).map(lambda pair: pair[0]*pair[1]), min_size=1))
     return triangulation.sum(pieces)
 
-
 @st.composite
 def multicurves2(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
@@ -176,7 +175,7 @@ def multicurves2(draw, triangulation=None):
     
     return triangulation.lamination(geometric)
 
-multicurves = multicurves2
+multicurves = multicurves2  # Choose one.
 
 @st.composite
 def laminations1(draw, triangulation=None, min_weight=None, max_weight=None):
