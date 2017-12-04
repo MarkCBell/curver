@@ -286,11 +286,10 @@ class Lamination(object):
     def boundary(self):
         ''' Return the boundary of a regular neighbourhood of this lamination. '''
         
-        multiarc = self.multiarc()  # Might be empty.
-        multicurve = self.multicurve()  # Might be empty.
-        empty = self.triangulation.empty_lamination()  # Definitely empty.
+        if self.is_empty():
+            return self
         
-        return (empty if multicurve.is_empty() else multicurve.boundary()) + (empty if multiarc.is_empty() else multiarc.boundary())
+        return self.multiarc().boundary() + self.multicurve().boundary()
     
     def is_filling(self):
         ''' Return if this Lamination fills the surface, that is, if it intersects all curves on the surface.
