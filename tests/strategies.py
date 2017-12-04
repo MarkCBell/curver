@@ -196,48 +196,48 @@ class TestStrategiesHealth(unittest.TestCase):
     @given(triangulations())
     def test_triangulations(self, triangulation):
         self.assertIsInstance(triangulation, curver.kernel.Triangulation)
-
+    
     @given(mcgs())
     def test_mcgs(self, mcg):
         self.assertIsInstance(mcg, curver.kernel.MappingClassGroup)
-
+    
     @given(mapping_classes())
     def test_mapping_classes(self, h):
         self.assertIsInstance(h, curver.kernel.MappingClass)
-
+    
     @given(encodings())
     def test_encodings(self, encoding):
         self.assertIsInstance(encoding, curver.kernel.Encoding)
-
+    
     @given(homology_classes())
     def test_homology_classes(self, hc):
         self.assertIsInstance(hc, curver.kernel.HomologyClass)
-
+    
     @given(arcs())
     def test_arcs(self, arc):
         self.assertIsInstance(arc, curver.kernel.Arc)
-
+    
     @given(multiarcs())
     def test_multiarcs(self, multiarc):
         self.assertIsInstance(multiarc, curver.kernel.MultiArc)
-
+    
     @given(curves())
     def test_curves(self, curve):
         self.assertIsInstance(curve, curver.kernel.Curve)
-
+    
     @given(multicurves())
     def test_multicurves(self, multicurve):
         self.assertIsInstance(multicurve, curver.kernel.MultiCurve)
-
+    
     @given(laminations_old())
     def test_laminations_old(self, lamination):
         self.assertIsInstance(lamination, curver.kernel.Lamination)
-
+    
     @pytest.mark.skip('NotImplemented')
     @given(laminations())
     def test_laminations(self, lamination):
         self.assertIsInstance(lamination, curver.kernel.Lamination)
-
+    
     @given(permutations())
     def test_permutations(self, perm):
         self.assertIsInstance(perm, curver.kernel.Permutation)

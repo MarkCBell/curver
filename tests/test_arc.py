@@ -10,7 +10,7 @@ import strategies
 
 class TestArc(unittest.TestCase):
     @given(strategies.arcs())
-    @settings(max_examples=50, deadline=None)
+    @settings(max_examples=25, deadline=None)
     def test_boundary_intersection(self, arc):
         boundary = arc.boundary()
         self.assertEqual(arc.intersection(boundary), 0)
