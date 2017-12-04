@@ -157,28 +157,6 @@ class Lamination(object):
         
         return other
     
-    def peripheral(self):
-        ''' Return the peripheral components of this Lamination. '''
-        
-        geometric = [0] * self.zeta
-        for vertex in self.triangulation.vertices:
-            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
-            for edge in vertex:
-                geometric[edge.index] += peripheral
-        
-        return self.triangulation.lamination(geometric)  # Have to promote.
-    
-    def non_peripheral(self):
-        ''' Return the non-peripheral components of this Lamination. '''
-        
-        geometric = list(self)
-        for vertex in self.triangulation.vertices:
-            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
-            for edge in vertex:
-                geometric[edge.index] -= peripheral
-        
-        return self.triangulation.lamination(geometric)  # Have to promote.
-    
     def skeleton(self):
         ''' Return the lamination obtained by collapsing parallel components. '''
         
@@ -272,6 +250,28 @@ class Lamination(object):
         
         components = self.components()
         return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]
+    
+    def peripheral(self):
+        ''' Return the peripheral components of this Lamination. '''
+        
+        geometric = [0] * self.zeta
+        for vertex in self.triangulation.vertices:
+            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
+            for edge in vertex:
+                geometric[edge.index] += peripheral
+        
+        return self.triangulation.lamination(geometric)  # Have to promote.
+    
+    def non_peripheral(self):
+        ''' Return the non-peripheral components of this Lamination. '''
+        
+        geometric = list(self)
+        for vertex in self.triangulation.vertices:
+            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
+            for edge in vertex:
+                geometric[edge.index] -= peripheral
+        
+        return self.triangulation.lamination(geometric)  # Have to promote.
     
     def multiarc(self):
         ''' Return the maximal MultiArc contained within this lamination. '''
