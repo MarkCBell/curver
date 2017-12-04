@@ -70,38 +70,87 @@ def triangulations(draw):
     sig = draw(st.sampled_from(SIGNATURES))
     return curver.triangulation_from_sig(sig)
 
+MCGS = [curver.load(g, p) for g in range(0, 5) for p in range(1, 5) if 6*g + 3*p - 6 >= 3]
+
+@st.composite
+def mcgs(draw):
+    return draw(st.sampled_from(MCGS))
+
+@st.composite
+def mapping_classes(draw, mcg=None):
+    if mcg is None: mcg = draw(mcgs())
+    word = draw(st.lists(elements=st.sampled_from(sorted(mcg)), max_size=10).map('.'.join))
+    return mcg(word)
+
+@st.composite
+def encodings(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    rev_sequence = [triangulation.id_isometry()]
+    num_flips = draw(st.integers(min_value=0, max_value=20))
+    for _ in range(num_flips):
+        T = rev_sequence[-1].target_triangulation
+        edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
+        flip = curver.kernel.EdgeFlip(T, T.flip_edge(edge), edge)
+        rev_sequence.append(flip)
+    
+    return curver.kernel.Encoding(rev_sequence[::-1])
+
 @st.composite
 def homology_classes(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     algebraic = [draw(st.integers()) for _ in range(triangulation.zeta)]
     return curver.kernel.HomologyClass(triangulation, algebraic)
 
+
+
 @st.composite
 def arcs(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
+    
+    # h = draw(encodings(triangulation))
+    h = triangulation.id_encoding()
     edge = draw(st.sampled_from(triangulation.edges))
-    return triangulation.lamination_from_cut_sequence([edge])
+    arc = triangulation.edge_arc(edge)
+    
+    return (~h)(arc)
+
+@st.composite
+def multiarcs(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    
+    # h = draw(encodings(triangulation))
+    h = triangulation.id_encoding()
+    geometric = draw(st.lists(elements=st.integers(max_value=0), min_size=h.target_triangulation.zeta, max_size=h.target_triangulation.zeta))
+    multiarc = h.target_triangulation.lamination(geometric)
+    
+    return (~h)(multiarc)
 
 # TODO: 1) Non-isolating curves are *very* rare in this strategy.
 @st.composite
 def curves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
-    edge = draw(st.sampled_from(triangulation.edges))
+    
+    # h = draw(encodings(triangulation))
+    h = triangulation.id_encoding()
+    
+    edge = draw(st.sampled_from(h.target_triangulation.edges))
     path = []
     seen = set()
     while edge not in seen:
         seen.add(edge)
         path.append(edge)
-        edge = ~draw(st.sampled_from(triangulation.corner_lookup[edge.label].edges[1:]))
+        edge = ~draw(st.sampled_from(h.target_triangulation.corner_lookup[edge.label].edges[1:]))
     start = path.index(edge)
-    multicurve = triangulation.lamination_from_cut_sequence(path[start:])
-    return multicurve.peek_component()
+    multicurve = h.target_triangulation.lamination_from_cut_sequence(path[start:])
+    curve = multicurve.peek_component()
+    
+    return (~h)(curve)
 
 @st.composite
 def multicurves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
-    curve_list = draw(st.lists(elements=curves(triangulation), min_size=1))
-    return triangulation.sum(curve_list)
+    pieces = draw(st.lists(elements=st.tuples(curves(triangulation), st.integers(min_value=1, max_value=100)).map(lambda pair: pair[0]*pair[1])))
+    return triangulation.sum(pieces)
 
 @st.composite
 def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
@@ -134,38 +183,65 @@ def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
 
 @st.composite
 def laminations(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    pieces = draw(st.lists(elements=st.tuples(st.one_of(curves(triangulation), arcs(triangulation)), st.integers(min_value=1)).map(lambda c, m: m*c)))
-    return triangulation.sum(pieces)
-
-MCGS = [curver.load(g, p) for g in range(0, 5) for p in range(1, 5) if 6*g + 3*p - 6 >= 3]
-
-@st.composite
-def mcgs(draw):
-    return draw(st.sampled_from(MCGS))
-
-@st.composite
-def mapping_classes(draw, mcg=None):
-    if mcg is None: mcg = draw(mcgs())
-    word = draw(st.lists(elements=st.sampled_from(sorted(mcg)), max_size=10).map('.'.join))
-    return mcg(word)
-
-@st.composite
-def encodings(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    encoding = triangulation.id_encoding()
-    num_flips = draw(st.integers(min_value=0, max_value=20))
-    for _ in range(num_flips):
-        T = encoding.target_triangulation
-        edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
-        flip = T.encode_flip(edge)
-        encoding = flip * encoding
-    
-    return encoding
+    return NotImplemented
+    return draw(st.one_of(multicurve(triangulation), multiarc(triangulation)))
 
 @st.composite
 def permutations(draw, N=None):
     if N is None: N = draw(st.integers(min_value=1, max_value=10))
     return curver.kernel.Permutation(draw(st.permutations(range(N))))
 
+
+class TestStrategiesHealth(unittest.TestCase):
+    @given(triangulations())
+    def test_triangulations(self, triangulation):
+        self.assertIsInstance(triangulation, curver.kernel.Triangulation)
+
+    @given(mcgs())
+    def test_mcgs(self, mcg):
+        self.assertIsInstance(mcg, curver.kernel.MappingClassGroup)
+
+    @given(mapping_classes())
+    def test_mapping_classes(self, h):
+        self.assertIsInstance(h, curver.kernel.MappingClass)
+
+    @given(encodings())
+    def test_encodings(self, encoding):
+        self.assertIsInstance(encoding, curver.kernel.Encoding)
+
+    @given(homology_classes())
+    def test_homology_classes(self, hc):
+        self.assertIsInstance(hc, curver.kernel.HomologyClass)
+
+    @given(arcs())
+    def test_arcs(self, arc):
+        self.assertIsInstance(arc, curver.kernel.Arc)
+
+    @given(multiarcs())
+    def test_multiarcs(self, multiarc):
+        self.assertIsInstance(multiarc, curver.kernel.MultiArc)
+
+    @given(curves())
+    def test_curves(self, curve):
+        self.assertIsInstance(curve, curver.kernel.Curve)
+
+    @given(multicurves())
+    def test_multicurves(self, multicurve):
+        self.assertIsInstance(multicurve, curver.kernel.MultiCurve)
+
+    @given(laminations_old())
+    def test_laminations_old(self, lamination):
+        self.assertIsInstance(lamination, curver.kernel.Lamination)
+
+    @pytest.mark.skip('NotImplemented')
+    @given(laminations())
+    def test_laminations(self, lamination):
+        self.assertIsInstance(lamination, curver.kernel.Lamination)
+
+    @given(permutations())
+    def test_permutations(self, perm):
+        self.assertIsInstance(perm, curver.kernel.Permutation)
+
+if __name__ == '__main__':
+    unittest.main()
 
