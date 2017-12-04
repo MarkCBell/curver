@@ -149,7 +149,7 @@ def curves(draw, triangulation=None):
 @st.composite
 def multicurves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
-    pieces = draw(st.lists(elements=st.tuples(curves(triangulation), st.integers(min_value=1, max_value=100)).map(lambda pair: pair[0]*pair[1])))
+    pieces = draw(st.lists(elements=st.tuples(curves(triangulation), st.integers(min_value=1, max_value=100)).map(lambda pair: pair[0]*pair[1]), min_size=1))
     return triangulation.sum(pieces)
 
 @st.composite
