@@ -566,7 +566,7 @@ class Triangulation(object):
     def curve_from_cut_sequence(self, sequence):
         ''' Return a new curve on this surface based on the sequence of edges that this Curve crosses.
         
-        Note that this method does NOT check that this produces a curve. '''
+        WARNING: Be extremely careful with this method since it does NOT check that this produces a curve. '''
         
         count = Counter(sequence)
         return curver.kernel.Curve(self, [count[i] + count[~i] for i in range(self.zeta)])
