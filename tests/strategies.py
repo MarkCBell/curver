@@ -1,11 +1,12 @@
 
-from hypothesis import given, settings
+from hypothesis import given, assume, settings
 import hypothesis.strategies as st
 import pickle
 import pytest
 import unittest
 
 import curver
+from collections import Counter
 
 # TRIANGULATIONS = {(g, p): curver.load(g, p).triangulation.sig() for g in range(10) for p in range(1, 10) if 6*g + 3*p - 6 >= 3}
 TRIANGULATIONS = {
@@ -109,8 +110,8 @@ def arcs(draw, triangulation=None):
     
     # h = draw(encodings(triangulation))
     h = triangulation.id_encoding()
-    edge = draw(st.sampled_from(triangulation.edges))
-    arc = triangulation.edge_arc(edge)
+    edge = draw(st.sampled_from(h.target_triangulation.edges))
+    arc = h.target_triangulation.edge_arc(edge)
     
     return (~h)(arc)
 
@@ -121,6 +122,7 @@ def multiarcs(draw, triangulation=None):
     # h = draw(encodings(triangulation))
     h = triangulation.id_encoding()
     geometric = draw(st.lists(elements=st.integers(max_value=0), min_size=h.target_triangulation.zeta, max_size=h.target_triangulation.zeta))
+    assume(geometric)  # Not all zeros.
     multiarc = h.target_triangulation.lamination(geometric)
     
     return (~h)(multiarc)
@@ -147,13 +149,37 @@ def curves(draw, triangulation=None):
     return (~h)(curve)
 
 @st.composite
-def multicurves(draw, triangulation=None):
+def multicurves1(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
-    pieces = draw(st.lists(elements=st.tuples(curves(triangulation), st.integers(min_value=1, max_value=100)).map(lambda pair: pair[0]*pair[1]), min_size=1))
+    pieces = draw(st.lists(elements=st.tuples(curves(triangulation), st.integers(min_value=1, max_value=10), max_size=10).map(lambda pair: pair[0]*pair[1]), min_size=1))
     return triangulation.sum(pieces)
 
+
 @st.composite
-def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
+def multicurves2(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    
+    geometric = [0] * triangulation.zeta
+    for _ in range(draw(st.integers(min_value=1, max_value=10))):
+        edge = draw(st.sampled_from(triangulation.edges))
+        path = []
+        seen = set()
+        while edge not in seen:
+            seen.add(edge)
+            path.append(edge)
+            edge = ~draw(st.sampled_from(triangulation.corner_lookup[edge.label].edges[1:]))
+        count = Counter(path[path.index(edge):])
+
+        weight = draw(st.integers(min_value=1, max_value=10))
+        local_geometric = [weight * (count[index] + count[~index]) for index in triangulation.indices]
+        geometric = [geometric[index] + local_geometric[index] for index in triangulation.indices]
+    
+    return triangulation.lamination(geometric)
+
+multicurves = multicurves2
+
+@st.composite
+def laminations1(draw, triangulation=None, min_weight=None, max_weight=None):
     if triangulation is None: triangulation = draw(triangulations())
     geometric = [None] * triangulation.zeta
     for index in triangulation.indices:
@@ -182,9 +208,10 @@ def laminations_old(draw, triangulation=None, min_weight=None, max_weight=None):
     return triangulation.lamination(geometric)
 
 @st.composite
-def laminations(draw, triangulation=None):
-    return NotImplemented
+def laminations2(draw, triangulation=None):
     return draw(st.one_of(multicurve(triangulation), multiarc(triangulation)))
+
+laminations = laminations1  # Choose one.
 
 @st.composite
 def permutations(draw, N=None):
@@ -229,11 +256,6 @@ class TestStrategiesHealth(unittest.TestCase):
     def test_multicurves(self, multicurve):
         self.assertIsInstance(multicurve, curver.kernel.MultiCurve)
     
-    @given(laminations_old())
-    def test_laminations_old(self, lamination):
-        self.assertIsInstance(lamination, curver.kernel.Lamination)
-    
-    @pytest.mark.skip('NotImplemented')
     @given(laminations())
     def test_laminations(self, lamination):
         self.assertIsInstance(lamination, curver.kernel.Lamination)
