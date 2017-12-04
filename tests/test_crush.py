@@ -44,4 +44,5 @@ class TestCrush(unittest.TestCase):
         twist = curve.encode_twist()
         
         self.assertEqual(crush(lamination), crush(twist(lamination)))
+        self.assertEqual(crush(lamination), crush((~twist)(lamination)))
 
