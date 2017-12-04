@@ -37,9 +37,8 @@ class TestCrush(unittest.TestCase):
     @given(st.data())
     @settings(deadline=None)
     def test_twist(self, data):
-        triangulation = data.draw(strategies.triangulations())
-        curve = data.draw(strategies.curves(triangulation))
-        lamination = data.draw(strategies.curves(triangulation))
+        curve = data.draw(strategies.curves())
+        lamination = data.draw(strategies.curves(curve.triangulation))
         
         crush = curve.crush()
         twist = curve.encode_twist()
