@@ -59,6 +59,14 @@ class MultiCurve(Lamination):
         
         return g
     
+    def is_separating(self):
+        ''' Return whether this multicurve separates S.
+        
+        That is, whether S - self has more components than S. '''
+        
+        crush = self.crush()
+        return len(crush.target_triangulation.components()) > len(self.triangulation.components())
+    
     def topological_type(self):
         ''' Return the topological type of this multicurve.
         
