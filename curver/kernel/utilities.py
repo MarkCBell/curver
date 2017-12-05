@@ -97,16 +97,19 @@ class UnionFind(object):
 def memoize(function):
     ''' A decorator that memoizes a method of a class. '''
     @wraps(function)
-    def caching(self, *args, **kwargs):
+    def caching(self, _is_cached=False):
         ''' The cached version of function.
         
         Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
         if not hasattr(self, '__cache'):
             self.__cache = dict()
-        key = (function.__name__, args, frozenset(kwargs.items()))
-        if key not in self.__cache:
-            self.__cache[key] = function(self, *args, **kwargs)
-        return self.__cache[key]
+        key = function.__name__
+        if _is_cached:
+            return key in self.__cache
+        else:
+            if key not in self.__cache:
+                self.__cache[key] = function(self)
+            return self.__cache[key]
     
     return caching
 

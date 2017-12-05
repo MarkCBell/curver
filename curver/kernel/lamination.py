@@ -78,6 +78,7 @@ class Lamination(object):
             new_class = Lamination
         
         geometric = [other * x for x in self]
+        components = {component: other*multiplicity for component, multiplicity in self.components().items()} if self.components(_is_cached=True) else dict()
         # TODO: 2) Could save components if they have already been computed.
         return new_class(self.triangulation, geometric)  # Preserve promotion.
     def __rmul__(self, other):
