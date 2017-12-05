@@ -44,7 +44,7 @@ class MultiArc(Shortenable):
                 for edge in vertex:
                     geometric[edge.index] -= 1
         
-        boundary = short.triangulation.lamination(geometric)  # Have to promote.
+        boundary = short.triangulation(geometric)  # Have to promote.
         
         return conjugator.inverse()(boundary)
     

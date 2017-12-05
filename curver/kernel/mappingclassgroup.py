@@ -169,5 +169,5 @@ class MappingClassGroup(object):
     def lamination(self, geometric):
         ''' Return a new lamination on this surface assigning the specified weight to each edge. '''
         
-        return self.triangulation.lamination(geometric)
+        return self.triangulation(geometric)
 

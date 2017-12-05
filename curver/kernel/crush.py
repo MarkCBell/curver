@@ -153,7 +153,7 @@ class Crush(Move):
             out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
             geometric[e.index] = around_v - out_v  # Same trick.
         
-        return self.target_triangulation.lamination(geometric)  # Have to promote.
+        return self.target_triangulation(geometric)  # Have to promote.
     
     def apply_homology(self, homology_class):
         return NotImplemented  # I don't think we ever need this.

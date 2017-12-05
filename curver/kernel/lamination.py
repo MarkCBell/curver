@@ -9,7 +9,7 @@ from curver.kernel.utilities import memoize  # Special import needed for decorat
 class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.
     
-    Users should create these via Triangulation.lamination(). '''
+    Users should create these via Triangulation(...) or Triangulation.lamination(...). '''
     def __init__(self, triangulation, geometric):
         assert(isinstance(triangulation, curver.kernel.Triangulation))
         
@@ -54,7 +54,7 @@ class Lamination(object):
                 raise ValueError('Laminations must be on the same triangulation to add them.')
             
             geometric = [x + y for x, y in zip(self.geometric, other.geometric)]
-            return self.triangulation.lamination(geometric)  # Have to promote.
+            return self.triangulation(geometric)  # Have to promote.
         else:
             return NotImplemented
     def __radd__(self, other):
@@ -260,7 +260,7 @@ class Lamination(object):
             for edge in vertex:
                 geometric[edge.index] += peripheral
         
-        return self.triangulation.lamination(geometric)  # Have to promote.
+        return self.triangulation(geometric)  # Have to promote.
     
     def non_peripheral(self):
         ''' Return the non-peripheral components of this Lamination. '''
@@ -271,7 +271,7 @@ class Lamination(object):
             for edge in vertex:
                 geometric[edge.index] -= peripheral
         
-        return self.triangulation.lamination(geometric)  # Have to promote.
+        return self.triangulation(geometric)  # Have to promote.
     
     def multiarc(self):
         ''' Return the maximal MultiArc contained within this lamination. '''

@@ -234,6 +234,8 @@ class Triangulation(object):
         return not(self == other)
     def __hash__(self):
         return hash(tuple(self.signature))
+    def __call__(self, geometric):
+        return self.lamination(geometric)
     
     def sig(self):
         ''' Return the signature of this triangulation. '''
@@ -561,7 +563,7 @@ class Triangulation(object):
         ''' Return a new lamination on this surface based on the sequence of edges that this Curve / Arc crosses. '''
         
         count = Counter(sequence)
-        return self.lamination([count[i] + count[~i] for i in range(self.zeta)])
+        return self([count[i] + count[~i] for i in range(self.zeta)])
     
     def curve_from_cut_sequence(self, sequence):
         ''' Return a new curve on this surface based on the sequence of edges that this Curve crosses.
@@ -574,12 +576,12 @@ class Triangulation(object):
     def empty_lamination(self):
         ''' Return the empty lamination defined on this triangulation. '''
         
-        return self.lamination([0] * self.zeta)
+        return self([0] * self.zeta)
     
     def as_lamination(self):
         ''' Return this triangulation as a lamination. '''
         
-        return self.lamination([-1] * self.zeta)
+        return self([-1] * self.zeta)
     
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''
@@ -593,7 +595,7 @@ class Triangulation(object):
                 raise ValueError('Laminations must all be defined on this triangulation to add them.')
             
             geometric = [sum(weights) for weights in zip(*laminations)]
-            return self.lamination(geometric)  # Have to promote.
+            return self(geometric)  # Have to promote.
         else:
             return NotImplemented
     
