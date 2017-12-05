@@ -7,6 +7,7 @@ import networkx
 
 import curver
 from curver.kernel.lamination import Lamination, Shortenable  # Special import needed for subclassing.
+from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 class MultiCurve(Lamination):
     ''' A Lamination in which every component is a Curve. '''
@@ -114,6 +115,7 @@ class MultiCurve(Lamination):
 
 class Curve(MultiCurve, Shortenable):
     ''' A MultiCurve with a single component. '''
+    @memoize
     def components(self):
         return {self: 1}
     

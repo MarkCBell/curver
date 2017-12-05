@@ -3,6 +3,7 @@
 
 import curver
 from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.
+from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 class MultiArc(Shortenable):
     ''' A Lamination in which every component is an Arc. '''
@@ -96,6 +97,7 @@ class MultiArc(Shortenable):
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
+    @memoize
     def components(self):
         return {self: 1}
     
