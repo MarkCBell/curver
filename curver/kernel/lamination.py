@@ -404,7 +404,7 @@ class Shortenable(Lamination):
         
         # Remark: This is part of the reason why we can shorten Curves, Multiarcs and TrainTracks but not MultiCurves.
         extra = []
-        edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) > 0])
+        edges = set(edge for edge in lamination.triangulation.edges if lamination(edge) > 0)
         while any(lamination.dual_weight(edge) < 0 for edge in edges) or any(len([edge for edge in triangle if lamination.dual_weight(edge) > 0]) == 2 for triangle in lamination.triangulation):
             edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.generic_shorten_strategy, upper_bound=1)
             # This edge is always flippable.
