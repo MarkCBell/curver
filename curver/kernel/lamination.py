@@ -10,7 +10,7 @@ class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.
     
     Users should create these via Triangulation(...) or Triangulation.lamination(...). '''
-    def __init__(self, triangulation, geometric):
+    def __init__(self, triangulation, geometric, components=None):
         assert(isinstance(triangulation, curver.kernel.Triangulation))
         
         self.triangulation = triangulation
@@ -29,6 +29,9 @@ class Lamination(object):
             self._dual[i] = self._side[k] = (b + c - a + correction) // 2
             self._dual[j] = self._side[i] = (c + a - b + correction) // 2
             self._dual[k] = self._side[j] = (a + b - c + correction) // 2
+        
+        if components is not None:
+            self.__cache = {('components', (), frozenset([])): dict(components)}
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)

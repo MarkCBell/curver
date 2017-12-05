@@ -4,7 +4,7 @@
 from math import factorial
 from functools import total_ordering
 from itertools import groupby, product
-from collections import Counter
+from collections import Counter, defaultdict
 
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
@@ -614,16 +614,23 @@ class Triangulation(object):
             geometric = [sum(weights) for weights in zip(*laminations)]
             if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):
                 if num_components == 1:
-                    return curver.kernel.Arc(self, geometric)
+                    new_class = curver.kernel.Arc
                 else:  # num_components > 1:
-                    return curver.kernel.MultiArc(self, geometric)
+                    new_class = curver.kernel.MultiArc
             elif all(isinstance(lamination, curver.kernel.MultiCurve) for lamination in laminations):
                 if num_components == 1:
-                    return curver.kernel.Curve(self, geometric)
+                    new_class = curver.kernel.Curve
                 else:  # num_components > 1:
-                    return curver.kernel.MultiCurve(self, geometric)
+                    new_class = curver.kernel.MultiCurve
             else:  # Mixed.
-                return curver.kernel.Lamination(self, geometric)
+                new_class = curver.kernel.Lamination
+            
+            components = defaultdict(int)
+            for lamination in laminations:
+                for component, multiplicity in lamination.components().items():
+                    components[component] += multiplicity
+            
+            return new_class(self, geometric, components=components)
         else:
             return NotImplemented
     
