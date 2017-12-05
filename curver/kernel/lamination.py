@@ -31,7 +31,7 @@ class Lamination(object):
             self._dual[k] = self._side[j] = (a + b - c + correction) // 2
         
         if components is not None:
-            self.__cache = {('components', (), frozenset([])): dict(components)}
+            self.__cache = {'components': dict(components)}
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
@@ -80,7 +80,7 @@ class Lamination(object):
         geometric = [other * x for x in self]
         components = {component: other*multiplicity for component, multiplicity in self.components().items()} if self.components(_is_cached=True) else dict()
         # TODO: 2) Could save components if they have already been computed.
-        return new_class(self.triangulation, geometric)  # Preserve promotion.
+        return new_class(self.triangulation, geometric, components)  # Preserve promotion.
     def __rmul__(self, other):
         return self * other  # Commutative.
     
