@@ -2,6 +2,7 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from fractions import Fraction
+from collections import defaultdict
 
 import curver
 
@@ -93,19 +94,8 @@ class Encoding(object):
         if self.source_triangulation != other.triangulation:
             raise ValueError('Cannot apply an Encoding to something on a triangulation other than source_triangulation.')
         
-        if isinstance(other, curver.kernel.Lamination):
-            if other.components(_is_cached):
-                components = defaultdict(int)
-                for component, multiplicity in other.components():
-                    for item in reversed(self.sequence):
-                        component = self.apply_lamination(component)
-                    components[component] += multiplicity
-            else:
-                for item in reversed(self.sequence):
-                    other = item.apply_lamination(other)
-        elif isinstance(other, curver.kernel.HomologyClass):
-            for item in reversed(self.sequence):
-                other = item.apply_homology(other)
+        for item in reversed(self.sequence):
+            other = item(other)
         
         return other
     def __mul__(self, other):

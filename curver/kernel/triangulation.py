@@ -319,7 +319,7 @@ class Triangulation(object):
         
         return dual_tree
     
-    @memoize
+    @memoize()
     def homology_matrix(self):
         ''' Return a matrix that kills the entries of the dual tree. '''
         

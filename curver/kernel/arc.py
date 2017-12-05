@@ -31,6 +31,8 @@ class MultiArc(Shortenable):
         
         used = set(edge for edge in short.triangulation.edges if short(edge) < 0)
         
+        # Also use any edge that is in a triangle where two sides are used.
+        # Note that this does not change the boundary.
         to_check = [triangle for triangle in short.triangulation if sum(1 for edge in triangle if edge in used) == 2]
         while to_check:
             triangle = to_check.pop()
@@ -43,22 +45,23 @@ class MultiArc(Shortenable):
                         to_check.append(neighbour)
                     break
         
-        components = []
+        # Now build each component by walking around the outside of the used edges.
+        components = dict()
+        passed_through = set()
+        geometric = [0] * short.zeta
         for edge in short.triangulation.edges:
             corner = short.triangulation.corner_lookup[edge.label]
-            if edge not in used and corner[2] in used:  # Start on a good edge.  and edge not not in marked:
-                path = []
-                while edge not in used:
-                    used.add(edge)
-                    path.append(edge)
+            if edge not in passed_through and edge not in used and corner[2] in used:  # Start on a good edge.
+                while edge not in passed_through:
+                    geometric[edge.index] += 1
+                    passed_through.add(edge)
                     corner = short.triangulation.corner_lookup[edge.label]
                     if ~corner[2] not in used:
                         edge = ~corner[2]
                     else:
                         edge = ~corner[1]
-                components.append(short.triangulation.curve_from_cut_sequence(path))
         
-        boundary = short.triangulation.disjoint_sum(components)
+        boundary = short.triangulation(geometric)
         return conjugator.inverse()(boundary)
     
     def is_polygonalisation(self):
@@ -97,7 +100,7 @@ class MultiArc(Shortenable):
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
-    @memoize
+    @memoize(fast=True)
     def components(self):
         return {self: 1}
     

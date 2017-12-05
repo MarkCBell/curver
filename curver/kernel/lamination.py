@@ -10,7 +10,7 @@ class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.
     
     Users should create these via Triangulation(...) or Triangulation.lamination(...). '''
-    def __init__(self, triangulation, geometric, components=None):
+    def __init__(self, triangulation, geometric):
         assert(isinstance(triangulation, curver.kernel.Triangulation))
         
         self.triangulation = triangulation
@@ -29,9 +29,6 @@ class Lamination(object):
             self._dual[i] = self._side[k] = (b + c - a + correction) // 2
             self._dual[j] = self._side[i] = (c + a - b + correction) // 2
             self._dual[k] = self._side[j] = (a + b - c + correction) // 2
-        
-        if components is not None:
-            self.__cache = {'components': dict(components)}
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
@@ -78,9 +75,8 @@ class Lamination(object):
             new_class = Lamination
         
         geometric = [other * x for x in self]
-        components = {component: other*multiplicity for component, multiplicity in self.components().items()} if self.components(_is_cached=True) else dict()
         # TODO: 2) Could save components if they have already been computed.
-        return new_class(self.triangulation, geometric, components)  # Preserve promotion.
+        return new_class(self.triangulation, geometric)  # Preserve promotion.
     def __rmul__(self, other):
         return self * other  # Commutative.
     
@@ -155,7 +151,7 @@ class Lamination(object):
         
         # Move cache across.
         try:
-            other.__cache = self.__cache  #pylint: disable=attribute-defined-outside-init
+            other._cache = self._cache  #pylint: disable=attribute-defined-outside-init
         except AttributeError:
             pass  # No cache.
         
@@ -225,7 +221,7 @@ class Lamination(object):
         T = curver.kernel.Triangulation(triangles)
         return curver.kernel.TrainTrack(T, geometric)
     
-    @memoize
+    @memoize()
     def components(self):
         ''' Return a dictionary mapping components to their multiplicities '''
         
@@ -393,7 +389,7 @@ class Shortenable(Lamination):
         
         return 0
     
-    @memoize
+    @memoize()
     def shorten(self):
         ''' Return an encoding which maps this lamination to a short one, together with its image. '''
         

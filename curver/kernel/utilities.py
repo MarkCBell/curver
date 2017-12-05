@@ -94,24 +94,27 @@ class UnionFind(object):
         for item in args:
             self.union2(args[0], item)
 
-def memoize(function):
+def memoize(fast=False):
     ''' A decorator that memoizes a method of a class. '''
-    @wraps(function)
-    def caching(self, _is_cached=False):
-        ''' The cached version of function.
+    def memoizer(function):
+        ''' A decorator that memoizes a method of a class and knows if the method is fast. '''
+        @wraps(function)
+        def caching(self, _is_fast=False):
+            ''' The cached version of function.
+            
+            Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
+            if not hasattr(self, '_cache'):
+                self._cache = dict()
+            key = function.__name__
+            if _is_fast:
+                return fast or key in self._cache
+            else:
+                if key not in self._cache:
+                    self._cache[key] = function(self)
+                return self._cache[key]
         
-        Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
-        if not hasattr(self, '__cache'):
-            self.__cache = dict()
-        key = function.__name__
-        if _is_cached:
-            return key in self.__cache
-        else:
-            if key not in self.__cache:
-                self.__cache[key] = function(self)
-            return self.__cache[key]
-    
-    return caching
+        return caching
+    return memoizer
 
 def cyclic_slice(L, x, y):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).

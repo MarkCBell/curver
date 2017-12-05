@@ -17,6 +17,13 @@ class Move(object):
         return str(self)
     def __invert__(self):
         return self.inverse()
+    def __call__(self, other):
+        if isinstance(other, curver.kernel.Lamination):
+            return self.apply_lamination(other)
+        elif isinstance(other, curver.kernel.HomologyClass):
+            return self.apply_homology(other)
+        else:
+            raise TypeError('Unknown type %s' % other)
     
     def encode(self):
         ''' Return the Encoding induced by this move. '''

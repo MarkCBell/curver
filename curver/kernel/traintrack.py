@@ -5,6 +5,7 @@ import networkx
 
 import curver
 from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.
+from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 class TrainTrack(Shortenable):
     ''' A Lamination in which each triangle is tripod free. '''
@@ -40,6 +41,7 @@ class TrainTrack(Shortenable):
             else:
                 return 0.75
     
+    @memoize()
     def components(self):
         short, conjugator = self.shorten()
         
