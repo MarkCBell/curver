@@ -28,29 +28,30 @@ class MultiArc(Shortenable):
         # short is a subset of the edges of the triangulation it is defined on.
         # So its geometric vector is non-positive.
         
-        used = [weight < 0 for weight in short]
+        used = set(edge for edge in short.triangulation.edges if short(edge) < 0)
         
-        to_check = [triangle for triangle in short.triangulation if sum(1 for index in triangle.indices if used[index]) == 2]
+        to_check = [triangle for triangle in short.triangulation if sum(1 for edge in triangle if edge in used) == 2]
         while to_check:
             triangle = to_check.pop()
-            if sum(1 for index in triangle.indices if used[index]) == 2:
-                for edge in triangle:
-                    if not used[edge.index]:
-                        used[edge.index] = True
-                        to_check.append(short.triangulation.triangle_lookup[~edge.label])
+            for edge in triangle:
+                if edge not in used:
+                    used.add(edge)
+                    used.add(~edge)
+                    neighbour = short.triangulation.triangle_lookup[~edge.label]
+                    if sum(1 for edge in neighbour if edge in used) == 2:
+                        to_check.append(neighbour)
+                    break
         
-        marked = set()
         components = []
         for edge in short.triangulation.edges:
             corner = short.triangulation.corner_lookup[edge.label]
-            if not used[edge.index] and used[corner[2].index]:  # Start on a good edge.  and edge not not in marked:
-                start_edge = edge
+            if edge not in used and corner[2] in used:  # Start on a good edge.  and edge not not in marked:
                 geometric = [0] * short.zeta
-                while edge not in marked:
-                    marked.add(edge)
+                while edge not in used:
+                    used.add(edge)
                     geometric[edge.index] += 1
                     corner = short.triangulation.corner_lookup[edge.label]
-                    if not used[corner[2].index]:
+                    if ~corner[2] not in used:
                         edge = ~corner[2]
                     else:
                         edge = ~corner[1]
