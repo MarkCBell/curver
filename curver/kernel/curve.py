@@ -159,11 +159,12 @@ class Curve(MultiCurve, Shortenable):
         return min([edge for edge in self.triangulation.edges if self(edge) == 0 and self.dual_weight(edge) > 0], key=lambda e: e.label)  # Take the minimum of two.
     
     def is_isolating(self):
-        ''' Return if this curve is isolating, that is, a component of S - self does not contain a puncture.
+        ''' Return if this curve is isolating, that is, if it is non-peripheral and a component of S - self does not contain a puncture.
         
         This curve must be non-peripheral. '''
         
-        assert(not self.is_peripheral())
+        if self.is_peripheral():
+            return False
         
         short, _ = self.shorten()
         return short.weight() > 2
