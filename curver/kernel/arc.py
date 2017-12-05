@@ -28,24 +28,35 @@ class MultiArc(Shortenable):
         # short is a subset of the edges of the triangulation it is defined on.
         # So its geometric vector is non-positive.
         
-        geometric = [0 if weight < 0 else 2 for weight in short]
-        # Tighten by retracting from any triangle where geometric meets only one side.
-        to_fix = [triangle for triangle in short.triangulation if sum(geometric[index] for index in triangle.indices) == 2]  # A stack of work.
-        while to_fix:
-            triangle = to_fix.pop()
-            if sum(geometric[index] for index in triangle.indices) == 2:
+        used = [weight < 0 for weight in short]
+        
+        to_check = [triangle for triangle in short.triangulation if sum(1 for index in triangle.indices if used[index]) == 2]
+        while to_check:
+            triangle = to_check.pop()
+            if sum(1 for index in triangle.indices if used[index]) == 2:
                 for edge in triangle:
-                    geometric[edge.index] = 0
-                    to_fix.append(short.triangulation.triangle_lookup[~edge.label])
+                    if not used[edge.index]:
+                        used[edge.index] = True
+                        to_check.append(short.triangulation.triangle_lookup[~edge.label])
         
-        # Remove any extra peripheral components we may have accidentally created.
-        for vertex in short.triangulation.vertices:
-            if all(short(edge) == 0 for edge in vertex):  # This vertex is disjoint from short:
-                for edge in vertex:
-                    geometric[edge.index] -= 1
+        marked = set()
+        components = []
+        for edge in short.triangulation.edges:
+            corner = short.triangulation.corner_lookup[edge.label]
+            if not used[edge.index] and used[corner[2].index]:  # Start on a good edge.  and edge not not in marked:
+                start_edge = edge
+                geometric = [0] * short.zeta
+                while edge not in marked:
+                    marked.add(edge)
+                    geometric[edge.index] += 1
+                    corner = short.triangulation.corner_lookup[edge.label]
+                    if not used[corner[2].index]:
+                        edge = ~corner[2]
+                    else:
+                        edge = ~corner[1]
+                components.append(curver.kernel.Curve(short.triangulation, geometric))
         
-        boundary = short.triangulation(geometric)  # Have to promote.
-        
+        boundary = short.triangulation.disjoint_sum(components)
         return conjugator.inverse()(boundary)
     
     def is_polygonalisation(self):
