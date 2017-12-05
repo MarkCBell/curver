@@ -47,16 +47,16 @@ class MultiArc(Shortenable):
         for edge in short.triangulation.edges:
             corner = short.triangulation.corner_lookup[edge.label]
             if edge not in used and corner[2] in used:  # Start on a good edge.  and edge not not in marked:
-                geometric = [0] * short.zeta
+                path = []
                 while edge not in used:
                     used.add(edge)
-                    geometric[edge.index] += 1
+                    path.append(edge)
                     corner = short.triangulation.corner_lookup[edge.label]
                     if ~corner[2] not in used:
                         edge = ~corner[2]
                     else:
                         edge = ~corner[1]
-                components.append(curver.kernel.Curve(short.triangulation, geometric))
+                components.append(short.triangulation.curve_from_cut_sequence(path))
         
         boundary = short.triangulation.disjoint_sum(components)
         return conjugator.inverse()(boundary)
