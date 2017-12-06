@@ -119,8 +119,6 @@ class MappingClassGroup(object):
         if not isinstance(word, str):
             word = self.random_word(word)
         
-        name = word  # Record the current word so we can use it later to name the mapping class.
-        
         # Remove any whitespace.
         word = word.replace(' ', '')
         

@@ -49,9 +49,9 @@ class Twist(Move):
             return lamination
         
         # Naive way would be to do:
-        #for i in range(self.power):
-        #    lamination = self.encoding(lamination)
-        #return lamination
+        # for i in range(self.power):
+        #     lamination = self.encoding(lamination)
+        # return lamination
         # But we can be cleverer and perform this calculation in O(log(self.power)) instead.
         
         power = self.power
@@ -91,7 +91,7 @@ class Twist(Move):
     
     def apply_homology(self, homology_class):
         # I don't think we even need this case.
-        if self.curve.is_isolating(): # Isolating ==> separating, so no effect on homology.
+        if self.curve.is_isolating():  # Isolating ==> separating, so no effect on homology.
             return homology_class
         
         a = self.curve.parallel()

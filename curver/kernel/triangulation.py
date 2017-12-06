@@ -507,7 +507,7 @@ class Triangulation(object):
         # If we have gotten this far then the and unmapped edges must be entire components.
         used_labels = set(x for key_value in label_map.items() for x in key_value)
         for edge in self.edges:
-            if not edge.label in used_labels:
+            if edge.label not in used_labels:
                 if self.corner_lookup[edge.label] != other.corner_lookup[edge.label]:
                     raise curver.AssumptionError('This label_map does not extend to an isometry.')
                 label_map[edge.label] = edge.label

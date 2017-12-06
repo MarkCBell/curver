@@ -149,7 +149,7 @@ class Curve(MultiCurve, Shortenable):
         
         if ei == 0:
             return 0
-        if max(ai+ ci, bi + di) == ei:  # Drops to zero.
+        if max(ai + ci, bi + di) == ei:  # Drops to zero.
             return 1  # Hmmm. We do need this but can we avoid not having 1 as the generic case?
         if ed > 0:
             return 0

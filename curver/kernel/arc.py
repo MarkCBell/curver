@@ -46,7 +46,6 @@ class MultiArc(Shortenable):
                     break
         
         # Now build each component by walking around the outside of the used edges.
-        components = dict()
         passed_through = set()
         geometric = [0] * short.zeta
         for edge in short.triangulation.edges:
@@ -136,8 +135,6 @@ class Arc(MultiArc):
             raise curver.AssumptionError('Arc connects a vertex to itself.')
         
         short, conjugator = self.shorten()
-        
-        edge = short.parallel()
         
         return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
     

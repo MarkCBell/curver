@@ -2,7 +2,6 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from fractions import Fraction
-from collections import defaultdict
 
 import curver
 
@@ -76,8 +75,7 @@ class Encoding(object):
     
     def __eq__(self, other):
         if isinstance(other, Encoding):
-            if self.source_triangulation != other.source_triangulation or \
-                self.target_triangulation != other.target_triangulation:
+            if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
                 raise ValueError('Cannot compare Encodings between different triangulations.')
             
             return all(self(arc) == other(arc) for arc in self.source_triangulation.edge_arcs()) and \
