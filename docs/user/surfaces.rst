@@ -6,7 +6,7 @@ Curver's :meth:`~curver.load.load` function automatically builds the Lickorish g
 This consists of four families of Dehn twists :math:`a_i, b_i, c_i, p_i` and a family of half-twists :math:`s_i`.
 The :math:`p_i` twists are parallel to :math:`a_{g-1}` and are arranged as shown below:
 
-.. image:: ./figures/surface.svg
+.. image:: ../figures/surface.svg
     :height: 300
     :alt: MCG generators
     :target: _images/surface.svg
@@ -47,7 +47,7 @@ As expected, when :math:`g = 0` only the half-twists are provided::
 
 These correspond to the half-twists :math:`s_i` that interchange the :math:`i^{\textrm{th}}` and :math:`(i+1)^{\textrm{st}}` punctures:
 
-.. image:: ./figures/sphere.svg
+.. image:: ../figures/sphere.svg
     :height: 300
     :alt: MCG generators
     :target: _images/sphere.svg
