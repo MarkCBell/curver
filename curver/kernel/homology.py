@@ -54,4 +54,11 @@ class HomologyClass(object):
         This is the HomologyClass that is homologous to this one and has weight 0 on each edge of the standard dual tree of the underlying triangulation. '''
         
         return HomologyClass(self.triangulation, [sum(x * y for x, y in zip(row, self.algebraic)) for row in self.triangulation.homology_matrix()])  # Dot product.
+    
+    def is_canonical(self):
+        ''' Return whether this homology class is already in canonical form.
+        
+        This is useful for constructing a basis of H_1(S). '''
+        
+        return self.canonical().algebraic == self.algebraic
 

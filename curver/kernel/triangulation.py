@@ -344,6 +344,11 @@ class Triangulation(object):
         
         return list(zip(*M))  # Transpose the matrix. We need list so that this is not a generator in Python3.
     
+    def homology_basis(self):
+        ''' Return a basis for H_1(S). '''
+        
+        return [hc for hc in self.edge_homologies() if hc.is_canonical()]
+    
     def is_flippable(self, edge):
         ''' Return if the given edge is flippable.
         

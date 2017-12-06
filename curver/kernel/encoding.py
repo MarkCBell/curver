@@ -113,6 +113,18 @@ class Encoding(object):
     def __invert__(self):
         return self.inverse()
     
+    def homology_matrix(self):
+        ''' Return a matrix describing the action of this encoding on first homology.
+        
+        The matrix is given with respect to the homology bases of the source and target triangulations. '''
+        
+        source_basis = self.source_triangulation.homology_basis()
+        target_basis = self.target_triangulation.homology_basis()
+        
+        source_images = [self(hc).canonical() for hc in source_basis]
+        
+        return [[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis]
+    
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
         Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
