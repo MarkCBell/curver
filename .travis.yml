@@ -3,7 +3,6 @@
 language: python
 python:
   - 2.7
-  - 3.3
   - 3.4
   - 3.5
   - 3.6
@@ -18,5 +17,5 @@ script:
     - py.test --cov=curver/kernel
 
 after_success:
-    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls fi
+    - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
 
