@@ -14,7 +14,7 @@ Curver
     :target: https://travis-ci.org/MarkCBell/curver
     :alt: Travis build status
 
-.. image:: https://img.shields.io/appveyor/ci/MarkCBell/curver.svg
+.. image:: https://ci.appveyor.com/api/projects/status/kd8b36bkas7h9pp6?svg=true
     :target: https://ci.appveyor.com/project/MarkCBell/curver
     :alt: AppVeyor build status
 
