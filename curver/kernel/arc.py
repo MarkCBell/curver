@@ -95,7 +95,7 @@ class MultiArc(Shortenable):
         Two multiarcs are in the same mapping class group orbit if and only their topological types are equal.
         These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
         
-        return NotImplemented  # TODO: 3) Implement.
+        return NotImplemented  # TODO: 2) Implement.
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''

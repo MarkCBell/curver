@@ -75,7 +75,7 @@ class Lamination(object):
             new_class = Lamination
         
         geometric = [other * x for x in self]
-        # TODO: 2) Could save components if they have already been computed.
+        # TODO: 3) Could save components if they have already been computed.
         return new_class(self.triangulation, geometric)  # Preserve promotion.
     def __rmul__(self, other):
         return self * other  # Commutative.
@@ -314,7 +314,7 @@ class Lamination(object):
         ''' Return whether self \\cup other fills. '''
         assert(isinstance(other, Lamination))
         
-        return NotImplemented  # TODO: 3) Implement!
+        return NotImplemented  # TODO: 2) Implement!
     
     def trace(self, edge, intersection_point, length):
         ''' Return the sequence of edges encountered by following along this lamination.
@@ -356,7 +356,7 @@ class Lamination(object):
         #  7) Label each vertex with the topological type of a restricted to the corresponding component.
         # Note that in order for this to work the topological type MUST be compatible with the permutation of the punctures.
         
-        return NotImplemented  # TODO: 3) Implement.
+        return NotImplemented  # TODO: 2) Implement.
 
 class Shortenable(Lamination):
     ''' A special lamination that we can put into a canonical 'short' form. '''

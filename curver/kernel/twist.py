@@ -136,7 +136,7 @@ class HalfTwist(Move):
         
         # We can now perform the half twist. To do this we move all the edges back across to the other vertex.
         # Again, we keep moving edges away from this edge's terminal vertex.
-        # TODO: 1) Prove this always works.
+        # TODO: 4) Prove this always works.
         # NOTE: William Worden checked that this works for genus <= 20.
         half_twist = conjugator.target_triangulation.id_encoding()  # valence(terminal vertex) > 1.
         while len(half_twist.target_triangulation.vertex_lookup[~edge.label]) > 1:

@@ -22,7 +22,7 @@ class CurveComplex(object):
         # Uniform:
         self.D = (self.zeta**(2 * self.zeta * (2*self.HYPERBOLICITY + 2)**2))**2  # Bowditch bound on denominator [Bow08].
         # This explict bound comes from Theorems 6.2 & 6.3 of [Webb15] and Algorithm 3 of [BellWebb16].
-        # TODO 1) Recheck this.
+        # TODO 4) Recheck this.
         self.XI = self.zeta // 2  # Actually should be 3g - 3 + n < 3g - 3 + 1.5n = zeta / 2
         self.M = 28 * factorial(self.XI) * self.HYPERBOLICITY * self.D * self.BOUNDED_GEODESIC_IMAGE
         E, n = self.triangulation.euler_characteristic, self.triangulation.num_vertices

@@ -42,7 +42,7 @@ class Crush(Move):
             out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
             # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
             
-            # TODO: 3) Add comments explaining what is going on here and how the different cases work.
+            # TODO: 4) Add comments explaining what is going on here and how the different cases work.
             # We work by manipulating the dual weights around v.
             twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
             sides = dict()

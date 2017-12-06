@@ -429,7 +429,7 @@ class Triangulation(object):
         if num_flips == 0:
             yield self.id_encoding()
         
-        # TODO: 2) Make efficient by using the fact that disjoint flips commute.
+        # TODO: 3) Make efficient by using the fact that disjoint flips commute.
         
         for edge in self.positive_edges:
             step = self.encode_flip(edge)
@@ -522,7 +522,7 @@ class Triangulation(object):
         if self.zeta != other.zeta:
             return []
         
-        # TODO: 2) Make this more efficient by avoiding trying all mappings.
+        # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
         sources = [min(component, key=lambda edge: len(self.vertex_lookup[edge.label])) for component in self.components()]
