@@ -1,5 +1,5 @@
 
-from hypothesis import given, assume, settings
+from hypothesis import given, assume, settings, HealthCheck
 import hypothesis.strategies as st
 import pickle
 import pytest
@@ -10,13 +10,14 @@ import strategies
 
 class TestCurve(unittest.TestCase):
     @given(strategies.curves())
-    @settings(max_examples=10, deadline=None)
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_boundary_intersection(self, curve):
         boundary = curve.boundary()
         self.assertEqual(curve.intersection(boundary), 0)
     
-    @pytest.mark.skip('Not written')
+    # @pytest.mark.skip('Not written')
     @given(st.data())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_slope(self, data):
         curve = data.draw(strategies.curves())
         lamination = data.draw(strategies.laminations(curve.triangulation))
@@ -25,8 +26,9 @@ class TestCurve(unittest.TestCase):
         twist = curve.encode_twist()
         self.assertTrue(-1 <= slope <= 1 or curve.slope(twist(lamination)) == slope - 1)
     
-    @pytest.mark.skip('Not written')
+    @pytest.mark.skip('Too rare')
     @given(st.data())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_relative_twist(self, data):
         curve = data.draw(strategies.curves())
         lamination1 = data.draw(strategies.laminations(curve.triangulation))
@@ -34,10 +36,10 @@ class TestCurve(unittest.TestCase):
         assume(curve.intersection(lamination1) > 0)
         assume(curve.intersection(lamination2) > 0)
         h = data.draw(strategies.encodings(curve.triangulation))
-        self.assertEqual(curve.relative_twist(lamination1, lamination2), h(curve).relative_twist(h(lamination1), h(lamination2)))
+        self.assertEqual(curve.relative_twisting(lamination1, lamination2), h(curve).relative_twisting(h(lamination1), h(lamination2)))
     
     @given(st.data())
-    @settings(max_examples=10, deadline=None)
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_topological_type(self, data):
         curve = data.draw(strategies.curves())
         h = data.draw(strategies.encodings(curve.triangulation))
