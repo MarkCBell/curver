@@ -1,5 +1,5 @@
 
-from hypothesis import given, settings
+from hypothesis import given, settings, HealthCheck
 import hypothesis.strategies as st
 import pickle
 import pytest
@@ -7,6 +7,7 @@ import unittest
 
 import curver
 import strategies
+import numpy as np
 
 class TestEncoding(unittest.TestCase):
     @given(strategies.encodings())
@@ -32,18 +33,16 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(~g * ~h, ~(h * g))
     
     @given(st.data())
-    @settings(deadline=None)
+    @settings(max_examples=20, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_homology_matrix(self, data):
         g = data.draw(strategies.encodings())
         h = data.draw(strategies.encodings(g.target_triangulation))
-        self.assertEqual(h.homology_matrx() * g.homology_matrix(), (h * g).homology_matrix())
+        self.assertTrue(np.array_equal(h.homology_matrix() * g.homology_matrix(), (h * g).homology_matrix()))
     
     @given(strategies.encodings())
     @settings(deadline=None)
     def test_intersection_matrix(self, h):
-        matrix = h.intersection_matrix()
-        matrix_transpose = [list(row) for row in zip(*matrix)]
-        self.assertEqual(matrix_transpose, (~h).intersection_matrix())
+        self.assertTrue(np.array_equal(h.intersection_matrix().transpose(), (~h).intersection_matrix()))
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())

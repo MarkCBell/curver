@@ -2,6 +2,7 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from fractions import Fraction
+import numpy as np
 
 import curver
 
@@ -86,7 +87,7 @@ class Encoding(object):
         return not (self == other)
     def __hash__(self):
         # In fact this hash is perfect unless the surface is S_{1,1}.
-        return hash(tuple(entry for row in self.intersection_matrix() for entry in row))
+        return hash(tuple(entry for row in self.intersection_matrix().tolist() for entry in row))
     
     def __call__(self, other):
         if self.source_triangulation != other.triangulation:
@@ -123,7 +124,7 @@ class Encoding(object):
         
         source_images = [self(hc).canonical() for hc in source_basis]
         
-        return [[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis]
+        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis])
     
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
@@ -131,7 +132,7 @@ class Encoding(object):
         
         Except when on S_{1,1}, this uniquely determines self. '''
         
-        return [list(self(arc)) for arc in self.source_triangulation.edge_arcs()]
+        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()])
     
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.

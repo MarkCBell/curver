@@ -2,6 +2,7 @@
 ''' A module for representing a triangulation of a punctured surface. '''
 
 from math import factorial
+import numpy as np
 from functools import total_ordering
 from itertools import groupby, product
 from collections import Counter, defaultdict
@@ -342,7 +343,7 @@ class Triangulation(object):
                 row[index] = 1
             M.append(row)
         
-        return list(zip(*M))  # Transpose the matrix. We need list so that this is not a generator in Python3.
+        return np.matrix(M).transpose()  # Transpose the matrix.
     
     def homology_basis(self):
         ''' Return a basis for H_1(S). '''

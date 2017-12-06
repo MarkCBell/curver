@@ -10,7 +10,8 @@ def read(file_name):
         return open_file.read()
 
 requirements = [
-    'networkx',  # Curve.tight_geodesic
+    'networkx',
+    'numpy',
 ]
 
 test_requirements = [

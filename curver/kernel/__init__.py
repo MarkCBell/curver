@@ -56,6 +56,7 @@ Permutation = permutation.Permutation
 norm = triangulation.norm
 UnionFind = utilities.UnionFind
 memoize = utilities.memoize  # Unused?
+matrix_vector = utilities.matrix_vector
 
 # Functions that help with construction.
 create_triangulation = Triangulation.from_tuple
