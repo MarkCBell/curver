@@ -31,7 +31,7 @@ class TestTriangulation(unittest.TestCase):
         identity = triangulation.id_isometry()
         isometries = triangulation.self_isometries()
         self.assertIn(identity, isometries)
-
+    
     @given(strategies.triangulations())
     @settings(deadline=None)
     def test_sig(self, triangulation):
