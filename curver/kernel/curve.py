@@ -243,7 +243,7 @@ class Curve(MultiCurve, Shortenable):
         
         return Fraction(sign * numerator, denominator) + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
     
-    def relative_twising(self, b, c):
+    def relative_twisting(self, b, c):
         ''' Return the relative twisting number of b about self relative to c.
         
         This is the number of (right) Dehn twists about self that must be applied to b in order to minimise its intersection with c.

@@ -163,7 +163,7 @@ def curves(draw, triangulation=None):
 
 @st.composite
 def laminations(draw, triangulation=None):
-    return draw(st.one_of(multicurve(triangulation), multiarc(triangulation)))
+    return draw(st.one_of(multicurves(triangulation), multiarcs(triangulation)))
 
 @st.composite
 def permutations(draw, N=None):
