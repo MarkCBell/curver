@@ -31,6 +31,13 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(~(~g), g)
         self.assertEqual(~g * ~h, ~(h * g))
     
+    @given(st.data())
+    @settings(deadline=None)
+    def test_homology_matrix(self, data):
+        g = data.draw(strategies.encodings())
+        h = data.draw(strategies.encodings(g.target_triangulation))
+        self.assertEqual(h.homology_matrx() * g.homology_matrix(), (h * g).homology_matrix())
+    
     @given(strategies.encodings())
     @settings(deadline=None)
     def test_intersection_matrix(self, h):

@@ -24,7 +24,7 @@ class TestTriangulation(unittest.TestCase):
         triangulation = data.draw(strategies.triangulations())
         edge = data.draw(st.sampled_from(triangulation.edges))
         self.assertEqual(triangulation.surface(), triangulation.flip_edge(edge).surface())
-        
+    
     @given(strategies.triangulations())
     def test_isometry(self, triangulation):
         self.assertTrue(triangulation.is_isometric_to(triangulation))
@@ -36,4 +36,9 @@ class TestTriangulation(unittest.TestCase):
     @settings(deadline=None)
     def test_sig(self, triangulation):
         self.assertEqual(triangulation, curver.triangulation_from_sig(triangulation.sig()))
+    
+    @given(strategies.triangulations())
+    @settings(deadline=None)
+    def test_homology(self, triangulation):
+        self.assertEqual(len(triangulation.homology_basis()), 1 - triangulation.euler_characteristic)
 
