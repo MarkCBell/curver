@@ -14,7 +14,7 @@ install:
 
 # Command to run tests.
 script:
-    - py.test --cov=curver/kernel
+    - py.test --cov=curver/kernel --hypothesis-profile=ci
 
 after_success:
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
