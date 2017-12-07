@@ -1,5 +1,5 @@
 
-from hypothesis import given, settings
+from hypothesis import given, settings, HealthCheck
 import hypothesis.strategies as st
 import pickle
 import pytest
@@ -11,11 +11,13 @@ import strategies
 class TestLamination(unittest.TestCase):
     @pytest.mark.slow
     @given(strategies.laminations())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_pickle(self, lamination):
         self.assertEqual(lamination, pickle.loads(pickle.dumps(lamination)))
     
     @pytest.mark.slow
     @given(st.data())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_hash(self, data):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))
@@ -23,6 +25,7 @@ class TestLamination(unittest.TestCase):
     
     @pytest.mark.slow
     @given(st.data())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_orientation(self, data):
         lamination = data.draw(strategies.laminations())
         edge = data.draw(st.sampled_from(lamination.triangulation.edges))
@@ -30,14 +33,16 @@ class TestLamination(unittest.TestCase):
 
     @pytest.mark.slow
     @given(strategies.laminations())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_components(self, lamination):
         self.assertEqual(lamination.triangulation.sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
         self.assertEqual(lamination.triangulation.disjoint_sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
-        for component in lamination:
+        for component in lamination.components():
             self.assertEqual(component.intersection(component), 0)
     
     @pytest.mark.slow
     @given(st.data())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_components_image(self, data):
         lamination = data.draw(strategies.laminations())
         encoding = data.draw(strategies.encodings(lamination.triangulation))
@@ -45,6 +50,7 @@ class TestLamination(unittest.TestCase):
     
     @pytest.mark.slow
     @given(st.data())
+    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_intersection(self, data):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))

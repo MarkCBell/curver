@@ -15,7 +15,14 @@ class TestCurve(unittest.TestCase):
         boundary = curve.boundary()
         self.assertEqual(curve.intersection(boundary), 0)
     
-    # @pytest.mark.skip('Not written')
+    @given(st.data())
+    @settings(max_examples=2, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    def test_sum(self, data):
+        triangulation = data.draw(strategies.triangulations())
+        multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
+        self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
+        self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
+    
     @given(st.data())
     @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_slope(self, data):

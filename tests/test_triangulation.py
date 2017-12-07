@@ -32,6 +32,16 @@ class TestTriangulation(unittest.TestCase):
         isometries = triangulation.self_isometries()
         self.assertIn(identity, isometries)
     
+    @given(st.data())
+    def test_relabel(self, data):
+        triangulation = data.draw(strategies.triangulations())
+        label_map =  data.draw(st.permutations(range(triangulation.zeta)))
+        label_map = [i if data.draw(st.booleans()) else ~i for i in label_map]
+        
+        T = triangulation.relabel_edges(label_map)
+        self.assertTrue(triangulation.is_isometric_to(T))
+        self.assertTrue(any(all(isom.label_map[i] == label_map[i] for i in range(triangulation.zeta)) for isom in triangulation.isometries_to(T)))
+    
     @given(strategies.triangulations())
     @settings(deadline=None)
     def test_sig(self, triangulation):
