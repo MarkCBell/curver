@@ -27,5 +27,5 @@ install:
   - "%PYTHON%/Scripts/pip.exe install --editable . --user"
 
 test_script:
-  - "%PYTHON%/Scripts/py.test.exe"
+  - "%PYTHON%/Scripts/py.test.exe --hypothesis-profile=ci"
 
