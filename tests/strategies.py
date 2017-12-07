@@ -109,31 +109,11 @@ def multiarcs(draw, triangulation=None, require_non_empty_boundary=False):
     
     geometric = [0] * triangulation.zeta
     
-    indices = set()
     available_indices = set(triangulation.indices)
-    
-    if require_non_empty_boundary:
-        tree = triangulation.dual_tree()
-        tree = set([index for index in triangulation.indices if tree[index]])
-        available_indices = available_indices - tree
-        
-        if draw(st.booleans()) and not any(g == 0 for (g, v) in triangulation.surface()):  # merge vertices:
-            classes = curver.kernel.utilities.UnionFind(triangulation.vertices)
-            for index in sorted(available_indices):
-                a, b = triangulation.edge_arc(index).vertices()
-                if classes(a) != classes(b):
-                    classes.union(a, b)
-                    indices.add(index)
-                    available_indices.remove(index)
-    
-    num_arcs = draw(st.integers(min_value=0 if indices else 1, max_value=len(available_indices)-1))
+    num_arcs = draw(st.integers(min_value=1, max_value=len(available_indices)))
     for _ in range(num_arcs):
         index = draw(st.sampled_from(sorted(available_indices)))
         available_indices.remove(index)
-        indices.add(index)
-    
-    # Set weights on these edges.
-    for index in indices:
         geometric[index] = draw(st.integers(max_value=-1))
     
     return triangulation.lamination(geometric)
@@ -148,9 +128,38 @@ def arcs(draw, triangulation=None):
 def multicurves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     
-    multiarc = draw(multiarcs(triangulation, require_non_empty_boundary=True))
+    # Build a special type of multiarc with non-empty boundary.
+    geometric = [0] * triangulation.zeta
+    
+    indices = set()
+    available_indices = set(triangulation.indices)
+    
+    tree = triangulation.dual_tree()
+    tree = set([index for index in triangulation.indices if tree[index]])
+    available_indices = available_indices - tree
+    
+    if draw(st.booleans()) and not any(g == 0 for (g, v) in triangulation.surface()):  # merge vertices:
+        classes = curver.kernel.utilities.UnionFind(triangulation.vertices)
+        for index in sorted(available_indices):
+            a, b = triangulation.edge_arc(index).vertices()
+            if classes(a) != classes(b):
+                classes.union(a, b)
+                indices.add(index)
+                available_indices.remove(index)
+    
+    num_arcs = draw(st.integers(min_value=0 if indices else 1, max_value=len(available_indices)-1))
+    for _ in range(num_arcs):
+        index = draw(st.sampled_from(sorted(available_indices)))
+        available_indices.remove(index)
+        indices.add(index)
+    
+    # Set weights on these edges.
+    for index in indices:
+        geometric[index] = draw(st.integers(max_value=-1))
+    
+    multiarc = triangulation.lamination(geometric)
     boundary = multiarc.boundary()
-    assume(not boundary.is_empty())
+    assert(not boundary.is_empty())
     return boundary
 
 @st.composite
