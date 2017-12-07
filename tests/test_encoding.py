@@ -11,12 +11,10 @@ import numpy as np
 
 class TestEncoding(unittest.TestCase):
     @given(strategies.encodings())
-    @settings(max_examples=1, deadline=None)
     def test_pickle(self, h):
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
     
     @given(st.data())
-    @settings(deadline=None)
     def test_slice(self, data):
         h = data.draw(strategies.encodings())
         i = data.draw(st.integers(min_value=0, max_value=len(h)))
@@ -25,7 +23,7 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(h[:i] * h[i:j] * h[j:], h)
     
     @given(st.data())
-    @settings(max_examples=1, deadline=None)
+    @settings(max_examples=20)
     def test_inverse(self, data):
         g = data.draw(strategies.encodings())
         h = data.draw(strategies.encodings(g.target_triangulation))
@@ -33,20 +31,18 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(~g * ~h, ~(h * g))
     
     @given(st.data())
-    @settings(max_examples=20, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_homology_matrix(self, data):
         g = data.draw(strategies.encodings())
         h = data.draw(strategies.encodings(g.target_triangulation))
         self.assertTrue(np.array_equal(h.homology_matrix() * g.homology_matrix(), (h * g).homology_matrix()))
     
     @given(strategies.encodings())
-    @settings(deadline=None)
     def test_intersection_matrix(self, h):
         self.assertTrue(np.array_equal(h.intersection_matrix().transpose(), (~h).intersection_matrix()))
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())
-    @settings(max_examples=10, deadline=None)
+    @settings(max_examples=20)
     def test_hash(self, data):
         mcg = data.draw(strategies.mcgs())
         g = data.draw(strategies.mapping_classes(mcg))
@@ -54,7 +50,7 @@ class TestMappingClass(unittest.TestCase):
         self.assertTrue(hash(g) != hash(h) or g == h)
     
     @given(strategies.mapping_classes())
-    @settings(max_examples=10, deadline=None)
+    @settings(max_examples=1)
     def test_order(self, h):
         self.assertLessEqual(h.order(), h.source_triangulation.max_order())
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())

@@ -10,13 +10,13 @@ import strategies
 
 class TestCurve(unittest.TestCase):
     @given(strategies.curves())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=50)
     def test_boundary_intersection(self, curve):
         boundary = curve.boundary()
         self.assertEqual(curve.intersection(boundary), 0)
     
     @given(st.data())
-    @settings(max_examples=2, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=2)
     def test_sum(self, data):
         triangulation = data.draw(strategies.triangulations())
         multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
@@ -24,9 +24,10 @@ class TestCurve(unittest.TestCase):
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
     
     @given(st.data())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=10)
     def test_slope(self, data):
         curve = data.draw(strategies.curves())
+        assume(not curve.is_peripheral())
         lamination = data.draw(strategies.laminations(curve.triangulation))
         assume(curve.intersection(lamination) > 0)
         slope = curve.slope(lamination)
@@ -35,9 +36,9 @@ class TestCurve(unittest.TestCase):
     
     @pytest.mark.skip('Too rare')
     @given(st.data())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_relative_twist(self, data):
         curve = data.draw(strategies.curves())
+        assume(not curve.is_peripheral())
         lamination1 = data.draw(strategies.laminations(curve.triangulation))
         lamination2 = data.draw(strategies.laminations(curve.triangulation))
         assume(curve.intersection(lamination1) > 0)
@@ -46,7 +47,7 @@ class TestCurve(unittest.TestCase):
         self.assertEqual(curve.relative_twisting(lamination1, lamination2), h(curve).relative_twisting(h(lamination1), h(lamination2)))
     
     @given(st.data())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=20)
     def test_topological_type(self, data):
         curve = data.draw(strategies.curves())
         h = data.draw(strategies.encodings(curve.triangulation))

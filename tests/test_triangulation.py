@@ -43,12 +43,10 @@ class TestTriangulation(unittest.TestCase):
         self.assertTrue(any(all(isom.label_map[i] == label_map[i] for i in range(triangulation.zeta)) for isom in triangulation.isometries_to(T)))
     
     @given(strategies.triangulations())
-    @settings(deadline=None)
     def test_sig(self, triangulation):
         self.assertEqual(triangulation, curver.triangulation_from_sig(triangulation.sig()))
     
     @given(strategies.triangulations())
-    @settings(deadline=None)
     def test_homology(self, triangulation):
         self.assertEqual(len(triangulation.homology_basis()), 1 - triangulation.euler_characteristic)
 

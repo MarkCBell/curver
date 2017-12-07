@@ -10,14 +10,14 @@ import strategies
 
 class TestTwist(unittest.TestCase):
     @given(strategies.curves(), st.integers())
-    @settings(max_examples=1, deadline=None)
+    @settings(max_examples=3)
     def test_pickle(self, curve, power):
         twist_i = curve.encode_twist(power)
         
         self.assertEqual(twist_i, pickle.loads(pickle.dumps(twist_i)))
     
     @given(strategies.curves(), st.integers(), st.integers())
-    @settings(max_examples=1, deadline=None)
+    @settings(max_examples=5)
     def test_powers(self, curve, power1, power2):
         twist_i = curve.encode_twist(power1)
         twist_j = curve.encode_twist(power2)

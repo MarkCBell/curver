@@ -13,19 +13,18 @@ from collections import Counter
 class TestCrush(unittest.TestCase):
     @pytest.mark.skip('Crush / Lift are not pickleable since they do not implement .package().')
     @given(strategies.curves())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
     def test_pickle(self, curve):
         crush = curve.crush()
         self.assertEqual(crush, pickle.loads(pickle.dumps(crush)))
     
     @given(strategies.curves())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=10)
     def test_inverse(self, curve):
         crush = curve.crush()
         self.assertEqual(crush, ~(~crush))
     
     @given(strategies.curves())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=50)
     def test_lift(self, curve):
         crush = curve.crush()
         lift = crush.inverse()
@@ -35,7 +34,7 @@ class TestCrush(unittest.TestCase):
         self.assertEqual(Counter(lifted_peripherals), Counter(peripheral_curves + ([] if curve.is_peripheral() else [curve, curve])))
     
     @given(st.data())
-    @settings(max_examples=10, deadline=None, suppress_health_check=(HealthCheck.too_slow,))
+    @settings(max_examples=20)
     def test_twist(self, data):
         curve = data.draw(strategies.curves())
         lamination = data.draw(strategies.curves(curve.triangulation))

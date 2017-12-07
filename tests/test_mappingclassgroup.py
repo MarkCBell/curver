@@ -10,12 +10,11 @@ import strategies
 
 class TestMCG(unittest.TestCase):
     @given(strategies.mcgs())
-    @settings(max_examples=2, deadline=None)
+    @settings(max_examples=1)
     def test_pickle(self, mcg):
         self.assertEqual(mcg, pickle.loads(pickle.dumps(mcg)))
     
     @given(st.data())
-    @settings(max_examples=50, deadline=None)
     def test_curve_intersection(self, data):
         mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.curves)))
@@ -27,7 +26,6 @@ class TestMCG(unittest.TestCase):
         self.assertLessEqual(intersection, 1)
     
     @given(st.data())
-    @settings(max_examples=50, deadline=None)
     def test_arc_intersection(self, data):
         mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.arcs)))
@@ -37,7 +35,7 @@ class TestMCG(unittest.TestCase):
         self.assertEqual(arc1.intersection(arc2), 0)
     
     @given(st.data())
-    @settings(max_examples=50, deadline=None)
+    @settings(max_examples=50)
     def test_curve_relation(self, data):
         mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.curves)))
@@ -51,7 +49,7 @@ class TestMCG(unittest.TestCase):
             )
 
     @given(st.data())
-    @settings(max_examples=50, deadline=None)
+    @settings(max_examples=50)
     def test_arc_relation(self, data):
         mcg = data.draw(strategies.mcgs())
         name1 = data.draw(st.sampled_from(sorted(mcg.arcs)))
