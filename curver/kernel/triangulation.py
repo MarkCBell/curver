@@ -631,12 +631,7 @@ class Triangulation(object):
             else:  # Mixed.
                 new_class = curver.kernel.Lamination
             
-            components = defaultdict(int)
-            for lamination in laminations:
-                for component, multiplicity in lamination.components().items():
-                    components[component] += multiplicity
-            
-            return new_class(self, geometric, components=components)
+            return new_class(self, geometric)
         else:
             return NotImplemented
     
