@@ -175,20 +175,26 @@ class MappingClass(Encoding):
         
         If this has infinite order then return 0. '''
         
-        # We gather together the powers of self that are / aren't the identity.
-        good, bad = set(), set()
-        homology_matrix = self.homology_matrix()
-        
-        # There are several tricks that we can use to rule out powers that we need to test:
+        # There are several tricks that we could use to rule out powers that we need to test:
         #  - If self**i == identity then homology_matrix**i = identity_matrix.
         #  - If self**i == identity then self**(ij) == identity.
         #  - if self**i == identity and self**j == identity then self**gcd(i, j) == identity.
+        #
+        # But in terms of raw speed there doesn't appear to be anything faster than:
         
-        identity = self.source_triangulation.id_encoding()
-        identity_matrix = np.identity(homology_matrix.shape[0])
-        for i in range(1, self.source_triangulation.max_order() + 1):
-            if np.array_equal(homology_matrix**i, identity_matrix) and self**i == identity:
-                return i
+        homology_matrix = self.homology_matrix()
+        originals = [np.identity(homology_matrix.shape[0])] + self.source_triangulation.edge_arcs()
+        images = list(originals)
+        powers = [0] * len(originals)
+        for power in range(1, self.source_triangulation.max_order()+1):
+            for i in range(len(originals)):
+                while powers[i] < power:
+                    images[i] = self(images[i]) if i > 0 else homology_matrix * images[i]
+                    powers[i] += 1
+                if (i == 0 and not np.array_equal(images[i], originals[i])) or (i > 0 and images[i] != originals[i]):
+                    break
+            else:
+                return power
         
         return 0
     
