@@ -35,6 +35,14 @@ class TestMultiCurve(unittest.TestCase):
     def test_fills(self, multicurve):
         self.assertEqual(multicurve.is_filling(), multicurve.fills_with(multicurve))
     
+    @given(strategies.multicurves())
+    @settings(max_examples=10)
+    def test_train_track(self, multicurve):
+        train_track = multicurve.train_track()
+        self.assertEqual(train_track.num_components(), multicurve.num_components())
+        vertex_cycle = train_track.vertex_cycle()
+        self.assertTrue(all(vertex_cycle.dual_weight(edge) == 0 or train_track.dual_weight(edge) > 0 for edge in train_track.triangulation.edges))
+    
     @given(st.data())
     @settings(max_examples=2)
     def test_sum(self, data):
