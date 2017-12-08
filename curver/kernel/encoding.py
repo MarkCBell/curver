@@ -143,6 +143,19 @@ class Encoding(object):
         target_vertices_inverse = dict((self.target_triangulation.curve_from_cut_sequence(vertex), vertex) for vertex in self.target_triangulation.vertices)
         
         return dict((vertex, target_vertices_inverse[self(source_vertices[vertex])]) for vertex in self.source_triangulation.vertices)
+    
+    def simplify(self):
+        ''' Return a new Encoding that is equal to self.
+        
+        This is obtained by combining the image of the source triangulation under self and so is (hopefully) simpler than self since it depends only on the endpoints. '''
+        
+        _, conjugator = self(self.source_triangulation.as_lamination()).shorten()
+        # conjugator.inverse() is almost self, however the edge labels might not agree.
+        potential_closers = [isom.encode() for isom in conjugator.target_triangulation.isometries_to(self.source_triangulation)]
+        identity = self.source_triangulation.id_encoding()
+        [closer] = [potential_closer for potential_closer in potential_closers if potential_closer * conjugator  * self == identity]  # Thre should only be one.
+        
+        return (closer * conjugator).inverse()
 
 class MappingClass(Encoding):
     ''' An Encoding where self.source_triangulation == self.target_triangulation. '''
@@ -162,10 +175,21 @@ class MappingClass(Encoding):
         
         If this has infinite order then return 0. '''
         
+        # We gather together the powers of self that are / aren't the identity.
+        good, bad = set(), set()
+        homology_matrix = self.homology_matrix()
+        
+        # There are several tricks that we can use to rule out powers that we need to test:
+        #  - If self**i == identity then homology_matrix**i = identity_matrix.
+        #  - If self**i == identity then self**(ij) == identity.
+        #  - if self**i == identity and self**j == identity then self**gcd(i, j) == identity.
+        
         identity = self.source_triangulation.id_encoding()
+        identity_matrix = np.identity(homology_matrix.shape[0])
         for i in range(1, self.source_triangulation.max_order() + 1):
-            if self**i == identity:
+            if np.array_equal(homology_matrix**i, identity_matrix) and self**i == identity:
                 return i
+        
         return 0
     
     def is_identity(self):

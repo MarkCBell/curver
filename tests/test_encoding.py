@@ -44,6 +44,10 @@ class TestEncoding(unittest.TestCase):
         self.assertEqualArray(h.intersection_matrix().transpose(), (~h).intersection_matrix())
     
     @given(strategies.encodings())
+    def test_simplify(self, h):
+        self.assertEqual(h.simplify(), h)
+    
+    @given(strategies.encodings())
     def test_vertex_map(self, h):
         vertex_map = h.vertex_map()
         self.assertEqual(sorted(vertex_map.keys()), sorted(h.source_triangulation.vertices))
