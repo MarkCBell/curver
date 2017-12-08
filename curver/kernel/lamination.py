@@ -407,9 +407,13 @@ class Shortenable(Lamination):
             # This edge is always flippable.
             a, b, c, d, e = lamination.triangulation.square(edge)
             
-            intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
-            trace = lamination.trace(edge, intersection_point, 2*self.zeta)
+            flip = lamination.triangulation.encode_flip(edge)
             try:  # Accelerate!
+                if (1 -  0.1 / lamination.zeta) * lamination.weight()  > flip(lamination).weight():  # Drop is at least 10% of average edge weight.
+                    raise curver.AssumptionError('Flip made definite progress.')
+                
+                intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
+                trace = lamination.trace(edge, intersection_point, 2*self.zeta)
                 trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
                 
                 curve = lamination.triangulation.lamination_from_cut_sequence(trace)
@@ -422,7 +426,7 @@ class Shortenable(Lamination):
                 else:  # slope < -1 or 1 < slope:
                     move = curve.encode_twist(power=-int(slope))  # Round towards zero.
             except (ValueError, curver.AssumptionError):
-                move = lamination.triangulation.encode_flip(edge)
+                move = flip
                 extra = [c, d]
             
             conjugator = move * conjugator
