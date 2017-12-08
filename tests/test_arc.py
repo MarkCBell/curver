@@ -15,9 +15,8 @@ class TestArc(unittest.TestCase):
         boundary = arc.boundary()
         self.assertEqual(arc.intersection(boundary), 0)
     
-    @given(strategies.arcs())
+    @given(strategies.arcs().filter(lambda a: a.connects_distinct_vertices())
     @settings(max_examples=50)
     def test_halftwist(self, arc):
-        if arc.connects_distinct_vertices():
-            self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
+        self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 
