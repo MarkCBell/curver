@@ -10,7 +10,7 @@ import strategies
 import numpy as np
 
 class TestEncoding(unittest.TestCase):
-    def assertEqualArray(M, N):
+    def assertEqualArray(self, M, N):
         self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
     
     @given(strategies.encodings())
@@ -22,7 +22,7 @@ class TestEncoding(unittest.TestCase):
         h = data.draw(strategies.encodings())
         i = data.draw(st.integers(min_value=0, max_value=len(h)))
         j = data.draw(st.integers(min_value=0, max_value=len(h)))
-        i, j = sorted([i, j])  # Sorted.
+        i, j = sorted([i, j])
         self.assertEqual(h[:i] * h[i:j] * h[j:], h)
     
     @given(st.data())
