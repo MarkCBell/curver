@@ -42,6 +42,12 @@ class TestEncoding(unittest.TestCase):
     @given(strategies.encodings())
     def test_intersection_matrix(self, h):
         self.assertEqualArray(h.intersection_matrix().transpose(), (~h).intersection_matrix())
+    
+    @given(strategies.encodings())
+    def test_vertex_map(self, h):
+        vertex_map = h.vertex_map()
+        self.assertEqual(sorted(vertex_map.keys()), sorted(h.source_triangulation.vertices))
+        self.assertEqual(sorted(vertex_map.values()), sorted(h.target_triangulation.vertices))
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())
@@ -51,6 +57,11 @@ class TestMappingClass(unittest.TestCase):
         g = data.draw(strategies.mapping_classes(mcg))
         h = data.draw(strategies.mapping_classes(mcg))
         self.assertTrue(hash(g) != hash(h) or g == h)
+    
+    @given(strategies.mapping_classes())
+    # @settings(max_examples=2)
+    def test_identity(self, h):
+        self.assertEqual(h.is_identity(), h == h.source_triangulation.id_encoding())
     
     @given(strategies.mapping_classes())
     @settings(max_examples=2)
