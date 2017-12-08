@@ -90,9 +90,12 @@ def encodings(draw, triangulation=None):
     num_flips = draw(st.integers(min_value=0, max_value=20))
     for _ in range(num_flips):
         T = rev_sequence[-1].target_triangulation
-        edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
-        flip = curver.kernel.EdgeFlip(T, T.flip_edge(edge), edge)
-        rev_sequence.append(flip)
+        if draw(st.sampled_from([0, 0, 0, 0, 0, 1])) == 0:
+            edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
+            move = T.encode_flip(edge)[0]
+        else:
+            move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])[0]
+        rev_sequence.append(move)
     
     return curver.kernel.Encoding(rev_sequence[::-1])
 
@@ -101,7 +104,6 @@ def homology_classes(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     algebraic = [draw(st.integers()) for _ in range(triangulation.zeta)]
     return curver.kernel.HomologyClass(triangulation, algebraic)
-
 
 @st.composite
 def multiarcs(draw, triangulation=None, require_non_empty_boundary=False):
