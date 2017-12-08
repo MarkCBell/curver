@@ -83,10 +83,9 @@ class TrainTrack(Shortenable):
         
         cycles = []
         for cycle in networkx.simple_cycles(G):
-            geometric = [0] * self.zeta
-            for edge in cycle:
-                geometric[edge.index] += 1
-            cycles.append(curver.kernel.Curve(self.triangulation, geometric))
+            curve = self.triangulation.lamination_from_cut_sequence(cycle)
+            if isinstance(curve, curver.kernel.Curve):
+                cycles.append(curve)
         
         return cycles
 
