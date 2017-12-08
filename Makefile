@@ -28,7 +28,6 @@ help:
 
 clean: clean-build clean-pyc clean-test ## remove all build, test, coverage and Python artifacts
 
-
 clean-build: ## remove build artifacts
 	rm -fr build/
 	rm -fr dist/
@@ -51,16 +50,13 @@ lint: ## check style with flake8
 	flake8 curver tests
 
 test: ## run tests quickly with the default Python
-	py.test
-	
+	py.test --hypothesis-profile=dev
 
 test-all: ## run tests on every Python version with tox
 	tox
 
 coverage: ## check code coverage quickly with the default Python
-	coverage run --source curver -m pytest
-	coverage report -m
-	coverage html
+	py.test --cov=curver/kernel --cov-report=html --hypothesis-profile=dev
 	$(BROWSER) htmlcov/index.html
 
 docs: ## generate Sphinx HTML documentation, including API docs
@@ -85,3 +81,4 @@ dist: clean ## builds source and wheel package
 
 install: clean ## install the package to the active Python's site-packages
 	python setup.py install
+
