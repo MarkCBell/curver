@@ -29,7 +29,7 @@ class TrainTrack(Shortenable):
         num_good = [ed < 0, ad > 0, bd > 0].count(True)
         
         if num_bad > 0:
-            return 0.5
+            return 0.25
         
         if num_good == 3:
             return 1
