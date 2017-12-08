@@ -45,6 +45,10 @@ class TestMultiCurve(unittest.TestCase):
 
 
 class TestCurve(unittest.TestCase):
+    def assertWithinOne(self, x, y):
+        self.assertTrue(abs(x - y) <= 1, msg='AssertionError: |%s - %s| > 1' % (x, y))
+    
+    
     @given(strategies.curves())
     @settings(max_examples=50)
     def test_boundary_intersection(self, curve):
@@ -70,17 +74,18 @@ class TestCurve(unittest.TestCase):
         self.assertTrue(-1 <= slope <= 1 or curve.slope(twist(lamination)) == slope - 1)
     
     @given(st.data())
-    def test_relative_twist(self, data):
+    @settings(max_examples=1)
+    def test_relative_twisting(self, data):
         curve = data.draw(strategies.curves())
         curve = data.draw(strategies.curves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination1 = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
         power = data.draw(st.integers())
         lamination2 = curve.encode_twist(power)(lamination1)
         rel_twisting = curve.relative_twisting(lamination1, lamination2)
-        self.assertTrue(abs(rel_twisting - -power) <= 1)
+        self.assertWithinOne(rel_twisting, power)
         
         h = data.draw(strategies.encodings(curve.triangulation))
-        self.assertEqual(curve.relative_twisting(lamination1, lamination2), h(curve).relative_twisting(h(lamination1), h(lamination2)))
+        self.assertWithinOne(h(curve).relative_twisting(h(lamination1), h(lamination2)), power)
     
     @given(st.data())
     @settings(max_examples=20)
