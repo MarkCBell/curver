@@ -1,5 +1,5 @@
 
-from hypothesis import given, settings, HealthCheck
+from hypothesis import given, settings
 import hypothesis.strategies as st
 import pickle
 import pytest
