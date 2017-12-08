@@ -8,6 +8,34 @@ import unittest
 import curver
 import strategies
 
+class TestMultiCurve(unittest.TestCase):
+    @given(strategies.multicurves())
+    @settings(max_examples=20)
+    def test_boundary_intersection(self, multicurve):
+        boundary = multicurve.boundary()
+        self.assertEqual(multicurve.intersection(boundary), 0)
+    
+    @given(st.data())
+    @settings(max_examples=10)
+    def test_boundary_union(self, data):
+        multicurve = data.draw(strategies.multicurves())
+        assume(not multicurve.is_peripheral())
+        lamination = data.draw(strategies.laminations(multicurve.triangulation))
+        boundary = multicurve.boundary_union(lamination)
+        self.assertEqual(multicurve.intersection(boundary), 0)
+        self.assertEqual(lamination.intersection(boundary), 0)
+    
+    @given(strategies.multicurves())
+    @settings(max_examples=20)
+    def test_crush(self, multicurve):
+        crush = multicurve.crush()
+        self.assertEqual(crush.source_triangulation.euler_characteristic, crush.target_triangulation.euler_characteristic)
+    
+    @given(strategies.multicurves())
+    @settings(max_examples=20)
+    def test_fills(self, multicurve):
+        self.assertEqual(multicurve.is_filling(), multicurve.fills_with(multicurve))
+
 class TestCurve(unittest.TestCase):
     @given(strategies.curves())
     @settings(max_examples=50)
