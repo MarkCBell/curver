@@ -65,8 +65,7 @@ class TestCurve(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=10)
     def test_slope(self, data):
-        curve = data.draw(strategies.curves())
-        
+        curve = data.draw(strategies.curves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
         slope = curve.slope(lamination)
         twist = curve.encode_twist()
@@ -75,7 +74,6 @@ class TestCurve(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=1)
     def test_relative_twisting(self, data):
-        curve = data.draw(strategies.curves())
         curve = data.draw(strategies.curves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination1 = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
         power = data.draw(st.integers())
