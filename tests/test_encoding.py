@@ -10,6 +10,9 @@ import strategies
 import numpy as np
 
 class TestEncoding(unittest.TestCase):
+    def assertEqualArray(M, N):
+        self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
+    
     @given(strategies.encodings())
     def test_pickle(self, h):
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
@@ -34,11 +37,11 @@ class TestEncoding(unittest.TestCase):
     def test_homology_matrix(self, data):
         g = data.draw(strategies.encodings())
         h = data.draw(strategies.encodings(g.target_triangulation))
-        self.assertTrue(np.array_equal(h.homology_matrix() * g.homology_matrix(), (h * g).homology_matrix()))
+        self.assertEqualArray(h.homology_matrix() * g.homology_matrix(), (h * g).homology_matrix())
     
     @given(strategies.encodings())
     def test_intersection_matrix(self, h):
-        self.assertTrue(np.array_equal(h.intersection_matrix().transpose(), (~h).intersection_matrix()))
+        self.assertEqualArray(h.intersection_matrix().transpose(), (~h).intersection_matrix())
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())
