@@ -44,8 +44,9 @@ class TestMCG(unittest.TestCase):
         curve2 = mcg.curves[name2]
         intersection = curve1.intersection(curve2)
         self.assertTrue(
-            (intersection != 0 or mcg(name1 + name2) == mcg(name2 + name1)) or \
-            (intersection == 1 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2))
+            (intersection == 0 and mcg(name1 + name2) == mcg(name2 + name1)) or \
+            (intersection == 1 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2)) or \
+            intersection >= 2
             )
 
     @given(st.data())
