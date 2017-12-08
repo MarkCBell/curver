@@ -50,7 +50,7 @@ class CurveComplex(object):
         for i in range(len(conjugator_tt)):
             prefix = conjugator_tt[i:]  # Get the first bit of tt_conjugator.
             split_train_track = prefix(train_track)
-            vertex_cycle = split_train_track.vertex_cycles()[0]
+            vertex_cycle = split_train_track.vertex_cycle()
             train_track_curve = prefix.inverse()(vertex_cycle)  # Pull the cycle back to the train_track.
             # Project the train track curve back to short.triangulation.
             curve = curver.kernel.Curve(short.triangulation, train_track_curve.geometric[:self.zeta])
@@ -58,7 +58,7 @@ class CurveComplex(object):
             quasiconvex.add(conjugator.inverse()(curve))
         
         # Hmmm, can we skip this at only the cost of increasing some constants later?
-        vertex_cycle = train_track.vertex_cycles()[0]
+        vertex_cycle = train_track.vertex_cycle()
         # Project the train track curve back to short.triangulation.
         curve = curver.kernel.Curve(short.triangulation, vertex_cycle.geometric[:self.zeta])
         quasiconvex.add(conjugator.inverse()(curve))

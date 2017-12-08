@@ -67,9 +67,10 @@ class TrainTrack(Shortenable):
         return components
     
     def vertex_cycles(self):
-        ''' Return the set of vertex cycles of this train track.
+        ''' Yield the vertex cycles of this train track.
         
-        These are the curves carried by this train track that run over each brach at most twice. '''
+        These are the curves carried by this train track that run over each brach at most twice.
+        Be careful as there are often a *lot* of them. '''
         
         def connected_to(edge):
             ''' Yield the edges you can reach by travelling out of the given edge. '''
@@ -81,11 +82,13 @@ class TrainTrack(Shortenable):
         edges = [(edge, edgy) for edge in self.triangulation.edges for edgy in connected_to(edge)]
         G = networkx.DiGraph(edges)
         
-        cycles = []
         for cycle in networkx.simple_cycles(G):
             curve = self.triangulation.lamination_from_cut_sequence(cycle)
             if isinstance(curve, curver.kernel.Curve):
-                cycles.append(curve)
+                yield curve
+    
+    def vertex_cycle(self):
+        ''' Return a vertex cycle of this train track. '''
         
-        return cycles
+        return next(iter(self.vertex_cycles()))
 
