@@ -48,7 +48,6 @@ class TestCurve(unittest.TestCase):
     def assertWithinOne(self, x, y):
         self.assertTrue(abs(x - y) <= 1, msg='AssertionError: |%s - %s| > 1' % (x, y))
     
-    
     @given(strategies.curves())
     @settings(max_examples=50)
     def test_boundary_intersection(self, curve):
