@@ -1,5 +1,5 @@
 
-from hypothesis import given, assume, settings
+from hypothesis import given, settings
 import hypothesis.strategies as st
 import pickle
 import pytest
@@ -52,11 +52,11 @@ class TestMCG(unittest.TestCase):
     @settings(max_examples=50)
     def test_arc_relation(self, data):
         mcg = data.draw(strategies.mcgs())
-        name1 = data.draw(st.sampled_from(sorted(mcg.arcs)))
-        name2 = data.draw(st.sampled_from(sorted(mcg.arcs)))
+        distinct_end_arcs = sorted(name for name, arc in mcg.arcs.items() if arc.connects_distinct_vertices)
+        name1 = data.draw(st.sampled_from(distinct_end_arcs))
+        name2 = data.draw(st.sampled_from(distinct_end_arcs))
         arc1 = mcg.arcs[name1]
         arc2 = mcg.arcs[name2]
-        assume(arc1.connects_distinct_vertices() and arc2.connects_distinct_vertices())
         num_distinct_vertices = len(set(arc1.vertices() + arc2.vertices()))
         
         # We have already tested that arc1.intersection(arc2) == 0.

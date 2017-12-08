@@ -1,5 +1,5 @@
 
-from hypothesis import given, assume, settings, HealthCheck
+from hypothesis import given, settings, HealthCheck
 import hypothesis.strategies as st
 import pickle
 import pytest
@@ -18,8 +18,7 @@ class TestMultiCurve(unittest.TestCase):
     @given(st.data())
     @settings(max_examples=10)
     def test_boundary_union(self, data):
-        multicurve = data.draw(strategies.multicurves())
-        assume(not multicurve.is_peripheral())
+        multicurve = data.draw(strategies.multicurves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination = data.draw(strategies.laminations(multicurve.triangulation))
         boundary = multicurve.boundary_union(lamination)
         self.assertEqual(multicurve.intersection(boundary), 0)
@@ -35,6 +34,15 @@ class TestMultiCurve(unittest.TestCase):
     @settings(max_examples=20)
     def test_fills(self, multicurve):
         self.assertEqual(multicurve.is_filling(), multicurve.fills_with(multicurve))
+    
+    @given(st.data())
+    @settings(max_examples=2)
+    def test_sum(self, data):
+        triangulation = data.draw(strategies.triangulations())
+        multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
+        self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
+        self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
+
 
 class TestCurve(unittest.TestCase):
     @given(strategies.curves())
@@ -55,22 +63,22 @@ class TestCurve(unittest.TestCase):
     @settings(max_examples=10)
     def test_slope(self, data):
         curve = data.draw(strategies.curves())
-        assume(not curve.is_peripheral())
-        lamination = data.draw(strategies.laminations(curve.triangulation))
-        assume(curve.intersection(lamination) > 0)
+        
+        lamination = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
         slope = curve.slope(lamination)
         twist = curve.encode_twist()
         self.assertTrue(-1 <= slope <= 1 or curve.slope(twist(lamination)) == slope - 1)
     
-    @pytest.mark.skip('Too rare')
     @given(st.data())
     def test_relative_twist(self, data):
         curve = data.draw(strategies.curves())
-        assume(not curve.is_peripheral())
-        lamination1 = data.draw(strategies.laminations(curve.triangulation))
-        lamination2 = data.draw(strategies.laminations(curve.triangulation))
-        assume(curve.intersection(lamination1) > 0)
-        assume(curve.intersection(lamination2) > 0)
+        curve = data.draw(strategies.curves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
+        lamination1 = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
+        power = data.draw(st.integers())
+        lamination2 = curve.encode_twist(power)(lamination1)
+        rel_twisting = curve.relative_twisting(lamination1, lamination2)
+        self.assertTrue(abs(rel_twisting - -power) <= 1)
+        
         h = data.draw(strategies.encodings(curve.triangulation))
         self.assertEqual(curve.relative_twisting(lamination1, lamination2), h(curve).relative_twisting(h(lamination1), h(lamination2)))
     
