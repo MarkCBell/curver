@@ -50,7 +50,7 @@ class TestMappingClass(unittest.TestCase):
         self.assertTrue(hash(g) != hash(h) or g == h)
     
     @given(strategies.mapping_classes())
-    @settings(max_examples=1)
+    @settings(max_examples=2)
     def test_order(self, h):
         self.assertLessEqual(h.order(), h.source_triangulation.max_order())
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())

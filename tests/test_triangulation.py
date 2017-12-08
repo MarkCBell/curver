@@ -35,8 +35,7 @@ class TestTriangulation(unittest.TestCase):
     @given(st.data())
     def test_relabel(self, data):
         triangulation = data.draw(strategies.triangulations())
-        label_map =  data.draw(st.permutations(range(triangulation.zeta)))
-        label_map = [i if data.draw(st.booleans()) else ~i for i in label_map]
+        label_map = [i if data.draw(st.booleans()) else ~i for i in data.draw(st.permutations(range(triangulation.zeta)))]
         
         T = triangulation.relabel_edges(label_map)
         self.assertTrue(triangulation.is_isometric_to(T))
