@@ -80,8 +80,7 @@ def mcgs(draw):
 @st.composite
 def mapping_classes(draw, mcg=None):
     if mcg is None: mcg = draw(mcgs())
-    word = draw(st.lists(elements=st.sampled_from(sorted(mcg)), max_size=10).map('.'.join))
-    return mcg(word)
+    return mcg(draw(st.integers(min_value=0, max_value=10)))
 
 @st.composite
 def encodings(draw, triangulation=None):
