@@ -89,7 +89,13 @@ Fortunately curver can show us these laminations (use Ctrl+W to quit)::
 
     >>> curver.show(c, h(c), a, h(a))  # Start the GUI (see the installation warning).
 
-    >>> curver.show([(h**i)(a) for i in range(10)])
+    >>> curver.show({'a': a, 'h(a)': h(a), 'h^2(a)': (h**2)(a)})
+    >>> curver.show([g**i for i in range(8)])
+
+.. image:: ../images/app_g_power.png
+   :scale: 75 %
+   :alt: The curver GUI
+   :align: center
 
 Operations on mapping classes
 -----------------------------
