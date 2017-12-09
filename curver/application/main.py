@@ -419,8 +419,11 @@ class CurverApplication(object):
         self.parent = parent
         self.options = curver.application.Options(self)
         
+        s = TTK.Style()
+        s.configure('TNotebook', tabposition='n')
+        
         self.note = TTK.Notebook(self.parent)
-        self.note.pack(fill='both', expand=True)
+        self.note.pack(fill='both', expand=True, padx=2, pady=2)
         self.note.enable_traversal()
         
         if isinstance(items, (list, tuple)) and len(items) == 1 and isinstance(items[0], (list, dict)):  # [list / dict].
