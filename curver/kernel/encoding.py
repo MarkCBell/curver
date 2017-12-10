@@ -183,7 +183,7 @@ class MappingClass(Encoding):
         # But in terms of raw speed there doesn't appear to be anything faster than:
         
         homology_matrix = self.homology_matrix()
-        originals = [np.identity(homology_matrix.shape[0])] + self.source_triangulation.edge_arcs()
+        originals = [np.identity(homology_matrix.shape[0]), self.source_triangulation.as_lamination()] + self.source_triangulation.edge_arcs()
         images = list(originals)
         powers = [0] * len(originals)
         for power in range(1, self.source_triangulation.max_order()+1):
