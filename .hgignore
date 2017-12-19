@@ -59,6 +59,9 @@ coverage.xml
 
 # Sphinx documentation
 docs/_build/
+docs/curver.rst
+docs/curver.*.rst
+docs/modules.rst
 
 # PyBuilder
 target/
