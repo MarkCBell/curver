@@ -4,15 +4,11 @@
 import curver
 import curver.application
 
-import re
 import os
-import io
 import sys
-import pickle
 from math import sin, cos, pi, ceil, sqrt
 from random import random
 from colorsys import hls_to_rgb
-from itertools import combinations
 from collections import namedtuple
 
 try:
@@ -211,8 +207,8 @@ class Drawing(object):
             for i in range(ngon):
                 self.create_vertex(
                     curver.application.Vector2(
-                    dx * (index % p) + dx / 2 + r * sin(2 * pi * (i + 0.5) / ngon),
-                    dy * int(index / p) + dy / 2 + r * cos(2 * pi * (i + 0.5) / ngon)
+                        dx * (index % p) + dx / 2 + r * sin(2 * pi * (i + 0.5) / ngon),
+                        dy * int(index / p) + dy / 2 + r * cos(2 * pi * (i + 0.5) / ngon)
                     ))
             
             def num_descendants(edge_label):
@@ -269,9 +265,6 @@ class Drawing(object):
                 parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for edge, weight in zip(triangle.edges, parallel_arcs)]
                 for i in range(3):
                     # Dual arcs.
-                    a = triangle[i-1] - triangle[i]
-                    b = triangle[i-2] - triangle[i]
-                    
                     if dual_weights[i] > 0:
                         # We first do the edge to the left of the vertex.
                         # Correction factor to take into account the weight on this edge.
@@ -288,7 +281,7 @@ class Drawing(object):
                         S1, P1, Q1, E1 = curver.application.interpolate(triangle[i-1].vector, triangle[i].vector, triangle[i-2].vector, scale_a, scale_b)
                         S2, P2, Q2, E2 = curver.application.interpolate(triangle[i-1].vector, triangle[i].vector, triangle[i-2].vector, scale_a2, scale_b2)
                         self.create_curve_component([S1, S1, P1, Q1, E1, E1, E2, E2, Q2, P2, S2, S2, S1, S1], thin=False)
-                    elif dual_weights[i] < 0: # Terminal arc.
+                    elif dual_weights[i] < 0:  # Terminal arc.
                         s_0 = (1 - 2*vb) * weights[i] / master
                         
                         scale_a = (1 - s_0) / 2 + s_0 * dual_weights[i-2] / weights[i]
@@ -323,7 +316,7 @@ class Drawing(object):
                             
                             S, P, Q, E = curver.application.interpolate(triangle[i-1].vector, triangle[i].vector, triangle[i-2].vector, scale_a, scale_b)
                             self.create_curve_component([S, P, Q, E])
-                    elif dual_weights[i] < 0: # Terminal arc.
+                    elif dual_weights[i] < 0:  # Terminal arc.
                         s_0 = (1 - 2*vb) * weights[i] / master
                         for j in range(-dual_weights[i]):
                             scale_a = 0.5 if weights[i] == 1 else (1 - s_0) / 2 + s_0 * dual_weights[i-1] / (weights[i] - 1) + s_0 * j / (weights[i] - 1)
@@ -405,13 +398,16 @@ class Drawing(object):
                         text=labels[edge.label],
                         tag='label',
                         font=self.options.canvas_font,
-                        fill=DEFAULT_EDGE_LABEL_BG_COLOUR)
+                        fill=DEFAULT_EDGE_LABEL_BG_COLOUR
+                        )
                 
-                self.canvas.create_text(edge.centre().to_tuple(),
+                self.canvas.create_text(
+                    edge.centre().to_tuple(),
                     text=labels[edge.label],
                     tag='label',
                     font=self.options.canvas_font,
-                    fill=DEFAULT_EDGE_LABEL_COLOUR)
+                    fill=DEFAULT_EDGE_LABEL_COLOUR
+                    )
 
 
 class CurverApplication(object):
@@ -437,7 +433,7 @@ class CurverApplication(object):
             items = [Showable(name, item) for name, item in curver.kernel.utilities.name_objects(items)]
         self.items = items
         
-        self.canvases = [TK.Canvas(self.note, bg='#dcecff')  for i in range(len(self.items))]
+        self.canvases = [TK.Canvas(self.note, bg='#dcecff') for i in range(len(self.items))]
         for canvas, item in zip(self.canvases, self.items):
             self.note.add(canvas, text=item.name)
         
@@ -573,7 +569,7 @@ def start(*items):
         # Give up if we can't set the icon for some reason.
         # This seems to be a problem if you start curver within SnapPy.
         pass
-    curver_application = CurverApplication(root, items)
+    CurverApplication(root, items)
     root.mainloop()
 
 if __name__ == '__main__':

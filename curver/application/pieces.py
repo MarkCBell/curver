@@ -26,8 +26,8 @@ def intersection(A, d, B, d2):
     # where:
     det = d2.cross(d)
     # So:
-    t  = ((B.x - A.x) * -d2.y + (B.y - A.y) * d2.x) / det
-    t2 = ((B.x - A.x) *  -d.y + (B.y - A.y) *  d.x) / det
+    t = ((B.x - A.x) * -d2.y + (B.y - A.y) * d2.x) / det
+    t2 = ((B.x - A.x) * -d.y + (B.y - A.y) * d.x) / det
     
     return t, t2
 

@@ -6,11 +6,6 @@ except ImportError:  # Python 3.
     import tkinter as TK
     import tkinter.font as TK_FONT
 
-try:
-    import ttk as TTK
-except ImportError:  # Python 3.
-    from tkinter import ttk as TTK
-
 LABEL_EDGES_NONE = 'None'
 LABEL_EDGES_INDEX = 'Index'
 LABEL_EDGES_GEOMETRIC = 'Geometric'
@@ -53,7 +48,7 @@ class Options(object):
         self.float_error = 0.001
         
         self.vertex_buffer = 0.2  # Must be in (0, 0.5)
-        self.zoom_fraction = 0.8 # Must be in (0, 1)
+        self.zoom_fraction = 0.8  # Must be in (0, 1)
     
     def update(self, *args):
         self.show_internals = bool(self.show_internals_var.get())
