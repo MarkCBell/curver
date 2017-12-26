@@ -153,7 +153,7 @@ class Encoding(object):
         # conjugator.inverse() is almost self, however the edge labels might not agree.
         potential_closers = [isom.encode() for isom in conjugator.target_triangulation.isometries_to(self.source_triangulation)]
         identity = self.source_triangulation.id_encoding()
-        [closer] = [potential_closer for potential_closer in potential_closers if potential_closer * conjugator  * self == identity]  # Thre should only be one.
+        [closer] = [potential_closer for potential_closer in potential_closers if potential_closer * conjugator * self == identity]  # Thre should only be one.
         
         return (closer * conjugator).inverse()
 
