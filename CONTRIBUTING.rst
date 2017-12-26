@@ -2,8 +2,8 @@
 Contributing
 ============
 
-Contributions are welcome, and they are greatly appreciated! Every
-little bit helps, and credit will always be given.
+Contributions are welcome, and they are greatly appreciated!
+Every little bit helps, and credit will always be given.
 
 You can contribute in many ways:
 
@@ -49,8 +49,7 @@ If you are proposing a feature:
 
 * Explain in detail how it would work.
 * Keep the scope as narrow as possible, to make it easier to implement.
-* Remember that this is a volunteer-driven project, and that contributions
-  are welcome :)
+* Remember that this is a volunteer-driven project, and that contributions are welcome :)
 
 Get Started!
 ------------
@@ -75,13 +74,20 @@ Ready to contribute? Here's how to set up `curver` for local development.
 
    Now you can make your changes locally.
 
-5. When you're done making changes, check that your changes pass flake8 and the tests, including testing other Python versions with tox::
+5. When you're done making changes, check that your changes pass flake8, pylint and the tests::
 
-    $ flake8 curver tests
-    $ py.test
+    $ flake8
+    $ pylint curver.kernel
     $ tox
 
-   To get flake8 and tox, just pip install them into your virtualenv.
+  tox will install and run curvers unittests in several versions of Python.
+  Since this can take a long time, you may wish to run just a single environment during development, for example::
+
+    $ tox -e py27
+
+  To further reduce the testing time, you may wish to run just the tests associated to the code you are developing, for example::
+
+    $ tox -e py27 -- tests/test_encoding.py::TestEncoding::test_homology_matrix
 
 6. Commit your changes and push your branch to GitHub::
 
@@ -103,11 +109,4 @@ Before you submit a pull request, check that it meets these guidelines:
 3. The pull request should work for Python 2.7, 3.4 -- 3.6, and for PyPy. Check
    https://travis-ci.org/MarkCBell/curver/pull_requests
    and make sure that the tests pass for all supported Python versions.
-
-Tips
-----
-
-To run a subset of tests::
-
-    $ py.test tests.test_curver
 
