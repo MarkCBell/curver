@@ -142,9 +142,9 @@ def alphanum_key(strn):
     blocks = []
     for chunk in re.split('([0-9]+)', strn):
         try:
-            blocks.append(int(strn))
+            blocks.append(int(chunk))
         except ValueError:
-            blocks.append(strn)
+            blocks.append(chunk)
     
     return blocks
 
