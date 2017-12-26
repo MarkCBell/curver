@@ -1,11 +1,9 @@
 
-from hypothesis import given, settings
+from hypothesis import given
 import hypothesis.strategies as st
 import pickle
-import pytest
 import unittest
 
-import curver
 import strategies
 
 class TestHomologyClass(unittest.TestCase):

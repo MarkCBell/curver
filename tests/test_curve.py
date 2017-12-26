@@ -1,8 +1,6 @@
 
 from hypothesis import given, settings
 import hypothesis.strategies as st
-import pickle
-import pytest
 import unittest
 
 import curver

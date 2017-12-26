@@ -2,33 +2,27 @@
 from hypothesis import given, settings
 import hypothesis.strategies as st
 import pickle
-import pytest
 import unittest
 
-import curver
 import strategies
 
 class TestLamination(unittest.TestCase):
-    # @pytest.mark.slow
     @given(strategies.laminations())
     def test_pickle(self, lamination):
         self.assertEqual(lamination, pickle.loads(pickle.dumps(lamination)))
     
-    # @pytest.mark.slow
     @given(st.data())
     def test_hash(self, data):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))
         self.assertTrue(hash(lamination1) != hash(lamination2) or lamination1 == lamination2)
     
-    # @pytest.mark.slow
     @given(st.data())
     def test_orientation(self, data):
         lamination = data.draw(strategies.laminations())
         edge = data.draw(st.sampled_from(lamination.triangulation.edges))
         self.assertEqual(lamination(edge), lamination(~edge))
 
-    # @pytest.mark.slow
     @given(strategies.laminations())
     @settings(max_examples=20)
     def test_components(self, lamination):
@@ -37,7 +31,6 @@ class TestLamination(unittest.TestCase):
         for component in lamination.components():
             self.assertEqual(component.intersection(component), 0)
     
-    # @pytest.mark.slow
     @given(st.data())
     @settings(max_examples=20)
     def test_components_image(self, data):
@@ -45,7 +38,6 @@ class TestLamination(unittest.TestCase):
         encoding = data.draw(strategies.encodings(lamination.triangulation))
         self.assertEqual(set(encoding(lamination).components()), {encoding(component) for component in lamination.components()})
     
-    # @pytest.mark.slow
     @given(st.data())
     @settings(max_examples=10)
     def test_intersection(self, data):

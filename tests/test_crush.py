@@ -5,7 +5,6 @@ import pickle
 import pytest
 import unittest
 
-import curver
 import strategies
 
 from collections import Counter

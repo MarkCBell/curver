@@ -1,8 +1,7 @@
 
-from hypothesis import given, settings
+from hypothesis import given
 import hypothesis.strategies as st
 import pickle
-import pytest
 import unittest
 
 import curver
@@ -39,7 +38,6 @@ class TestPermutation(unittest.TestCase):
     
     @given(strategies.permutations())
     def test_involution(self, perm):
-        identity = curver.kernel.Permutation.from_index(len(perm), 0)
         self.assertTrue(perm.order() <= 2 or perm != ~perm)
     
     @given(st.data())

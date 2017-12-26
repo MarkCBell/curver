@@ -2,10 +2,8 @@
 from hypothesis import given, settings
 import hypothesis.strategies as st
 import pickle
-import pytest
 import unittest
 
-import curver
 import strategies
 
 class TestMCG(unittest.TestCase):
@@ -44,8 +42,8 @@ class TestMCG(unittest.TestCase):
         curve2 = mcg.curves[name2]
         intersection = curve1.intersection(curve2)
         self.assertTrue(
-            (intersection == 0 and mcg(name1 + name2) == mcg(name2 + name1)) or \
-            (intersection == 1 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2)) or \
+            (intersection == 0 and mcg(name1 + name2) == mcg(name2 + name1)) or
+            (intersection == 1 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2)) or
             intersection >= 2
             )
 
@@ -61,8 +59,8 @@ class TestMCG(unittest.TestCase):
         num_distinct_vertices = len(set(arc1.vertices() + arc2.vertices()))
         
         self.assertTrue(
-            (num_distinct_vertices == 4 and mcg(name1 + name2) == mcg(name2 + name1)) or \
-            (num_distinct_vertices == 3 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2)) or \
+            (num_distinct_vertices == 4 and mcg(name1 + name2) == mcg(name2 + name1)) or
+            (num_distinct_vertices == 3 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2)) or
             (num_distinct_vertices == 2)
             )
     
