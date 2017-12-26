@@ -1,11 +1,11 @@
 
 ''' Curver is a program for computations in the curve complex. '''
 
-import curver.kernel
-from curver.load import load
-from numbers import Integral as IntegerType
-
+from numbers import Integral as IntegerType  # noqa: F401
 import warnings
+
+import curver.kernel
+from curver.load import load  # noqa: F401
 
 with warnings.catch_warnings():
     warnings.simplefilter("ignore")
