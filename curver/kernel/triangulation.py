@@ -5,7 +5,7 @@ from math import factorial
 import numpy as np
 from functools import total_ordering
 from itertools import groupby, product
-from collections import Counter, defaultdict
+from collections import Counter
 
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
