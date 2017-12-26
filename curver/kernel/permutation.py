@@ -50,9 +50,11 @@ class Permutation(object):
         power = self
         i = 1
         while True:
-            if power == identity: return i
+            if power == identity: break
             i += 1
             power = power * self
+        
+        return i
     
     def __mul__(self, other):
         if isinstance(other, Permutation):

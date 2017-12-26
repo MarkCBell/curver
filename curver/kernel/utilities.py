@@ -32,19 +32,19 @@ def string_generator(n, skip=None):
     assert(skip is None or isinstance(skip, (list, tuple, dict, set)))
     
     skip = set() if skip is None else set(skip)
-    if n < 1: return []
     
     alphabet = ascii_lowercase
     results = []
     i = 0
-    while True:
+    while len(results) < n:
         i += 1
         for letters in product(alphabet, repeat=i):
             word = ''.join(letters)
             if word not in skip:
                 results.append(word)
-            if len(results) >= n:
-                return results
+            if len(results) >= n: break
+    
+    return results
 
 def name_objects(objects, skip=None):
     ''' Return a list of pairs (name, object). '''
