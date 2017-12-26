@@ -6,7 +6,6 @@ import pytest
 import unittest
 
 import curver
-from collections import Counter
 
 # TRIANGULATIONS = {(g, p): curver.load(g, p).triangulation.sig() for g in range(10) for p in range(1, 10) if 6*g + 3*p - 6 >= 3}
 TRIANGULATIONS = {
