@@ -14,6 +14,8 @@ install:
 
 # Command to run tests.
 script:
+    - flake8
+    - pylint curver.kernel
     - py.test --cov=curver/kernel --hypothesis-profile=ci
 
 after_success:

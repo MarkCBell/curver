@@ -27,5 +27,7 @@ install:
   - "%PYTHON%/Scripts/pip.exe install --editable . --user"
 
 test_script:
+  - "%PYTHON%/Scripts/flake8.exe"
+  - "%PYTHON%/Scripts/pylint.exe curver.kernel"
   - "%PYTHON%/Scripts/py.test.exe --hypothesis-profile=ci"
 
