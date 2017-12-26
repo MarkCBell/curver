@@ -1,11 +1,11 @@
 
 ''' A module for representing a triangulation of a punctured surface. '''
 
-from math import factorial
-import numpy as np
+from collections import Counter
 from functools import total_ordering
 from itertools import groupby, product
-from collections import Counter
+from math import factorial
+import numpy as np
 
 import curver
 from curver.kernel.utilities import memoize  # Special import needed for decorating.

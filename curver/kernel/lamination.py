@@ -310,7 +310,7 @@ class Lamination(object):
         
         return self.boundary().is_peripheral()
     
-    def fills_with(self, other):
+    def fills_with(self, other):  #pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''
         assert(isinstance(other, Lamination))
         
@@ -344,7 +344,7 @@ class Lamination(object):
         
         return edges
     
-    def topological_type(self):
+    def topological_type(self):  #pylint: disable=no-self-use
         ''' Return the topological type of this lamination..
         
         Two laminations are in the same mapping class group orbit if and only their topological types are equal.
