@@ -31,7 +31,7 @@ setup(
     author_email='mcbell@illinois.edu',
     url='https://github.com/MarkCBell/curver',
     packages=find_packages(),
-    package_data = {
+    package_data={
         'curver.application': ['icon/*'],
         },
     include_package_data=True,
