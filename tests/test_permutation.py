@@ -1,6 +1,7 @@
 
 from hypothesis import given
 import hypothesis.strategies as st
+import numpy as np
 import pickle
 import unittest
 
@@ -8,6 +9,9 @@ import curver
 import strategies
 
 class TestPermutation(unittest.TestCase):
+    def assertEqualArray(self, M, N):
+        self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
+    
     @given(strategies.permutations())
     def test_pickle(self, perm):
         self.assertEqual(perm, pickle.loads(pickle.dumps(perm)))
@@ -35,6 +39,13 @@ class TestPermutation(unittest.TestCase):
         self.assertEqual(perm1 * ~perm1, identity)
         self.assertEqual(~perm1 * perm1, identity)
         self.assertEqual(~(perm1 * perm2), ~perm2 * ~perm1)
+    
+    @given(st.data())
+    def test_powers(self, data):
+        perm = data.draw(strategies.permutations())
+        power = data.draw(st.integers())
+        self.assertEqual(perm**power, (~perm)**(-power))
+        self.assertEqualArray((perm.matrix())**power, (perm**power).matrix())
     
     @given(strategies.permutations())
     def test_involution(self, perm):

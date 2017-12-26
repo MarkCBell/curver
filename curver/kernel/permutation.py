@@ -4,6 +4,7 @@
 from bisect import bisect
 from itertools import combinations
 from math import factorial
+import numpy as np
 
 class Permutation(object):
     ''' This represents a permutation on 0, 1, ..., N-1. '''
@@ -101,6 +102,13 @@ class Permutation(object):
             index = index * len(symbols) + i
             symbols = symbols[:i] + symbols[i+1:]
         return index
+    
+    def matrix(self):
+        ''' Return the corresponding permutation matrix.
+        
+        That is, a matrix M such that M * e_i == e_{self[i]}. '''
+        
+        return np.matrix([[1 if i == j else 0 for j in self] for i in range(len(self))])
     
     def is_even(self):
         ''' Return whether this permutation is the composition of an even number of transposiions. '''
