@@ -5,8 +5,6 @@ from bisect import bisect
 from itertools import combinations
 from math import factorial
 
-import curver
-
 class Permutation(object):
     ''' This represents a permutation on 0, 1, ..., N-1. '''
     def __init__(self, perm):

@@ -3,7 +3,6 @@
 
 from itertools import permutations, combinations_with_replacement
 import networkx
-import curver
 
 class CurvePartitionGraph(object):
     ''' This represents a partition graph of a MultiCurve. '''
