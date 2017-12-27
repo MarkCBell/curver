@@ -9,9 +9,9 @@ python:
 
 # Command to install dependencies.
 install:
-    - pip install tox-travis
     - pip install -r requirements-dev.txt
     - pip install --editable .
+    - pip install tox-travis
 
 # Command to run tests.
 script:
