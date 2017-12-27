@@ -9,6 +9,7 @@ python:
 
 # Command to install dependencies.
 install:
+    - pip install tox-travis
     - pip install -r requirements-dev.txt
     - pip install --editable .
 
@@ -16,7 +17,7 @@ install:
 script:
     - flake8
     - pylint curver.kernel
-    - py.test --cov=curver/kernel --hypothesis-profile=ci
+    - tox
 
 after_success:
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
