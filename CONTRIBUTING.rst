@@ -87,7 +87,7 @@ Ready to contribute? Here's how to set up `curver` for local development.
 
   Alternatively, you may wish to run just the tests associated to the code you are developing, for example::
 
-    $ tox -- tests/test_encoding.py::TestEncoding::test_homology_matrix
+    $ tox tests/test_encoding.py::TestEncoding::test_homology_matrix
 
 6. Commit your changes and push your branch to GitHub::
 
