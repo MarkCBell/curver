@@ -85,9 +85,9 @@ Ready to contribute? Here's how to set up `curver` for local development.
 
     $ tox -e py27
 
-  To further reduce the testing time, you may wish to run just the tests associated to the code you are developing, for example::
+  Alternatively, you may wish to run just the tests associated to the code you are developing, for example::
 
-    $ tox -e py27 -- tests/test_encoding.py::TestEncoding::test_homology_matrix
+    $ tox -- tests/test_encoding.py::TestEncoding::test_homology_matrix
 
 6. Commit your changes and push your branch to GitHub::
 
