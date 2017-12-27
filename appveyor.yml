@@ -33,5 +33,5 @@ install:
 test_script:
   - "%PYTHON%/Scripts/flake8.exe"
   - "%PYTHON%/Scripts/pylint.exe curver.kernel"
-  - "%PYTHON%/Scripts/tox.exe -e %TOX_ENV%"
+  - "%PYTHON%/Scripts/tox.exe -e %TOX_ENV% -- --hypothesis-profile=ci"
 
