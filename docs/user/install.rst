@@ -42,9 +42,7 @@ Via mercurial
 ~~~~~~~~~~~~~
 
 A mercurial repository of Curver's source code is available  on `BitBucket <https://bitbucket.org/Mark_Bell/curver>`_.
-You can either clone the public repository::
-
-You can clone the public repository::
+You can clone the public repository via::
 
     $ hg clone https://bitbucket.org/Mark_Bell/curver
 
