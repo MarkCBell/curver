@@ -431,16 +431,17 @@ class Triangulation(object):
         ''' Yield all encodings that can be made using at most the given number of flips.
         
         Runs in exp(num_flips) time. '''
-        
         if num_flips == 0:
             yield self.id_encoding()
+            return
         
         # TODO: 3) Make efficient by using the fact that disjoint flips commute.
         
         for edge in self.positive_edges:
-            step = self.encode_flip(edge)
-            for encoding in step.target_triangulation.all_encodings(num_flips-1):
-                yield encoding * step
+            if self.is_flippable(edge):
+                step = self.encode_flip(edge)
+                for encoding in step.target_triangulation.all_encodings(num_flips-1):
+                    yield encoding * step
         
         return
     
