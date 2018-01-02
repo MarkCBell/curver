@@ -138,7 +138,7 @@ def multicurves(draw, triangulation=None):
     available_indices = available_indices - tree
     
     if draw(st.booleans()) and not any(g == 0 for (g, v) in triangulation.surface()):  # merge vertices:
-        classes = curver.kernel.utilities.UnionFind(triangulation.vertices)
+        classes = curver.kernel.UnionFind(triangulation.vertices)
         for index in sorted(available_indices):
             a, b = triangulation.edge_arc(index).vertices()
             if classes(a) != classes(b):
