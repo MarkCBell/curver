@@ -19,6 +19,7 @@ from . import mappingclassgroup
 from . import moves
 from . import partition
 from . import permutation
+from . import structures
 from . import traintrack
 from . import triangulation
 from . import twist
@@ -54,7 +55,7 @@ CurvePartitionGraph = partition.CurvePartitionGraph
 Permutation = permutation.Permutation
 
 norm = triangulation.norm
-UnionFind = utilities.UnionFind
+UnionFind = structures.UnionFind
 memoize = utilities.memoize  # Unused?
 matrix_vector = utilities.matrix_vector
 
