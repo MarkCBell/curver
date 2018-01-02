@@ -63,7 +63,7 @@ class Encoding(object):
             elif stop < start:
                 raise IndexError('list index out of range')
             else:  # start < stop.
-                return Encoding(self.sequence[value])
+                return Encoding(self.sequence[value])  # Data structure issue.
         elif isinstance(value, curver.IntegerType):
             return self.sequence[value]
         else:
@@ -110,7 +110,7 @@ class Encoding(object):
     def inverse(self):
         ''' Return the inverse of this encoding. '''
         
-        return Encoding([item.inverse() for item in reversed(self.sequence)])
+        return Encoding([item.inverse() for item in reversed(self.sequence)])  # Data structure issue.
     def __invert__(self):
         return self.inverse()
     
