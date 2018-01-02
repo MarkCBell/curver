@@ -8,6 +8,8 @@ try:
 except ImportError:  # Python3.
     pass
 
+import curver
+
 class UnionFind(object):
     ''' A fast union--find data structure. Given items must be hashable. '''
     def __init__(self, items):
@@ -55,8 +57,13 @@ Terminal = namedtuple('Terminal', ['value'])
 class StraightLineProgram(object):
     ''' This represents a straight line program. '''
     def __init__(self, data):
-        if isinstance(data, StraightLineProgram):
-            return data
+        if isinstance(data, StraightLineProgram):  # Copy.
+            data = data.graph
+        elif isinstance(data, (list, tuple)):  # Wrap.
+            if any(not isinstance(children, (list, tuple)) or any(not isinstance(child, (Terminal, curver.IntegerType)) for child in children) for children in data):
+                data = [[Terminal(child) for child in data]]
+        else:
+            raise ValueError('Unknown data.')
         
         self.graph = [tuple(children) for children in data]
         self.sinks = [item.value for lst in self.graph for item in lst if isinstance(item, Terminal)]  # !?!
@@ -64,17 +71,17 @@ class StraightLineProgram(object):
         # If w is a descendant of v then w appears before v in self.indices.
         self.indices = []
         used = set()
-        def dfs(i):
-            for child in self(i):
+        def dfs(v):
+            for child in self(v):
                 if not isinstance(child, Terminal) and not child in used:
                     dfs(child)
-            used.add(i)
-            self.indices.append(i)
+            used.add(v)
+            self.indices.append(v)
         dfs(0)
         
         self.num_children = [None] * self.size()
         for index in self.indices:
-            self.num_children[index] = sum(1 if isinstance(item, Terminal) else self.num_children[item] for item in self.graph[index])
+            self.num_children[index] = sum(1 if isinstance(item, Terminal) else self.num_children[item] for item in self(index))
     
     @classmethod
     def from_list(cls, data):
@@ -85,10 +92,8 @@ class StraightLineProgram(object):
             return str(list(self))
         else:
             return '[%s, %s, %s, ..., %s, %s, %s]' % tuple(chain(islice(self, 3), reversed(list(islice(reversed(self), 3)))))
-            # return '[%s, %s, %s, ..., %s, %s, %s]' % (self[0], self[1], self[2], self[-3], self[-2], self[-1])
         
     def __repr__(self):
-        return str(self)
         strn = []
         for index, item in enumerate(self.graph):
             strn.append('%d --> %s' % (index, item))
@@ -136,16 +141,9 @@ class StraightLineProgram(object):
             v = todo.pop()
             if isinstance(v, Terminal):
                 yield v.value
-            else:
+            else:  # isinstance(v, curver.IntegerType):
                 todo.extend(reversed(self(v)))
         return
-
-    def __eq__(self, other):
-        # TODO: Implement Plandowski's algorithm to run in poly(self.size() + other.size()) instead of poly(len(self) + len(other)).
-        return len(self) == len(other) and all(x == y for x, y in zip(self, other))
-    
-    def __ne__(self, other):
-        return not (self == other)
     
     def __add__(self, other):
         return StraightLineProgram([[1, self.size()+1]] + (self << 1) + (other << self.size()+1))
@@ -171,9 +169,6 @@ class StraightLineProgram(object):
     def __reversed__(self):
         return iter(self.reverse())
     
-    def count(self, value, root=None):
-        counts = [None] * self.size()
-        for index in self.indices:
-            counts[index] = sum((1 if item.value == value else 0) if isinstance(item, Terminal) else counts[item] for item in self(index))
-        return counts[0]
+    def map(self, function=lambda x: x):
+        return StraightLineProgram([[Terminal(function(child.value)) if isinstance(child, Terminal) else child for child in children] for children in self.graph])
 
