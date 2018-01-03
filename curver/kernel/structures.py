@@ -60,7 +60,8 @@ class StraightLineProgram(object):
         if isinstance(data, StraightLineProgram):  # Copy.
             data = data.graph
         elif isinstance(data, (list, tuple)):  # Wrap.
-            if any(not isinstance(children, (list, tuple)) or any(not isinstance(child, (Terminal, curver.IntegerType)) for child in children) for children in data):
+            if any(not isinstance(children, (list, tuple)) for children in data) or \
+                any(not isinstance(child, (Terminal, curver.IntegerType)) for children in data for child in children):
                 data = [[Terminal(child) for child in data]]
         else:
             raise ValueError('Unknown data.')
@@ -83,10 +84,6 @@ class StraightLineProgram(object):
         for index in self.indices:
             self.num_children[index] = sum(1 if isinstance(item, Terminal) else self.num_children[item] for item in self(index))
     
-    @classmethod
-    def from_list(cls, data):
-        return StraightLineProgram([[Terminal(item) for item in data]])
-    
     def __str__(self):
         if len(self) <= 7:
             return str(list(self))
@@ -107,13 +104,9 @@ class StraightLineProgram(object):
     def size(self):
         return len(self.graph)
     
-    def __lshift__(self, index):
-        return [[item if isinstance(item, Terminal) else item + index for item in lst] for lst in self.graph]
-    def __rshift__(self, index):
-        return [[item if isinstance(item, Terminal) else item - index for item in lst] for lst in self.graph]
-    
     def __getitem__(self, value):
         if isinstance(value, slice):
+            # TODO: 2) Implement this.
             return NotImplemented
         else:  # We are returning a single item.
             if value >= len(self) or value < -len(self):
@@ -144,6 +137,12 @@ class StraightLineProgram(object):
             else:  # isinstance(v, curver.IntegerType):
                 todo.extend(reversed(self(v)))
         return
+    
+    
+    def __lshift__(self, index):
+        return [[item if isinstance(item, Terminal) else item + index for item in lst] for lst in self.graph]
+    def __rshift__(self, index):
+        return [[item if isinstance(item, Terminal) else item - index for item in lst] for lst in self.graph]
     
     def __add__(self, other):
         return StraightLineProgram([[1, self.size()+1]] + (self << 1) + (other << self.size()+1))
