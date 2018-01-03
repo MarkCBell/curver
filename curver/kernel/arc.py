@@ -72,6 +72,12 @@ class MultiArc(Shortenable):
         
         return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
     
+    def is_triangulation(self):
+        ''' Return if this MultiArc is a triangulation. '''
+        short, _ = self.shorten()
+        
+        return all(weight == -1 for weight in short)
+    
     def explore_ball(self, radius):
         ''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
         
