@@ -5,21 +5,9 @@
 
 from setuptools import setup, find_packages
 
-def read(file_name):
-    with open(file_name) as open_file:
-        return open_file.read()
-
 requirements = [
     'networkx',
     'numpy',
-]
-
-test_requirements = [
-    'pytest',
-    'hypothesis',
-    'pylint',
-    'pytest',
-    'pytest-cov'
 ]
 
 setup(
@@ -49,6 +37,4 @@ setup(
         'Programming Language :: Python',
         'Topic :: Scientific/Engineering :: Mathematics',
         ],
-    test_suite='tests',
-    tests_require=test_requirements,
 )
