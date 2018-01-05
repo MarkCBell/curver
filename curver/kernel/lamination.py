@@ -298,7 +298,7 @@ class Lamination(object):
             - it meets every non S_{0,3} component of the surface, and
             - its boundary is peripheral.
         
-        Furthermore, if any component of this lamination is a curve then it cannot fill. '''
+        Furthermore, if any component of this lamination is a non-peripheral curve then it cannot fill. '''
         
         if any(isinstance(component, curver.kernel.Curve) and not curve.is_peripheral() for component in self.components()):
             return False
