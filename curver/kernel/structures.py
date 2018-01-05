@@ -69,6 +69,8 @@ class StraightLineProgram(object):
         used = set()
         
         def dfs(v):
+            ''' Perform a depth first traversal starting at the given index. '''
+            
             for child in self(v):
                 if not isinstance(child, Terminal) and child not in used:
                     dfs(child)
@@ -98,6 +100,8 @@ class StraightLineProgram(object):
     def __len__(self):
         return self.num_children[0]
     def size(self):
+        ''' Return the number of nodes in this graph. '''
+        
         return len(self.graph)
     
     def __getitem__(self, value):
@@ -123,6 +127,8 @@ class StraightLineProgram(object):
                             break
                         else:
                             value -= self.num_children[image]
+            
+            raise RuntimeError('Should not be able to reach here.')
     
     def __iter__(self):
         todo = [0]
@@ -159,10 +165,14 @@ class StraightLineProgram(object):
         return Terminal(value) in self.sinks
     
     def reverse(self):
+        ''' Return the StraightLineProgram that returns self[::-1]. '''
+        
         return StraightLineProgram([lst[::-1] for lst in self.graph])
     def __reversed__(self):
         return iter(self.reverse())
     
     def map(self, function=lambda x: x):
+        ''' Return the StraightLineProgram obtained by mapping the values of this one under the given function. '''
+        
         return StraightLineProgram([[Terminal(function(child.value)) if isinstance(child, Terminal) else child for child in children] for children in self.graph])
 

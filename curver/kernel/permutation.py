@@ -51,11 +51,11 @@ class Permutation(object):
         power = self
         i = 1
         while True:
-            if power == identity: break
+            if power == identity: return i
             i += 1
             power = power * self
         
-        return i
+        raise RuntimeError('Should not be able to reach here.')
     
     def __mul__(self, other):
         if isinstance(other, Permutation):
