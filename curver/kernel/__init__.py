@@ -56,6 +56,7 @@ Permutation = permutation.Permutation
 
 norm = triangulation.norm
 UnionFind = structures.UnionFind
+StraightLineProgram = structures.StraightLineProgram
 memoize = utilities.memoize  # Unused?
 matrix_vector = utilities.matrix_vector
 
