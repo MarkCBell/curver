@@ -300,7 +300,7 @@ class Lamination(object):
         
         Furthermore, if any component of this lamination is a curve then it cannot fill. '''
         
-        if any(isinstance(component, curver.kernel.Curve) for component in self.components()):
+        if any(isinstance(component, curver.kernel.Curve) and not curve.is_peripheral() for component in self.components()):
             return False
         
         for component in self.triangulation.components():
