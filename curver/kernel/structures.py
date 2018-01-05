@@ -2,11 +2,7 @@
 ''' A module of data structures. '''
 
 from collections import defaultdict, namedtuple
-from itertools import chain, groupby, islice
-try:
-    range = xrange
-except ImportError:  # Python3.
-    pass
+from itertools import chain, islice
 
 import curver
 
@@ -60,8 +56,7 @@ class StraightLineProgram(object):
         if isinstance(data, StraightLineProgram):  # Copy.
             data = data.graph
         elif isinstance(data, (list, tuple)):  # Wrap.
-            if any(not isinstance(children, (list, tuple)) for children in data) or \
-                any(not isinstance(child, (Terminal, curver.IntegerType)) for children in data for child in children):
+            if any(not isinstance(children, (list, tuple)) for children in data) or any(not isinstance(child, (Terminal, curver.IntegerType)) for children in data for child in children):
                 data = [[Terminal(child) for child in data]]
         else:
             raise ValueError('Unknown data.')
@@ -72,9 +67,10 @@ class StraightLineProgram(object):
         # If w is a descendant of v then w appears before v in self.indices.
         self.indices = []
         used = set()
+        
         def dfs(v):
             for child in self(v):
-                if not isinstance(child, Terminal) and not child in used:
+                if not isinstance(child, Terminal) and child not in used:
                     dfs(child)
             used.add(v)
             self.indices.append(v)
@@ -137,7 +133,6 @@ class StraightLineProgram(object):
             else:  # isinstance(v, curver.IntegerType):
                 todo.extend(reversed(self(v)))
         return
-    
     
     def __lshift__(self, index):
         return [[item if isinstance(item, Terminal) else item + index for item in lst] for lst in self.graph]
