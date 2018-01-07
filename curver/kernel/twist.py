@@ -55,7 +55,7 @@ class Twist(Move):
         # But we can be cleverer and perform this calculation in O(log(self.power)) instead.
         
         power = self.power
-        while power:
+        while power:  # This loop will run at most four times.
             slope = self.curve.slope(lamination)
             if power > 0:  # Right twist (increases slope).
                 if 1 < slope:  #pylint: disable=misplaced-comparison-constant
