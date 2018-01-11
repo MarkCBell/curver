@@ -343,7 +343,7 @@ class Triangulation(object):
                 row[index] = 1
             M.append(row)
         
-        return np.matrix(M).transpose()  # Transpose the matrix.
+        return np.matrix(M, dtype=object).transpose()  # Transpose the matrix.
     
     def homology_basis(self):
         ''' Return a basis for H_1(S). '''

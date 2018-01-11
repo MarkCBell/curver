@@ -108,7 +108,7 @@ class Permutation(object):
         
         That is, a matrix M such that M * e_i == e_{self[i]}. '''
         
-        return np.matrix([[1 if i == j else 0 for j in self] for i in range(len(self))])
+        return np.matrix([[1 if i == j else 0 for j in self] for i in range(len(self))], dtype=object)
     
     def is_even(self):
         ''' Return whether this permutation is the composition of an even number of transposiions. '''

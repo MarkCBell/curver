@@ -124,7 +124,7 @@ class Encoding(object):
         
         source_images = [self(hc).canonical() for hc in source_basis]
         
-        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis])
+        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
     
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
@@ -132,7 +132,7 @@ class Encoding(object):
         
         Except when on S_{1,1}, this uniquely determines self. '''
         
-        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()])
+        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
     
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
