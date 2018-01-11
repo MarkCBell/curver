@@ -6,7 +6,7 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    'networkx',
+    'networkx>=2.0',
     'numpy',
 ]
 
