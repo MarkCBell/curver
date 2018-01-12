@@ -7,7 +7,7 @@ import networkx
 
 import curver
 
-class CurveComplex(object):
+class CurveGraph(object):
     ''' This represents the curve complex of a surface. '''
     def __init__(self, triangulation):
         self.triangulation = triangulation

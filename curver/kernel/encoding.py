@@ -233,7 +233,7 @@ class MappingClass(Encoding):
         
         From Algorithm 6 of [BellWebb16]_. '''
         
-        C = curver.kernel.CurveComplex(self.source_triangulation)
+        C = curver.kernel.CurveGraph(self.source_triangulation)
         c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
         geodesic = C.geodesic(c, (self**C.M)(c))
         m = geodesic[len(geodesic)//2]  # midpoint
@@ -249,7 +249,7 @@ class MappingClass(Encoding):
         
             self.asymptotic_translation_length() > 0 '''
         
-        C = curver.kernel.CurveComplex(self.source_triangulation)
+        C = curver.kernel.CurveGraph(self.source_triangulation)
         c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
         geodesic = C.geodesic(c, (self**C.M2)(c))
         m = geodesic[len(geodesic)//2]  # midpoint

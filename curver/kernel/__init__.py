@@ -10,7 +10,7 @@ by "Assumes that ..." meaning that:
 from . import arc
 from . import crush
 from . import curve
-from . import curvecomplex
+from . import curvegraph
 from . import encoding
 from . import error
 from . import homology
@@ -48,7 +48,7 @@ EdgeFlip = moves.EdgeFlip
 TrainTrack = traintrack.TrainTrack
 Crush = crush.Crush
 Lift = crush.Lift
-CurveComplex = curvecomplex.CurveComplex
+CurveGraph = curvegraph.CurveGraph
 Twist = twist.Twist
 HalfTwist = twist.HalfTwist
 CurvePartitionGraph = partition.CurvePartitionGraph
