@@ -15,7 +15,7 @@ class TestTwist(unittest.TestCase):
         self.assertEqual(twist_i, pickle.loads(pickle.dumps(twist_i)))
     
     @given(strategies.curves(), st.integers(), st.integers())
-    @settings(max_examples=5)
+    @settings(max_examples=3)
     def test_powers(self, curve, power1, power2):
         twist_i = curve.encode_twist(power1)
         twist_j = curve.encode_twist(power2)
