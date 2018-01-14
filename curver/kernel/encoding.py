@@ -126,6 +126,12 @@ class Encoding(object):
         
         return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
     
+    def is_in_torelli(self):
+        ''' Return whether this mapping class is in the Torelli subgroup. '''
+        
+        M = self.homology_matrix()
+        return M == np.identity(homology_matrix.shape[0])
+    
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
         Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
