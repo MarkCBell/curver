@@ -127,8 +127,8 @@ class StraightLineProgram(object):
                             break
                         else:
                             value -= self.num_children[image]
-            
-            raise RuntimeError('Should not be able to reach here.')
+        
+        raise RuntimeError('Should not be able to reach here.')
     
     def __iter__(self):
         todo = [0]
