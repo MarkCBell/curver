@@ -32,7 +32,7 @@ It implements the Bell--Webb algorithm [BellWebb16]_ to determine the Nielsen--T
 This algorithm runs in polynomial time but the constants involved currently make this implementation impractical.
 
 Curver officially supports Python 2.7 and 3.4 -- 3.6.
-It also runs on PyPy.
+It also runs on PyPy and `Sage`_.
 
 .. note:: The use of **Python 3** is *highly* preferred over Python 2.
     Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today.
@@ -56,3 +56,4 @@ Features
     - Computes the action of mapping classes on H_1.
     - Determines the topological type of multicurves.
 
+.. _Sage: http://www.sagemath.org/
