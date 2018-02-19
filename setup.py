@@ -12,7 +12,7 @@ requirements = [
 
 setup(
     name='curver',
-    version='0.1.1',
+    version='0.1.2',
     description='For calculations in the curve complex',
     long_description='See http://curver.readthedocs.io for the full README, LICENCE and documentation.',
     author='Mark Bell',
