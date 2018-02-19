@@ -24,7 +24,7 @@ setup(
         },
     include_package_data=True,
     install_requires=requirements,
-    license='GNU General Public License v3',
+    license='MIT License',
     zip_safe=False,
     keywords='curver',
     classifiers=[
