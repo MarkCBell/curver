@@ -3,10 +3,11 @@ History
 =======
 
 
-0.1.1 (2018-02-07)
+0.1.1 (2018-02-19)
 ------------------
 
 * Fixed numpy dtype bug.
+* Added first version of SLP data structure.
 * Switched to MIT licence.
 * Using tox-travis.
 * Whitespace, formatting, Flake8.
