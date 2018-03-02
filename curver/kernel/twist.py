@@ -20,7 +20,7 @@ class Twist(Move):
         a = self.curve.parallel()
         # Theorem: 3*num_tripods is the right number of flips to do in the isolating case.
         # Proof: TODO.
-        num_flips = max(self.curve.weight() - 2, 1)  # = 3*num_tripods if self.curve.is_isolating() else 1.
+        num_flips = self.curve.weight() - self.curve.dual_weight(a)  # = self.curve.weight() - (2 if self.curve.is_isolating() else 1).
         
         twist = self.curve.triangulation.id_encoding()
         for _ in range(num_flips):
@@ -90,15 +90,13 @@ class Twist(Move):
         return lamination
     
     def apply_homology(self, homology_class):
-        # I don't think we even need this case.
-        if self.curve.is_isolating():  # Isolating ==> separating, so no effect on homology.
-            return homology_class
-        
         a = self.curve.parallel()
-        _, b, e = self.source_triangulation.corner_lookup[a.label]
+        
+        v = self.source_triangulation.vertex_lookup[a.label]  # = self.source_triangulation.vertex_lookup[~a.label].
+        v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
         
         algebraic = list(homology_class)
-        algebraic[a.index] -= a.sign() * self.power * (homology_class(e) - homology_class(b))
+        algebraic[a.index] -= a.sign() * self.power * sum(homology_class(edge) for edge in v_edges[1:])
         
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
     
