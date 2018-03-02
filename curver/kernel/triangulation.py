@@ -235,8 +235,8 @@ class Triangulation(object):
         return not(self == other)
     def __hash__(self):
         return hash(tuple(self.signature))
-    def __call__(self, geometric):
-        return self.lamination(geometric)
+    def __call__(self, geometric, promote=True):
+        return self.lamination(geometric, promote)
     
     def sig(self):
         ''' Return the signature of this triangulation. '''
@@ -557,13 +557,15 @@ class Triangulation(object):
         return len(self.isometries_to(other)) > 0
     
     # Laminations we can build on this triangulation.
-    def lamination(self, weights):
+    def lamination(self, weights, promote=True):
         ''' Return a new lamination on this surface assigning the specified weight to each edge. '''
         
         assert(len(weights) == self.zeta)
         # Should check all dual weights.
         
-        return curver.kernel.Lamination(self, weights).promote()
+        lamination = curver.kernel.Lamination(self, weights)
+        if promote: lamination = lamination.promote()
+        return lamination
     
     def lamination_from_cut_sequence(self, sequence):
         ''' Return a new lamination on this surface based on the sequence of edges that this Curve / Arc crosses. '''
