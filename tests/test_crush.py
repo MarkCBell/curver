@@ -23,7 +23,7 @@ class TestCrush(unittest.TestCase):
         self.assertEqual(crush, ~(~crush))
     
     @given(strategies.curves())
-    @settings(max_examples=50)
+    @settings(max_examples=10)
     def test_lift(self, curve):
         crush = curve.crush()
         lift = crush.inverse()
