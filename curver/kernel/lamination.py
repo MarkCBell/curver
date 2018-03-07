@@ -504,8 +504,8 @@ class Lamination(object):
             
             lamination = Lamination(lamination.triangulation, geometric)
         
-        # curver.show(conjugator(self))
-        assert(conjugator(self).is_short())  # Sanity.
+        short = conjugaor(self)
+        assert(short.is_short())  # Sanity.
         
-        return conjugator(self), conjugator
+        return short, conjugator
 
