@@ -37,7 +37,6 @@ MappingClassGroup = mappingclassgroup.MappingClassGroup
 MCG = MappingClassGroup  # Alias.
 HomologyClass = homology.HomologyClass
 Lamination = lamination.Lamination
-Shortenable = lamination.Shortenable
 MultiCurve = curve.MultiCurve
 Curve = curve.Curve
 MultiArc = arc.MultiArc

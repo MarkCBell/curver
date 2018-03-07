@@ -7,7 +7,7 @@ import networkx
 import numpy as np
 
 import curver
-from curver.kernel.lamination import Lamination, Shortenable  # Special import needed for subclassing.
+from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 class MultiCurve(Lamination):
@@ -114,71 +114,90 @@ class MultiCurve(Lamination):
         
         return curver.kernel.CurvePartitionGraph(self, graph)
 
-class Curve(MultiCurve, Shortenable):
+class Curve(MultiCurve):
     ''' A MultiCurve with a single component. '''
     @memoize(fast=True)
     def components(self):
         return {self: 1}
-    
-    def is_short(self):
-        if self.is_peripheral(): return True
-        
-        # Theorem: A non-peripheral curve is short iff either:
-        #  - it meets T exactly twice, or
-        #  - it meets every edge of T either 0 or 2 times and has one corridor [BellWebb16a].
-        num_corridors = len([triangle for triangle in self.triangulation if sum(self(edgy) for edgy in triangle) == 4])
-        return self.weight() == 2 or (all(weight in [0, 2] for weight in self) and num_corridors == 1)
-    
-    def shorten_strategy(self, edge):
-        # This relies on the following
-        # Lemma: If there are no bipods then self(edge) \in [0,2] for each edge.
-        #
-        # This follows from the fact that if this is a tripod / monopod in every triangle then
-        # connectedness implies that there can't be any part which can't see a vertex.
-        
-        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-        
-        # Low score == bad.
-        if not self.triangulation.is_flippable(edge):
-            return 0
-        
-        a, b, c, d, e = self.triangulation.square(edge)
-        ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
-        ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
-        # if ei == 0: return 0
-        # return float(2*ei - max(ai + ci, bi + di) + 1 + (0.1 if ad > 0 and bd > 0 else 0)) / self.weight()
-        
-        if ei == 0:
-            return 0
-        if max(ai + ci, bi + di) == ei:  # Drops to zero.
-            return 1  # Hmmm. We do need this but can we avoid not having 1 as the generic case?
-        if ed > 0:
-            return 0
-        
-        if ad > 0 and bd > 0:
-            return 0.5
-        
-        return 0.25
     
     def parallel(self):
         ''' Return an edge that this curve is parallel to.
         
         Note that this is only defined for short, non-peripheral curves. '''
         
-        assert(self.is_short() and not self.is_peripheral())
+        assert(not self.is_peripheral())
         
-        return min([edge for edge in self.triangulation.edges if self(edge) == 0 and self.dual_weight(edge) > 0], key=lambda e: e.label)  # Take the minimum of two.
+        for edge in self.triangulation.edges:
+            if self.triangulation.vertex_lookup[edge.label] == self.triangulation.vertex_lookup[~edge.label]:
+                v = self.triangulation.vertex_lookup[edge.label]  # = lamination.triangulation.vertex_lookup[~edge.label].
+                v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
+                if self == self.triangulation.curve_from_cut_sequence(v_edges[1:]):
+                    return edge
+        
+        assert(False)
+    
+    def is_short(self):
+        try:
+            self.parallel()
+            return True
+        except AssertionError:
+            return False
+    
+    def is_minimal(self):
+        ''' Return whether this curve is minimal.
+        
+        A curve is minimal if its weight is as small as possible.
+        
+        Note that minimal ==> short. '''
+        
+        if self.is_peripheral():
+            return self.weight() == 1
+        elif self.is_isolating():
+            shapes = [len([edge for edge in triangle if self.dual_weight(edge) > 0]) for triangle in self.triangulation]
+            return all(weight == 0 or weight == 2 for weight in self) and shapes.count(1) == 1 and shapes.count(2) == 0  # Exactly one corridor and no bipods.
+        else:
+            return self.weight() == 2
+    
+    def minimise(self):
+        ''' Return an encoding which maps this curve to a minimal one, together with its image. '''
+        
+        def minimise_strategy(self, edge):
+            ''' Return a float in [0, 1] describing how good flipping this edge is for making this curve minimal. '''
+            
+            if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
+            
+            if not self.triangulation.is_flippable(edge): return 0
+            
+            ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
+            
+            if ei > 0 and max(ai + ci, bi + di) - ei < ei:
+                return 1
+            
+            return 0
+        
+        short, conjugator = self.shorten()
+        
+        minimal = short
+        while True:
+            edge = curver.kernel.utilities.maximum(minimal.triangulation.edges, key=lambda edge: minimise_strategy(minimal, edge), upper_bound=1)
+            if minimise_strategy(minimal, edge) == 0: break
+            
+            move = minimal.triangulation.encode_flip(edge)  # edge is always flippable.
+            conjugator = move * conjugator
+            minimal = move(minimal)
+        
+        assert(minimal.is_minimal())
+        
+        return minimal, conjugator
     
     def is_isolating(self):
-        ''' Return if this curve is isolating, that is, if it is non-peripheral and a component of S - self does not contain a puncture.
-        
-        This curve must be non-peripheral. '''
+        ''' Return if this curve is isolating, that is, if it is non-peripheral and a component of S - self does not contain a puncture. '''
         
         if self.is_peripheral():
             return False
         
         short, _ = self.shorten()
-        return short.weight() > 2
+        return short.dual_weight(short.parallel()) == 2  # Isolating <=> dual weight == 2, non-isolating <=> dual weight == 1.
     
     def encode_twist(self, power=1):
         ''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
@@ -273,7 +292,7 @@ class Curve(MultiCurve, Shortenable):
         if self.is_peripheral():  # Boring case.
             return self.triangulation.id_encoding()
         
-        short, conjugator = self.shorten()
+        minimal, conjugator = self.minimise()
         
         # Use the following for reference:
         #             #<----------#                #  #-----------#  #
@@ -289,24 +308,24 @@ class Curve(MultiCurve, Shortenable):
         #   /         | /         |      /         |  | /  /         |
         #  /          V/          |     /          |  |/  /          |
         # #-----------#-----------#    #-----------#  #  #-----------#
-        # Where a is parallel to short.
+        # Where a is parallel to minimal.
         
-        a = short.parallel()
-        a, b, e = short.triangulation.corner_lookup[a.label]
+        a = minimal.parallel()
+        a, b, e = minimal.triangulation.corner_lookup[a.label]
         
         # Build the new triangulation.
-        edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in short.triangulation.edges)
+        edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in minimal.triangulation.edges)
         # Remap some edges.
         edge_map[e] = curver.kernel.Edge(~b.label)
         edge_map[~b] = curver.kernel.Edge(e.label)
         
-        new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgy] for edgy in triangle]) for triangle in short.triangulation])
+        new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgy] for edgy in triangle]) for triangle in minimal.triangulation])
         
         # Build the lifting matrix back.
-        v = short.triangulation.vertex_lookup[a.label]  # = short.triangulation.vertex_lookup[~a.label].
+        v = minimal.triangulation.vertex_lookup[a.label]  # = minimal.triangulation.vertex_lookup[~a.label].
         indices = Counter([edge.index for edge in curver.kernel.utilities.cyclic_slice(v, a, ~a)[1:]])  # The indices that appear walking around v from a to ~a. Note need to exclude the initial a.
         matrix = np.matrix([[indices[j] if i == b.index else 1 if (i == e.index and j == b.index) else 1 if i == j else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
         
-        crush = curver.kernel.Crush(short.triangulation, new_triangulation, short, matrix).encode()
+        crush = curver.kernel.Crush(minimal.triangulation, new_triangulation, minimal, matrix).encode()
         return crush * conjugator
 

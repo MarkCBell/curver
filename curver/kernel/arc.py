@@ -2,25 +2,15 @@
 ''' A module for representing (multi)arcs on triangulations. '''
 
 import curver
-from curver.kernel.lamination import Shortenable  # Special import needed for subclassing.
+from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
-class MultiArc(Shortenable):
+class MultiArc(Lamination):
     ''' A Lamination in which every component is an Arc. '''
     def is_multicurve(self):
         return False
     def is_multiarc(self):
         return True
-    
-    def shorten_strategy(self, edge):
-        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-        
-        if not self.triangulation.is_flippable(edge):
-            return 0
-        if self.dual_weight(edge) < 0:
-            return 1
-        
-        return 0
     
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''

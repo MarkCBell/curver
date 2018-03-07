@@ -221,25 +221,6 @@ class Lamination(object):
         T = curver.kernel.Triangulation(triangles)
         return curver.kernel.TrainTrack(T, geometric)
     
-    @memoize()
-    def components(self):
-        ''' Return a dictionary mapping components to their multiplicities '''
-        
-        components = dict()
-        for component, multiplicity in self.train_track().components().items():
-            # Project an Arc or Curve on T back to self.triangulation.
-            if isinstance(component, curver.kernel.Curve):
-                component = curver.kernel.Curve(self.triangulation, component.geometric[:self.zeta])
-            elif isinstance(component, curver.kernel.Arc):
-                component = curver.kernel.Arc(self.triangulation, component.geometric[:self.zeta])
-            else:
-                raise RuntimeError('self.train_track().components() returned a non Curve / Arc.')
-            
-            assert(component not in components)
-            components[component] = multiplicity
-        
-        return components
-    
     def num_components(self):
         ''' Return the total number of components. '''
         
@@ -249,29 +230,26 @@ class Lamination(object):
         ''' Return all sublaminations that appear within self. '''
         
         components = self.components()
-        return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]
+        return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]  # Powerset.
     
     def peripheral(self):
         ''' Return the peripheral components of this Lamination. '''
         
-        geometric = [0] * self.zeta
-        for vertex in self.triangulation.vertices:
-            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
-            for edge in vertex:
-                geometric[edge.index] += peripheral
+        non_peripheral = self.non_peripheral(promote=False)
+        geometric = [x - y for x, y in zip(self, non_peripheral)]
         
         return self.triangulation(geometric)  # Have to promote.
     
-    def non_peripheral(self):
+    def non_peripheral(self, promote=True):
         ''' Return the non-peripheral components of this Lamination. '''
         
         geometric = list(self)
         for vertex in self.triangulation.vertices:
-            peripheral = max(min(self.side_weight(edge) for edge in vertex), 0)
+            peripheral = min(max(self.side_weight(edge), 0) for edge in vertex)
             for edge in vertex:
                 geometric[edge.index] -= peripheral
         
-        return self.triangulation(geometric)  # Have to promote.
+        return self.triangulation(geometric, promote)  # Have to promote.
     
     def multiarc(self):
         ''' Return the maximal MultiArc contained within this lamination. '''
@@ -358,99 +336,175 @@ class Lamination(object):
         # Note that in order for this to work the topological type MUST be compatible with the permutation of the punctures.
         
         return NotImplemented  # TODO: 2) Implement. (And remove the PyLint disable when done.)
-
-class Shortenable(Lamination):
-    ''' A special lamination that we can put into a canonical 'short' form. '''
+    
+    def parallel_components(self):
+        
+        components = dict()
+        for edge in self.triangulation.edges:
+            if edge.sign() == +1:  # Don't double count.
+                multiplicity = -self(edge)
+                if multiplicity > 0:
+                    component = self.triangulation.edge_arc(edge)
+                    components[component] = multiplicity
+            
+            if self.triangulation.vertex_lookup[edge.label] == self.triangulation.vertex_lookup[~edge.label]:
+                v = self.triangulation.vertex_lookup[edge.label]  # = self.triangulation.vertex_lookup[~edge.label].
+                v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
+                if len(v_edges) > 2:
+                    around_v = min(max(self.side_weight(edge), 0) for edge in v_edges)
+                    twisting = min(max(self.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+                    
+                    if self.side_weight(v_edges[0]) == around_v and self.side_weight(v_edges[-1]) == around_v:
+                        multiplicity = twisting
+                        
+                        if multiplicity > 0:
+                            component = self.triangulation.curve_from_cut_sequence(v_edges[1:])
+                            components[component] = multiplicity
+        
+        return components
+    
+    @memoize()
+    def components(self):
+        ''' Return a dictionary mapping components to their multiplicities. '''
+        
+        components = dict()
+        for vertex in self.triangulation.vertices:
+            multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
+            if multiplicity > 0:
+                component = self.triangulation.curve_from_cut_sequence(vertex)
+                components[component] = multiplicity
+        
+        short, conjugator = self.non_peripheral(promote=False).shorten()
+        
+        conjugator_inv = conjugator.inverse()
+        
+        for component, multiplicity in short.parallel_components().items():
+            components[conjugator_inv(component)] = multiplicity
+        
+        return components
     
     def is_short(self):
-        ''' Return whether this lamination is already short. '''
+        ''' Return whether this lamination is short.
         
-        return all(self.shorten_strategy(edge) == 0 for edge in self.triangulation.edges)
-    
-    def shorten_strategy(self, edge):  #pylint: disable=no-self-use,unused-argument
-        ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short.
+        A lamination is short if all of its non-peripheral components are parallel to edges of
+        the triangulation that it is defined on. This makes computing its components very easy. '''
         
-        The higher the score, the better this flip is for reducing weight.
-        Specific laminations should implement the correct strategy for getting to the minimal weight configuration. '''
+        lamination = self.non_peripheral(promote=False)
         
-        return NotImplemented
-    
-    def generic_shorten_strategy(self, edge):
-        ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
+        geometric = list(lamination)
+        for component, multiplicity in lamination.parallel_components().items():
+            geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
+        lamination = Lamination(lamination.triangulation, geometric)
         
-        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-        
-        if not self.triangulation.is_flippable(edge): return 0
-        
-        a, b, c, d, e = self.triangulation.square(edge)
-        ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
-        
-        if ed < 0 or (ed == 0 and ad > 0 and bd > 0):
-            return 1
-        
-        return 0
+        return lamination.is_empty()
     
     @memoize()
     def shorten(self):
         ''' Return an encoding which maps this lamination to a short one, together with its image. '''
         
-        lamination = self
-        conjugator = None  # We used to set conjugator = lamination.triangulation.id_encoding() but this is more efficient.
+        # assert(False)
         
-        # Theorem: Suppose that self is not an isolating multicurve. If self.weight() > 2*self.zeta then there is a place to split.
-        # Proof: TODO.
+        lamination = self.non_peripheral(promote=False)
+        conjugator = self.triangulation.id_encoding()
         
-        # Remark: This is part of the reason why we can shorten Curves, Multiarcs and TrainTracks but not MultiCurves.
-        extra = []
-        edges = set(edge for edge in lamination.triangulation.edges if lamination(edge) > 0)
-        while any(lamination.dual_weight(edge) < 0 for edge in edges) or any(len([edge for edge in triangle if lamination.dual_weight(edge) > 0]) == 2 for triangle in lamination.triangulation):
-            edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.generic_shorten_strategy, upper_bound=1)
-            # This edge is always flippable.
-            a, b, c, d, e = lamination.triangulation.square(edge)
+        def shorten_strategy(self, edge):
+            ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
             
-            flip = lamination.triangulation.encode_flip(edge)
-            try:  # Accelerate!
-                if (1 - 0.1 / lamination.zeta) * lamination.weight() > flip(lamination).weight():  # Drop is at least 10% of average edge weight.
-                    raise curver.AssumptionError('Flip made definite progress.')
-                
-                intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
-                trace = lamination.trace(edge, intersection_point, 2*self.zeta)
-                trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
-                
-                curve = lamination.triangulation.lamination_from_cut_sequence(trace)
-                if not isinstance(curve, curver.kernel.Curve):
-                    raise ValueError
-                
-                slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
-                if -1 <= slope <= 1:  # Can't accelerate. We should probably also skip cases where slope is too close to small to be efficient.
-                    raise ValueError
-                else:  # slope < -1 or 1 < slope:
-                    move = curve.encode_twist(power=-int(slope))  # Round towards zero.
-            except (ValueError, curver.AssumptionError):
-                move = flip
-                extra = [c, d]
+            if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
             
-            conjugator = move * conjugator
-            lamination = move(lamination)
-            if lamination(edge) <= 0:
-                edges.discard(edge)
-                edges.discard(~edge)
-        
-        extra = []
-        while not lamination.is_short():
-            edge = curver.kernel.utilities.maximum(extra + list(edges), key=lamination.shorten_strategy, upper_bound=1)
-            # This edge is always flippable.
-            a, b, c, d, e = lamination.triangulation.square(edge)
+            if not self.triangulation.is_flippable(edge): return 0
             
-            move = lamination.triangulation.encode_flip(edge)
-            extra = [c, d]
-            conjugator = move * conjugator
-            lamination = move(lamination)
-            if lamination(edge) <= 0:
-                edges.discard(edge)
-                edges.discard(~edge)
+            ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
+            
+            if ed < 0 or (ed == 0 and ad > 0 and bd > 0):  # Non-parallel arc or bipod.
+                return 1
+            
+            return 0
         
-        if conjugator is None: conjugator = self.triangulation.id_encoding()  # Just in case we haven't done any moves at all.
+        def curve_shorten_strategy(self, edge):
+            ''' Return a float in [0, 1] describing how good flipping this edge is for making this curve short. '''
+            
+            if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
+            
+            if not self.triangulation.is_flippable(edge): return 0
+            
+            ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
+            ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
+            
+            if ei == 0:
+                return 0
+            if max(ai + ci, bi + di) - ei < ei:
+                return 1  # Hmmm. We do need this but can we avoid not having 1 as the generic case?
+            
+            return 0.5
         
-        return lamination, conjugator
+        active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
+        while not lamination.is_empty():
+            
+            extra = []  # High priority edges to check.
+            while active_edges:
+                # Could be another try / except block.
+                edge = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: shorten_strategy(lamination, edge), upper_bound=1)
+                if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
+                
+                a, b, c, d, e = lamination.triangulation.square(edge)
+                flip = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
+                try:  # Accelerate!
+                    if (1 - 0.1 / lamination.zeta) * lamination.weight() > flip(lamination).weight():  # Drop is at least 10% of average edge weight.
+                        raise curver.AssumptionError('Flip made definite progress.')
+                    
+                    intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
+                    trace = lamination.trace(edge, intersection_point, 2*self.zeta)
+                    trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
+                    
+                    curve = lamination.triangulation.lamination_from_cut_sequence(trace)
+                    if not isinstance(curve, curver.kernel.Curve):
+                        raise ValueError
+                    
+                    slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
+                    if -1 <= slope <= 1:  # Can't accelerate. We should probably also skip cases where slope is too close to small to be efficient.
+                        raise ValueError
+                    else:  # slope < -1 or 1 < slope:
+                        move = curve.encode_twist(power=-int(slope))  # Round towards zero.
+                except (ValueError, curver.AssumptionError):
+                    move = flip
+                    extra = [x for x in [c, d] if x in active_edges]
+                
+                conjugator = move * conjugator
+                lamination = move(lamination)
+                if lamination(edge) <= 0:
+                    active_edges.discard(edge)
+                    active_edges.discard(~edge)
+            
+            # This is pretty inefficient.
+            for edge in active_edges:
+                if lamination(edge) > 0 and lamination.side_weight(edge) == 0:
+                    trace = [edge] + lamination.trace(edge, 0, 2*self.zeta)
+                    curve = lamination.triangulation.curve_from_cut_sequence(trace)
+                    extra = []
+                    while not curve.is_short():
+                        edgey = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: curve_shorten_strategy(curve, edge), upper_bound=1)
+                        # This edge is always flippable.
+                        a, b, c, d, e = lamination.triangulation.square(edgey)
+                        
+                        move = lamination.triangulation.encode_flip(edgey)
+                        extra = [x for x in [c, d] if x in active_edges]
+                        conjugator = move * conjugator
+                        curve = move(curve)
+                        lamination = move(lamination)
+            
+            # Subtract.
+            geometric = list(lamination)
+            for component, multiplicity in lamination.parallel_components().items():
+                geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
+                edge = component.parallel()
+                active_edges.discard(edge)
+                active_edges.discard(~edge)
+            
+            lamination = Lamination(lamination.triangulation, geometric)
+        
+        # curver.show(conjugator(self))
+        assert(conjugator(self).is_short())  # Sanity.
+        
+        return conjugator(self), conjugator
 

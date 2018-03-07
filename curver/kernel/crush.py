@@ -10,7 +10,7 @@ class Crush(Move):
         super(Crush, self).__init__(source_triangulation, target_triangulation)
         
         assert(isinstance(curve, curver.kernel.Curve))
-        assert(curve.is_short() and not curve.is_peripheral())
+        assert(not curve.is_peripheral() and curve.is_minimal())
         assert(curve.triangulation == self.source_triangulation)
         
         self.curve = curve
