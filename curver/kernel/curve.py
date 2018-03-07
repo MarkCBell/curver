@@ -131,6 +131,9 @@ class Curve(MultiCurve):
         [(_, (_, edge))] = self.parallel_components().items()
         return edge
     
+    def is_short(self):
+        return self.is_peripheral() or len(self.parallel_components()) == 1
+    
     def is_minimal(self):
         ''' Return whether this curve is minimal.
         

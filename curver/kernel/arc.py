@@ -109,6 +109,9 @@ class Arc(MultiArc):
         [(_, (_, edge))] = self.parallel_components().items()
         return edge
     
+    def is_short(self):
+        return sorted(self) == [-1] + [0] * (self.zeta - 1)
+    
     def vertices(self):
         ''' Return the pair of vertices that this arc connects from / to. '''
         
