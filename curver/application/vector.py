@@ -44,6 +44,8 @@ class Vector2(object):
         return self * other
     def __div__(self, other):
         return Vector2(self.x / other, self.y / other)
+    def __truediv__(self, other):
+        return self.__div__(other)
     def dot(self, other):
         return self.x * other.x + self.y * other.y
     def cross(self, other):
