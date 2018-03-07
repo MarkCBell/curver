@@ -100,10 +100,14 @@ class Arc(MultiArc):
         return {self: 1}
     
     def parallel(self):
-        ''' Return an edge that this arc is parallel to. '''
+        ''' Return an edge that this arc is parallel to.
+        
+        Note that this is only defined for short arcs. '''
+        
         assert(self.is_short())
         
-        return min([edge for edge in self.triangulation.edges if self(edge) < 0], key=lambda e: e.label)
+        [(_, (_, edge))] = self.parallel_components().items()
+        return edge
     
     def vertices(self):
         ''' Return the pair of vertices that this arc connects from / to. '''

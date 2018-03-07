@@ -339,15 +339,15 @@ class Lamination(object):
     
     @memoize()
     def parallel_components(self):
-        ''' Return a set of tuples (component, multiplicity, edge). '''
+        ''' Return a dictionary mapping component |--> (multiplicity, edge) for each component of self that is parallel to an edge. '''
         
-        components = set()
+        components = dict()
         for edge in self.triangulation.edges:
             if edge.sign() == +1:  # Don't double count.
                 multiplicity = -self(edge)
                 if multiplicity > 0:
                     component = self.triangulation.edge_arc(edge)
-                    components.add((component, multiplicity, edge))
+                    components[component] = (multiplicity, edge)
             
             if self.triangulation.vertex_lookup[edge.label] == self.triangulation.vertex_lookup[~edge.label]:
                 v = self.triangulation.vertex_lookup[edge.label]  # = self.triangulation.vertex_lookup[~edge.label].
@@ -361,7 +361,7 @@ class Lamination(object):
                         
                         if multiplicity > 0:
                             component = self.triangulation.curve_from_cut_sequence(v_edges[1:])
-                            components.add((component, multiplicity, edge))
+                            components[component] = (multiplicity, edge)
         
         return components
     
@@ -380,7 +380,7 @@ class Lamination(object):
         
         conjugator_inv = conjugator.inverse()
         
-        for component, multiplicity, _ in short.parallel_components():
+        for component, (multiplicity, _) in short.parallel_components().items():
             components[conjugator_inv(component)] = multiplicity
         
         return components
@@ -394,7 +394,7 @@ class Lamination(object):
         lamination = self.non_peripheral(promote=False)
         
         geometric = list(lamination)
-        for component, multiplicity, _ in lamination.parallel_components():
+        for component, (multiplicity, _) in lamination.parallel_components().items():
             geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
         lamination = Lamination(lamination.triangulation, geometric)
         
@@ -497,7 +497,7 @@ class Lamination(object):
             
             # Subtract.
             geometric = list(lamination)
-            for component, multiplicity, edge in lamination.parallel_components():
+            for component, (multiplicity, edge) in lamination.parallel_components().items():
                 geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
                 active_edges.discard(edge)
                 active_edges.discard(~edge)

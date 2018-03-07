@@ -126,22 +126,10 @@ class Curve(MultiCurve):
         Note that this is only defined for short, non-peripheral curves. '''
         
         assert(not self.is_peripheral())
+        assert(self.is_short())
         
-        for edge in self.triangulation.edges:
-            if self.triangulation.vertex_lookup[edge.label] == self.triangulation.vertex_lookup[~edge.label]:
-                v = self.triangulation.vertex_lookup[edge.label]  # = lamination.triangulation.vertex_lookup[~edge.label].
-                v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
-                if self == self.triangulation.curve_from_cut_sequence(v_edges[1:]):
-                    return edge
-        
-        assert(False)
-    
-    def is_short(self):
-        try:
-            self.parallel()
-            return True
-        except AssertionError:
-            return False
+        [(_, (_, edge))] = self.parallel_components().items()
+        return edge
     
     def is_minimal(self):
         ''' Return whether this curve is minimal.
