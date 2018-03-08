@@ -119,8 +119,6 @@ def multiarcs(draw, triangulation=None, require_non_empty_boundary=False):
 
 @st.composite
 def arcs(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    
     return draw(multiarcs(triangulation)).peek_component()
 
 @st.composite
@@ -163,8 +161,6 @@ def multicurves(draw, triangulation=None):
 
 @st.composite
 def curves(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    
     multicurve = draw(multicurves(triangulation))
     curve = multicurve.peek_component()
     return curve
