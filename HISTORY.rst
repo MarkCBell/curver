@@ -2,9 +2,15 @@
 History
 =======
 
+0.2.0a
+------
+
+* New notion of short.
+* Simplified hypothesis strategy code.
 
 0.1.2 (2018-02-19)
 ------------------
+
 * Licence hotfix.
 
 0.1.1 (2018-02-19)
