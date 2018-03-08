@@ -14,7 +14,7 @@ class TestMultiCurve(unittest.TestCase):
         self.assertEqual(multicurve.intersection(boundary), 0)
     
     @given(st.data())
-    @settings(max_examples=10)
+    @settings(max_examples=5)
     def test_boundary_union(self, data):
         multicurve = data.draw(strategies.multicurves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination = data.draw(strategies.laminations(multicurve.triangulation))

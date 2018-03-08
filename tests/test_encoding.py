@@ -53,7 +53,7 @@ class TestEncoding(unittest.TestCase):
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())
-    @settings(max_examples=20)
+    @settings(max_examples=10)
     def test_hash(self, data):
         mcg = data.draw(strategies.mcgs())
         g = data.draw(strategies.mapping_classes(mcg))
