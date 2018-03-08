@@ -404,8 +404,6 @@ class Lamination(object):
     def shorten(self):
         ''' Return an encoding which maps this lamination to a short one, together with its image. '''
         
-        # assert(False)
-        
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
         
@@ -437,6 +435,8 @@ class Lamination(object):
                 return 0
             if max(ai + ci, bi + di) - ei < ei:
                 return 1  # Hmmm. We do need this but can we avoid not having 1 as the generic case?
+            if bd > 0 and ad == 0:
+                return 0.75
             
             return 0.5
         
