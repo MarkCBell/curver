@@ -56,7 +56,7 @@ class TestMCG(unittest.TestCase):
         name2 = data.draw(st.sampled_from(distinct_end_arcs))  # Hmm, should we check arc1.intersection(arc2) == 0?
         arc1 = mcg.arcs[name1]
         arc2 = mcg.arcs[name2]
-        num_distinct_vertices = len(set(arc1.vertices() + arc2.vertices()))
+        num_distinct_vertices = len(arc1.vertices().union(arc2.vertices()))
         
         self.assertTrue(
             (num_distinct_vertices == 4 and mcg(name1 + name2) == mcg(name2 + name1)) or

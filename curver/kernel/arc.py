@@ -16,6 +16,11 @@ class MultiArc(Lamination):
     def is_short(self):
         return all(weight <= 0 for weight in self)
     
+    def vertices(self):
+        ''' Return set of vertices that the components of this MultiArc connects to. '''
+        
+        return set(vertex for vertex in self.triangulation.vertices if any(self(edge) < 0 or self.side_weight(edge) > 0 for edge in vertex))
+    
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
         
@@ -120,22 +125,10 @@ class Arc(MultiArc):
         # return len(self.parallel_components()) == 1
         return Counter(self) == {-1: 1, 0: self.zeta-1}
     
-    def vertices(self):
-        ''' Return the pair of vertices that this arc connects from / to. '''
-        
-        vertices = []
-        for vertex in self.triangulation.vertices:
-            for edge in vertex:
-                if self(edge) < 0: vertices.append(vertex)
-                if self.side_weight(edge) == -1: vertices.append(vertex)
-                if self.side_weight(edge) == -2: vertices += [vertex, vertex]
-        assert(len(vertices) == 2)
-        return vertices
-    
     def connects_distinct_vertices(self):
         ''' Return whether this arc connects between distict vertices of its underlying triangulation. '''
         
-        return len(set(self.vertices())) == 2
+        return len(self.vertices()) == 2
     
     def encode_halftwist(self, power=1):
         ''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.

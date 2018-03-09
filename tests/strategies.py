@@ -138,11 +138,13 @@ def multicurves(draw, triangulation=None):
     if draw(st.booleans()) and not any(g == 0 for (g, v) in triangulation.surface()):  # merge vertices:
         classes = curver.kernel.UnionFind(triangulation.vertices)
         for index in sorted(available_indices):
-            a, b = triangulation.edge_arc(index).vertices()
-            if classes(a) != classes(b):
-                classes.union(a, b)
-                indices.add(index)
-                available_indices.remove(index)
+            arc = triangulation.edge_arc(index)
+            if arc.connects_distinct_vertices():
+                a, b = arc.vertices()
+                if classes(a) != classes(b):
+                    classes.union(a, b)
+                    indices.add(index)
+                    available_indices.remove(index)
     
     num_arcs = draw(st.integers(min_value=0 if indices else 1, max_value=len(available_indices)-1))
     for _ in range(num_arcs):
