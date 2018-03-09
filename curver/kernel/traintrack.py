@@ -5,7 +5,6 @@ import networkx
 
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
-from curver.kernel.utilities import memoize  # Special import needed for decorating.
 
 class TrainTrack(Lamination):
     ''' A Lamination in which each triangle is tripod free. '''
