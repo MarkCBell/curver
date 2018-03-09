@@ -18,8 +18,8 @@ Curver
     :target: https://ci.appveyor.com/project/MarkCBell/curver
     :alt: AppVeyor build status
 
-.. image:: https://img.shields.io/readthedocs/curver.svg
-    :target: https://readthedocs.org/projects/curver/badge/?version=master
+.. image:: https://readthedocs.org/projects/curver/badge/?version=master
+    :target: https://curver.readthedocs.io
     :alt: Documentation status
 
 .. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg
