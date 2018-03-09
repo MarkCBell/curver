@@ -1,6 +1,8 @@
 
 ''' A module for representing (multi)arcs on triangulations. '''
 
+from collections import Counter
+
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 from curver.kernel.utilities import memoize  # Special import needed for decorating.
@@ -11,6 +13,8 @@ class MultiArc(Lamination):
         return False
     def is_multiarc(self):
         return True
+    def is_short(self):
+        return all(weight <= 0 for weight in self)
     
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
@@ -106,12 +110,15 @@ class Arc(MultiArc):
         
         assert(self.is_short())
         
-        [(_, (_, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
+        [(component, (multiplicity, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
+        assert(component == self)  # Sanity.
+        assert(multiplicity == 1)  # Sanity.
+        
         return edge
     
     def is_short(self):
         # return len(self.parallel_components()) == 1
-        return sorted(self) == [-1] + [0] * (self.zeta - 1)
+        return Counter(self) == {-1: 1, 0: self.zeta-1}
     
     def vertices(self):
         ''' Return the pair of vertices that this arc connects from / to. '''
