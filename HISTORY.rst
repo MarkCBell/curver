@@ -2,8 +2,8 @@
 History
 =======
 
-0.2.0a
-------
+0.2.0-alpha
+-----------
 
 * New notion of short.
 * Simplified hypothesis strategy code.
