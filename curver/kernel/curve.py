@@ -128,7 +128,10 @@ class Curve(MultiCurve):
         assert(not self.is_peripheral())
         assert(self.is_short())
         
-        [(_, (_, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
+        [(component, (multiplicity, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
+        assert(component == self)  # Sanity.
+        assert(multiplicity == 1)  # Sanity.
+        
         return edge
     
     def is_short(self):
