@@ -149,7 +149,7 @@ class Triangulation(object):
             vertex = [min(unused)]  # Make canonical by starting at min.
             unused.discard(vertex[0])
             while True:
-                neighbour = ~self.corner_lookup[vertex[-1].label][2]
+                neighbour = ~self.corner_lookup[vertex[-1]][2]
                 if neighbour in unused:
                     vertex.append(neighbour)
                     unused.remove(neighbour)
@@ -332,7 +332,7 @@ class Triangulation(object):
             if dual_tree[index]:
                 edge = Edge(index)
                 while True:
-                    corner = self.corner_lookup[edge.label]
+                    corner = self.corner_lookup[edge]
                     edge = corner.edges[2]
                     if not dual_tree[edge.index]:
                         row[edge.index] -= edge.sign()
@@ -357,7 +357,7 @@ class Triangulation(object):
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self.triangle_lookup[edge.label] != self.triangle_lookup[~edge.label]
+        return self.triangle_lookup[edge] != self.triangle_lookup[~edge]
     
     def square(self, edge):
         ''' Return the four edges around the given edge and the diagonal.
@@ -384,7 +384,7 @@ class Triangulation(object):
         # V/    c     |
         # #---------->#
         
-        corner_A, corner_B = self.corner_lookup[edge.label], self.corner_lookup[~edge.label]
+        corner_A, corner_B = self.corner_lookup[edge], self.corner_lookup[~edge]
         return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], edge]
     
     # Build new triangulations:
@@ -495,7 +495,7 @@ class Triangulation(object):
             
             neighbours = [
                 (~from_label, ~to_label),
-                (self.corner_lookup[from_label].labels[1], other.corner_lookup[to_label].labels[1])
+                (self.corner_lookup[from_label][1], other.corner_lookup[to_label][1])
                 ]
             for new_from_label, new_to_label in neighbours:
                 if new_from_label in label_map:
@@ -514,7 +514,7 @@ class Triangulation(object):
         used_labels = set(x for key_value in label_map.items() for x in key_value)
         for edge in self.edges:
             if edge.label not in used_labels:
-                if self.corner_lookup[edge.label] != other.corner_lookup[edge.label]:
+                if self.corner_lookup[edge] != other.corner_lookup[edge]:
                     raise curver.AssumptionError('This label_map does not extend to an isometry.')
                 label_map[edge.label] = edge.label
         
@@ -531,9 +531,9 @@ class Triangulation(object):
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
-        sources = [min(component, key=lambda edge: len(self.vertex_lookup[edge.label])) for component in self.components()]
-        degrees = [len(self.vertex_lookup[edge.label]) for edge in sources]
-        targets = [[edge for edge in other.edges if len(other.vertex_lookup[edge.label]) == degree] for degree in degrees]
+        sources = [min(component, key=lambda edge: len(self.vertex_lookup[edge])) for component in self.components()]
+        degrees = [len(self.vertex_lookup[edge]) for edge in sources]
+        targets = [[edge for edge in other.edges if len(other.vertex_lookup[edge]) == degree] for degree in degrees]
         
         isometries = []
         for chosen_targets in product(*targets):
@@ -743,8 +743,8 @@ class Triangulation(object):
                 edge = Edge(label)
                 
                 # Check where it connects.
-                if T.vertex_lookup[edge.label] == T.vertex_lookup[~edge.label]:  # Twist.
-                    edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge.label], edge, ~edge)[1:]
+                if T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
+                    edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge], edge, ~edge)[1:]
                     curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
                     g = curver.kernel.Twist(curve, power).encode()
                 else:  # HalfTwist.

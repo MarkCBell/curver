@@ -34,7 +34,7 @@ class MultiArc(Lamination):
                 if edge not in used:
                     used.add(edge)
                     used.add(~edge)
-                    neighbour = short.triangulation.triangle_lookup[~edge.label]
+                    neighbour = short.triangulation.triangle_lookup[~edge]
                     if sum(1 for edge in neighbour if edge in used) == 2:
                         to_check.append(neighbour)
                     break
@@ -43,12 +43,12 @@ class MultiArc(Lamination):
         passed_through = set()
         geometric = [0] * short.zeta
         for edge in short.triangulation.edges:
-            corner = short.triangulation.corner_lookup[edge.label]
+            corner = short.triangulation.corner_lookup[edge]
             if edge not in passed_through and edge not in used and corner[2] in used:  # Start on a good edge.
                 while edge not in passed_through:
                     geometric[edge.index] += 1
                     passed_through.add(edge)
-                    corner = short.triangulation.corner_lookup[edge.label]
+                    corner = short.triangulation.corner_lookup[edge]
                     if ~corner[2] not in used:
                         edge = ~corner[2]
                     else:

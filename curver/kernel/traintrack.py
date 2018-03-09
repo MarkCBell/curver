@@ -17,7 +17,7 @@ class TrainTrack(Lamination):
         
         def connected_to(edge):
             ''' Yield the edges you can reach by travelling out of the given edge. '''
-            corner = self.triangulation.corner_lookup[edge.label]
+            corner = self.triangulation.corner_lookup[edge]
             if self.dual_weight(corner[1]): yield ~corner[2]
             if self.dual_weight(corner[2]): yield ~corner[1]
         

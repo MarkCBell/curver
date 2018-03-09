@@ -309,7 +309,7 @@ class Lamination(object):
         dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
         edges = []
         for _ in range(length):
-            x, y, z = self.triangulation.corner_lookup[~edge.label]
+            x, y, z = self.triangulation.corner_lookup[~edge]
             if intersection_point < dual_weights[z]:  # Turn right.
                 edge, intersection_point = y, intersection_point
             elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:  # Terminate.
@@ -349,8 +349,8 @@ class Lamination(object):
                     component = self.triangulation.edge_arc(edge)
                     components[component] = (multiplicity, edge)
             
-            if self.triangulation.vertex_lookup[edge.label] == self.triangulation.vertex_lookup[~edge.label]:
-                v = self.triangulation.vertex_lookup[edge.label]  # = self.triangulation.vertex_lookup[~edge.label].
+            if self.triangulation.vertex_lookup[edge] == self.triangulation.vertex_lookup[~edge]:
+                v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
                 v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
                 if len(v_edges) > 2:
                     around_v = min(max(self.side_weight(edge), 0) for edge in v_edges)
