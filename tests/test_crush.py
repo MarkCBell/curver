@@ -17,7 +17,7 @@ class TestCrush(unittest.TestCase):
         self.assertEqual(crush, pickle.loads(pickle.dumps(crush)))
     
     @given(strategies.curves())
-    @settings(max_examples=5)
+    @settings(max_examples=3)
     def test_inverse(self, curve):
         crush = curve.crush()
         self.assertEqual(crush, ~(~crush))
