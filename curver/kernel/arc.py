@@ -106,10 +106,11 @@ class Arc(MultiArc):
         
         assert(self.is_short())
         
-        [(_, (_, edge))] = self.parallel_components().items()
+        [(_, (_, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
         return edge
     
     def is_short(self):
+        # return len(self.parallel_components()) == 1
         return sorted(self) == [-1] + [0] * (self.zeta - 1)
     
     def vertices(self):
