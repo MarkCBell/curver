@@ -151,7 +151,7 @@ class Arc(MultiArc):
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
         
-        arc = short.parallel()
+        edge = short.parallel()
         
-        return max(short_lamination(arc), 0)
+        return max(short_lamination(edge), 0)
 
