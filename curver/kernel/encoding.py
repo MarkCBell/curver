@@ -79,7 +79,8 @@ class Encoding(object):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
                 raise ValueError('Cannot compare Encodings between different triangulations.')
             
-            return all(self(arc) == other(arc) for arc in self.source_triangulation.edge_arcs()) and \
+            tri_lamination = self.source_triangulation.as_lamination()
+            return self(tri_lamination) == other(tri_lamination) and \
                 all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
         else:
             return NotImplemented
@@ -189,7 +190,7 @@ class MappingClass(Encoding):
         # But in terms of raw speed there doesn't appear to be anything faster than:
         
         homology_matrix = self.homology_matrix()
-        originals = [np.identity(homology_matrix.shape[0]), self.source_triangulation.as_lamination()] + self.source_triangulation.edge_arcs()
+        originals = [np.identity(homology_matrix.shape[0]), self.source_triangulation.as_lamination()]
         images = list(originals)
         powers = [0] * len(originals)
         for power in range(1, self.source_triangulation.max_order()+1):
