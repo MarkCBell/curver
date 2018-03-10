@@ -589,7 +589,7 @@ class Triangulation(object):
     def as_lamination(self):
         ''' Return this triangulation as a lamination. '''
         
-        return self([-1] * self.zeta)
+        return self([-1] * self.zeta)  # Will always be a MultiArc.
     
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''
