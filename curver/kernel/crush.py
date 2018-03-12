@@ -43,11 +43,11 @@ class Crush(Move):
         twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
         # Computing around_v and twisting can be done more efficiently.
         
+        # We work by manipulating the side weights around v.
         sides = dict((edge, lamination.side_weight(edge) - (self.curve.side_weight(edge)*twisting + around_v if edge in v_edges and lamination.side_weight(edge) >= 0 else 0)) for edge in self.source_triangulation.edges)
         parallels = dict((edge.index, max(-lamination(edge), 0)) for edge in v_edges)
         
         # TODO: 4) Add comments explaining what is going on here and how the different cases work.
-        # We work by manipulating the dual weights around v.
         
         # Tighten to the left.
         drop = max(sides[a], 0) + max(-sides[b], 0)

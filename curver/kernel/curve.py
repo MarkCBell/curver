@@ -164,12 +164,14 @@ class Curve(MultiCurve):
             
             ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
             
-            if ei > 0 and max(ai + ci, bi + di) - ei < ei:
+            if max(ai + ci, bi + di) - ei < ei:  # This flip drops the total weight.
                 return 1
             
             return 0
         
         short, conjugator = self.shorten()
+        
+        # Lemma: There path in the flip graph from a short representative to a minimal one in which the weight strictly decreases at each step.
         
         minimal = short
         while True:
