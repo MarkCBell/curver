@@ -124,7 +124,8 @@ class Crush(Move):
             assert(geometric[e.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
         
         # And finally the b edge, which is now paired with e.
-        geometric[b.index] = around_v - out_v  # Same trick as below.
+        # Since around_v > 0 ==> out_v == 0 & out_v > 0 ==> around_v == 0, this is equivalent to: around_v if around_v > 0 else -out_v
+        geometric[b.index] = around_v - out_v
         
         return self.target_triangulation(geometric)  # Have to promote.
     
