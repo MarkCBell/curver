@@ -286,7 +286,7 @@ class Curve(MultiCurve):
         if self.is_peripheral():  # Boring case.
             return self.triangulation.id_encoding()
         
-        minimal, conjugator = self.minimise()
+        short, conjugator = self.shorten()
         
         # Use the following for reference:
         #             #<----------#                #  #-----------#  #
@@ -302,24 +302,24 @@ class Curve(MultiCurve):
         #   /         | /         |      /         |  | /  /         |
         #  /          V/          |     /          |  |/  /          |
         # #-----------#-----------#    #-----------#  #  #-----------#
-        # Where a is parallel to minimal.
+        # Where a is parallel to short.
         
-        a = minimal.parallel()
-        a, b, e = minimal.triangulation.corner_lookup[a]
+        a = short.parallel()
+        a, b, e = short.triangulation.corner_lookup[a]
         
         # Build the new triangulation.
-        edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in minimal.triangulation.edges)
+        edge_map = dict((edge, curver.kernel.Edge(edge.label)) for edge in short.triangulation.edges)
         # Remap some edges.
         edge_map[e] = curver.kernel.Edge(~b.label)
         edge_map[~b] = curver.kernel.Edge(e.label)
         
-        new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgy] for edgy in triangle]) for triangle in minimal.triangulation])
+        new_triangulation = curver.kernel.Triangulation([curver.kernel.Triangle([edge_map[edgy] for edgy in triangle]) for triangle in short.triangulation])
         
         # Build the lifting matrix back.
-        v = minimal.triangulation.vertex_lookup[a]  # = minimal.triangulation.vertex_lookup[~a].
+        v = short.triangulation.vertex_lookup[a]  # = short.triangulation.vertex_lookup[~a].
         indices = Counter([edge.index for edge in curver.kernel.utilities.cyclic_slice(v, a, ~a)[1:]])  # The indices that appear walking around v from a to ~a. Note need to exclude the initial a.
         matrix = np.matrix([[indices[j] if i == b.index else 1 if (i == e.index and j == b.index) else 1 if i == j else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
         
-        crush = curver.kernel.Crush(minimal.triangulation, new_triangulation, minimal, matrix).encode()
+        crush = curver.kernel.Crush(short.triangulation, new_triangulation, short, matrix).encode()
         return crush * conjugator
 
