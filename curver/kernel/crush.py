@@ -47,7 +47,7 @@ class Crush(Move):
         sides = dict((edge, lamination.side_weight(edge) - (self.curve.side_weight(edge)*twisting + around_v if edge in v_edges and lamination.side_weight(edge) >= 0 else 0)) for edge in self.source_triangulation.edges)
         parallels = dict((edge.index, max(-lamination(edge), 0)) for edge in v_edges)
         
-        # TODO: 4) Add comments explaining what is going on here and how the different cases work.
+        # TODO: 4) Add comments explaining what is going on in the next two blocks and how the different tightening cases work.
         
         # Tighten to the left.
         drop = max(sides[a], 0) + max(-sides[b], 0)
