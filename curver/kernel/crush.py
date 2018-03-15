@@ -76,7 +76,7 @@ class Crush(Move):
         
         # Tighten to the right.
         drop = max(-sides[a], 0) + max(sides[b], 0)
-        for edge in v_edges[-2:0:-1]:
+        for edge in reversed(v_edges[1:-1]):
             x, y, z = lamination.triangulation.corner_lookup[edge]
             if sides[x] >= 0 and sides[y] >= 0 and sides[z] >= 0:
                 if drop <= sides[x]:
