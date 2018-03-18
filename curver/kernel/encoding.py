@@ -131,7 +131,7 @@ class Encoding(object):
         ''' Return whether this mapping class is in the Torelli subgroup. '''
         
         homology_matrix = self.homology_matrix()
-        return homology_matrix == np.identity(homology_matrix.shape[0])
+        return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0]))
     
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
