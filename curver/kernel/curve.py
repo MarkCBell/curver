@@ -30,6 +30,16 @@ class MultiCurve(Lamination):
         
         return h
     
+    def crush(self):
+        ''' Return the crush map associated to this MultiCurve. '''
+        
+        g = self.triangulation.id_encoding()
+        for curve in self.components():
+            h = g(curve).crush()  # Map forward under crushes first.
+            g = h * g
+        
+        return g
+    
     def boundary_union(self, other):
         ''' Return \\partial N(self \\cup other). '''
         assert(isinstance(other, Lamination))
@@ -50,16 +60,6 @@ class MultiCurve(Lamination):
         crush = self.crush()
         other_prime = crush(other)
         return other_prime.is_filling()
-    
-    def crush(self):
-        ''' Return the crush map associated to this MultiCurve. '''
-        
-        g = self.triangulation.id_encoding()
-        for curve in self.components():
-            h = g(curve).crush()  # Map forward under crushes first.
-            g = h * g
-        
-        return g
     
     def is_separating(self):
         ''' Return whether this multicurve separates S.
