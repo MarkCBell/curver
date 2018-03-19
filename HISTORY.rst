@@ -6,6 +6,7 @@ History
 -----------
 
 * New notion of short.
+* Removed TrainTracks class, incorporated vertex cycles methods into MultiCurves.
 * Simplified hypothesis strategy code.
 
 0.1.2 (2018-02-19)
