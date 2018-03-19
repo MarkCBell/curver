@@ -41,27 +41,17 @@ class CurveGraph(object):
         assert(a.triangulation == self.triangulation)
         assert(b.triangulation == self.triangulation)
         
-        short, conjugator = a.shorten()
+        _, conjugator_a = a.shorten()
         
-        train_track = conjugator(b).train_track()
-        _, conjugator_tt = train_track.shorten()
+        short_b = conjugator_a(b)
+        _, conjugator_b = short_b.shorten()
         
         quasiconvex = set()
-        for i in range(len(conjugator_tt)):
-            prefix = conjugator_tt[i:]  # Get the first bit of tt_conjugator.
-            split_train_track = prefix(train_track)
+        for i in range(len(conjugator_b)+1):
+            prefix = conjugator_b[i:]  # Get the first bit of conjugator_b.
+            split_train_track = prefix(short_b)
             vertex_cycle = split_train_track.vertex_cycle()
-            train_track_curve = prefix.inverse()(vertex_cycle)  # Pull the cycle back to the train_track.
-            # Project the train track curve back to short.triangulation.
-            curve = curver.kernel.Curve(short.triangulation, train_track_curve.geometric[:self.zeta])
-            
-            quasiconvex.add(conjugator.inverse()(curve))
-        
-        # Hmmm, can we skip this at only the cost of increasing some constants later?
-        vertex_cycle = train_track.vertex_cycle()
-        # Project the train track curve back to short.triangulation.
-        curve = curver.kernel.Curve(short.triangulation, vertex_cycle.geometric[:self.zeta])
-        quasiconvex.add(conjugator.inverse()(curve))
+            quasiconvex.add(conjugator_a.inverse()(prefix.inverse()(vertex_cycle)))
         
         return quasiconvex
     
