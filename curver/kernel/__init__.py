@@ -20,7 +20,6 @@ from . import moves
 from . import partition
 from . import permutation
 from . import structures
-from . import traintrack
 from . import triangulation
 from . import twist
 from . import utilities
@@ -44,7 +43,6 @@ Arc = arc.Arc
 Move = moves.Move
 Isometry = moves.Isometry
 EdgeFlip = moves.EdgeFlip
-TrainTrack = traintrack.TrainTrack
 Crush = crush.Crush
 Lift = crush.Lift
 CurveGraph = curvegraph.CurveGraph

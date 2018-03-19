@@ -182,45 +182,6 @@ class Lamination(object):
         self_components = self.components()
         return not any(component in self_components for component in lamination.components())
     
-    def train_track(self):
-        ''' Return the train track underlying this lamination. '''
-        # In each triangle where this lamination looks like:
-        # We introduce new edges to subdivide a triangle (p, q, r) as follows:
-        #            #                         #
-        #           / \                       /^\
-        #          /   \                     / | \
-        #         /     \                   /  |  \
-        #        /-------\                 /   |s(i)
-        #       /         \     ===>>     /    |    \
-        #      /\         /\           r /    / \    \ q
-        #     /  \       /  \           /   /     \   \
-        #    /    |     |    \         /  /t(j) u(k)\  \
-        #   /     |     |     \       /</             \>\
-        #  #-------------------#     #-------------------#
-        #                                      p
-        # So that afterwards every complementary region can reach a vertex.
-        
-        geometric = list(self.geometric)
-        triangles = []
-        num_subdivided = 0  # Number of subdivided triangles.
-        for triangle in self.triangulation:
-            dual_weights = [self.dual_weight(label) for label in triangle.labels]
-            if all(weight > 0 for weight in dual_weights):  # Type 3).
-                p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
-                s, t, u = [curver.kernel.Edge(i) for i in range(self.zeta + 3*num_subdivided, self.zeta + 3*num_subdivided + 3)]
-                triangles.append(curver.kernel.Triangle([p, ~u, t]))
-                triangles.append(curver.kernel.Triangle([q, ~s, u]))
-                triangles.append(curver.kernel.Triangle([r, ~t, s]))
-                num_subdivided += 1
-                
-                geometric.extend(dual_weights)  # Record intersections with new edges.
-            else:
-                p, q, r = [curver.kernel.Edge(label) for label in triangle.labels]
-                triangles.append(curver.kernel.Triangle([p, q, r]))
-        
-        T = curver.kernel.Triangulation(triangles)
-        return curver.kernel.TrainTrack(T, geometric)
-    
     def num_components(self):
         ''' Return the total number of components. '''
         
