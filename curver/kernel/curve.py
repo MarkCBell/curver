@@ -30,6 +30,34 @@ class MultiCurve(Lamination):
         
         return h
     
+    def vertex_cycles(self):
+        ''' Yield the vertex cycles of this multicurve.
+        
+        These are the curves that use the same normal arcs as this multicurve but only pass through each edge at most twice.
+        Be careful as there are often a *lot* of them. '''
+        
+        def connected_to(edge):
+            ''' Yield the edges you can reach by travelling out of the given edge. '''
+            corner = self.triangulation.corner_lookup[edge]
+            if self.dual_weight(corner[1]): yield ~corner[2]
+            if self.dual_weight(corner[2]): yield ~corner[1]
+        
+        # Build graph.
+        edges = [(edge, edgy) for edge in self.triangulation.edges for edgy in connected_to(edge)]
+        G = networkx.DiGraph(edges)
+        
+        for cycle in networkx.simple_cycles(G):
+            curve = self.triangulation.lamination_from_cut_sequence(cycle)
+            if isinstance(curve, curver.kernel.Curve):
+                yield curve
+        
+        return
+    
+    def vertex_cycle(self):
+        ''' Return a vertex cycle of this multicurve. '''
+        
+        return next(iter(self.vertex_cycles()))
+    
     def crush(self):
         ''' Return the crush map associated to this MultiCurve. '''
         
