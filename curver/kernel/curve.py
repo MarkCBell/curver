@@ -221,7 +221,7 @@ class Curve(MultiCurve):
             return False
         
         short, _ = self.shorten()
-        return short.dual_weight(short.parallel()) == 2  # Isolating <=> dual weight == 2, non-isolating <=> dual weight == 1.
+        return all(weight % 2 == 0 for weight in short)
     
     def encode_twist(self, power=1):
         ''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''

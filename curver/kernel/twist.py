@@ -20,7 +20,7 @@ class Twist(Move):
         a = self.curve.parallel()
         # Theorem: 3*num_tripods is the right number of flips to do in the isolating case.
         # Proof: TODO.
-        num_flips = self.curve.weight() - self.curve.dual_weight(a)  # = self.curve.weight() - (2 if self.curve.is_isolating() else 1).
+        num_flips = self.curve.weight() - (2 if self.curve.is_isolating() else 1).
         
         twist = self.curve.triangulation.id_encoding()
         for _ in range(num_flips):
