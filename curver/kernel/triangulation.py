@@ -232,7 +232,7 @@ class Triangulation(object):
     def __eq__(self, other):
         return self.signature == other.signature
     def __ne__(self, other):
-        return not(self == other)
+        return not self == other
     def __hash__(self):
         return hash(tuple(self.signature))
     def __call__(self, geometric, promote=True):

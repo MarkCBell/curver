@@ -58,7 +58,7 @@ class Twist(Move):
         while power:  # This loop will run at most four times.
             slope = self.curve.slope(lamination)
             if power > 0:  # Right twist (increases slope).
-                if 1 < slope:  #pylint: disable=misplaced-comparison-constant
+                if 1 < slope:  # pylint: disable=misplaced-comparison-constant
                     geometric = [w + power * intersection * c for w, c in zip(lamination, self.curve)]
                     power_applied = power
                 elif -1 <= slope <= 1:  # Dangerous region.

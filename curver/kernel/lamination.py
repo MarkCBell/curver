@@ -151,7 +151,7 @@ class Lamination(object):
         
         # Move cache across.
         try:
-            other._cache = self._cache  #pylint: disable=attribute-defined-outside-init
+            other._cache = self._cache  # pylint: disable=attribute-defined-outside-init
         except AttributeError:
             pass  # No cache.
         
@@ -250,7 +250,7 @@ class Lamination(object):
         
         return self.boundary().is_peripheral()
     
-    def fills_with(self, other):  #pylint: disable=no-self-use
+    def fills_with(self, other):  # pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''
         assert isinstance(other, Lamination)
         
@@ -284,7 +284,7 @@ class Lamination(object):
         
         return edges
     
-    def topological_type(self):  #pylint: disable=no-self-use
+    def topological_type(self):  # pylint: disable=no-self-use
         ''' Return the topological type of this lamination..
         
         Two laminations are in the same mapping class group orbit if and only their topological types are equal.

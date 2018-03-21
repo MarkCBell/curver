@@ -194,7 +194,7 @@ class MappingClass(Encoding):
         images = list(originals)
         powers = [0] * len(originals)
         for power in range(1, self.source_triangulation.max_order()+1):
-            for i in range(len(originals)):  #pylint: disable=consider-using-enumerate
+            for i in range(len(originals)):  # pylint: disable=consider-using-enumerate
                 while powers[i] < power:
                     images[i] = self(images[i]) if i > 0 else homology_matrix * images[i]
                     powers[i] += 1

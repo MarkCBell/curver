@@ -115,7 +115,7 @@ class Arc(MultiArc):
         
         assert self.is_short()
         
-        [(component, (multiplicity, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
+        [(component, (multiplicity, edge))] = self.parallel_components().items()  # pylint: disable=unbalanced-tuple-unpacking
         assert component == self  # Sanity.
         assert multiplicity == 1  # Sanity.
         
