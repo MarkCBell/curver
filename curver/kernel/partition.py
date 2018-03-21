@@ -24,7 +24,7 @@ class CurvePartitionGraph(object):
         edge_match = lambda e1, e2: sorted(e['weight'] for e in e1.values()) == sorted(e['weight'] for e in e2.values())
         return networkx.is_isomorphic(self.graph, other.graph, node_match=node_match, edge_match=edge_match)
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def __hash__(self):
         return hash(tuple(sorted((d['genus'], d['vertices']) for _, d in self.graph.nodes(data=True))) + tuple(sorted([e['weight'] for _, _, e in self.graph.edges(data=True)])))

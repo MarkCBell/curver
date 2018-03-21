@@ -56,7 +56,7 @@ class MappingClassGroup(object):
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.mapping_classes == other.mapping_classes
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def __getitem__(self, item):
         return self.mapping_classes[item]

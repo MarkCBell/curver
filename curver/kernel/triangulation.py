@@ -47,7 +47,7 @@ class Edge(object):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     def __lt__(self, other):
         if isinstance(other, Edge):
             return self.label < other.label
@@ -104,7 +104,7 @@ class Triangle(object):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     def __hash__(self):
         return hash(tuple(self.edges))
     def __len__(self):

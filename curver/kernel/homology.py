@@ -27,7 +27,7 @@ class HomologyClass(object):
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.canonical().algebraic == other.canonical().algebraic
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     def __hash__(self):
         return hash(tuple(self.canonical().algebraic))
     def __add__(self, other):

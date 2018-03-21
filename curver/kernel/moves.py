@@ -88,7 +88,7 @@ class Isometry(Move):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def apply_lamination(self, lamination):
         geometric = [lamination(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
@@ -126,7 +126,7 @@ class EdgeFlip(Move):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def apply_lamination(self, lamination):
         L = lamination  # Shorter name.

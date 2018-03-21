@@ -21,7 +21,7 @@ class Vector2(object):
         raise TypeError('Susceptible to FPE.')
         return self.x == other.x and self.y == other.y
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     def __iter__(self):
         return iter([self.x, self.y])
     def __getitem__(self, item):

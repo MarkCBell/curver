@@ -26,7 +26,7 @@ class Crush(Move):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def apply_lamination(self, lamination):
         geometric = list(lamination)
@@ -156,7 +156,7 @@ class Lift(Move):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def apply_lamination(self, lamination):
         # Really should check that the dual weights around a vertex are all non-negative.

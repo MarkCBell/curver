@@ -85,7 +85,7 @@ class Encoding(object):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     def __hash__(self):
         # In fact this hash is perfect unless the surface is S_{1,1}.
         return hash(tuple(entry for row in self.intersection_matrix().tolist() for entry in row))

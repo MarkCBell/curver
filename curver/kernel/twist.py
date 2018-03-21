@@ -41,7 +41,7 @@ class Twist(Move):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def apply_lamination(self, lamination):
         intersection = self.curve.intersection(lamination)
@@ -167,7 +167,7 @@ class HalfTwist(Move):
         else:
             return NotImplemented
     def __ne__(self, other):
-        return not (self == other)
+        return not self == other
     
     def apply_lamination(self, lamination):
         return self.encoding_power(lamination)
