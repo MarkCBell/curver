@@ -9,9 +9,9 @@ class Crush(Move):
     def __init__(self, source_triangulation, target_triangulation, curve, matrix):
         super(Crush, self).__init__(source_triangulation, target_triangulation)
         
-        assert(isinstance(curve, curver.kernel.Curve))
-        assert(not curve.is_peripheral() and curve.is_short())
-        assert(curve.triangulation == self.source_triangulation)
+        assert isinstance(curve, curver.kernel.Curve)
+        assert not curve.is_peripheral() and curve.is_short()
+        assert curve.triangulation == self.source_triangulation
         
         self.curve = curve
         self.matrix = matrix
@@ -110,7 +110,7 @@ class Crush(Move):
                     
                     # Sanity check:
                     x2, y2, z2 = lamination.triangulation.corner_lookup[~edge]
-                    assert(geometric[edge.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
+                    assert geometric[edge.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0)
         
         # We have to rebuild the ~e edge separately since it now pairs with ~b.
         x, y, z = lamination.triangulation.corner_lookup[~e]
@@ -121,7 +121,7 @@ class Crush(Move):
             
             # Sanity check:
             x2, y2, z2 = lamination.triangulation.corner_lookup[~b]
-            assert(geometric[e.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0))
+            assert geometric[e.index] == max(sides[x2], 0) + max(sides[y2], 0) + max(-sides[z2], 0)
         
         # And finally the b edge, which is now paired with e.
         # Since around_v > 0 ==> out_v == 0 & out_v > 0 ==> around_v == 0, this is equivalent to: around_v if around_v > 0 else -out_v
@@ -140,8 +140,8 @@ class Lift(Move):
     def __init__(self, source_triangulation, target_triangulation, curve, matrix):
         super(Lift, self).__init__(source_triangulation, target_triangulation)
         
-        assert(isinstance(curve, curver.kernel.Curve))
-        assert(curve.triangulation == self.target_triangulation)
+        assert isinstance(curve, curver.kernel.Curve)
+        assert curve.triangulation == self.target_triangulation
         
         self.curve = curve
         self.matrix = matrix

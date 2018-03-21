@@ -11,8 +11,8 @@ class Twist(Move):
     def __init__(self, curve, power):
         super(Twist, self).__init__(curve.triangulation, curve.triangulation)
         
-        assert(isinstance(curve, curver.kernel.Curve))
-        assert(curve.is_short() and not curve.is_peripheral())
+        assert isinstance(curve, curver.kernel.Curve)
+        assert curve.is_short() and not curve.is_peripheral()
         
         self.curve = curve
         self.power = power
@@ -66,7 +66,7 @@ class Twist(Move):
                     power_applied = 1
                 else:  # if slope < -1:
                     steps = min(power, -(slope.numerator // slope.denominator) - 1)  # ceil(-slope) - 1.
-                    assert(steps >= 0)  # Sanity.
+                    assert steps >= 0  # Sanity.
                     geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
                     power_applied = steps
             else:  # power < 0:  # Left twist (decreases slope).
@@ -78,12 +78,12 @@ class Twist(Move):
                     power_applied = -1
                 else:  # 1 < slope:
                     steps = min(-power, -(-slope.numerator // slope.denominator) - 1)  # ceil(slope) - 1.
-                    assert(steps >= 0)  # Sanity.
+                    assert steps >= 0  # Sanity.
                     geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
                     power_applied = -steps
             new_lamination = lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
-            # assert(new_lamination == (self.encoding**power_applied)(lamination))
-            # assert(-1 <= slope <= 1 or self.curve.slope(new_lamination) == slope + power_applied)
+            # assert new_lamination == (self.encoding**power_applied)(lamination)
+            # assert -1 <= slope <= 1 or self.curve.slope(new_lamination) == slope + power_applied
             lamination = new_lamination
             power = power - power_applied
         
@@ -110,8 +110,8 @@ class HalfTwist(Move):
     def __init__(self, arc, power):
         super(HalfTwist, self).__init__(arc.triangulation, arc.triangulation)
         
-        assert(isinstance(arc, curver.kernel.Arc))
-        assert(arc.is_short())
+        assert isinstance(arc, curver.kernel.Arc)
+        assert arc.is_short()
         
         self.arc = arc
         self.power = power

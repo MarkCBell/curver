@@ -6,12 +6,12 @@ import curver
 class HomologyClass(object):
     ''' This represents a homology class of a triangulation (relative to its vertices). '''
     def __init__(self, triangulation, algebraic):
-        assert(isinstance(triangulation, curver.kernel.Triangulation))
+        assert isinstance(triangulation, curver.kernel.Triangulation)
         
         self.triangulation = triangulation
         self.zeta = self.triangulation.zeta
         self.algebraic = list(algebraic)
-        assert(len(self.algebraic) == self.zeta)
+        assert len(self.algebraic) == self.zeta
     
     def __repr__(self):
         return str(self)

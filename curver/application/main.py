@@ -104,7 +104,7 @@ class Drawing(object):
     ######################################################################
     
     def create_vertex(self, point):
-        assert(isinstance(point, curver.application.Vector2))
+        assert isinstance(point, curver.application.Vector2)
         self.vertices.append(curver.application.CanvasVertex(self.canvas, point, self.options))
         return self.vertices[-1]
     
@@ -118,7 +118,7 @@ class Drawing(object):
         return self.triangles[-1]
     
     def create_curve_component(self, vertices, thin=True, smooth=False):
-        assert(all(isinstance(vertex, curver.application.Vector2) for vertex in vertices))
+        assert all(isinstance(vertex, curver.application.Vector2) for vertex in vertices)
         self.curve_components.append(curver.application.CurveComponent(self.canvas, vertices, self.options, thin, smooth))
         return self.curve_components[-1]
     

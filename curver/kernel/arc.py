@@ -83,7 +83,7 @@ class MultiArc(Lamination):
         Runs in exp(radius) time.
         Note that this is only well-defined if this multiarc is filling. '''
         
-        assert(self.is_filling())
+        assert self.is_filling()
         
         short, conjugator = self.shorten()
         
@@ -113,11 +113,11 @@ class Arc(MultiArc):
         
         Note that this is only defined for short arcs. '''
         
-        assert(self.is_short())
+        assert self.is_short()
         
         [(component, (multiplicity, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
-        assert(component == self)  # Sanity.
-        assert(multiplicity == 1)  # Sanity.
+        assert component == self  # Sanity.
+        assert multiplicity == 1  # Sanity.
         
         return edge
     
@@ -145,8 +145,8 @@ class Arc(MultiArc):
     def intersection(self, lamination):
         ''' Return the geometric intersection between self and the given lamination. '''
         
-        assert(isinstance(lamination, curver.kernel.Lamination))
-        assert(lamination.triangulation == self.triangulation)
+        assert isinstance(lamination, curver.kernel.Lamination)
+        assert lamination.triangulation == self.triangulation
         
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)

@@ -21,13 +21,13 @@ class MappingClassGroup(object):
         if arcs is None: arcs = dict()
         
         for name, arc in arcs.items():
-            assert(name not in pos_mapping_classes)
+            assert name not in pos_mapping_classes
             pos_mapping_classes[name] = arc.encode_halftwist()
         for name, curve in curves.items():
-            assert(name not in pos_mapping_classes)
+            assert name not in pos_mapping_classes
             pos_mapping_classes[name] = curve.encode_twist()
         
-        assert(pos_mapping_classes)
+        assert pos_mapping_classes
         
         if not isinstance(pos_mapping_classes, dict):
             pos_mapping_classes = dict(curver.kernel.utilities.name_objects(pos_mapping_classes))
@@ -35,10 +35,10 @@ class MappingClassGroup(object):
         self.triangulation = list(pos_mapping_classes.values())[0].source_triangulation
         self.zeta = self.triangulation.zeta
         
-        assert(all(isinstance(key, str) for key in pos_mapping_classes))
-        assert(all(isinstance(pos_mapping_class, curver.kernel.MappingClass) for pos_mapping_class in pos_mapping_classes.values()))
-        assert(all(pos_mapping_class.source_triangulation == self.triangulation for pos_mapping_class in pos_mapping_classes.values()))
-        assert(all(REGEX_IS_NAME.match(name) for name in pos_mapping_classes))
+        assert all(isinstance(key, str) for key in pos_mapping_classes)
+        assert all(isinstance(pos_mapping_class, curver.kernel.MappingClass) for pos_mapping_class in pos_mapping_classes.values())
+        assert all(pos_mapping_class.source_triangulation == self.triangulation for pos_mapping_class in pos_mapping_classes.values())
+        assert all(REGEX_IS_NAME.match(name) for name in pos_mapping_classes)
         
         self.pos_mapping_classes = dict(pos_mapping_classes)
         self.neg_mapping_classes = dict((name.swapcase(), pos_mapping_class.inverse()) for name, pos_mapping_class in self.pos_mapping_classes.items())
@@ -90,7 +90,7 @@ class MappingClassGroup(object):
         
         Raises a TypeError if the greedy decomposition fails. '''
         
-        assert(isinstance(word, str))
+        assert isinstance(word, str)
         
         # By sorting the available keys, longest first, we ensure that any time we
         # get a match it is as long as possible.

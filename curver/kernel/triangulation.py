@@ -78,9 +78,9 @@ class Triangle(object):
     __slots__ = ['edges', 'labels', 'indices']
     
     def __init__(self, edges, rotate=None):
-        assert(isinstance(edges, (list, tuple)))
-        assert(all(isinstance(edge, Edge) for edge in edges))
-        assert(len(edges) == 3)
+        assert isinstance(edges, (list, tuple))
+        assert all(isinstance(edge, Edge) for edge in edges)
+        assert len(edges) == 3
         
         # Edges are ordered anti-clockwise. We will cyclically permute
         # these to a canonical ordering, the one where the edges are ordered
@@ -189,10 +189,10 @@ class Triangulation(object):
         
         if len(edge_labels) == 1: edge_labels = edge_labels[0]
         
-        assert(isinstance(edge_labels, (list, tuple)))
-        assert(all(isinstance(labels, (list, tuple)) for labels in edge_labels))
-        assert(all(len(labels) == 3 for labels in edge_labels))
-        assert(edge_labels)
+        assert isinstance(edge_labels, (list, tuple))
+        assert all(isinstance(labels, (list, tuple)) for labels in edge_labels)
+        assert all(len(labels) == 3 for labels in edge_labels)
+        assert edge_labels
         
         zeta = len(edge_labels) * 3 // 2
         
@@ -366,7 +366,7 @@ class Triangulation(object):
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        assert(self.is_flippable(edge))
+        assert self.is_flippable(edge)
         
         # Given the e, return the edges a, b, c, d, e in order.
         #
@@ -395,7 +395,7 @@ class Triangulation(object):
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        assert(self.is_flippable(edge))
+        assert self.is_flippable(edge)
         
         # Use the following for reference:
         # #<----------#     #-----------#
@@ -480,7 +480,7 @@ class Triangulation(object):
         
         Assumes that such an isometry exists and is unique. '''
         
-        assert(isinstance(label_map, dict))
+        assert isinstance(label_map, dict)
         
         # Make a local copy as we may need to make a lot of changes.
         label_map = dict(label_map)
@@ -523,7 +523,7 @@ class Triangulation(object):
     def isometries_to(self, other):
         ''' Return a list of all isometries from this triangulation to other. '''
         
-        assert(isinstance(other, Triangulation))
+        assert isinstance(other, Triangulation)
         
         if self.zeta != other.zeta:
             return []
@@ -552,7 +552,7 @@ class Triangulation(object):
     def is_isometric_to(self, other):
         ''' Return if there are any orientation preserving isometries from this triangulation to other. '''
         
-        assert(isinstance(other, Triangulation))
+        assert isinstance(other, Triangulation)
         
         return len(self.isometries_to(other)) > 0
     
@@ -560,7 +560,7 @@ class Triangulation(object):
     def lamination(self, weights, promote=True):
         ''' Return a new lamination on this surface assigning the specified weight to each edge. '''
         
-        assert(len(weights) == self.zeta)
+        assert len(weights) == self.zeta, 'Expected %d weights but got %d' % (self.zeta, len(weights))
         # Should check all dual weights.
         
         lamination = curver.kernel.Lamination(self, weights)
@@ -674,7 +674,7 @@ class Triangulation(object):
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        assert(self.is_flippable(edge))
+        assert self.is_flippable(edge)
         
         new_triangulation = self.flip_edge(edge)
         
@@ -725,8 +725,8 @@ class Triangulation(object):
         back to the starting triangulation via the isometry which takes 1 to ~2 and
         then finally flips edge 1. '''
         
-        assert(isinstance(sequence, (list, tuple)))
-        assert(sequence)
+        assert isinstance(sequence, (list, tuple))
+        assert sequence
         
         T = self
         h = None

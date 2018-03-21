@@ -11,7 +11,7 @@ class Lamination(object):
     
     Users should create these via Triangulation(...) or Triangulation.lamination(...). '''
     def __init__(self, triangulation, geometric):
-        assert(isinstance(triangulation, curver.kernel.Triangulation))
+        assert isinstance(triangulation, curver.kernel.Triangulation)
         
         self.triangulation = triangulation
         self.zeta = self.triangulation.zeta
@@ -25,7 +25,7 @@ class Lamination(object):
             a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
             a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
             correction = min(a + b - c, b + c - a, c + a - b, 0)
-            assert((a + b + c + correction) % 2 == 0)
+            assert (a + b + c + correction) % 2 == 0
             self._dual[i] = self._side[k] = (b + c - a + correction) // 2
             self._dual[j] = self._side[i] = (c + a - b + correction) // 2
             self._dual[k] = self._side[j] = (a + b - c + correction) // 2
@@ -60,8 +60,8 @@ class Lamination(object):
     def __radd__(self, other):
         return self + other  # Commutative.
     def __mul__(self, other):
-        assert(isinstance(other, curver.IntegerType))
-        assert(other >= 0)
+        assert isinstance(other, curver.IntegerType)
+        assert other >= 0
         
         if other == 0:
             new_class = Lamination
@@ -170,14 +170,14 @@ class Lamination(object):
     def intersection(self, lamination):
         ''' Return the geometric intersection number between this lamination and the given one. '''
         
-        assert(isinstance(lamination, Lamination))
+        assert isinstance(lamination, Lamination)
         
         return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.components().items())
     
     def no_common_component(self, lamination):
         ''' Return that self does not share any components with the given Lamination. '''
         
-        assert(isinstance(lamination, Lamination))
+        assert isinstance(lamination, Lamination)
         
         self_components = self.components()
         return not any(component in self_components for component in lamination.components())
@@ -252,7 +252,7 @@ class Lamination(object):
     
     def fills_with(self, other):  #pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''
-        assert(isinstance(other, Lamination))
+        assert isinstance(other, Lamination)
         
         return NotImplemented  # TODO: 2) Implement! (And remove the PyLint disable when done.)
     
@@ -266,7 +266,7 @@ class Lamination(object):
         
         start = (edge, intersection_point)
         
-        assert(0 <= intersection_point < self(edge))  # Sanity.
+        assert 0 <= intersection_point < self(edge)  # Sanity.
         dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
         edges = []
         for _ in range(length):
@@ -280,7 +280,7 @@ class Lamination(object):
             if (edge, intersection_point) == start:  # Closes up.
                 break
             edges.append(edge)
-            assert(0 <= intersection_point < self(edge))  # Sanity.
+            assert 0 <= intersection_point < self(edge)  # Sanity.
         
         return edges
     
@@ -466,7 +466,7 @@ class Lamination(object):
             lamination = Lamination(lamination.triangulation, geometric)
         
         short = conjugator(self)
-        assert(short.is_short())  # Sanity.
+        assert short.is_short()  # Sanity.
         
         return short, conjugator
 

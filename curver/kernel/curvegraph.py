@@ -12,7 +12,7 @@ class CurveGraph(object):
     def __init__(self, triangulation):
         self.triangulation = triangulation
         self.zeta = self.triangulation.zeta
-        assert(self.triangulation.is_connected())
+        assert self.triangulation.is_connected()
         
         # Constants:
         # Universal:
@@ -36,10 +36,10 @@ class CurveGraph(object):
         
         # Uses Masur--Minsky theorem.
         
-        assert(isinstance(a, curver.kernel.Curve))
-        assert(isinstance(b, curver.kernel.Curve))
-        assert(a.triangulation == self.triangulation)
-        assert(b.triangulation == self.triangulation)
+        assert isinstance(a, curver.kernel.Curve)
+        assert isinstance(b, curver.kernel.Curve)
+        assert a.triangulation == self.triangulation
+        assert b.triangulation == self.triangulation
         
         _, conjugator_a = a.shorten()
         
@@ -60,11 +60,11 @@ class CurveGraph(object):
         
         From Algorithm 3 of [BellWebb16]_. '''
         
-        assert(isinstance(a, curver.kernel.MultiCurve))
-        assert(isinstance(b, curver.kernel.MultiCurve))
-        assert(a.triangulation == self.triangulation)
-        assert(b.triangulation == self.triangulation)
-        assert(length >= 0)
+        assert isinstance(a, curver.kernel.MultiCurve)
+        assert isinstance(b, curver.kernel.MultiCurve)
+        assert a.triangulation == self.triangulation
+        assert b.triangulation == self.triangulation
+        assert length >= 0
         
         if length == 0:
             return set([(a,)]) if a == b else set()
@@ -99,10 +99,10 @@ class CurveGraph(object):
         
         From the first half of Algorithm 4 of [BellWebb16]_. '''
         
-        assert(isinstance(a, curver.kernel.Curve))
-        assert(isinstance(b, curver.kernel.Curve))
-        assert(a.triangulation == self.triangulation)
-        assert(b.triangulation == self.triangulation)
+        assert isinstance(a, curver.kernel.Curve)
+        assert isinstance(b, curver.kernel.Curve)
+        assert a.triangulation == self.triangulation
+        assert b.triangulation == self.triangulation
         
         guide = self.quasiconvex(a, b)  # U.
         L = 6*self.QUASICONVEXITY + 2  # See [Webb15].
@@ -113,10 +113,10 @@ class CurveGraph(object):
         
         From the second half of Algorithm 4 of [BellWebb16]_. '''
         
-        assert(isinstance(a, curver.kernel.Curve))
-        assert(isinstance(b, curver.kernel.Curve))
-        assert(a.triangulation == self.triangulation)
-        assert(b.triangulation == self.triangulation)
+        assert isinstance(a, curver.kernel.Curve)
+        assert isinstance(b, curver.kernel.Curve)
+        assert a.triangulation == self.triangulation
+        assert b.triangulation == self.triangulation
         
         # Build graph.
         vertices = list(self.all_tight_geodesic_multicurves(a, b))
@@ -136,10 +136,10 @@ class CurveGraph(object):
         The geodesic will always come from a tight geodesic.
         From Algorithm 5 of [BellWebb16]_. '''
         
-        assert(isinstance(a, curver.kernel.Curve))
-        assert(isinstance(b, curver.kernel.Curve))
-        assert(a.triangulation == self.triangulation)
-        assert(b.triangulation == self.triangulation)
+        assert isinstance(a, curver.kernel.Curve)
+        assert isinstance(b, curver.kernel.Curve)
+        assert a.triangulation == self.triangulation
+        assert b.triangulation == self.triangulation
         
         return tuple(multicurve.peek_component() for multicurve in self.tight_geodesic(a, b))
     

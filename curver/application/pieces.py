@@ -161,9 +161,9 @@ class CanvasTriangle(DrawableObject):
         self.edges = [edge for vertex in self for edge in self.edges if vertex not in edge.vertices]
         
         # And check to make sure everyone made it through alive.
-        assert(len(self.edges) == 3)
-        assert(self[0] != self[1] and self[1] != self[2] and self[2] != self[0])
-        assert(self.edges[0] != self.edges[1] and self.edges[1] != self.edges[2] and self.edges[2] != self.edges[0])
+        assert len(self.edges) == 3
+        assert self[0] != self[1] and self[1] != self[2] and self[2] != self[0]
+        assert self.edges[0] != self.edges[1] and self.edges[1] != self.edges[2] and self.edges[2] != self.edges[0]
         
         self.drawn = self.canvas.create_polygon([c for v in self for c in v], fill=self.colour, tag='polygon')
         # Add this triangle to each edge involved.

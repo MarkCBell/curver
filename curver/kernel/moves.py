@@ -7,8 +7,8 @@ import curver
 class Move(object):
     ''' A basic move from one triangulation to another. '''
     def __init__(self, source_triangulation, target_triangulation):
-        assert(isinstance(source_triangulation, curver.kernel.Triangulation))
-        assert(isinstance(target_triangulation, curver.kernel.Triangulation))
+        assert isinstance(source_triangulation, curver.kernel.Triangulation)
+        assert isinstance(target_triangulation, curver.kernel.Triangulation)
         
         self.source_triangulation = source_triangulation
         self.target_triangulation = target_triangulation
@@ -62,11 +62,11 @@ class Isometry(Move):
         
         super(Isometry, self).__init__(source_triangulation, target_triangulation)
         
-        assert(isinstance(label_map, dict))
+        assert isinstance(label_map, dict)
         self.label_map = dict(label_map)
         
         # Quick sanity check.
-        assert(all(i in self.label_map for i in self.source_triangulation.labels))
+        assert all(i in self.label_map for i in self.source_triangulation.labels)
         
         self.index_map = dict((i, curver.kernel.norm(self.label_map[i])) for i in self.source_triangulation.indices)
         # Store the inverses too while we're at it.
@@ -110,7 +110,7 @@ class EdgeFlip(Move):
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         self.edge = edge
-        assert(self.source_triangulation.is_flippable(self.edge))
+        assert self.source_triangulation.is_flippable(self.edge)
         
         self.square = self.source_triangulation.square(self.edge)
     

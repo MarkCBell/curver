@@ -15,9 +15,9 @@ class Encoding(object):
     
     The map is given by a sequence of Moves which act from right to left. '''
     def __init__(self, sequence):
-        assert(isinstance(sequence, (list, tuple)))
-        assert(sequence)
-        # assert(all(isinstance(item, curver.kernel.Move) for item in sequence))  # Quadratic.
+        assert isinstance(sequence, (list, tuple))
+        assert sequence
+        # assert all(isinstance(item, curver.kernel.Move) for item in sequence)  # Quadratic.
         
         self.sequence = sequence
         
@@ -270,7 +270,7 @@ def create_encoding(source_triangulation, sequence):
     This is only really here to help with pickling. Users should use
     source_triangulation.encode(sequence) directly. '''
     
-    assert(isinstance(source_triangulation, curver.kernel.Triangulation))
+    assert isinstance(source_triangulation, curver.kernel.Triangulation)
     
     return source_triangulation.encode(sequence)
 

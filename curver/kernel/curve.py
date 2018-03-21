@@ -70,7 +70,7 @@ class MultiCurve(Lamination):
     
     def boundary_union(self, other):
         ''' Return \\partial N(self \\cup other). '''
-        assert(isinstance(other, Lamination))
+        assert isinstance(other, Lamination)
         
         crush = self.crush()
         lift = crush.inverse()
@@ -80,7 +80,7 @@ class MultiCurve(Lamination):
     
     def fills_with(self, other):
         ''' Return whether self \\cup other fills. '''
-        assert(isinstance(other, Lamination))
+        assert isinstance(other, Lamination)
         
         if any(component.intersection(other) == 0 for component in self.components()):
             return False
@@ -153,12 +153,12 @@ class Curve(MultiCurve):
         
         Note that this is only defined for short, non-peripheral curves. '''
         
-        assert(not self.is_peripheral())
-        assert(self.is_short())
+        assert not self.is_peripheral()
+        assert self.is_short()
         
         [(component, (multiplicity, edge))] = self.parallel_components().items()  #pylint: disable=unbalanced-tuple-unpacking
-        assert(component == self)  # Sanity.
-        assert(multiplicity == 1)  # Sanity.
+        assert component == self  # Sanity.
+        assert multiplicity == 1  # Sanity.
         
         return edge
     
@@ -210,7 +210,7 @@ class Curve(MultiCurve):
             conjugator = move * conjugator
             minimal = move(minimal)
         
-        assert(minimal.is_minimal())
+        assert minimal.is_minimal()
         
         return minimal, conjugator
     
@@ -236,8 +236,8 @@ class Curve(MultiCurve):
     def intersection(self, lamination):
         ''' Return the geometric intersection between self and the given lamination. '''
         
-        assert(isinstance(lamination, curver.kernel.Lamination))
-        assert(lamination.triangulation == self.triangulation)
+        assert isinstance(lamination, curver.kernel.Lamination)
+        assert lamination.triangulation == self.triangulation
         
         if self.is_peripheral():  # Boring case.
             return sum((max(-lamination(edge), 0) + max(-lamination.side_weight(edge), 0)) * self.side_weight(edge) for edge in self.triangulation.edges if self(edge) == 1)
@@ -263,7 +263,7 @@ class Curve(MultiCurve):
         Assumes that this curve and the given lamination intersect.
         This curve must be non-peripheral. '''
         
-        assert(not self.is_peripheral())
+        assert not self.is_peripheral()
         
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
@@ -295,9 +295,9 @@ class Curve(MultiCurve):
         Assumes that this curve and the given laminations intersect.
         This curve must be non-peripheral. '''
         
-        assert(isinstance(b, curver.kernel.Lamination))
-        assert(isinstance(c, curver.kernel.Lamination))
-        assert(not self.is_peripheral())
+        assert isinstance(b, curver.kernel.Lamination)
+        assert isinstance(c, curver.kernel.Lamination)
+        assert not self.is_peripheral()
         
         ab = self.intersection(b)
         if ab == 0: raise curver.AssumptionError('Relative slope is undefined when self and b are disjoint.')

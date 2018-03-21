@@ -11,7 +11,7 @@ REGEX_IS_SPHERE_BRAID = re.compile(r'SB_(?P<num_strands>\d+)$')
 
 def S_0_n(n):
     # A triangulation of S_{0,n}.
-    assert(n >= 3)
+    assert n >= 3
     
     # We'll build the following triangulation of S_{0,n}:
     #
@@ -49,7 +49,7 @@ def S_0_n(n):
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def S_1_n(n):
-    assert(n >= 1)
+    assert n >= 1
     
     curves, arcs = dict(), dict()
     if n == 1:
@@ -80,7 +80,7 @@ def S_1_n(n):
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def S_2_n(n):
-    assert(n >= 1)
+    assert n >= 1
     
     curves, arcs = dict(), dict()
     if n == 1:
@@ -120,7 +120,7 @@ def S_2_n(n):
 
 
 def S_3_n(n):
-    assert(n >= 1)
+    assert n >= 1
     
     curves, arcs = dict(), dict()
     if n == 1:
@@ -169,8 +169,8 @@ def S_3_n(n):
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
 def S_g_n(g, n):
-    assert(g >= 4)
-    assert(n >= 1)
+    assert g >= 4
+    assert n >= 1
     
     curves, arcs = dict(), dict()
     if n == 1:
@@ -334,8 +334,8 @@ def load(*args):
         return load_old(surface)
     elif len(args) == 2:  # Build Mod(S_{g, n}).
         g, n = args
-        assert(isinstance(g, curver.IntegerType))
-        assert(isinstance(n, curver.IntegerType))
+        assert isinstance(g, curver.IntegerType)
+        assert isinstance(n, curver.IntegerType)
         
         zeta = 6*g + 3*n - 6
         if g < 0 or n < 0 or zeta < 3:
