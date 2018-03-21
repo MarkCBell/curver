@@ -9,7 +9,6 @@ disable=
     multiple-statements,
     no-else-return,
     protected-access,
-    # superfluous-parens,
     too-few-public-methods,
     too-many-branches,
     too-many-instance-attributes,
