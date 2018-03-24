@@ -177,6 +177,46 @@ class MappingClass(Encoding):
         else:
             return self.inverse()**abs(k)
     
+    def twist_number(self, curve):
+        ''' Return the twisting number of this mapping class about the given curve.
+        
+        The curve must be fixed by this mapping. '''
+        
+        
+        assert isinstance(curve, curver.kernel.Curve)
+        assert self(curve) == curve
+        
+        k = 720  # TODO: 1) Find right constant.
+        
+        # Find a dual curve such that
+        # 1) abs(curve.slope(d)) > 1, and
+        # 2) curve.slope(d) and curve.slope(self(d)) have the same sign.
+        
+        edge = min([edge for edge in self.source_triangulation.edges if curve(edge) > 0], key=lambda edge: edge.label)
+        dual = self.source_triangulation.edge_arc(edge)
+        
+        slope = curve.slope(dual)
+        if slope <= 1:
+            dual = curve.encode_twist(power=1+1-int(slope))(dual)
+            slope = curve.slope(dual)  # Recalculate.
+        assert slope > 1
+    
+        image_dual = (self**k)(dual)
+        image_slope = curve.slope(image_dual)
+        
+        if image_slope <= 1:  # Twists to the left, so we have to start again.
+            dual = curve.encode_twist(power=-1-1-int(slope))(dual)
+            slope = curve.slope(dual)  # Recalculate.
+            image_dual = (self**k)(dual)
+            image_slope = curve.slope(image_dual)
+            assert slope < -1
+            assert image_slope < -1
+        
+        assert abs(slope) > 1
+        assert (slope > 0) == (image_slope > 0)
+        
+        return (image_slope - slope) / k
+    
     def order(self):
         ''' Return the order of this mapping class.
         
