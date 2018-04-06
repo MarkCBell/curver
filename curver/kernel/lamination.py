@@ -368,6 +368,9 @@ class Lamination(object):
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
         
+        if self.is_short():  # If this lamination is already short:
+            return self, conjugator
+        
         def shorten_strategy(self, edge):
             ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
             
