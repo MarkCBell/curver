@@ -118,7 +118,6 @@ def S_2_n(n):
     
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
-
 def S_3_n(n):
     assert n >= 1
     
