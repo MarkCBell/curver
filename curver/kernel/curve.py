@@ -144,7 +144,7 @@ class MultiCurve(Lamination):
 
 class Curve(MultiCurve):
     ''' A MultiCurve with a single component. '''
-    @memoize(fast=True)
+    @memoize()
     def components(self):
         return {self: 1}
     

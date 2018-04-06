@@ -104,7 +104,7 @@ class MultiArc(Lamination):
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
-    @memoize(fast=True)
+    @memoize()
     def components(self):
         return {self: 1}
     
