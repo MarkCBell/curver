@@ -182,7 +182,6 @@ class MappingClass(Encoding):
         
         The curve must be fixed by this mapping. '''
         
-        
         assert isinstance(curve, curver.kernel.Curve)
         assert self(curve) == curve
         
