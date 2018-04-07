@@ -10,20 +10,20 @@ Curver
     :target: https://pypi.python.org/pypi/curver
     :alt: PyPI license
 
-.. image:: https://img.shields.io/travis/MarkCBell/curver.svg
+.. image:: https://travis-ci.org/MarkCBell/curver.svg?branch=master
     :target: https://travis-ci.org/MarkCBell/curver
     :alt: Travis build status
 
-.. image:: https://ci.appveyor.com/api/projects/status/kd8b36bkas7h9pp6?svg=true
-    :target: https://ci.appveyor.com/project/MarkCBell/curver
+.. image:: https://ci.appveyor.com/api/projects/status/kd8b36bkas7h9pp6/branch/master?svg=true
+    :target: https://ci.appveyor.com/project/MarkCBell/curver/branch/master
     :alt: AppVeyor build status
 
 .. image:: https://readthedocs.org/projects/curver/badge/?version=master
     :target: https://curver.readthedocs.io
     :alt: Documentation status
 
-.. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg
-    :target: https://coveralls.io/github/MarkCBell/curver
+.. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg?branch=master
+    :target: https://coveralls.io/github/MarkCBell/curver?branch=master
     :alt: Coveralls status
 
 
