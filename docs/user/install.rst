@@ -23,7 +23,7 @@ From source
 -----------
 
 Curver is under active development and there are several ways to obtain its source code.
-As well as PyPI (and its mirrors), GitHub and BitBucket are the official distribution sources; alternatives are not supported.
+As well as PyPI (and its mirrors), GitHub is the official distribution source; alternatives are not supported.
 
 Via git
 ~~~~~~~
@@ -37,14 +37,6 @@ Or, download the `tarball <https://github.com/MarkCBell/curver/tarball/master>`_
 
     $ curl -OL https://github.com/MarkCBell/curver/tarball/master
     # optionally, zipball is also available (for Windows users).
-
-Via mercurial
-~~~~~~~~~~~~~
-
-A mercurial repository of Curver's source code is available  on `BitBucket <https://bitbucket.org/Mark_Bell/curver>`_.
-You can clone the public repository via::
-
-    $ hg clone https://bitbucket.org/Mark_Bell/curver
 
 Installing from source
 ~~~~~~~~~~~~~~~~~~~~~~
