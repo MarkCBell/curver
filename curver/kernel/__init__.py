@@ -11,6 +11,7 @@ from . import arc
 from . import crush
 from . import curve
 from . import curvegraph
+from . import decorators
 from . import encoding
 from . import error
 from . import homology
@@ -54,7 +55,6 @@ Permutation = permutation.Permutation
 norm = triangulation.norm
 UnionFind = structures.UnionFind
 StraightLineProgram = structures.StraightLineProgram
-memoize = utilities.memoize  # Unused?
 matrix_vector = utilities.matrix_vector
 
 # Functions that help with construction.

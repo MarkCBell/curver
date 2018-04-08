@@ -50,7 +50,7 @@ class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
         self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
 
-class TestCurve(TopologicalInvarian, unittest.TestCase):
+class TestCurve(TopologicalInvariant, unittest.TestCase):
     _strategy_name = 'curves'
     
     def assertWithinOne(self, x, y):

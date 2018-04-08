@@ -4,7 +4,7 @@
 from itertools import permutations
 
 import curver
-from curver.kernel.utilities import memoize, topological_invariant  # Special import needed for decorating.
+from curver.kernel.decorators import memoize, topological_invariant  # Special import needed for decorating.
 
 class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.

@@ -8,7 +8,7 @@ from math import factorial
 import numpy as np
 
 import curver
-from curver.kernel.utilities import memoize  # Special import needed for decorating.
+from curver.kernel.decorators import memoize  # Special import needed for decorating.
 
 def norm(number):
     ''' A map taking an edges label to its index.
