@@ -5,7 +5,7 @@ from collections import Counter
 
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
-from curver.kernel.utilities import memoize  # Special import needed for decorating.
+from curver.kernel.utilities import memoize, topological_invariant  # Special import needed for decorating.
 
 class MultiArc(Lamination):
     ''' A Lamination in which every component is an Arc. '''
@@ -62,6 +62,7 @@ class MultiArc(Lamination):
         boundary = short.triangulation(geometric)
         return conjugator.inverse()(boundary)
     
+    @topological_invariant
     def is_polygonalisation(self):
         ''' Return if this MultiArc is a polygonalisation, that is, if it cuts the surface into polygons. '''
         short, _ = self.shorten()
@@ -71,6 +72,7 @@ class MultiArc(Lamination):
         
         return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
     
+    @topological_invariant
     def is_triangulation(self):
         ''' Return if this MultiArc is a triangulation. '''
         short, _ = self.shorten()
@@ -94,6 +96,7 @@ class MultiArc(Lamination):
         
         return triangulations
     
+    # @topological_invariant
     def topological_type(self):
         ''' Return the topological type of this multiarc.
         
@@ -125,6 +128,7 @@ class Arc(MultiArc):
         # return len(self.parallel_components()) == 1
         return Counter(self) == {-1: 1, 0: self.zeta-1}
     
+    @topological_invariant
     def connects_distinct_vertices(self):
         ''' Return whether this arc connects between distict vertices of its underlying triangulation. '''
         

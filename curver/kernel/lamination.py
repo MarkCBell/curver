@@ -4,7 +4,7 @@
 from itertools import permutations
 
 import curver
-from curver.kernel.utilities import memoize  # Special import needed for decorating.
+from curver.kernel.utilities import memoize, topological_invariant  # Special import needed for decorating.
 
 class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.
@@ -103,31 +103,37 @@ class Lamination(object):
         
         return self._side[edge]
     
+    @topological_invariant
     def is_empty(self):
         ''' Return if this lamination has no components. '''
         
         return not any(self)  # self.num_components() == 0
     
+    @topological_invariant
     def is_multicurve(self):
         ''' Return if this lamination is actually a multicurve. '''
         
         return not self.is_empty() and all(isinstance(component, curver.kernel.Curve) for component in self.components())
     
+    @topological_invariant
     def is_curve(self):
         ''' Return if this lamination is actually a curve. '''
         
         return self.is_multicurve() and self.num_components() == 1
     
+    @topological_invariant
     def is_multiarc(self):
         ''' Return if this lamination is actually a multiarc. '''
         
         return not self.is_empty() and all(isinstance(component, curver.kernel.Arc) for component in self.components())
     
+    @topological_invariant
     def is_arc(self):
         ''' Return if this lamination is actually a multiarc. '''
         
         return self.is_multiarc() and self.num_components() == 1
     
+    @topological_invariant
     def is_peripheral(self):
         ''' Return whether this lamination consists entirely of parallel components. '''
         
@@ -182,6 +188,7 @@ class Lamination(object):
         self_components = self.components()
         return not any(component in self_components for component in lamination.components())
     
+    @topological_invariant
     def num_components(self):
         ''' Return the total number of components. '''
         
@@ -230,6 +237,7 @@ class Lamination(object):
         
         return self.multiarc().boundary() + self.multicurve().boundary()
     
+    @topological_invariant
     def is_filling(self):
         ''' Return if this Lamination fills the surface, that is, if it intersects all curves on the surface.
         
@@ -284,6 +292,7 @@ class Lamination(object):
         
         return edges
     
+    # @topological_invariant
     def topological_type(self):  # pylint: disable=no-self-use
         ''' Return the topological type of this lamination..
         

@@ -4,9 +4,12 @@ import hypothesis.strategies as st
 import pickle
 import unittest
 
+from base_classes import TopologicalInvariant
 import strategies
 
-class TestLamination(unittest.TestCase):
+class TestLamination(TopologicalInvariant, unittest.TestCase):
+    _strategy_name = 'laminations'
+    
     @given(strategies.laminations())
     def test_pickle(self, lamination):
         self.assertEqual(lamination, pickle.loads(pickle.dumps(lamination)))

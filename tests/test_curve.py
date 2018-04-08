@@ -3,10 +3,13 @@ from hypothesis import given, settings
 import hypothesis.strategies as st
 import unittest
 
-import curver
+from base_classes import TopologicalInvariant
 import strategies
+import curver
 
-class TestMultiCurve(unittest.TestCase):
+class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
+    _strategy_name = 'multicurves'
+    
     @given(strategies.multicurves())
     @settings(max_examples=20)
     def test_boundary_intersection(self, multicurve):
@@ -46,19 +49,10 @@ class TestMultiCurve(unittest.TestCase):
         multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
         self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
-    
-    @given(st.data())
-    def test_topological_invariants(self, data):
-        multicurve = data.draw(strategies.multicurves())
-        h = data.draw(strategies.encodings(multicurve.triangulation))
-        image = h(multicurve)
-        for method_name in dir(multicurve):
-            method = getattr(multicurve, method_name)
-            if hasattr(method, 'topological_invariant'):
-                image_method = getattr(image, method_name)
-                self.assertEqual(method(), image_method())
 
-class TestCurve(unittest.TestCase):
+class TestCurve(TopologicalInvarian, unittest.TestCase):
+    _strategy_name = 'curves'
+    
     def assertWithinOne(self, x, y):
         self.assertTrue(abs(x - y) <= 1, msg='AssertionError: |%s - %s| > 1' % (x, y))
     
@@ -97,15 +91,4 @@ class TestCurve(unittest.TestCase):
         
         h = data.draw(strategies.encodings(curve.triangulation))
         self.assertWithinOne(h(curve).relative_twisting(h(lamination1), h(lamination2)), power)
-    
-    @given(st.data())
-    def test_topological_invariants(self, data):
-        curve = data.draw(strategies.curves())
-        h = data.draw(strategies.encodings(curve.triangulation))
-        image = h(curve)
-        for method_name in dir(curve):
-            method = getattr(curve, method_name)
-            if hasattr(method, 'topological_invariant'):
-                image_method = getattr(image, method_name)
-                self.assertEqual(method(), image_method())
 
