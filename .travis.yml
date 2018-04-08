@@ -1,30 +1,29 @@
-# Config file for automatic testing at travis-ci.org
-
 branches:
-  only:
-  - master
-  - dev
-
+    only:
+        - master
+        - dev
 language: python
 python:
-  - 2.7
-  - 3.4
-  - 3.5
-  - 3.6
-
-# Command to install dependencies.
+    - 2.7
+    - 3.4
+    - 3.5
+    - 3.6
 install:
     - pip install -r requirements-dev.txt
     - pip install --editable .
     - pip install tox-travis
     - pip install coveralls
-
-# Command to run tests.
 script:
     - flake8
     - pylint curver.kernel
     - tox -- --hypothesis-profile=ci
-
 after_success:
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
-
+deploy:
+    provider: pypi
+    user: mark_bell
+    password:
+        secure: cZpebgMAFn8YLBK6M9FxjBducqgB96fJFox0xnMDq/42E3JTLRi+ZdkFbVExBRbow71MMxtD/Rg2pXXAY1rxRRfttoxQYc3xXHMJz+IOSZp3DRSy3w5h3j6WOlR3dpwxTZUqWSsWvx7TC4C0fDDxB39eR+e4jDqIFwLVc/AjCATSYJ7JDLDWN/vM8ylAXB+zRu6BAnvf3TjQvicc0fep977UeLKLY5y8eG/7VUs/sjLgHcdiIJ8X9gENhCfjnqZnfAPypHU/IOYLggkB2mI/CCK2V2AEGWi0B/dlkibtkxAyJj3ipwOAHtFQyxtZRi6AIXgqTFUDw0iBiA4MzU+grmUwwWNwEdxh6LwHAPwREgXTvHiZ9X+NFVv3hp/WXKvmL78unYJIYIqFu3Y4o8AfzOJnH7S2cCDpHVbPJmQwENQ0BQ/fEa5xIbXvd3dXUizuH+wZCEXpYVC0RA3siiud7BNiGU1RyK0bfthRiCEP9t3zuWJyAA5Q9AlFOjMBX2DwAjh1YHyVhTv3sePcWJZ/sjAqHMfOZ/CjBu8H0GxDngsDlLHENF9OKr/i3h1fnBWio5vuYPkXknzNjcLJAesFdjWziE/kQSFgBnNhQEqG8psLS7RG/bJTu92RtoS8C0ZpEDPKtVSsNvY3enfj2XnujikzDvSowOjXzwGgMQVKhP4=
+    on:
+        tag: true
+        branch: master
