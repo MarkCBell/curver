@@ -8,7 +8,7 @@ import numpy as np
 
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
-from curver.kernel.utilities import memoize  # Special import needed for decorating.
+from curver.kernel.utilities import memoize, topological_invariant  # Special import needed for decorating.
 
 class MultiCurve(Lamination):
     ''' A Lamination in which every component is a Curve. '''
@@ -89,6 +89,7 @@ class MultiCurve(Lamination):
         other_prime = crush(other)
         return other_prime.is_filling()
     
+    @topological_invariant
     def is_separating(self):
         ''' Return whether this multicurve separates S.
         
@@ -97,6 +98,7 @@ class MultiCurve(Lamination):
         crush = self.crush()
         return len(crush.target_triangulation.components()) > len(self.triangulation.components())
     
+    @topological_invariant
     def topological_type(self):
         ''' Return the topological type of this multicurve.
         
@@ -214,6 +216,7 @@ class Curve(MultiCurve):
         
         return minimal, conjugator
     
+    @topological_invariant
     def is_isolating(self):
         ''' Return if this curve is isolating, that is, if it is non-peripheral and a component of S - self does not contain a puncture. '''
         

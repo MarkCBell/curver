@@ -71,6 +71,10 @@ def memoize():
         return caching
     return memoizer
 
+def topological_invariant(function):
+    function.topological_invariant = True
+    return function
+
 def cyclic_slice(L, x, y):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
     

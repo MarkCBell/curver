@@ -46,7 +46,17 @@ class TestMultiCurve(unittest.TestCase):
         multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
         self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
-
+    
+    @given(st.data())
+    def test_topological_invariants(self, data):
+        multicurve = data.draw(strategies.multicurves())
+        h = data.draw(strategies.encodings(multicurve.triangulation))
+        image = h(multicurve)
+        for method_name in dir(multicurve):
+            method = getattr(multicurve, method_name)
+            if hasattr(method, 'topological_invariant'):
+                image_method = getattr(image, method_name)
+                self.assertEqual(method(), image_method())
 
 class TestCurve(unittest.TestCase):
     def assertWithinOne(self, x, y):
@@ -89,9 +99,13 @@ class TestCurve(unittest.TestCase):
         self.assertWithinOne(h(curve).relative_twisting(h(lamination1), h(lamination2)), power)
     
     @given(st.data())
-    @settings(max_examples=20)
-    def test_topological_type(self, data):
+    def test_topological_invariants(self, data):
         curve = data.draw(strategies.curves())
         h = data.draw(strategies.encodings(curve.triangulation))
-        self.assertEqual(curve.topological_type(), h(curve).topological_type())
+        image = h(curve)
+        for method_name in dir(curve):
+            method = getattr(curve, method_name)
+            if hasattr(method, 'topological_invariant'):
+                image_method = getattr(image, method_name)
+                self.assertEqual(method(), image_method())
 
