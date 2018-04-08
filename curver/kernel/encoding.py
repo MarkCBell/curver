@@ -154,7 +154,7 @@ class Encoding(object):
     def simplify(self):
         ''' Return a new Encoding that is equal to self.
         
-        This is obtained by combining the image of the source triangulation under self and so is (hopefully) simpler than self since it depends only on the endpoints. '''
+        This is obtained by combing the image of the source triangulation under self and so is (hopefully) simpler than self since it depends only on the endpoints. '''
         
         _, conjugator = self(self.source_triangulation.as_lamination()).shorten()
         # conjugator.inverse() is almost self, however the edge labels might not agree.
