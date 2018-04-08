@@ -11,7 +11,6 @@ from . import arc
 from . import crush
 from . import curve
 from . import curvegraph
-from . import decorators
 from . import encoding
 from . import error
 from . import homology
