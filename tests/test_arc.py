@@ -5,6 +5,9 @@ import unittest
 import strategies
 from base_classes import TopologicalInvariant
 
+class TestMultiArc(TopologicalInvariant, unittest.TestCase):
+    _strategy_name = 'multiarcs'
+
 class TestArc(TopologicalInvariant, unittest.TestCase):
     _strategy_name = 'arcs'
     
@@ -19,5 +22,3 @@ class TestArc(TopologicalInvariant, unittest.TestCase):
     def test_halftwist(self, arc):
         self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 
-class TestMultiArc(TopologicalInvariant, unittest.TestCase):
-    _strategy_name = 'multiarcs'
