@@ -25,7 +25,7 @@ class Edge(object):
     
     These are really just integers but with fancy printing and indexing set up on them. '''
     
-    # Warning: This needs to be updated if the interals of this class ever change.
+    # Warning: This needs to be updated if the internals of this class ever change.
     __slots__ = ['label', 'index']
     
     def __init__(self, label):
@@ -74,7 +74,7 @@ class Triangle(object):
     It is specified by a list of three edges, ordered anticlockwise.
     It builds its corners automatically. '''
     
-    # Warning: This needs to be updated if the interals of this class ever change.
+    # Warning: This needs to be updated if the internals of this class ever change.
     __slots__ = ['edges', 'labels', 'indices']
     
     def __init__(self, edges, rotate=None):
@@ -164,18 +164,18 @@ class Triangulation(object):
         
         self.euler_characteristic = -self.zeta // 3  # = V - E + F since 3F = 2E and V = 0.
         
-        # Two triangualtions are the same if and only if they have the same signature.
+        # Two triangulations are the same if and only if they have the same signature.
         self.signature = [edge.label for triangle in self for edge in triangle]
     
     @classmethod
     def from_tuple(cls, *edge_labels):
         ''' Return an Triangulation from a list of triples of edge labels.
         
-        Let T be an ideal triangulaton of the punctured (oriented) surface S. Orient
+        Let T be an ideal triangulations of the punctured (oriented) surface S. Orient
         and edge e of T and assign an index i(e) in 0, ..., zeta-1. Now to each
         triangle t of T associate the triple j(t) := (j(e_1), j(e_2), j(e_3)) where:
         
-            - e_1, e_2, e_3 are the edges of t, ordered acording to the orientation of t, and
+            - e_1, e_2, e_3 are the edges of t, ordered according to the orientation of t, and
             - j(e) = {  i(e) if the orientation of e agrees with that of t, and
                      { ~i(e) otherwise.
         
@@ -224,7 +224,7 @@ class Triangulation(object):
     def __getitem__(self, index):
         return self.triangles[index]
     def package(self):
-        ''' Return a small amount of info that create_triagulation can use to reconstruct this triangulation. '''
+        ''' Return a small amount of info that create_triangulation can use to reconstruct this triangulation. '''
         return ([t.labels for t in self],)
     def __reduce__(self):
         # Triangulations are already pickleable but this results in a much smaller pickle.
