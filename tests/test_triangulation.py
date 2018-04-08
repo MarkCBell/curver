@@ -46,7 +46,7 @@ class TestTriangulation(unittest.TestCase):
     
     @given(strategies.triangulations())
     def test_homology(self, triangulation):
-        self.assertEqual(len(triangulation.homology_basis()), 1 - triangulation.euler_characteristic)
+        self.assertEqual(len(triangulation.homology_basis()), 1 - triangulation.euler_characteristic)  # Assumes connected.
     
     @given(strategies.triangulations())
     def test_connected(self, triangulation):
