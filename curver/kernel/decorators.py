@@ -1,4 +1,6 @@
 
+''' A module for decorators. '''
+
 from functools import wraps
 
 def memoize(function):
@@ -18,5 +20,9 @@ def memoize(function):
     return caching
 
 def topological_invariant(function):
+    ''' Mark this function as a topological invariant.
+    
+    This is allows it to be picked out by the TopologicalInvariant unittests. '''
+    
     function.topological_invariant = True
     return function
