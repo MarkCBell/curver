@@ -47,4 +47,9 @@ class TestTriangulation(unittest.TestCase):
     @given(strategies.triangulations())
     def test_homology(self, triangulation):
         self.assertEqual(len(triangulation.homology_basis()), 1 - triangulation.euler_characteristic)
+    
+    @given(strategies.triangulations())
+    def test_connected(self, triangulation):
+        for encoding in triangulation.all_encodings(1):
+            self.assertEqual(triangulation.is_connected(), encoding.target_triangulation.is_connected())
 

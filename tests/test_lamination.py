@@ -30,6 +30,7 @@ class TestLamination(unittest.TestCase):
         self.assertEqual(lamination.triangulation.disjoint_sum([multiplicity * component for component, multiplicity in lamination.components().items()]), lamination)
         for component in lamination.components():
             self.assertEqual(component.intersection(component), 0)
+            self.assertEqual(component.components(), {component: 1})
     
     @given(st.data())
     @settings(max_examples=20)
