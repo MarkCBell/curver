@@ -307,7 +307,7 @@ class Lamination(object):
         
         return NotImplemented  # TODO: 2) Implement. (And remove the PyLint disable when done.)
     
-    @memoize()
+    @memoize
     def parallel_components(self):
         ''' Return a dictionary mapping component |--> (multiplicity, edge) for each component of self that is parallel to an edge. '''
         
@@ -335,7 +335,7 @@ class Lamination(object):
         
         return components
     
-    @memoize()
+    @memoize
     def components(self):
         ''' Return a dictionary mapping components to their multiplicities. '''
         
@@ -370,7 +370,7 @@ class Lamination(object):
         
         return lamination.is_empty()
     
-    @memoize()
+    @memoize
     def shorten(self):
         ''' Return an encoding which maps this lamination to a short one, together with its image. '''
         
