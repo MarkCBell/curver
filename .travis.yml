@@ -21,10 +21,11 @@ after_success:
     - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
 deploy:
     provider: pypi
-    user: mark_bell
+    user: "mark_bell"
     password:
         secure: "uQ4I5OYt/PRWvtGlAiXLTAnkM/3RhJXduAvyPPqTOhPsZDKxHUEL63c4oEKuRJx6oaMyvDSqQsJ0Ep2iZMz+bXZB+BcEtu51jc8ocLG7e/k3i8Pw5WwjHxJ6KNGLFzWJojQrWDp3te7iMmqadmjTbutFBvVTBkyJPCPqGwEj2R6aNSxVKbRtwRLvWd1CS99u6ImArLm7jeU6Y8gtuPLoTnt4UCXAHfBH0Z3co5CUNQpUwLBvaNr6P8rvtwdS0s4pOkfm2K190DGB2V0DjTvh1roiK+els4jFJGZLqF/tlGp5ga2OeM8v2ADo1awdJP0HKaMObmD2EgsfGd4KL4MNrdw+vjxDCzYsLs34pPCwtmiemd1p+3ti6I4u03OgWNkUa6pO/hyIHQvBY8DdBWBCcbT75xOjW6gftcEwLL1jt7vor5Gs82t2XmAeTMurnCWkM7aRnvGvyY2gInlcaIZFehPLEJM/xjJz0enmmN9yIamcHQarYm/vfUx/Z63QZwoQunUQ3qWF9b9Dkr0fDCWrUQ69ctOkmUu98JsndyYqwoscN3uxEfwIfi3ZxZC1vxwoTMEbuMGOX4ApcbXlZ4bnFv30KeP4Zb979Vox1KEnvZ5Qv/0BtLSZQTzLLiytgdXbva5XQzTcw/YsOljSD1FtBZ6+M90cj/zVwIgg7K0YF5w="
+
     on:
         tag: true
+        python: 2.7
         branch: master
-        condition: $TRAVIS_PYTHON_VERSION == 2.7
