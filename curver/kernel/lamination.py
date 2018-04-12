@@ -183,6 +183,7 @@ class Lamination(object):
         short_lamination = conjugator(lamination)
         
         intersection = 0
+        # Parallel components.
         for component, (multiplicity, p) in short.parallel_components().items():
             if isinstance(component, curver.kernel.Arc):
                 intersection += multiplicity * max(short_lamination(p), 0)
@@ -196,8 +197,7 @@ class Lamination(object):
                 intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
         
         # Peripheral components.
-        for vertex in short.triangulation.vertices:
-            multiplicity = min(max(short.side_weight(edge), 0) for edge in vertex)
+        for _, (multiplicity, vertex) in short.peripheral_components().items():
             intersection += multiplicity * sum(max(-short_lamination(edge), 0) + max(-short_lamination.side_weight(edge), 0) for edge in vertex)
         
         return intersection
@@ -329,6 +329,18 @@ class Lamination(object):
         
         return NotImplemented  # TODO: 2) Implement. (And remove the PyLint disable when done.)
     
+    def peripheral_components(self):
+        ''' Return a dictionary mapping component |--> (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
+        
+        components = dict()
+        for vertex in self.triangulation.vertices:
+            multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
+            if multiplicity > 0:
+                component = self.triangulation.curve_from_cut_sequence(vertex)
+                components[component] = (multiplicity, vertex)
+        
+        return components
+    
     @memoize
     def parallel_components(self):
         ''' Return a dictionary mapping component |--> (multiplicity, edge) for each component of self that is parallel to an edge. '''
@@ -362,17 +374,12 @@ class Lamination(object):
         ''' Return a dictionary mapping components to their multiplicities. '''
         
         components = dict()
-        # Peripheral components.
-        for vertex in self.triangulation.vertices:
-            multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
-            if multiplicity > 0:
-                component = self.triangulation.curve_from_cut_sequence(vertex)
-                components[component] = multiplicity
         
         short, conjugator = self.shorten()
-        
         conjugator_inv = conjugator.inverse()
         
+        for component, (multiplicity, _) in short.peripheral_components().items():
+            components[conjugator_inv(component)] = multiplicity
         for component, (multiplicity, _) in short.parallel_components().items():
             components[conjugator_inv(component)] = multiplicity
         
