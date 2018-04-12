@@ -340,13 +340,14 @@ class Lamination(object):
         ''' Return a dictionary mapping components to their multiplicities. '''
         
         components = dict()
+        # Peripheral components.
         for vertex in self.triangulation.vertices:
             multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
             if multiplicity > 0:
                 component = self.triangulation.curve_from_cut_sequence(vertex)
                 components[component] = multiplicity
         
-        short, conjugator = self.non_peripheral(promote=False).shorten()
+        short, conjugator = self.shorten()
         
         conjugator_inv = conjugator.inverse()
         
