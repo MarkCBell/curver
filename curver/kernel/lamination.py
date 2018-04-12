@@ -230,7 +230,7 @@ class Lamination(object):
         for component, (multiplicity, _) in self.peripheral_components().items():
             geometric = [x + multiplicity * y for x, y in zip(geometric, component)]
         
-        return self.triangulation(geometric)  # Have to promote.
+        return self.triangulation(geometric, promote)  # Have to promote.
     
     def non_peripheral(self, promote=True):
         ''' Return the lamination consisting of the non-peripheral components of this Lamination. '''
