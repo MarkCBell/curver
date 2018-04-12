@@ -56,7 +56,7 @@ class StraightLineProgram(object):
         if isinstance(data, StraightLineProgram):  # Copy.
             data = data.graph
         elif isinstance(data, (list, tuple)):  # Wrap.
-            if any(not isinstance(children, (list, tuple)) for children in data) or any(not isinstance(child, (Terminal, curver.IntegerType)) for children in data for child in children):
+            if not data or any(not isinstance(children, (list, tuple)) for children in data) or any(not isinstance(child, (Terminal, curver.IntegerType)) for children in data for child in children):
                 data = [[Terminal(child) for child in data]]
         else:
             raise ValueError('Unknown data.')

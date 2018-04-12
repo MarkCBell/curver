@@ -2,11 +2,13 @@
 History
 =======
 
-0.2.1
------
+0.2.1 (2018-04-12)
+------------------
 
-* Generalised intersection.
+* Generalised intersection code.
+* Collated peripheral components code.
 * Fixed documentation typos.
+* More unittests.
 
 0.2.0 (2018-04-11)
 ------------------

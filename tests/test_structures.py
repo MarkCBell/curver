@@ -1,6 +1,6 @@
 
 import hypothesis.strategies as st
-from hypothesis.stateful import RuleBasedStateMachine, rule
+from hypothesis.stateful import Bundle, RuleBasedStateMachine, rule
 
 import curver
 
@@ -38,4 +38,43 @@ class UnionFindRules(RuleBasedStateMachine):
             assert self.__union_find(item) == self.__union_find(items[0])
 
 TestUnionFind = UnionFindRules.TestCase
+
+class SLPRules(RuleBasedStateMachine):
+    SLPs = Bundle('slps')
+    
+    @rule(target=SLPs, items=st.lists(elements=st.integers()))
+    def newslp(self, items):
+        return curver.kernel.StraightLineProgram(items)
+    
+    @rule(target=SLPs, slp=SLPs)
+    def copy(self, slp):
+        copy = curver.kernel.StraightLineProgram(slp)
+        assert list(copy) == list(slp)
+        return copy
+    
+    @rule(target=SLPs, slp1=SLPs, slp2=SLPs)
+    def add(self, slp1, slp2):
+        added = slp1 + slp2
+        assert list(added) == list(slp1) + list(slp2)
+        return added
+    
+    @rule(slp=SLPs, factor=st.integers(min_value=0, max_value=1000))
+    def multiply(self, slp, factor):
+        assert list(slp * factor)  == list(slp) * factor
+        assert list(factor * slp) == list(slp * factor)
+    
+    @rule(data=st.data())
+    def getitem(self, data):
+        slp = data.draw(self.SLPs.filter(lambda s: len(s) > 0))  # Non-empty.
+        index = data.draw(st.integers(min_value=0, max_value=len(slp)-1))
+        assert list(slp)[index] == slp[index]
+    
+    @rule(target=SLPs, slp=SLPs)
+    def reverse(self, slp):
+        rev = slp.reverse()
+        assert list(rev) == list(slp)[::-1]
+        assert list(reversed(slp)) == list(slp)[::-1]
+        return rev
+
+TestSLP = SLPRules.TestCase
 
