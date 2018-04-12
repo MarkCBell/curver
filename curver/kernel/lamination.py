@@ -223,22 +223,19 @@ class Lamination(object):
         components = self.components()
         return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]  # Powerset.
     
-    def peripheral(self):
-        ''' Return the peripheral components of this Lamination. '''
+    def peripheral(self, promote=True):
+        ''' Return the lamination consisting of the peripheral components of this Lamination. '''
         
-        non_peripheral = self.non_peripheral(promote=False)
-        geometric = [x - y for x, y in zip(self, non_peripheral)]
+        geometric = [0] * self.zeta
+        for component, (multiplicity, _) in self.peripheral_components().items():
+            geometric = [x + multiplicity * y for x, y in zip(geometric, component)]
         
         return self.triangulation(geometric)  # Have to promote.
     
     def non_peripheral(self, promote=True):
-        ''' Return the non-peripheral components of this Lamination. '''
+        ''' Return the lamination consisting of the non-peripheral components of this Lamination. '''
         
-        geometric = list(self)
-        for vertex in self.triangulation.vertices:
-            peripheral = min(max(self.side_weight(edge), 0) for edge in vertex)
-            for edge in vertex:
-                geometric[edge.index] -= peripheral
+        geometric = [x - y for x, y in zip(self, self.peripheral(promote=False))]
         
         return self.triangulation(geometric, promote)  # Have to promote.
     
