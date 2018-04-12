@@ -236,27 +236,6 @@ class Curve(MultiCurve):
         
         return conjugator.inverse() * curver.kernel.Twist(short, power).encode() * conjugator
     
-    def intersection(self, lamination):
-        ''' Return the geometric intersection between self and the given lamination. '''
-        
-        assert isinstance(lamination, curver.kernel.Lamination)
-        assert lamination.triangulation == self.triangulation
-        
-        if self.is_peripheral():  # Boring case.
-            return sum((max(-lamination(edge), 0) + max(-lamination.side_weight(edge), 0)) * self.side_weight(edge) for edge in self.triangulation.edges if self(edge) == 1)
-        
-        short, conjugator = self.shorten()
-        short_lamination = conjugator(lamination)
-        
-        a = short.parallel()
-        v = short.triangulation.vertex_lookup[a]  # = self.triangulation.vertex_lookup[~a].
-        v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
-        
-        around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
-        out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
-        # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
-        return max(short_lamination(a), 0) - 2 * around_v + out_v
-    
     def slope(self, lamination):
         ''' Return the slope of the given lamination about this curve.
         

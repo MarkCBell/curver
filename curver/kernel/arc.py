@@ -145,17 +145,4 @@ class Arc(MultiArc):
         short, conjugator = self.shorten()
         
         return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
-    
-    def intersection(self, lamination):
-        ''' Return the geometric intersection between self and the given lamination. '''
-        
-        assert isinstance(lamination, curver.kernel.Lamination)
-        assert lamination.triangulation == self.triangulation
-        
-        short, conjugator = self.shorten()
-        short_lamination = conjugator(lamination)
-        
-        edge = short.parallel()
-        
-        return max(short_lamination(edge), 0)
 

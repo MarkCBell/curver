@@ -2,6 +2,12 @@
 History
 =======
 
+0.2.1
+-----
+
+* Generalised intersection.
+* Fixed documentation typos.
+
 0.2.0 (2018-04-11)
 ------------------
 

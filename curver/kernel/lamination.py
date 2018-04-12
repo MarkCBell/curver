@@ -177,8 +177,30 @@ class Lamination(object):
         ''' Return the geometric intersection number between this lamination and the given one. '''
         
         assert isinstance(lamination, Lamination)
+        assert lamination.triangulation == self.triangulation
         
-        return sum(multiplicity * component.intersection(lamination) for component, multiplicity in self.components().items())
+        short, conjugator = self.shorten()
+        short_lamination = conjugator(lamination)
+        
+        intersection = 0
+        for component, (multiplicity, p) in short.parallel_components().items():
+            if isinstance(component, curver.kernel.Arc):
+                intersection += multiplicity * max(short_lamination(p), 0)
+            else:  # isinstance(component, curver.kernel.Curve):
+                v = short.triangulation.vertex_lookup[p]  # = self.triangulation.vertex_lookup[~p].
+                v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
+                
+                around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
+                out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
+                # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
+                intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
+        
+        # Peripheral components.
+        for vertex in short.triangulation.vertices:
+            multiplicity = min(max(short.side_weight(edge), 0) for edge in vertex)
+            intersection += multiplicity * sum(max(-short_lamination(edge), 0) + max(-short_lamination.side_weight(edge), 0) for edge in vertex)
+        
+        return intersection
     
     def no_common_component(self, lamination):
         ''' Return that self does not share any components with the given Lamination. '''
