@@ -60,7 +60,7 @@ class SLPRules(RuleBasedStateMachine):
     
     @rule(slp=SLPs, factor=st.integers(min_value=0, max_value=1000))
     def multiply(self, slp, factor):
-        assert list(slp * factor)  == list(slp) * factor
+        assert list(slp * factor) == list(slp) * factor
         assert list(factor * slp) == list(slp * factor)
     
     @rule(data=st.data())
