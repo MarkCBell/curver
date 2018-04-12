@@ -179,7 +179,8 @@ class Lamination(object):
         assert isinstance(lamination, Lamination)
         assert lamination.triangulation == self.triangulation
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         short_lamination = conjugator(lamination)
         
         intersection = 0
@@ -375,7 +376,8 @@ class Lamination(object):
         
         components = dict()
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         conjugator_inv = conjugator.inverse()
         
         for component, (multiplicity, _) in short.peripheral_components().items():
@@ -402,13 +404,13 @@ class Lamination(object):
     
     @memoize
     def shorten(self):
-        ''' Return an encoding which maps this lamination to a short one, together with its image. '''
+        ''' Return an encoding which maps this lamination to a short one. '''
         
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
         
         if self.is_short():  # If this lamination is already short:
-            return self, conjugator
+            return conjugator
         
         def shorten_strategy(self, edge):
             ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
@@ -507,8 +509,7 @@ class Lamination(object):
             
             lamination = Lamination(lamination.triangulation, geometric)
         
-        short = conjugator(self)
-        assert short.is_short()  # Sanity.
+        assert conjugator(self).is_short()  # Sanity.
         
-        return short, conjugator
+        return conjugator
 

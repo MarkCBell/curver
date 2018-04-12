@@ -24,7 +24,8 @@ class MultiArc(Lamination):
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         # short is a subset of the edges of the triangulation it is defined on.
         # So its geometric vector is non-positive.
         
@@ -65,8 +66,8 @@ class MultiArc(Lamination):
     @topological_invariant
     def is_polygonalisation(self):
         ''' Return if this MultiArc is a polygonalisation, that is, if it cuts the surface into polygons. '''
-        short, _ = self.shorten()
-        
+        short = self.shorten()(self)
+       
         avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
         dual_tree = short.triangulation.dual_tree(avoid=avoid)
         
@@ -75,7 +76,7 @@ class MultiArc(Lamination):
     @topological_invariant
     def is_triangulation(self):
         ''' Return if this MultiArc is a triangulation. '''
-        short, _ = self.shorten()
+        short = self.shorten()(self)
         
         return all(weight == -1 for weight in short)
     
@@ -87,7 +88,8 @@ class MultiArc(Lamination):
         
         assert self.is_filling()
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         
         triangulations = set()
         for encoding in short.triangulation.all_encodings(radius):
@@ -142,7 +144,8 @@ class Arc(MultiArc):
         if not self.connects_distinct_vertices():  # Check where it connects.
             raise curver.AssumptionError('Arc connects a vertex to itself.')
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         
         return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
 

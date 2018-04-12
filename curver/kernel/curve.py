@@ -199,7 +199,8 @@ class Curve(MultiCurve):
             
             return 0
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         
         # Lemma: There path in the flip graph from a short representative to a minimal one in which the weight strictly decreases at each step.
         
@@ -223,7 +224,7 @@ class Curve(MultiCurve):
         if self.is_peripheral():
             return False
         
-        short, _ = self.shorten()
+        short = self.shorten()(self)
         return all(weight % 2 == 0 for weight in short)
     
     def encode_twist(self, power=1):
@@ -232,7 +233,8 @@ class Curve(MultiCurve):
         if self.is_peripheral():  # Boring case.
             return self.triangulation.id_encoding()
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         
         return conjugator.inverse() * curver.kernel.Twist(short, power).encode() * conjugator
     
@@ -247,7 +249,8 @@ class Curve(MultiCurve):
         
         assert not self.is_peripheral()
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         short_lamination = conjugator(lamination)
         
         denominator = short.intersection(short_lamination)
@@ -298,7 +301,8 @@ class Curve(MultiCurve):
         if self.is_peripheral():  # Boring case.
             return self.triangulation.id_encoding()
         
-        short, conjugator = self.shorten()
+        conjugator = self.shorten()
+        short = conjugator(self)
         
         # Use the following for reference:
         #             #<----------#                #  #-----------#  #

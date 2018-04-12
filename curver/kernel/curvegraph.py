@@ -41,10 +41,10 @@ class CurveGraph(object):
         assert a.triangulation == self.triangulation
         assert b.triangulation == self.triangulation
         
-        _, conjugator_a = a.shorten()
+        conjugator_a = a.shorten()
         
         short_b = conjugator_a(b)
-        _, conjugator_b = short_b.shorten()
+        conjugator_b = short_b.shorten()
         
         quasiconvex = set()
         for i in range(len(conjugator_b)+1):

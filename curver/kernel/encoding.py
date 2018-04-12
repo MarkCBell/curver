@@ -156,7 +156,7 @@ class Encoding(object):
         
         This is obtained by combing the image of the source triangulation under self and so is (hopefully) simpler than self since it depends only on the endpoints. '''
         
-        _, conjugator = self(self.source_triangulation.as_lamination()).shorten()
+        conjugator = self(self.source_triangulation.as_lamination()).shorten()
         # conjugator.inverse() is almost self, however the edge labels might not agree.
         potential_closers = [isom.encode() for isom in conjugator.target_triangulation.isometries_to(self.source_triangulation)]
         identity = self.source_triangulation.id_encoding()
