@@ -183,7 +183,7 @@ class Curve(MultiCurve):
             return self.weight() == 2
     
     def minimise(self):
-        ''' Return an encoding which maps this curve to a minimal one, together with its image. '''
+        ''' Return an encoding which maps this curve to a minimal one. '''
         
         def minimise_strategy(self, edge):
             ''' Return a float in [0, 1] describing how good flipping this edge is for making this curve minimal. '''
@@ -213,9 +213,9 @@ class Curve(MultiCurve):
             conjugator = move * conjugator
             minimal = move(minimal)
         
-        assert minimal.is_minimal()
+        assert conjugator(self).is_minimal()  # Sanity
         
-        return minimal, conjugator
+        return conjugator
     
     @topological_invariant
     def is_isolating(self):
