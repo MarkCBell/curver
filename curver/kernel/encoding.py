@@ -116,7 +116,7 @@ class Encoding(object):
         return self.inverse()
     
     def homology_matrix(self):
-        ''' Return a matrix describing the action of this encoding on first homology.
+        ''' Return a matrix describing the action of this encoding on first homology (relative to the punctures).
         
         The matrix is given with respect to the homology bases of the source and target triangulations. '''
         
