@@ -21,15 +21,16 @@ environment:
       TOX_ENV: "py36"
 
 init:
-  - ECHO %PYTHON%
-  - %PYTHON%/python.exe -c "import sys; print(sys.version)"
+  - set "PATH=%PYTHON%;%PYTHON%\\Scripts\\;%PATH"
+  - ECHO "%PYTHON%"
+  - python.exe -c "import sys; print(sys.version)"
 
 install:
-  - %PYTHON%/Scripts/pip.exe install -r requirements-dev.txt
-  - %PYTHON%/Scripts/pip.exe install --editable .
+  - pip.exe install -r requirements-dev.txt
+  - pip.exe install --editable .
 
 test_script:
-  - %PYTHON%/Scripts/flake8.exe
-  - %PYTHON%/Scripts/pylint.exe curver.kernel
-  - %PYTHON%/Scripts/tox.exe -e %TOX_ENV% -- --hypothesis-profile=ci
+  - flake8.exe
+  - pylint.exe curver.kernel
+  - tox.exe -e %TOX_ENV% -- --hypothesis-profile=ci
 
