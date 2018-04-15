@@ -26,6 +26,7 @@ init:
   - python.exe -c "import sys; print(sys.version)"
 
 install:
+  - pip.exe install setuptools --upgrade
   - pip.exe install -r requirements-dev.txt
   - pip.exe install --editable .
 
