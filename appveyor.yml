@@ -21,8 +21,10 @@ environment:
       TOX_ENV: "py36"
 
 init:
-  - set "PATH=%PYTHON%;%PYTHON%\\Scripts\\;%PATH"
-  - ECHO "%PYTHON%"
+  - set "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH"
+  - echo "%PYTHON%"
+  - echo "%PATH%"
+  - which git
   - python.exe -c "import sys; print(sys.version)"
 
 install:
