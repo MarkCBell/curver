@@ -2,6 +2,13 @@
 History
 =======
 
+0.2.2 (2018-04-16)
+------------------
+
+* Minimise and shorten now only return encodings.
+* Fixed shorten ordering bug.
+* Fixed appveyor build process.
+
 0.2.1 (2018-04-12)
 ------------------
 
