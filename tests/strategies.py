@@ -23,7 +23,6 @@ TRIANGULATIONS = {
     (2, 3): 'f_q5sG87f308pRczx4k',
     (3, 1): 'f_0mGaGVParMxLYnCS3',
     (3, 2): 'i_0mGG3b5sZ48hMGl+XMxQf7',
-    (3, 3): 'l_0mGGHziLfC85djn-maLAMR4st0K',
     }
 
 SIGNATURES = [TRIANGULATIONS[key] for key in sorted(TRIANGULATIONS)]
