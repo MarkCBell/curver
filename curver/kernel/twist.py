@@ -98,7 +98,7 @@ class Twist(Move):
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
         
         algebraic = list(homology_class)
-        algebraic[a.index] -= a.sign() * self.power * sum(homology_class(edge) for edge in v_edges[1:])
+        algebraic[a.index] += a.sign() * self.power * sum(homology_class(edge) for edge in v_edges[1:])
         
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
     
