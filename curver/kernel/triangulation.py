@@ -387,46 +387,6 @@ class Triangulation(object):
         corner_A, corner_B = self.corner_lookup[edge], self.corner_lookup[~edge]
         return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], edge]
     
-    # Build new triangulations:
-    def flip_edge(self, edge):
-        ''' Return a new triangulation obtained by flipping the given edge.
-        
-        The chosen edge must be flippable. '''
-        
-        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-        
-        assert self.is_flippable(edge)
-        
-        # Use the following for reference:
-        # #<----------#     #-----------#
-        # |     a    ^^     |\          |
-        # |         / |     | \         |
-        # |  A     /  |     |  \     A2 |
-        # |       /   |     |   \       |
-        # |b    e/   d| --> |    \e'    |
-        # |     /     |     |     \     |
-        # |    /      |     |      \    |
-        # |   /       |     |       \   |
-        # |  /     B  |     | B2     \  |
-        # | /         |     |         \ |
-        # V/    c     |     |          V|
-        # #---------->#     #-----------#
-        
-        edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
-        
-        # Most triangles don't change.
-        triangles = [Triangle([edge_map[edgy] for edgy in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
-        
-        a, b, c, d, e = self.square(edge)
-        
-        if edge.sign() == +1:
-            triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
-            triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
-        else:  # edge.sign() == -1:
-            triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
-            triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
-        return Triangulation(triangles + [triangle_A2, triangle_B2])
-    
     def all_encodings(self, num_flips):
         ''' Yield all encodings that can be made using at most the given number of flips.
         
@@ -443,32 +403,6 @@ class Triangulation(object):
                         yield encoding * step
         
         return
-    
-    def relabel_edges(self, label_map):
-        ''' Return a new triangulation obtained by relabelling the edges according to label_map.
-        
-        Assumes that label_map[index] or label_map[~index] is defined for each index. '''
-        
-        if isinstance(label_map, (list, tuple)):
-            label_map = dict(enumerate(label_map))
-        else:
-            label_map = dict(label_map)
-        
-        # Build any missing labels.
-        for i in self.indices:
-            if i in label_map and ~i in label_map:
-                pass
-            elif i not in label_map and ~i in label_map:
-                label_map[i] = ~label_map[~i]
-            elif i in label_map and ~i not in label_map:
-                label_map[~i] = ~label_map[i]
-            else:
-                raise curver.AssumptionError('Missing new label for %d.' % i)
-        
-        edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges)
-        triangles = [Triangle([edge_map[edge] for edge in triangle]) for triangle in self]
-        
-        return Triangulation(triangles)
     
     def find_isometry(self, other, label_map):
         ''' Return the isometry from this triangulation to other defined by label_map.
@@ -676,7 +610,35 @@ class Triangulation(object):
         
         assert self.is_flippable(edge)
         
-        new_triangulation = self.flip_edge(edge)
+        # Use the following for reference:
+        # #<----------#     #-----------#
+        # |     a    ^^     |\          |
+        # |         / |     | \         |
+        # |  A     /  |     |  \     A2 |
+        # |       /   |     |   \       |
+        # |b    e/   d| --> |    \e'    |
+        # |     /     |     |     \     |
+        # |    /      |     |      \    |
+        # |   /       |     |       \   |
+        # |  /     B  |     | B2     \  |
+        # | /         |     |         \ |
+        # V/    c     |     |          V|
+        # #---------->#     #-----------#
+        
+        edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
+        
+        # Most triangles don't change.
+        triangles = [Triangle([edge_map[edgy] for edgy in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
+        
+        a, b, c, d, e = self.square(edge)
+        
+        if edge.sign() == +1:
+            triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
+            triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
+        else:  # edge.sign() == -1:
+            triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
+            triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
+        new_triangulation = Triangulation(triangles + [triangle_A2, triangle_B2])
         
         return curver.kernel.EdgeFlip(self, new_triangulation, edge).encode()
     
@@ -702,7 +664,8 @@ class Triangulation(object):
             else:
                 raise curver.AssumptionError('Missing new label for %d.' % i)
         
-        new_triangulation = self.relabel_edges(label_map)
+        edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges)
+        new_triangulation = Triangulation([Triangle([edge_map[edge] for edge in triangle]) for triangle in self])
         
         return curver.kernel.Isometry(self, new_triangulation, label_map).encode()
     
