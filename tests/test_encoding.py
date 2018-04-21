@@ -50,6 +50,10 @@ class TestEncoding(unittest.TestCase):
         vertex_map = h.vertex_map()
         self.assertEqual(sorted(vertex_map.keys()), sorted(h.source_triangulation.vertices))
         self.assertEqual(sorted(vertex_map.values()), sorted(h.target_triangulation.vertices))
+    
+    @given(strategies.encodings())
+    def test_package(self, h):
+        self.assertEqual(h, h.source_triangulation.encode(h.package()))
 
 class TestMappingClass(unittest.TestCase):
     @given(st.data())
