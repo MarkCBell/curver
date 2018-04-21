@@ -111,7 +111,7 @@ class Encoding(object):
     def inverse(self):
         ''' Return the inverse of this encoding. '''
         
-        return Encoding([item.inverse() for item in reversed(self.sequence)])  # Data structure issue.
+        return self.__class__([item.inverse() for item in reversed(self.sequence)])  # Data structure issue.
     def __invert__(self):
         return self.inverse()
     
