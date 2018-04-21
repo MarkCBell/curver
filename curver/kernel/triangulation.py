@@ -670,17 +670,17 @@ class Triangulation(object):
         return curver.kernel.Isometry(self, new_triangulation, label_map).encode()
     
     def encode(self, sequence):
-        ''' Return the encoding given by sequence.
+        ''' Return the encoding given by a sequence of Moves.
         
-        This consists of EdgeFlips, Isometries and LinearTransformations. Furthermore there are
-        several conventions that allow these to be specified by a smaller amount of information:
+        There are several conventions that allow these to be specified by a smaller amount of information:
         
          - An integer x represents EdgeFlip(..., edge_label=x)
          - A dictionary which has i or ~i as a key (for every i) represents a relabelling.
          - A dictionary which is missing i and ~i (for some i) represents an isometry back to this triangulation.
+         - A pair (e, p) represents a Twist or HalfTwist to the power p, depending on whether the edge e connects distinct vertices.
          - None represents the identity isometry.
         
-        This sequence is read in reverse in order respect composition. For example:
+        This sequence is read in reverse in order to respect composition. For example:
         
             self.encode([1, {1: ~2}, 2, 3, ~4])
         
@@ -692,15 +692,15 @@ class Triangulation(object):
         assert sequence
         
         T = self
-        h = None
+        moves_reversed = []
         for item in reversed(sequence):
             if isinstance(item, curver.IntegerType):  # Flip.
-                g = T.encode_flip(item)
+                move = T.encode_flip(item)[0]
             elif isinstance(item, dict):  # Isometry.
                 if all(i in item or ~i in item for i in self.indices):
-                    g = T.encode_relabel_edges(item)
+                    move = T.encode_relabel_edges(item)[0]
                 else:  # If some edges are missing then we assume that we must be mapping back to this triangulation.
-                    g = T.find_isometry(self, item).encode()
+                    move = T.find_isometry(self, item)
             elif isinstance(item, tuple) and len(item) == 2:  # Twist or HalfTwist.
                 label, power = item
                 edge = Edge(label)
@@ -709,26 +709,21 @@ class Triangulation(object):
                 if T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
                     edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge], edge, ~edge)[1:]
                     curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
-                    g = curver.kernel.Twist(curve, power).encode()
+                    move = curver.kernel.Twist(curve, power)
                 else:  # HalfTwist.
                     arc = T.edge_arc(edge)
-                    g = curver.kernel.HalfTwist(arc, power).encode()
+                    move = curver.kernel.HalfTwist(arc, power)
             elif item is None:  # Identity isometry.
-                g = T.id_encoding()
-            elif isinstance(item, curver.kernel.Encoding):  # Encoding.
-                g = item
+                move = T.id_encoding()[0]
             elif isinstance(item, curver.kernel.Move):  # Move.
-                g = item.encode()
+                move = item
             else:  # Other.
-                g = item.encode()
+                move = item
             
-            if h is None:
-                h = g
-            else:
-                h = g * h
-            T = h.target_triangulation
+            moves_reversed.append(move)
+            T = move.target_triangulation
         
-        return h
+        return curver.kernel.Encoding(moves_reversed[::-1])
 
 def create_triangulation(cls, edge_labels):
     ''' A helper function for pickling. '''
