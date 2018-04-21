@@ -18,27 +18,12 @@ class TestTriangulation(unittest.TestCase):
         triangulation2 = data.draw(strategies.triangulations())
         self.assertTrue(hash(triangulation1) != hash(triangulation2) or triangulation1 == triangulation2)
     
-    @given(st.data())
-    def test_flip(self, data):
-        triangulation = data.draw(strategies.triangulations())
-        edge = data.draw(st.sampled_from(triangulation.edges))
-        self.assertEqual(triangulation.surface(), triangulation.flip_edge(edge).surface())
-    
     @given(strategies.triangulations())
     def test_isometry(self, triangulation):
         self.assertTrue(triangulation.is_isometric_to(triangulation))
         identity = triangulation.id_isometry()
         isometries = triangulation.self_isometries()
         self.assertIn(identity, isometries)
-    
-    @given(st.data())
-    def test_relabel(self, data):
-        triangulation = data.draw(strategies.triangulations())
-        label_map = [i if data.draw(st.booleans()) else ~i for i in data.draw(st.permutations(range(triangulation.zeta)))]
-        
-        T = triangulation.relabel_edges(label_map)
-        self.assertTrue(triangulation.is_isometric_to(T))
-        self.assertTrue(any(all(isom.label_map[i] == label_map[i] for i in range(triangulation.zeta)) for isom in triangulation.isometries_to(T)))
     
     @given(strategies.triangulations())
     def test_sig(self, triangulation):
