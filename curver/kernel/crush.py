@@ -148,6 +148,10 @@ class Lift(Move):
         
         self.curve = curve
         self.matrix = matrix
+        
+        corner = self.curve.triangulation.corner_lookup[self.curve.parallel()]
+        # The vertices that will be glued together:
+        self.vertices = [self.source_triangulation.vertex_lookup[corner[i]] for i in [1, 2]]
     
     def __str__(self):
         return 'Lift ' + str(self.curve)
@@ -162,7 +166,8 @@ class Lift(Move):
         return not self == other
     
     def apply_lamination(self, lamination):
-        # Really should check that the dual weights around a vertex are all non-negative.
+        assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
+        
         geometric = curver.kernel.matrix_vector(self.matrix, lamination.geometric)
         return lamination.__class__(self.target_triangulation, geometric)  # Avoid promote since the lift has to be the same type as the given lamination.
     
