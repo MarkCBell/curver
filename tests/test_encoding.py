@@ -8,70 +8,83 @@ import strategies
 import numpy as np
 
 class TestEncoding(unittest.TestCase):
+    _strategy = staticmethod(strategies.encodings)
+    
     def assertEqualArray(self, M, N):
         self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
     
-    @given(strategies.encodings())
-    def test_pickle(self, h):
+    @given(st.data())
+    def test_pickle(self, data):
+        h = data.draw(self._strategy())
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
     
     @given(st.data())
+    @settings(max_examples=10)
+    def test_hash(self, data):
+        g = data.draw(self._strategy())
+        h = data.draw(self._strategy(g.source_triangulation))
+        self.assertTrue(hash(g) != hash(h) or g == h)
+    
+    @given(st.data())
     def test_slice(self, data):
-        h = data.draw(strategies.encodings())
+        h = data.draw(self._strategy())
         i = data.draw(st.integers(min_value=0, max_value=len(h)))
         j = data.draw(st.integers(min_value=0, max_value=len(h)))
         i, j = sorted([i, j])
         self.assertEqual(h[:i] * h[i:j] * h[j:], h)
     
     @given(st.data())
-    @settings(max_examples=20)
+    @settings(max_examples=10)
     def test_inverse(self, data):
-        g = data.draw(strategies.encodings())
-        h = data.draw(strategies.encodings(g.target_triangulation))
+        g = data.draw(self._strategy())
+        h = data.draw(self._strategy(g.target_triangulation))
         self.assertEqual(~(~g), g)
         self.assertEqual(~g * ~h, ~(h * g))
     
     @given(st.data())
+    def test_package(self, data):
+        h = data.draw(self._strategy())
+        self.assertEqual(h, h.source_triangulation.encode(h.package()))
+
+class TestMapping(TestEncoding):
+    _strategy = staticmethod(strategies.mappings)
+    
+    @given(st.data())
     def test_homology_matrix(self, data):
-        g = data.draw(strategies.encodings())
-        h = data.draw(strategies.encodings(g.target_triangulation))
+        g = data.draw(self._strategy())
+        h = data.draw(self._strategy(g.target_triangulation))
         self.assertEqualArray(h.homology_matrix() * g.homology_matrix(), (h * g).homology_matrix())
     
-    @given(strategies.encodings())
-    def test_intersection_matrix(self, h):
+    @given(st.data())
+    def test_intersection_matrix(self, data):
+        h = data.draw(self._strategy())
         self.assertEqualArray(h.intersection_matrix().transpose(), (~h).intersection_matrix())
     
-    @given(strategies.encodings())
-    def test_simplify(self, h):
+    @given(st.data())
+    def test_simplify(self, data):
+        h = data.draw(self._strategy())
         self.assertEqual(h.simplify(), h)
     
-    @given(strategies.encodings())
-    def test_vertex_map(self, h):
+    @given(st.data())
+    def test_vertex_map(self, data):
+        h = data.draw(self._strategy())
         vertex_map = h.vertex_map()
         self.assertEqual(sorted(vertex_map.keys()), sorted(h.source_triangulation.vertices))
         self.assertEqual(sorted(vertex_map.values()), sorted(h.target_triangulation.vertices))
-    
-    @given(strategies.encodings())
-    def test_package(self, h):
-        self.assertEqual(h, h.source_triangulation.encode(h.package()))
 
-class TestMappingClass(unittest.TestCase):
-    @given(st.data())
-    @settings(max_examples=10)
-    def test_hash(self, data):
-        mcg = data.draw(strategies.mcgs())
-        g = data.draw(strategies.mapping_classes(mcg))
-        h = data.draw(strategies.mapping_classes(mcg))
-        self.assertTrue(hash(g) != hash(h) or g == h)
+class TestMappingClass(TestMapping):
+    _strategy = staticmethod(strategies.mapping_classes)
     
-    @given(strategies.mapping_classes())
+    @given(st.data())
     # @settings(max_examples=2)
-    def test_identity(self, h):
+    def test_identity(self, data):
+        h = data.draw(self._strategy())
         self.assertEqual(h.is_identity(), h == h.source_triangulation.id_encoding())
     
-    @given(strategies.mapping_classes())
+    @given(st.data())
     @settings(max_examples=2)
-    def test_order(self, h):
+    def test_order(self, data):
+        h = data.draw(self._strategy())
         self.assertLessEqual(h.order(), h.source_triangulation.max_order())
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())
 

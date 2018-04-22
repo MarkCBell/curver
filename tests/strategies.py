@@ -39,9 +39,31 @@ def mcgs(draw):
     return draw(st.sampled_from(MCGS))
 
 @st.composite
-def mapping_classes(draw, mcg=None):
-    if mcg is None: mcg = draw(mcgs())
-    return mcg(draw(st.integers(min_value=0, max_value=10)))
+def mapping_classes(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    h = triangulation.id_encoding()
+    for _ in range(draw(st.integers(min_value=0, max_value=5))):
+        curve = draw(curves(triangulation))
+        twist = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10)))
+        h = twist * h
+    
+    return h
+
+@st.composite
+def mappings(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    rev_sequence = [triangulation.id_isometry()]
+    num_flips = draw(st.integers(min_value=0, max_value=20))
+    for _ in range(num_flips):
+        T = rev_sequence[-1].target_triangulation
+        if draw(st.sampled_from([0, 0, 0, 0, 0, 1])) == 0:
+            edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
+            move = T.encode_flip(edge)[0]
+        else:
+            move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])[0]
+        rev_sequence.append(move)
+    
+    return triangulation.encode(rev_sequence[::-1])
 
 @st.composite
 def encodings(draw, triangulation=None):
@@ -55,6 +77,7 @@ def encodings(draw, triangulation=None):
             move = T.encode_flip(edge)[0]
         else:
             move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])[0]
+            # Also might want to crush.
         rev_sequence.append(move)
     
     return curver.kernel.Encoding(rev_sequence[::-1])

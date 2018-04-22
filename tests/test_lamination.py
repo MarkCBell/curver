@@ -8,7 +8,7 @@ from base_classes import TopologicalInvariant
 import strategies
 
 class TestLamination(TopologicalInvariant, unittest.TestCase):
-    _strategy_name = 'laminations'
+    _strategy = staticmethod(strategies.laminations)
     
     @given(strategies.laminations())
     def test_pickle(self, lamination):

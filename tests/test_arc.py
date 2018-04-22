@@ -6,19 +6,21 @@ import strategies
 from base_classes import TopologicalInvariant
 
 class TestMultiArc(TopologicalInvariant, unittest.TestCase):
-    _strategy_name = 'multiarcs'
+    _strategy = staticmethod(strategies.multiarcs)
 
-class TestArc(TopologicalInvariant, unittest.TestCase):
-    _strategy_name = 'arcs'
+class TestArc(TestMultiArc):
+    _strategy = staticmethod(strategies.arcs)
     
-    @given(strategies.arcs())
+    @given(st.data())
     @settings(max_examples=25)
-    def test_boundary_intersection(self, arc):
+    def test_boundary_intersection(self, data):
+        arc = data.draw(self._strategies())
         boundary = arc.boundary()
         self.assertEqual(arc.intersection(boundary), 0)
     
-    @given(strategies.arcs().filter(lambda a: a.connects_distinct_vertices()))
+    @given(st.data())
     @settings(max_examples=10)
-    def test_halftwist(self, arc):
+    def test_halftwist(self, data):
+        arc = data.draw(self._strategies().filter(lambda a: a.connects_distinct_vertices())))
         self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 

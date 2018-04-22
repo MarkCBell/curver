@@ -8,7 +8,7 @@ import strategies
 import curver
 
 class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
-    _strategy_name = 'multicurves'
+    _strategy = staticmethod(strategies.multicurves)
     
     @given(strategies.multicurves())
     @settings(max_examples=20)
@@ -50,8 +50,8 @@ class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
         self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
 
-class TestCurve(TopologicalInvariant, unittest.TestCase):
-    _strategy_name = 'curves'
+class TestCurve(TestMultiCurve):
+    _strategy = staticmethod(strategies.curves)
     
     def assertWithinOne(self, x, y):
         self.assertTrue(abs(x - y) <= 1, msg='AssertionError: |%s - %s| > 1' % (x, y))
