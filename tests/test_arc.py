@@ -21,6 +21,6 @@ class TestArc(TestMultiArc):
     @given(st.data())
     @settings(max_examples=10)
     def test_halftwist(self, data):
-        arc = data.draw(self._strategies().filter(lambda a: a.connects_distinct_vertices())))
+        arc = data.draw(self._strategies().filter(lambda a: a.connects_distinct_vertices()))
         self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 
