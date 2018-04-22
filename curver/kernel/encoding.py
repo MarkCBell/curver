@@ -63,7 +63,8 @@ class Encoding(object):
             elif stop < start:
                 raise IndexError('list index out of range')
             else:  # start < stop.
-                return Encoding(self.sequence[value])  # Data structure issue.
+                triangulation = self.sequence[stop-1].source_triangulation
+                return triangulation.encode(self.sequence[value])
         elif isinstance(value, curver.IntegerType):
             return self.sequence[value]
         else:
