@@ -33,7 +33,7 @@ class Move(object):
     def package(self):  # pylint: disable=no-self-use
         ''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
         
-        return NotImplemented
+        return self
     
     def inverse(self):  # pylint: disable=no-self-use
         ''' Return the inverse of this move. '''

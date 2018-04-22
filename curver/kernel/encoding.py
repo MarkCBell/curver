@@ -28,7 +28,7 @@ class Encoding(object):
     def __repr__(self):
         return str(self)
     def __str__(self):
-        return str(self.sequence)
+        return 'Encoding %s' % self.sequence
     def __iter__(self):
         return iter(self.sequence)
     def __len__(self):
@@ -91,9 +91,7 @@ class Encoding(object):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
                 raise ValueError('Cannot compare Encodings between different triangulations.')
             
-            tri_lamination = self.source_triangulation.as_lamination()
-            return self(tri_lamination) == other(tri_lamination) and \
-                all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
+            return np.array_equal(self.intersection_matrix(), other.intersection_matrix())
         else:
             return NotImplemented
     def __ne__(self, other):
@@ -137,6 +135,18 @@ class Mapping(Encoding):
     ''' An Encoding where every move is a FlipGraphMove.
     
     Hence this encoding is a sequence of moves in the same flip graph. '''
+    def __str__(self):
+        return 'Mapping %s' % self.sequence
+    def __eq__(self, other):
+        if isinstance(other, Encoding):
+            if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
+                raise ValueError('Cannot compare Encodings between different triangulations.')
+            
+            tri_lamination = self.source_triangulation.as_lamination()
+            return self(tri_lamination) == other(tri_lamination) and \
+                all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
+        else:
+            return NotImplemented
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
@@ -167,6 +177,8 @@ class Mapping(Encoding):
 
 class MappingClass(Mapping):
     ''' An Mapping where self.source_triangulation == self.target_triangulation. '''
+    def __str__(self):
+        return 'MappingClass %s' % self.sequence
     def __pow__(self, k):
         if k == 0:
             return self.source_triangulation.id_encoding()

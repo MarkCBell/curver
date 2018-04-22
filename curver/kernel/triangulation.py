@@ -706,14 +706,19 @@ class Triangulation(object):
                 label, power = item
                 edge = Edge(label)
                 
-                # Check where it connects.
-                if T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
+                if power == 0:  # Crush:
                     edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge], edge, ~edge)[1:]
                     curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
-                    move = curver.kernel.Twist(curve, power)
-                else:  # HalfTwist.
-                    arc = T.edge_arc(edge)
-                    move = curver.kernel.HalfTwist(arc, power)
+                    move = curve.crush()[0]
+                else:
+                    # Check where it connects.
+                    if T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
+                        edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge], edge, ~edge)[1:]
+                        curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
+                        move = curver.kernel.Twist(curve, power)
+                    else:  # HalfTwist.
+                        arc = T.edge_arc(edge)
+                        move = curver.kernel.HalfTwist(arc, power)
             elif item is None:  # Identity isometry.
                 move = T.id_encoding()[0]
             elif isinstance(item, curver.kernel.Move):  # Move.

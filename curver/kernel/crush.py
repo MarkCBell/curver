@@ -134,6 +134,9 @@ class Crush(Move):
     
     def inverse(self):
         return Lift(self.target_triangulation, self.source_triangulation, self.curve, self.matrix)
+    
+    def package(self):
+        return (self.curve.parallel(), 0)
 
 class Lift(Move):
     ''' This represents the inverse of crushing along a curve. '''
