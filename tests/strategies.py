@@ -40,47 +40,35 @@ def mcgs(draw):
 
 @st.composite
 def mapping_classes(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    h = triangulation.id_encoding()
-    for _ in range(draw(st.integers(min_value=0, max_value=5))):
-        curve = draw(curves(triangulation))
-        twist = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10)))
-        h = twist * h
-    
-    return h
+    return draw(encodings(triangulation, [2]))
 
 @st.composite
 def mappings(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    rev_sequence = [triangulation.id_isometry()]
-    num_flips = draw(st.integers(min_value=0, max_value=20))
-    for _ in range(num_flips):
-        T = rev_sequence[-1].target_triangulation
-        if draw(st.sampled_from([0, 0, 0, 0, 0, 1])) == 0:
-            edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
-            move = T.encode_flip(edge)[0]
-        else:
-            move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])[0]
-        rev_sequence.append(move)
-    
-    return triangulation.encode(rev_sequence[::-1])
+    return draw(encodings(triangulation, [0, 0, 0, 0, 1, 2]))
 
 @st.composite
-def encodings(draw, triangulation=None):
+def encodings(draw, triangulation=None, distribution=[0,0,0,0,1,2,3], num_moves=None):
     if triangulation is None: triangulation = draw(triangulations())
-    rev_sequence = [triangulation.id_isometry()]
-    num_flips = draw(st.integers(min_value=0, max_value=20))
-    for _ in range(num_flips):
-        T = rev_sequence[-1].target_triangulation
-        if draw(st.sampled_from([0, 0, 0, 0, 0, 1])) == 0:
+    h = triangulation.id_encoding()
+    if num_moves is None: num_moves = draw(st.integers(min_value=0, max_value=20))
+    for _ in range(num_moves):
+        T = h.target_triangulation
+        move_type = draw(st.sampled_from(distribution))
+        if move_type == 0:
             edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
-            move = T.encode_flip(edge)[0]
-        else:
-            move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])[0]
-            # Also might want to crush.
-        rev_sequence.append(move)
+            move = T.encode_flip(edge)
+        elif move_type == 1:
+            move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
+        elif move_type == 2:
+            curve = draw(curves(T))
+            move = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10)))
+        else:  # move_type == 3:
+            curve = draw(curves(T))
+            move = curve.crush()
+        
+        h = move * h
     
-    return curver.kernel.Encoding(rev_sequence[::-1])
+    return h
 
 @st.composite
 def homology_classes(draw, triangulation=None):
