@@ -34,14 +34,6 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(h[:i] * h[i:j] * h[j:], h)
     
     @given(st.data())
-    @settings(max_examples=10)
-    def test_inverse(self, data):
-        g = data.draw(self._strategy())
-        h = data.draw(self._strategy(g.target_triangulation))
-        self.assertEqual(~(~g), g)
-        self.assertEqual(~g * ~h, ~(h * g))
-    
-    @given(st.data())
     def test_package(self, data):
         h = data.draw(self._strategy())
         self.assertEqual(h, h.source_triangulation.encode(h.package()))
@@ -59,6 +51,14 @@ class TestMapping(TestEncoding):
     def test_intersection_matrix(self, data):
         h = data.draw(self._strategy())
         self.assertEqualArray(h.intersection_matrix().transpose(), (~h).intersection_matrix())
+    
+    @given(st.data())
+    @settings(max_examples=10)
+    def test_inverse(self, data):
+        g = data.draw(self._strategy())
+        h = data.draw(self._strategy(g.target_triangulation))
+        self.assertEqual(~(~g), g)
+        self.assertEqual(~g * ~h, ~(h * g))
     
     @given(st.data())
     def test_simplify(self, data):
