@@ -24,15 +24,6 @@ class Encoding(object):
         self.source_triangulation = self.sequence[-1].source_triangulation
         self.target_triangulation = self.sequence[0].target_triangulation
         self.zeta = self.source_triangulation.zeta
-        if self.is_mapping_class():  # Promote.
-            self.__class__ = MappingClass
-    
-    def is_mapping_class(self):
-        ''' Return if this encoding is a mapping class.
-        
-        That is, if it maps to the triangulation it came from. '''
-        
-        return self.source_triangulation == self.target_triangulation
     
     def __repr__(self):
         return str(self)
@@ -75,6 +66,26 @@ class Encoding(object):
     def __reduce__(self):
         return (create_encoding, (self.source_triangulation, self.package()))
     
+    def intersection_matrix(self):
+        ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
+        Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
+        
+        Except when on S_{1,1}, this uniquely determines self. '''
+        
+        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
+    
+    def homology_matrix(self):
+        ''' Return a matrix describing the action of this encoding on first homology (relative to the punctures).
+        
+        The matrix is given with respect to the homology bases of the source and target triangulations. '''
+        
+        source_basis = self.source_triangulation.homology_basis()
+        target_basis = self.target_triangulation.homology_basis()
+        
+        source_images = [self(hc).canonical() for hc in source_basis]
+        
+        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
+    
     def __eq__(self, other):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
@@ -104,7 +115,13 @@ class Encoding(object):
             if self.source_triangulation != other.target_triangulation:
                 raise ValueError('Cannot compose Encodings over different triangulations.')
             
-            return Encoding(self.sequence + other.sequence)
+            if not (isinstance(self, Mapping) and isinstance(other, Mapping)):
+                return Encoding(self.sequence + other.sequence)
+            else:  # self and other both at least Mappings:
+                if self.target_triangulation != other.source_triangulation:
+                    return Mapping(self.sequence + other.sequence)
+                else:  # self.target_triangulation == other.source_triangulation:
+                    return MappingClass(self.sequence + other.sequence)
         elif other is None:
             return self
         else:
@@ -115,33 +132,11 @@ class Encoding(object):
         return self.__class__([item.inverse() for item in reversed(self.sequence)])  # Data structure issue.
     def __invert__(self):
         return self.inverse()
+
+class Mapping(Encoding):
+    ''' An Encoding where every move is a FlipGraphMove.
     
-    def homology_matrix(self):
-        ''' Return a matrix describing the action of this encoding on first homology (relative to the punctures).
-        
-        The matrix is given with respect to the homology bases of the source and target triangulations. '''
-        
-        source_basis = self.source_triangulation.homology_basis()
-        target_basis = self.target_triangulation.homology_basis()
-        
-        source_images = [self(hc).canonical() for hc in source_basis]
-        
-        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
-    
-    def is_in_torelli(self):
-        ''' Return whether this mapping class is in the Torelli subgroup. '''
-        
-        homology_matrix = self.homology_matrix()
-        return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0]))
-    
-    def intersection_matrix(self):
-        ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
-        Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
-        
-        Except when on S_{1,1}, this uniquely determines self. '''
-        
-        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
-    
+    Hence this encoding is a sequence of moves in the same flip graph. '''
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
@@ -165,11 +160,8 @@ class Encoding(object):
         
         return (closer * conjugator).inverse()
 
-class MappingClass(Encoding):
-    ''' An Encoding where self.source_triangulation == self.target_triangulation. '''
-    def is_mapping_class(self):
-        return True
-    
+class MappingClass(Mapping):
+    ''' An Mapping where self.source_triangulation == self.target_triangulation. '''
     def __pow__(self, k):
         if k == 0:
             return self.source_triangulation.id_encoding()
@@ -177,6 +169,12 @@ class MappingClass(Encoding):
             return MappingClass(self.sequence * k)
         else:
             return self.inverse()**abs(k)
+    
+    def is_in_torelli(self):
+        ''' Return whether this mapping class is in the Torelli subgroup. '''
+        
+        homology_matrix = self.homology_matrix()
+        return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0]))
     
     def order(self):
         ''' Return the order of this mapping class.

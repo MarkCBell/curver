@@ -48,7 +48,19 @@ class Move(object):
         
         return NotImplemented
 
-class Isometry(Move):
+class FlipGraphMove(Move):
+    ''' A Move between two triangulations in the same flip graph. '''
+    def encode(self):
+        if self.source_triangulation != self.target_triangulation:
+            return curver.kernel.Mapping([self])
+        else:
+            return curver.kernel.MappingClass([self])
+    def flip_sequence(self):  # pylint: disable=no-self-use
+        ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
+        
+        return NotImplemented
+
+class Isometry(FlipGraphMove):
     ''' This represents an isometry from one Triangulation to another.
     
     Triangulations can create the isometries between themselves and this
@@ -102,7 +114,7 @@ class Isometry(Move):
         
         return Isometry(self.target_triangulation, self.source_triangulation, self.inverse_label_map)
 
-class EdgeFlip(Move):
+class EdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
     def __init__(self, source_triangulation, target_triangulation, edge):
         super(EdgeFlip, self).__init__(source_triangulation, target_triangulation)

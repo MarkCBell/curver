@@ -2,9 +2,9 @@
 ''' A module for representing more advanced ways of changing triangulations. '''
 
 import curver
-from curver.kernel.moves import Move  # Special import needed for subclassing.
+from curver.kernel.moves import FlipGraphMove  # Special import needed for subclassing.
 
-class Twist(Move):
+class Twist(FlipGraphMove):
     ''' This represents the effect of twisting a short curve.
     
     This format allows us to efficiently perform powers of twists. '''
@@ -105,7 +105,7 @@ class Twist(Move):
     def inverse(self):
         return Twist(self.curve, -self.power)
 
-class HalfTwist(Move):
+class HalfTwist(FlipGraphMove):
     ''' This represents the effect of half-twisting a short arc.
     
     This format allows us to efficiently perform powers of twists. '''
