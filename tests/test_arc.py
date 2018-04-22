@@ -1,5 +1,6 @@
 
 from hypothesis import given, settings
+import hypothesis.strategies as st
 import unittest
 
 import strategies
@@ -14,13 +15,13 @@ class TestArc(TestMultiArc):
     @given(st.data())
     @settings(max_examples=25)
     def test_boundary_intersection(self, data):
-        arc = data.draw(self._strategies())
+        arc = data.draw(self._strategy())
         boundary = arc.boundary()
         self.assertEqual(arc.intersection(boundary), 0)
     
     @given(st.data())
     @settings(max_examples=10)
     def test_halftwist(self, data):
-        arc = data.draw(self._strategies().filter(lambda a: a.connects_distinct_vertices()))
+        arc = data.draw(self._strategy().filter(lambda a: a.connects_distinct_vertices()))
         self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 
