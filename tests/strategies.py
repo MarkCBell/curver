@@ -47,10 +47,10 @@ def mappings(draw, triangulation=None):
     return draw(encodings(triangulation, [0, 0, 0, 0, 1, 2]))
 
 @st.composite
-def encodings(draw, triangulation=None, distribution=[0,0,0,0,1,2,3], num_moves=None):
+def encodings(draw, triangulation=None, distribution=[0,0,0,0,1,2,3]):
     if triangulation is None: triangulation = draw(triangulations())
     h = triangulation.id_encoding()
-    if num_moves is None: num_moves = draw(st.integers(min_value=0, max_value=20))
+    num_moves = draw(st.integers(min_value=0, max_value=10))
     for _ in range(num_moves):
         T = h.target_triangulation
         move_type = draw(st.sampled_from(distribution))
@@ -61,7 +61,8 @@ def encodings(draw, triangulation=None, distribution=[0,0,0,0,1,2,3], num_moves=
             move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
         elif move_type == 2:
             curve = draw(curves(T))
-            move = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10)))
+            move = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
+        # HalfTwist?
         else:  # move_type == 3:
             curve = draw(curves(T))
             move = curve.crush()
