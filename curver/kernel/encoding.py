@@ -11,7 +11,7 @@ NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not perio
 NT_TYPE_PSEUDO_ANOSOV = 'Pseudo-Anosov'
 
 class Encoding(object):
-    ''' This represents a map between two Triagulations.
+    ''' This represents a map between two Triangulations.
     
     The map is given by a sequence of Moves which act from right to left. '''
     def __init__(self, sequence):
