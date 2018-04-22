@@ -159,6 +159,11 @@ class Mapping(Encoding):
         [closer] = [potential_closer for potential_closer in potential_closers if potential_closer * conjugator * self == identity]  # There should only be one.
         
         return (closer * conjugator).inverse()
+    
+    def flip_mapping(self):
+        ''' Return a Mapping equal to self that only uses EdgeFlips and Isometries. '''
+        
+        return self.__class__([item for move in self for item in move.flip_mapping()])
 
 class MappingClass(Mapping):
     ''' An Mapping where self.source_triangulation == self.target_triangulation. '''

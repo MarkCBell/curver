@@ -55,7 +55,7 @@ class FlipGraphMove(Move):
             return curver.kernel.Mapping([self])
         else:
             return curver.kernel.MappingClass([self])
-    def flip_sequence(self):  # pylint: disable=no-self-use
+    def flip_mapping(self):  # pylint: disable=no-self-use
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
         
         return NotImplemented
@@ -113,6 +113,9 @@ class Isometry(FlipGraphMove):
     def inverse(self):
         
         return Isometry(self.target_triangulation, self.source_triangulation, self.inverse_label_map)
+    
+    def flip_mapping(self):
+        return self.encode()
 
 class EdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
@@ -182,4 +185,7 @@ class EdgeFlip(FlipGraphMove):
     
     def inverse(self):
         return EdgeFlip(self.target_triangulation, self.source_triangulation, ~self.edge)
+    
+    def flip_mapping(self):
+        return self.encode()
 

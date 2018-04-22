@@ -71,6 +71,11 @@ class TestMapping(TestEncoding):
         vertex_map = h.vertex_map()
         self.assertEqual(sorted(vertex_map.keys()), sorted(h.source_triangulation.vertices))
         self.assertEqual(sorted(vertex_map.values()), sorted(h.target_triangulation.vertices))
+    
+    @given(st.data())
+    def test_flip_mapping(self, data):
+        h = data.draw(self._strategy())
+        self.assertEqual(h, h.flip_mapping())
 
 class TestMappingClass(TestMapping):
     _strategy = staticmethod(strategies.mapping_classes)

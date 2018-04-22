@@ -104,6 +104,9 @@ class Twist(FlipGraphMove):
     
     def inverse(self):
         return Twist(self.curve, -self.power)
+    
+    def flip_mapping(self):
+        return self.encoding**self.power
 
 class HalfTwist(FlipGraphMove):
     ''' This represents the effect of half-twisting a short arc.
@@ -179,4 +182,6 @@ class HalfTwist(FlipGraphMove):
     
     def inverse(self):
         return HalfTwist(self.arc, -self.power)
-
+    
+    def flip_mapping(self):
+        return self.encoding**self.power
