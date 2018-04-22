@@ -13,6 +13,7 @@ class Twist(FlipGraphMove):
         
         assert isinstance(curve, curver.kernel.Curve)
         assert curve.is_short() and not curve.is_peripheral()
+        assert power != 0
         
         self.curve = curve
         self.power = power
@@ -117,6 +118,7 @@ class HalfTwist(FlipGraphMove):
         
         assert isinstance(arc, curver.kernel.Arc)
         assert arc.is_short()
+        assert power != 0
         
         self.arc = arc
         self.power = power
