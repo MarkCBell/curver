@@ -39,16 +39,16 @@ class TestLamination(TopologicalInvariant, unittest.TestCase):
     @settings(max_examples=20)
     def test_components_image(self, data):
         lamination = data.draw(strategies.laminations())
-        encoding = data.draw(strategies.encodings(lamination.triangulation))
-        self.assertEqual(set(encoding(lamination).components()), {encoding(component) for component in lamination.components()})
+        h = data.draw(strategies.mappings(lamination.triangulation))
+        self.assertEqual(set(h(lamination).components()), {h(component) for component in lamination.components()})
     
     @given(st.data())
     @settings(max_examples=10)
     def test_intersection(self, data):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))
-        encoding = data.draw(strategies.encodings(lamination1.triangulation))
+        h = data.draw(strategies.mappings(lamination1.triangulation))
         self.assertGreaterEqual(lamination1.intersection(lamination2), 0)
         self.assertEqual(lamination1.intersection(lamination2), lamination2.intersection(lamination1))
-        self.assertEqual(lamination1.intersection(lamination2), encoding(lamination1).intersection(encoding(lamination2)))
+        self.assertEqual(lamination1.intersection(lamination2), h(lamination1).intersection(h(lamination2)))
 

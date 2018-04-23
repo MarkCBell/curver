@@ -89,6 +89,6 @@ class TestCurve(TestMultiCurve):
         rel_twisting = curve.relative_twisting(lamination1, lamination2)
         self.assertWithinOne(rel_twisting, power)
         
-        h = data.draw(strategies.encodings(curve.triangulation))
+        h = data.draw(strategies.mappings(curve.triangulation))
         self.assertWithinOne(h(curve).relative_twisting(h(lamination1), h(lamination2)), power)
 

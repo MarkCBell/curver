@@ -29,7 +29,7 @@ class TestHomologyClass(unittest.TestCase):
     def test_image(self, data):
         hc1 = data.draw(strategies.homology_classes())
         hc2 = data.draw(strategies.homology_classes(hc1.triangulation))
-        h = data.draw(strategies.encodings(hc1.triangulation))
+        h = data.draw(strategies.mappings(hc1.triangulation))
         self.assertEqual(h(hc1 + hc2), h(hc1) + h(hc2))
     
     @given(st.data())
