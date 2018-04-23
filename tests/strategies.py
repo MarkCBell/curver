@@ -47,7 +47,7 @@ def mappings(draw, triangulation=None):
     return draw(encodings(triangulation, [0, 0, 0, 0, 1, 2]))
 
 @st.composite
-def encodings(draw, triangulation=None, distribution=[0,0,0,0,1,2,3]):
+def encodings(draw, triangulation=None, distribution=[0, 0, 0, 0, 1, 2, 3]):
     if triangulation is None: triangulation = draw(triangulations())
     h = triangulation.id_encoding()
     num_moves = draw(st.integers(min_value=0, max_value=10))

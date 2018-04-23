@@ -140,7 +140,6 @@ class Mapping(Encoding):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
                 return False
-                raise ValueError('Cannot compare Encodings between different triangulations.')
             
             tri_lamination = self.source_triangulation.as_lamination()
             return self(tri_lamination) == other(tri_lamination) and \
