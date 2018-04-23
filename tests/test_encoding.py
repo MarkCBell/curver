@@ -19,11 +19,10 @@ class TestEncoding(unittest.TestCase):
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
     
     @given(st.data())
-    @settings(max_examples=10)
     def test_hash(self, data):
         g = data.draw(self._strategy())
         h = data.draw(self._strategy(g.source_triangulation))
-        self.assertTrue(hash(g) != hash(h) or g == h)
+        self.assertTrue(g != h or hash(g) == hash(h))
     
     @given(st.data())
     def test_slice(self, data):

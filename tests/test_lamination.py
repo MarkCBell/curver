@@ -18,7 +18,7 @@ class TestLamination(TopologicalInvariant, unittest.TestCase):
     def test_hash(self, data):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))
-        self.assertTrue(hash(lamination1) != hash(lamination2) or lamination1 == lamination2)
+        self.assertTrue(lamination1 != lamination2 or hash(lamination1) == hash(lamination2))
     
     @given(st.data())
     def test_orientation(self, data):

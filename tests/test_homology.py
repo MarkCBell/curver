@@ -15,7 +15,7 @@ class TestHomologyClass(unittest.TestCase):
     def test_hash(self, data):
         hc1 = data.draw(strategies.homology_classes())
         hc2 = data.draw(strategies.homology_classes(hc1.triangulation))
-        self.assertTrue(hash(hc1) != hash(hc2) or hc1 == hc2)
+        self.assertTrue(hc1 != hc2 or hash(hc1) == hash(hc2))
     
     @given(st.data())
     def test_canonical(self, data):

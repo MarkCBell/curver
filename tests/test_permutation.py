@@ -20,7 +20,7 @@ class TestPermutation(unittest.TestCase):
     def test_hash(self, data):
         perm1 = data.draw(strategies.permutations())
         perm2 = data.draw(strategies.permutations(len(perm1)))
-        self.assertTrue(hash(perm1) != hash(perm2) or perm1 == perm2)
+        self.assertTrue(perm1 != perm2 or hash(perm1) == hash(perm2))
     
     @given(strategies.permutations())
     def test_from_index(self, perm):

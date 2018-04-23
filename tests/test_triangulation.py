@@ -16,7 +16,7 @@ class TestTriangulation(unittest.TestCase):
     def test_hash(self, data):
         triangulation1 = data.draw(strategies.triangulations())
         triangulation2 = data.draw(strategies.triangulations())
-        self.assertTrue(hash(triangulation1) != hash(triangulation2) or triangulation1 == triangulation2)
+        self.assertTrue(triangulation1 != triangulation2 or hash(triangulation1) == hash(triangulation2))
     
     @given(strategies.triangulations())
     def test_isometry(self, triangulation):
