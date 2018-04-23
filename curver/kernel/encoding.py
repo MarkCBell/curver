@@ -66,39 +66,19 @@ class Encoding(object):
     def __reduce__(self):
         return (create_encoding, (self.source_triangulation, self.package()))
     
-    def intersection_matrix(self):
-        ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
-        Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
-        
-        Except when on S_{1,1}, this uniquely determines self. '''
-        
-        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
-    
-    def homology_matrix(self):
-        ''' Return a matrix describing the action of this encoding on first homology (relative to the punctures).
-        
-        The matrix is given with respect to the homology bases of the source and target triangulations. '''
-        
-        source_basis = self.source_triangulation.homology_basis()
-        target_basis = self.target_triangulation.homology_basis()
-        
-        source_images = [self(hc).canonical() for hc in source_basis]
-        
-        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
-    
     def __eq__(self, other):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
-                raise ValueError('Cannot compare Encodings between different triangulations.')
+                return False
             
-            return np.array_equal(self.intersection_matrix(), other.intersection_matrix())
+            return all(self(arc.boundary()) == other(arc.boundary()) for arc in self.source_triangulation.edge_arcs())
         else:
             return NotImplemented
     def __ne__(self, other):
         return not self == other
     def __hash__(self):
         # In fact this hash is perfect unless the surface is S_{1,1}.
-        return hash(tuple(entry for row in self.intersection_matrix().tolist() for entry in row))
+        return hash(tuple(entry for arc in self.source_triangulation.edge_arcs() for entry in self(arc.boundary())))
     
     def __call__(self, other):
         if self.source_triangulation != other.triangulation:
@@ -137,9 +117,29 @@ class Mapping(Encoding):
     Hence this encoding is a sequence of moves in the same flip graph. '''
     def __str__(self):
         return 'Mapping %s' % self.sequence
+    def intersection_matrix(self):
+        ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
+        Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
+        
+        Except when on S_{1,1}, this uniquely determines self. '''
+        
+        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
+    
+    def homology_matrix(self):
+        ''' Return a matrix describing the action of this encoding on first homology (relative to the punctures).
+        
+        The matrix is given with respect to the homology bases of the source and target triangulations. '''
+        
+        source_basis = self.source_triangulation.homology_basis()
+        target_basis = self.target_triangulation.homology_basis()
+        
+        source_images = [self(hc).canonical() for hc in source_basis]
+        
+        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
     def __eq__(self, other):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
+                return False
                 raise ValueError('Cannot compare Encodings between different triangulations.')
             
             tri_lamination = self.source_triangulation.as_lamination()
@@ -147,6 +147,8 @@ class Mapping(Encoding):
                 all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
         else:
             return NotImplemented
+    def __hash__(self):
+        return hash(tuple(entry for row in self.intersection_matrix().tolist() for entry in row))
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
