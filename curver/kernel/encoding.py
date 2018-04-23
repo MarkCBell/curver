@@ -126,7 +126,7 @@ class Mapping(Encoding):
         return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
     
     def homology_matrix(self):
-        ''' Return a matrix describing the action of this encoding on first homology (relative to the punctures).
+        ''' Return a matrix describing the action of this mapping on first homology (relative to the punctures).
         
         The matrix is given with respect to the homology bases of the source and target triangulations. '''
         
