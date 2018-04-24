@@ -4,7 +4,6 @@ import hypothesis.strategies as st
 import pickle
 import unittest
 
-import curver
 import strategies
 
 class TestTwist(unittest.TestCase):
