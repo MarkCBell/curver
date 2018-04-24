@@ -119,9 +119,7 @@ def multicurves(draw, triangulation=None):
                     available_component_indices.remove(index)
         
         # Add in some of the remaining indices.
-        indices.update(draw(st.sets(elements=st.sampled_from(sorted(available_component_indices)), max_size=len(available_component_indices)-1)))
-    
-    assume(indices)  # We're setting at least one edge.
+        indices.update(draw(st.sets(elements=st.sampled_from(sorted(available_component_indices)), min_size=0 if indices else 1, max_size=len(available_component_indices)-1)))
     
     # Set weights on these edges.
     geometric = [-1 if index in indices else 0 for index in triangulation.indices]
