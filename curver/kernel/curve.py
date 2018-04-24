@@ -120,18 +120,15 @@ class MultiCurve(Lamination):
         
         graph = networkx.MultiGraph()
         half_edges = defaultdict(list)
-        for index, component in enumerate(triangulation.components()):
-            vertices = [vertex for vertex in triangulation.vertices if vertex[0] in component]  # The vertices that are in this component.
-            V, E = len(vertices), len(component) // 2  # Number of vertices and edges in this component.
-            G = (2 - V + E // 3) // 2  # Genus.
+        for index, (component, (g, v)) in enumerate(triangulation.components().items()):
+            graph.add_node(index, genus=g, vertices=v)
             
-            graph.add_node(index, genus=G, vertices=V)
-            
-            for vertex in vertices:
-                curve = triangulation.curve_from_cut_sequence(vertex)
-                lifted_curve = lift(curve)
-                if lifted_curve in components:
-                    half_edges[lifted_curve].append(index)
+            for vertex in triangulation.vertices:
+                if vertex[0] in component:
+                    curve = triangulation.curve_from_cut_sequence(vertex)
+                    lifted_curve = lift(curve)
+                    if lifted_curve in components:
+                        half_edges[lifted_curve].append(index)
         
         dummy_index = len(graph)
         graph.add_node(dummy_index, genus=0, vertices=0)  # Dummy node for peripheral components.

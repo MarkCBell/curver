@@ -245,14 +245,12 @@ class Triangulation(object):
             curver.kernel.utilities.b64encode(curver.kernel.Permutation([x + self.zeta for x in self.signature]).index())
     
     def surface(self):
-        ''' This return the (sorted) list of (genus, #punctures) for each component of this surface. '''
+        ''' This return a dictionary mapping component |--> (genus, #punctures). '''
         
-        # List of pairs of #vertices and #edges for each component.
-        VE = [(len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2) for component in self.components()]
-        # List of pairs of genus and #vertices edges for each component.
-        GV = sorted(((2 - v + e // 3) // 2, v) for v, e in VE)
-        
-        return GV
+        # Compute pairs of #vertices and #edges for each component.
+        VE = dict((component, (len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2)) for component in self.components())
+        # Compute pairs of genus and #vertices edges for each component.
+        return dict((component, ((2 - v + e // 3) // 2, v)) for component, (v, e) in VE.items())
     
     def max_order(self):
         ''' Return the maximum order of a mapping class on this surface. '''
@@ -270,7 +268,7 @@ class Triangulation(object):
                 return v
         
         # List of pairs of genus and #vertices edges for each component.
-        GV = self.surface()
+        GV = self.surface().values()
         
         # List of pairs of orders and multiplicity.
         OM = [(order(g, v), len(list(group))) for (g, v), group in groupby(sorted(GV))]
@@ -282,7 +280,7 @@ class Triangulation(object):
         return prod
     
     def components(self):
-        ''' Return a list of sets of the edges in each component of self. '''
+        ''' Return a list of tuples of the edges in each component of self. '''
         
         classes = curver.kernel.UnionFind(self.edges)
         for edge in self.edges:
@@ -290,7 +288,7 @@ class Triangulation(object):
         for triangle in self:
             classes.union(triangle)
         
-        return list(classes)
+        return [tuple(sorted(cls)) for cls in classes]
     
     def is_connected(self):
         ''' Return if this triangulation has a single component. '''
