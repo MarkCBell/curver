@@ -118,16 +118,13 @@ def multicurves(draw, triangulation=None):
                     indices.add(index)
                     available_component_indices.remove(index)
         
-        num_arcs = draw(st.integers(min_value=0, max_value=len(available_component_indices)-1))
-        for _ in range(num_arcs):
-            index = draw(st.sampled_from(sorted(available_component_indices)))
-            available_component_indices.remove(index)
-            indices.add(index)
+        # Add in some of the remaining indices.
+        indices.update(draw(st.sets(elements=st.sampled_from(sorted(available_component_indices)), max_size=len(available_component_indices)-1)))
     
     assume(indices)  # We're setting at least one edge.
     
     # Set weights on these edges.
-    geometric = [-1 if index in indices else 0 for index in range(triangulation.zeta)]
+    geometric = [-1 if index in indices else 0 for index in triangulation.indices]
     
     multiarc = triangulation.lamination(geometric)
     boundary = multiarc.boundary()
