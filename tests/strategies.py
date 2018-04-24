@@ -1,5 +1,5 @@
 
-from hypothesis import given
+from hypothesis import given, assume
 import hypothesis.strategies as st
 import pytest
 import unittest
@@ -100,9 +100,6 @@ def arcs(draw, triangulation=None):
 def multicurves(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     
-    # Build a special type of multiarc with non-empty boundary.
-    geometric = [0] * triangulation.zeta
-    
     indices = set()
     available_indices = set(triangulation.indices)
     
@@ -112,25 +109,25 @@ def multicurves(draw, triangulation=None):
     
     classes = curver.kernel.UnionFind(triangulation.vertices)
     for component, (g, v) in triangulation.surface().items():
-        if g != 0 and draw(st.booleans()):  # merge vertices:
-            for index in sorted(available_indices):
-                if index in component:
-                    a, b = triangulation.vertex_lookup[index], triangulation.vertex_lookup[~index]
-                    if classes(a) != classes(b):
-                        classes.union(a, b)
-                        indices.add(index)
-                        available_indices.remove(index)
-        
         available_component_indices = set([index for index in available_indices if index in component])
-        num_arcs = draw(st.integers(min_value=1, max_value=len(available_component_indices)-1))
+        if g != 0 and draw(st.booleans()):  # merge vertices:
+            for index in sorted(available_component_indices):
+                a, b = triangulation.vertex_lookup[index], triangulation.vertex_lookup[~index]
+                if classes(a) != classes(b):
+                    classes.union(a, b)
+                    indices.add(index)
+                    available_component_indices.remove(index)
+        
+        num_arcs = draw(st.integers(min_value=0, max_value=len(available_component_indices)-1))
         for _ in range(num_arcs):
             index = draw(st.sampled_from(sorted(available_component_indices)))
             available_component_indices.remove(index)
             indices.add(index)
     
+    assume(indices)  # We're setting at least one edge.
+    
     # Set weights on these edges.
-    for index in indices:
-        geometric[index] = draw(st.integers(max_value=-1))
+    geometric = [-1 if index in indices else 0 for index in range(triangulation.zeta)]
     
     multiarc = triangulation.lamination(geometric)
     boundary = multiarc.boundary()
