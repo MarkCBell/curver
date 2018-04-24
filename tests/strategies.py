@@ -1,5 +1,5 @@
 
-from hypothesis import given, assume
+from hypothesis import given
 import hypothesis.strategies as st
 import pytest
 import unittest
