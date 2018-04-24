@@ -110,22 +110,23 @@ def multicurves(draw, triangulation=None):
     tree = set([index for index in triangulation.indices if tree[index]])
     available_indices = available_indices - tree
     
-    if draw(st.booleans()) and not any(g == 0 for (g, v) in triangulation.surface()):  # merge vertices:
-        classes = curver.kernel.UnionFind(triangulation.vertices)
-        for index in sorted(available_indices):
-            arc = triangulation.edge_arc(index)
-            if arc.connects_distinct_vertices():
-                a, b = arc.vertices()
-                if classes(a) != classes(b):
-                    classes.union(a, b)
-                    indices.add(index)
-                    available_indices.remove(index)
-    
-    num_arcs = draw(st.integers(min_value=0 if indices else 1, max_value=len(available_indices)-1))
-    for _ in range(num_arcs):
-        index = draw(st.sampled_from(sorted(available_indices)))
-        available_indices.remove(index)
-        indices.add(index)
+    classes = curver.kernel.UnionFind(triangulation.vertices)
+    for component, (g, v) in triangulation.surface().items():
+        if g != 0 and draw(st.booleans()):  # merge vertices:
+            for index in sorted(available_indices):
+                if index in component:
+                    a, b = triangulation.vertex_lookup[index], triangulation.vertex_lookup[~index]
+                    if classes(a) != classes(b):
+                        classes.union(a, b)
+                        indices.add(index)
+                        available_indices.remove(index)
+        
+        available_component_indices = set([index for index in available_indices if index in component])
+        num_arcs = draw(st.integers(min_value=1, max_value=len(available_component_indices)-1))
+        for _ in range(num_arcs):
+            index = draw(st.sampled_from(sorted(available_component_indices)))
+            available_component_indices.remove(index)
+            indices.add(index)
     
     # Set weights on these edges.
     for index in indices:
