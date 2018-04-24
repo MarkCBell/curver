@@ -39,7 +39,7 @@ class TestCrush(unittest.TestCase):
         lamination = data.draw(strategies.curves(curve.triangulation))
         
         crush = curve.crush()
-        power = data.draw(st.integers())
+        power = data.draw(st.integers().filter(lambda p: p))
         twist_i = curve.encode_twist(power)
         
         self.assertEqual(crush(lamination), crush(twist_i(lamination)))

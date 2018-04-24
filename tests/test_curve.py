@@ -84,7 +84,7 @@ class TestCurve(TestMultiCurve):
     def test_relative_twisting(self, data):
         curve = data.draw(strategies.curves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination1 = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
-        power = data.draw(st.integers())
+        power = data.draw(st.integers().filter(lambda p: p))
         lamination2 = curve.encode_twist(power)(lamination1)
         rel_twisting = curve.relative_twisting(lamination1, lamination2)
         self.assertWithinOne(rel_twisting, power)
