@@ -120,7 +120,7 @@ class MultiCurve(Lamination):
         
         graph = networkx.MultiGraph()
         half_edges = defaultdict(list)
-        for index, (component, (g, v)) in enumerate(triangulation.components().items()):
+        for index, (component, (g, v)) in enumerate(triangulation.surface().items()):
             graph.add_node(index, genus=g, vertices=v)
             
             for vertex in triangulation.vertices:
