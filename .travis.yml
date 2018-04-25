@@ -17,7 +17,7 @@ install:
 script:
 - flake8
 - pylint curver.kernel
-- tox -- --hypothesis-profile=ci
+- tox -- --hypothesis-profile=ci --duration=20
 after_success:
 - if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
 deploy:
