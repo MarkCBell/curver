@@ -158,6 +158,10 @@ class TestStrategiesHealth(unittest.TestCase):
     def test_mapping_classes(self, h):
         self.assertIsInstance(h, curver.kernel.MappingClass)
     
+    @given(mappings())
+    def test_mappings(self, h):
+        self.assertIsInstance(h, curver.kernel.Mapping)
+    
     @given(encodings())
     def test_encodings(self, encoding):
         self.assertIsInstance(encoding, curver.kernel.Encoding)
