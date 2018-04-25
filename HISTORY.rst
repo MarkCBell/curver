@@ -2,6 +2,15 @@
 History
 =======
 
+0.2.4 (2018-??-??)
+------------------
+
+* Fixed documentation typos.
+* Separated out Mappings from Encodings.
+* Triangulation.surface now returns a dictionary.
+* All moves can now be packaged.
+* Standardised unittests.
+
 0.2.3 (2018-04-18)
 ------------------
 
