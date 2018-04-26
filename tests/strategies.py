@@ -40,30 +40,36 @@ def mcgs(draw):
 
 @st.composite
 def mapping_classes(draw, triangulation=None):
-    return draw(encodings(triangulation, [2]))
+    return draw(encodings(triangulation, distribution=[2, 3]))
 
 @st.composite
 def mappings(draw, triangulation=None):
-    return draw(encodings(triangulation, [0, 0, 0, 0, 1, 2]))
+    return draw(encodings(triangulation, distribution=[0, 0, 0, 0, 1, 2, 3]))
 
 @st.composite
-def encodings(draw, triangulation=None, distribution=[0, 0, 0, 0, 1, 2, 3]):
+def encodings(draw, triangulation=None, distribution=None):
     if triangulation is None: triangulation = draw(triangulations())
+    if distribution is None: distribution = [0, 0, 0, 0, 1, 2, 3, 4]
     h = triangulation.id_encoding()
-    num_moves = draw(st.integers(min_value=0, max_value=10))
-    for _ in range(num_moves):
+    move_types = draw(st.lists(elements=st.sampled_from(distribution), max_size=10))
+    for move_type in move_types:
         T = h.target_triangulation
-        move_type = draw(st.sampled_from(distribution))
-        if move_type == 0:
+        if move_type == 0:  # EdgeFlip.
             edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
             move = T.encode_flip(edge)
-        elif move_type == 1:
+        elif move_type == 1:  # Isometry.
             move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
-        elif move_type == 2:
+        elif move_type == 2:  # Twist.
             curve = draw(curves(T))
             move = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
-        # HalfTwist?
-        else:  # move_type == 3:
+        elif move_type == 3:  # HalfTwist.
+            arcs = [T.edge_arc(edge) for edge in T.edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
+            if arcs:
+                arc = draw(st.sampled_from(arcs))
+                move = arc.encode_halftwist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
+            else:
+                move = T.id_encoding()
+        else:  # move_type == 4:  # Crush.
             curve = draw(curves(T))
             move = curve.crush()
         
