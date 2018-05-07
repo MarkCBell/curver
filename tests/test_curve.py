@@ -63,14 +63,6 @@ class TestCurve(TestMultiCurve):
         self.assertEqual(curve.intersection(boundary), 0)
     
     @given(st.data())
-    @settings(max_examples=2)
-    def test_sum(self, data):
-        triangulation = data.draw(strategies.triangulations())
-        multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
-        self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
-        self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
-    
-    @given(st.data())
     @settings(max_examples=10)
     def test_slope(self, data):
         curve = data.draw(strategies.curves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
