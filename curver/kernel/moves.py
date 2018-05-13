@@ -30,7 +30,7 @@ class Move(object):
         
         return curver.kernel.Encoding([self])
     
-    def package(self):  # pylint: disable=no-self-use
+    def package(self):
         ''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
         
         return self
