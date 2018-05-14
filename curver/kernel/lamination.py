@@ -23,12 +23,12 @@ class Lamination(object):
         for triangle in self.triangulation:
             i, j, k = triangle  # Edges.
             a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
-            a, b, c = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
-            correction = min(a + b - c, b + c - a, c + a - b, 0)
-            assert (a + b + c + correction) % 2 == 0
-            self._dual[i] = self._side[k] = (b + c - a + correction) // 2
-            self._dual[j] = self._side[i] = (c + a - b + correction) // 2
-            self._dual[k] = self._side[j] = (a + b - c + correction) // 2
+            af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
+            correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
+            assert (af + bf + cf + correction) % 2 == 0, '(%d, %d, %d) violates the extended triangle inequality.' % (a, b, c)
+            self._dual[i] = self._side[k] = (bf + cf - af + correction) // 2
+            self._dual[j] = self._side[i] = (cf + af - bf + correction) // 2
+            self._dual[k] = self._side[j] = (af + bf - cf + correction) // 2
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
