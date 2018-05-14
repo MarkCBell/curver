@@ -28,9 +28,9 @@ def topological_invariant(function):
     return function
 
 def ensure(*fs):
-    ''' A decorator that provides properties that the result of a functions should have. '''
+    ''' A decorator that specifies properties that the result of a functions should have. '''
     def wrapper(function):
-        ''' A decorator that provides properties that the result of a functions should have. '''
+        ''' A decorator that checks that the result of a function has properties fs. '''
         @wraps(function)
         def ensurer(*args, **kwargs):
             ''' The ensuring version of function.
@@ -38,7 +38,7 @@ def ensure(*fs):
             Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
             result = function(*args, **kwargs)
             for f in fs:
-                assert f(result)
+                assert f(result, args, kwargs)
             return result
         
         return ensurer

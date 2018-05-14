@@ -4,7 +4,7 @@
 from itertools import permutations
 
 import curver
-from curver.kernel.decorators import memoize, topological_invariant  # Special import needed for decorating.
+from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.
@@ -400,6 +400,7 @@ class Lamination(object):
         return lamination.is_empty()
     
     @memoize
+    @ensure(lambda result, args, _: result(args[0]).is_short())
     def shorten(self):
         ''' Return an encoding which maps this lamination to a short one. '''
         
@@ -510,8 +511,6 @@ class Lamination(object):
                     active_edges.discard(~edge)
             
             lamination = Lamination(lamination.triangulation, geometric)
-        
-        assert conjugator(self).is_short()  # Sanity.
         
         return conjugator
 
