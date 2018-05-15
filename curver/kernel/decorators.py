@@ -11,6 +11,7 @@ def memoize(function):
         ''' The cached version of function.
         
         Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
+        
         if not hasattr(self, '_cache'):
             self._cache = dict()
         key = function.__name__
