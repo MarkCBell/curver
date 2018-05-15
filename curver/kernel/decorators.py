@@ -2,6 +2,7 @@
 ''' A module for decorators. '''
 
 from functools import wraps
+import inspect
 
 def memoize(function):
     ''' A decorator that memoizes a method of a class. '''
@@ -36,10 +37,15 @@ def ensure(*fs):
             ''' The ensuring version of function.
             
             Note that this docstring will be overwritten with functions docstring by the wraps decorator. '''
+            
             result = function(*args, **kwargs)
+            data = type('data', (), inspect.getcallargs(function, *args, **kwargs))  # pylint: disable=deprecated-method
+            data.result = result
+            
             for f in fs:
-                assert f(result, args, kwargs)
+                assert f(data)
             return result
         
         return ensurer
     return wrapper
+

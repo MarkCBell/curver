@@ -400,7 +400,7 @@ class Lamination(object):
         return lamination.is_empty()
     
     @memoize
-    @ensure(lambda result, args, _: result(args[0]).is_short())
+    @ensure(lambda data: data.result(data.self).is_short())
     def shorten(self):
         ''' Return an encoding which maps this lamination to a short one. '''
         

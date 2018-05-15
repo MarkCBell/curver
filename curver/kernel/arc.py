@@ -5,7 +5,7 @@ from collections import Counter
 
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
-from curver.kernel.decorators import memoize, topological_invariant  # Special import needed for decorating.
+from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 class MultiArc(Lamination):
     ''' A Lamination in which every component is an Arc. '''
@@ -89,13 +89,11 @@ class MultiArc(Lamination):
         
         return all(weight <= 0 for weight in self)
     
+    @ensure(lambda data: data.result(data.self).is_minimal())
     def minimise(self):
         ''' Return an encoding which maps this multiarc to a minimal one. '''
         
-        conjugator = self.shorten()
-        assert conjugator(self).is_minimal()  # Sanity
-        
-        return conjugator
+        return self.shorten()
     
     def explore_ball(self, radius):
         ''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.

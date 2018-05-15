@@ -8,7 +8,7 @@ import numpy as np
 
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
-from curver.kernel.decorators import memoize, topological_invariant  # Special import needed for decorating.
+from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 class MultiCurve(Lamination):
     ''' A Lamination in which every component is a Curve. '''
@@ -179,6 +179,7 @@ class Curve(MultiCurve):
         else:
             return self.weight() == 2
     
+    @ensure(lambda data: data.result(data.self).is_minimal())
     def minimise(self):
         ''' Return an encoding which maps this curve to a minimal one. '''
         
@@ -209,8 +210,6 @@ class Curve(MultiCurve):
             move = minimal.triangulation.encode_flip(edge)  # edge is always flippable.
             conjugator = move * conjugator
             minimal = move(minimal)
-        
-        assert conjugator(self).is_minimal()  # Sanity
         
         return conjugator
     
