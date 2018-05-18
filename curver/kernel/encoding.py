@@ -159,7 +159,7 @@ class Mapping(Encoding):
         return dict((vertex, target_vertices_inverse[self(source_vertices[vertex])]) for vertex in self.source_triangulation.vertices)
     
     def simplify(self):
-        ''' Return a new Encoding that is equal to self.
+        ''' Return a new Mapping that is equal to self.
         
         This is obtained by combing the image of the source triangulation under self and so is (hopefully) simpler than self since it depends only on the endpoints. '''
         
