@@ -1,8 +1,6 @@
 
 ''' A module for representing (multi)arcs on triangulations. '''
 
-from collections import Counter
-
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
@@ -140,10 +138,6 @@ class Arc(MultiArc):
         assert multiplicity == 1  # Sanity.
         
         return edge
-    
-    def is_short(self):
-        # return len(self.parallel_components()) == 1
-        return Counter(self) == {-1: 1, 0: self.zeta-1}
     
     @topological_invariant
     def connects_distinct_vertices(self):
