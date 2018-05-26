@@ -3,11 +3,11 @@ Curver
 ======
 
 .. image:: https://img.shields.io/pypi/v/curver.svg
-    :target: https://pypi.python.org/pypi/curver
+    :target: https://pypi.org/project/curver/
     :alt: PyPI version
 
 .. image:: https://img.shields.io/pypi/l/curver.svg
-    :target: https://pypi.python.org/pypi/curver
+    :target: https://pypi.org/project/curver/
     :alt: PyPI license
 
 .. image:: https://travis-ci.org/MarkCBell/curver.svg?branch=master
