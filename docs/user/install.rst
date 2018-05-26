@@ -17,7 +17,7 @@ If you don't have Python installed, this `Python installation guide`_ can guide 
 .. warning::
     In order to use the curver GUI on OS X, users must first update
     their copy of Tk/Tcl as described `here <https://www.python.org/download/mac/tcltk/>`_.
-    Curver has been tested with `ActiveTcl 8.5.18 <http://www.activestate.com/activetcl/downloads>`_.
+    Curver has been tested with `ActiveTcl 8.5.18 <https://www.activestate.com/activetcl/downloads>`_.
 
 From source
 -----------
@@ -47,7 +47,7 @@ package, or install it into your site-packages easily::
     $ cd curver
     $ pip install . --user
 
-.. _Python Package Index: https://pypi.python.org/pypi/curver
+.. _Python Package Index: https://pypi.org/project/curver/
 .. _pip: https://pip.pypa.io
 .. _Python installation guide: http://docs.python-guide.org/en/latest/starting/installation/
 
