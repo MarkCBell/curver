@@ -5,7 +5,7 @@ History
 0.2.4 (2018-??-??)
 ------------------
 
-* Fixed documentation typos.
+* Fixed API documentation build process and typos.
 * Separated out Mappings from Encodings.
 * Triangulation.surface now returns a dictionary.
 * All moves can now be packaged.
