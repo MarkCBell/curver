@@ -24,8 +24,7 @@ import os
 
 # Get the project root dir, which is the parent dir of this
 current_dir = os.path.abspath(os.path.dirname(__file__))
-project_root = os.path.join(current_dir, '..')
-print('project_root:', project_root)
+project_root = os.path.dirname(os.getcwd())  # os.path.join(current_dir, '..')
 
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
@@ -293,6 +292,5 @@ def run_apidoc(_):
     main(['-e','-f','-o', output_path, module_path])
 
 def setup(app):
-    # trigger the run_apidoc
-    app.connect('builder-inited', run_apidoc)
+    app.connect('builder-inited', run_apidoc)  # trigger the run_apidoc
 
