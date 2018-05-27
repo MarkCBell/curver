@@ -402,7 +402,7 @@ class Lamination(object):
     @memoize
     @ensure(lambda data: data.result(data.self).is_short())
     def shorten(self):
-        ''' Return an encoding which maps this lamination to a short one. '''
+        ''' Return a mapping which maps this lamination to a short one. '''
         
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
