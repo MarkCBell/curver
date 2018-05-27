@@ -292,5 +292,6 @@ def run_apidoc(_):
     main(['-e','-f','-o', output_path, module_path])
 
 def setup(app):
-    app.connect('builder-inited', run_apidoc)  # trigger the run_apidoc
+    # app.connect('builder-inited', run_apidoc)  # Trigger the run_apidoc
+    pass
 

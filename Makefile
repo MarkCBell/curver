@@ -59,10 +59,7 @@ coverage: ## check code coverage quickly with the default Python
 	py.test --cov=curver/kernel --cov-report=html --hypothesis-profile=dev
 	$(BROWSER) htmlcov/index.html
 
-docs: ## generate Sphinx HTML documentation, including API docs
-	rm -f docs/curver.rst
-	rm -f docs/modules.rst
-	sphinx-apidoc -o docs/ curver
+docs: ## generate Sphinx HTML documentation
 	$(MAKE) -C docs clean
 	$(MAKE) -C docs html
 	$(BROWSER) docs/_build/html/index.html
