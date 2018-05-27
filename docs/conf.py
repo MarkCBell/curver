@@ -289,9 +289,8 @@ def run_apidoc(_):
     from sphinx.apidoc import main
     output_path = os.path.join(current_dir, 'api')
     module_path = os.path.join(project_root, 'curver')
-    main(['-e','-f','-o', output_path, module_path])
+    # main(['-e','-f','-o', output_path, module_path])
 
 def setup(app):
-    # app.connect('builder-inited', run_apidoc)  # Trigger the run_apidoc
-    pass
+    app.connect('builder-inited', run_apidoc)  # Trigger the run_apidoc
 
