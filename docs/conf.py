@@ -23,8 +23,9 @@ import os
 #sys.path.insert(0, os.path.abspath('.'))
 
 # Get the project root dir, which is the parent dir of this
-cwd = os.getcwd()
-project_root = os.path.dirname(cwd)
+current_dir = os.path.abspath(os.path.dirname(__file__))
+project_root = os.path.join(current_dir, '..')
+print('project_root:', project_root)
 
 # Insert the project root dir as the first element in the PYTHONPATH.
 # This lets us ensure that the source package is imported, and that its
@@ -284,3 +285,14 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+def run_apidoc(_):
+    from sphinx.apidoc import main
+    output_path = os.path.join(current_dir, 'api')
+    module_path = os.path.join(project_root, 'curver')
+    main(['-e','-f','-o', output_path, module_path])
+
+def setup(app):
+    # trigger the run_apidoc
+    app.connect('builder-inited', run_apidoc)
+
