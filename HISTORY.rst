@@ -2,7 +2,13 @@
 History
 =======
 
-0.2.4 (2018-??-??)
+
+0.2.5 (2018-06-24)
+------------------
+
+* Typo hotfix.
+
+0.2.4 (2018-06-24)
 ------------------
 
 * Fixed API documentation build process and typos.
