@@ -31,7 +31,5 @@ install:
   - pip.exe install --editable .
 
 test_script:
-  - flake8.exe
-  - pylint.exe curver.kernel
   - tox.exe -e %TOX_ENV% -- --hypothesis-profile=ci --duration=20
 
