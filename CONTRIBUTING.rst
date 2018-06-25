@@ -76,11 +76,9 @@ Ready to contribute? Here's how to set up `curver` for local development.
 
 5. When you're done making changes, check that your changes pass flake8, pylint and the tests::
 
-    $ flake8
-    $ pylint curver.kernel
     $ tox
 
-  tox will install and run curvers unittests in several versions of Python.
+  tox will install and run flake8, pylint and curvers unittests in several versions of Python.
   Since this can take a long time, you may wish to run just a single environment during development, for example::
 
     $ tox -e py27
