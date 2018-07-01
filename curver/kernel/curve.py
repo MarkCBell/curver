@@ -127,17 +127,16 @@ class MultiCurve(Lamination):
                 if vertex[0] in component:
                     curve = triangulation.curve_from_cut_sequence(vertex)
                     lifted_curve = lift(curve)
-                    if lifted_curve in components:
-                        half_edges[lifted_curve].append(index)
+                    half_edges[lifted_curve].append(index)
         
         dummy_index = len(graph)
-        graph.add_node(dummy_index, genus=0, vertices=0)  # Dummy node for peripheral components.
+        graph.add_node(dummy_index, genus=-1, vertices=-1)  # Dummy node for peripheral components.
         
         for curve, nodes in half_edges.items():
             if len(nodes) == 2:
                 graph.add_edge(nodes[0], nodes[1], weight=components[curve])
             else:  # len(nodes) == 1:
-                graph.add_edge(nodes[0], dummy_index, weight=components[curve])
+                graph.add_edge(nodes[0], dummy_index, weight=components.get(curve, 0))
         
         return curver.kernel.CurvePartitionGraph(self, graph)
 
