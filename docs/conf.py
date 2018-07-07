@@ -48,11 +48,14 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.ifconfig',
     'sphinx.ext.napoleon',
-    'sphinx.ext.autosectionlabel'
+    'sphinx.ext.autosectionlabel',
+    'sphinx.ext.autosummary',
     ]
 
+autosummary_generate = True
+
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ['templates']
 
 # The suffix of source filenames.
 source_suffix = '.rst'
@@ -153,7 +156,7 @@ html_logo = '../curver/application/icon/icon.svg'
 # here, relative to this directory. They are copied after the builtin
 # static files, so a file named "default.css" will overwrite the builtin
 # "default.css".
-html_static_path = ['_static']
+html_static_path = []
 
 # If not '', a 'Last updated on:' timestamp is inserted at every page
 # bottom, using the given strftime format.
@@ -284,13 +287,4 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
-
-def run_apidoc(_):
-    from sphinx.apidoc import main
-    output_path = os.path.join(current_dir, 'api')
-    module_path = os.path.join(project_root, 'curver')
-    main(None, ['--separate', '--force', '--output-dir', output_path, module_path])
-
-def setup(app):
-    app.connect('builder-inited', run_apidoc)  # Trigger the run_apidoc.
 
