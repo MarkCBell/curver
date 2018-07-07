@@ -177,7 +177,9 @@ class Mapping(Encoding):
         return self.__class__([item for move in self for item in move.flip_mapping()])
 
 class MappingClass(Mapping):
-    ''' An Mapping where self.source_triangulation == self.target_triangulation. '''
+    ''' A Mapping from a Triangulation to itself.
+    
+    That is, one where self.source_triangulation == self.target_triangulation. '''
     def __str__(self):
         return 'MappingClass %s' % self.sequence
     def __pow__(self, k):
