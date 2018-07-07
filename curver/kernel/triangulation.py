@@ -245,7 +245,7 @@ class Triangulation(object):
             curver.kernel.utilities.b64encode(curver.kernel.Permutation([x + self.zeta for x in self.signature]).index())
     
     def surface(self):
-        ''' This return a dictionary mapping component |--> (genus, #punctures). '''
+        ''' This return a dictionary mapping component to (genus, #punctures) for each component of self. '''
         
         # Compute pairs of #vertices and #edges for each component.
         VE = dict((component, (len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2)) for component in self.components())

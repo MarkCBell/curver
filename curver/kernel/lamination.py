@@ -328,7 +328,7 @@ class Lamination(object):
         return NotImplemented  # TODO: 2) Implement. (And remove the PyLint disable when done.)
     
     def peripheral_components(self):
-        ''' Return a dictionary mapping component |--> (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
+        ''' Return a dictionary mapping component to (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
         
         components = dict()
         for vertex in self.triangulation.vertices:
@@ -341,7 +341,7 @@ class Lamination(object):
     
     @memoize
     def parallel_components(self):
-        ''' Return a dictionary mapping component |--> (multiplicity, edge) for each component of self that is parallel to an edge. '''
+        ''' Return a dictionary mapping component to (multiplicity, edge) for each component of self that is parallel to an edge. '''
         
         components = dict()
         for edge in self.triangulation.edges:
