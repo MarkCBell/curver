@@ -11,12 +11,13 @@ curver.kernel
 
 .. automodule:: curver.kernel
 
+.. rubric:: Classes
+
 .. autosummary::
-    :toctree:
+    :toctree: ../generated
     :nosignatures:
     :template: summary.rst
 
-    ~curver.kernel.arc.Arc
     ~curver.kernel.arc.Arc
     ~curver.kernel.arc.MultiArc
     ~curver.kernel.crush.Crush
