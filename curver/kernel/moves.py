@@ -144,6 +144,8 @@ class EdgeFlip(FlipGraphMove):
         return not self == other
     
     def apply_lamination(self, lamination):
+        ''' See Lemma 5.1.3 of [Bell15]_ for details of the cases involved in performing a flip. '''
+        
         L = lamination  # Shorter name.
         a, b, c, d, e = self.square
         ai, bi, ci, di, ei = [max(L(edge), 0) for edge in self.square]

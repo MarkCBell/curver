@@ -10,7 +10,7 @@ import curver
 class CurveGraph(object):
     ''' This represents the curve complex of a surface.
     
-    See [Bow08]_ for many of the constants set during initialisation. '''
+    See [Bowditch08]_ and [Webb15]_ for many of the constants set during initialisation. '''
     def __init__(self, triangulation):
         self.triangulation = triangulation
         self.zeta = self.triangulation.zeta

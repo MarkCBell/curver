@@ -402,7 +402,10 @@ class Lamination(object):
     @memoize
     @ensure(lambda data: data.result(data.self).is_short())
     def shorten(self):
-        ''' Return a mapping which maps this lamination to a short one. '''
+        ''' Return a mapping which maps this lamination to a short one.
+        
+        The original version of this method was based on [Bell16]_ but now a simpler and more efficient technique is used.
+        The argument why this version runs in polynomial time follows that of [EricksonNayyeri13]_. '''
         
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
