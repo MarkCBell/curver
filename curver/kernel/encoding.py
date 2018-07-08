@@ -119,7 +119,7 @@ class Mapping(Encoding):
         return 'Mapping %s' % self.sequence
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
-        Here e_i and e'j are the edges of self.source_triangulation and self.target_triangulation respectively.
+        Here e_i and e'_j are the edges of self.source_triangulation and self.target_triangulation respectively.
         
         Except when on S_{1,1}, this uniquely determines self. '''
         

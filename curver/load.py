@@ -324,7 +324,7 @@ def load(*args):
     
     The mapping class group can either be specified by:
     
-        - a pair (g, n) in which case the Lickorish generating set is returned (see Figures 4.5 and 4.10 of [FarbMarg12]), or
+        - a pair (g, n) in which case the Lickorish generating set is returned (see Figures 4.5 and 4.10 of [FarbMarg12]_), or
         - a string 'S_g_n' in which case the corresponding flipper / Twister generating set is returned.
     '''
     
