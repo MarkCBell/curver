@@ -18,32 +18,32 @@ curver.kernel
     :nosignatures:
     :template: summary.rst
 
-    ~curver.kernel.arc.Arc
-    ~curver.kernel.arc.MultiArc
-    ~curver.kernel.crush.Crush
-    ~curver.kernel.crush.Lift
-    ~curver.kernel.curve.Curve
-    ~curver.kernel.curve.MultiCurve
-    ~curver.kernel.curvegraph.CurveGraph
-    ~curver.kernel.encoding.Encoding
-    ~curver.kernel.encoding.Mapping
-    ~curver.kernel.encoding.MappingClass
-    ~curver.kernel.error.AbortError
-    ~curver.kernel.error.AssumptionError
-    ~curver.kernel.homology.HomologyClass
-    ~curver.kernel.lamination.Lamination
-    ~curver.kernel.mappingclassgroup.MappingClassGroup
-    ~curver.kernel.moves.EdgeFlip
-    ~curver.kernel.moves.FlipGraphMove
-    ~curver.kernel.moves.Isometry
-    ~curver.kernel.moves.Move
-    ~curver.kernel.partition.CurvePartitionGraph
-    ~curver.kernel.permutation.Permutation
-    ~curver.kernel.triangulation.Edge
-    ~curver.kernel.triangulation.Triangle
-    ~curver.kernel.triangulation.Triangulation
-    ~curver.kernel.twist.HalfTwist
-    ~curver.kernel.twist.Twist
+    ~arc.Arc
+    ~arc.MultiArc
+    ~crush.Crush
+    ~crush.Lift
+    ~curve.Curve
+    ~curve.MultiCurve
+    ~curvegraph.CurveGraph
+    ~encoding.Encoding
+    ~encoding.Mapping
+    ~encoding.MappingClass
+    ~error.AbortError
+    ~error.AssumptionError
+    ~homology.HomologyClass
+    ~lamination.Lamination
+    ~mappingclassgroup.MappingClassGroup
+    ~moves.EdgeFlip
+    ~moves.FlipGraphMove
+    ~moves.Isometry
+    ~moves.Move
+    ~partition.CurvePartitionGraph
+    ~permutation.Permutation
+    ~triangulation.Edge
+    ~triangulation.Triangle
+    ~triangulation.Triangulation
+    ~twist.HalfTwist
+    ~twist.Twist
 
 Submodules
 ----------
@@ -52,4 +52,8 @@ curver.load module
 ~~~~~~~~~~~~~~~~~~
 
 .. automodule:: curver.load
+    :members:
+    :undoc-members:
+    :inherited-members:
+    :show-inheritance:
 
