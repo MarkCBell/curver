@@ -173,33 +173,38 @@ class Lamination(object):
         
         return next(iter(self.components()))
     
-    def intersection(self, lamination):
-        ''' Return the geometric intersection number between this lamination and the given one. '''
+    def intersection(self, *laminations):
+        ''' Return the geometric intersection number between this lamination and the given one(s).
         
-        assert isinstance(lamination, Lamination)
-        assert lamination.triangulation == self.triangulation
+        If multiple laminations are given then ``sum(i(self, lamination) for laminations)`` is returned. '''
+        
+        assert all(isinstance(lamination, Lamination) for lamination in laminations)
+        assert all(lamination.triangulation == self.triangulation for lamination in laminations)
         
         conjugator = self.shorten()
         short = conjugator(self)
-        short_lamination = conjugator(lamination)
+        short_laminations = [conjugator(lamination) for lamination in laminations]
         
         intersection = 0
         # Parallel components.
         for component, (multiplicity, p) in short.parallel_components().items():
             if isinstance(component, curver.kernel.Arc):
-                intersection += multiplicity * max(short_lamination(p), 0)
+                for short_lamination in short_laminations:
+                    intersection += multiplicity * max(short_lamination(p), 0)
             else:  # isinstance(component, curver.kernel.Curve):
                 v = short.triangulation.vertex_lookup[p]  # = self.triangulation.vertex_lookup[~p].
                 v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
                 
-                around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
-                out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
-                # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
-                intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
+                for short_lamination in short_laminations:
+                    around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
+                    out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
+                    # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
+                    intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
         
         # Peripheral components.
         for _, (multiplicity, vertex) in short.peripheral_components().items():
-            intersection += multiplicity * sum(max(-short_lamination(edge), 0) + max(-short_lamination.side_weight(edge), 0) for edge in vertex)
+            for short_lamination in short_laminations:
+                intersection += multiplicity * sum(max(-short_lamination(edge), 0) + max(-short_lamination.side_weight(edge), 0) for edge in vertex)
         
         return intersection
     
