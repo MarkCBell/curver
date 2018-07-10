@@ -47,6 +47,12 @@ class Twist(FlipGraphMove):
         return not self == other
     
     def apply_lamination(self, lamination):
+        # Take care of some easy cases for speed.
+        if self.power == 1:
+            return self.encoding(lamination)
+        if self.power == -1:
+            return self.encoding.inverse()(lamination)
+        
         intersection = self.curve.intersection(lamination)
         if intersection == 0:  # Disjoint twists have no effect.
             return lamination
