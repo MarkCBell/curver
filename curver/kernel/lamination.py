@@ -406,7 +406,7 @@ class Lamination(object):
     
     @memoize
     @ensure(lambda data: data.result(data.self).is_short())
-    def shorten(self):
+    def shorten(self, accelerate=True):
         ''' Return a mapping which maps this lamination to a short one.
         
         The original version of this method was based on [Bell16]_ but now a simpler and more efficient technique is used.
@@ -463,6 +463,9 @@ class Lamination(object):
                 a, b, c, d, e = lamination.triangulation.square(edge)
                 flip = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
                 try:  # Accelerate!
+                    if not accelerate:  # Unless we can't.
+                        raise curver.AssumptionError('Acceleration disabled.')
+                    
                     if (1 - 0.1 / lamination.zeta) * lamination.weight() > flip(lamination).weight():  # Drop is at least 10% of average edge weight.
                         raise curver.AssumptionError('Flip made definite progress.')
                     
