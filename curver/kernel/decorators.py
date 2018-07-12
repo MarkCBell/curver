@@ -1,8 +1,8 @@
 
 ''' A module for decorators. '''
 
-from decorator import decorator
 import inspect
+from decorator import decorator
 
 @decorator
 def memoize(function, *args, **kwargs):
