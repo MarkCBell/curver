@@ -2,7 +2,6 @@
 ''' A module for decorators. '''
 
 from decorator import decorator
-from functools import wraps
 import inspect
 
 @decorator
