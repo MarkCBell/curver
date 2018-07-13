@@ -8,7 +8,7 @@ from decorator import decorator
 def memoize(function, *args, **kwargs):
     ''' A decorator that memoizes a method of a class. '''
     
-    inputs = inspect.getcallargs(function, *args, **kwargs)
+    inputs = inspect.getcallargs(function, *args, **kwargs)  # pylint: disable=deprecated-method
     self = inputs['self']
     key = (function.__name__, frozenset(inputs.items()))
     
