@@ -79,6 +79,8 @@ class Lamination(object):
         return new_class(self.triangulation, geometric)  # Preserve promotion.
     def __rmul__(self, other):
         return self * other  # Commutative.
+    def __reduce__(self):
+        return (self.__class__, (self.triangulation, self.geometric))
     
     def weight(self):
         ''' Return the geometric intersection of this lamination with its underlying triangulation. '''
