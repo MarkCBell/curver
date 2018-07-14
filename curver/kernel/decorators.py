@@ -15,7 +15,7 @@ def memoize(function, *args, **kwargs):
     if not hasattr(self, '_cache'):
         self._cache = dict()
     if key not in self._cache:
-        self._cache[key] = function(self)
+        self._cache[key] = function(*args, **kwargs)
     return self._cache[key]
 
 def topological_invariant(function):
@@ -41,4 +41,12 @@ def ensure(*fs):
         return result
     
     return wrapper
+
+def decorate_all(decorator):
+    def decorate(cls):
+        for attr, method in inspect.getmembers(cls): # there's propably a better way to do this
+            if not attr.startswith('_') and inspect.isfunction(method):
+                setattr(cls, attr, decorator(method))
+        return cls
+    return decorate
 
