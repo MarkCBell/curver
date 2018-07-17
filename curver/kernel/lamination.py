@@ -4,9 +4,8 @@
 from itertools import permutations
 
 import curver
-from curver.kernel.decorators import memoize, topological_invariant, ensure, decorate_all  # Special import needed for decorating.
+from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
-@decorate_all(memoize)
 class Lamination(object):
     ''' This represents an (integral) lamination on a triangulation.
     
@@ -347,6 +346,7 @@ class Lamination(object):
         
         return components
     
+    @memoize
     def parallel_components(self):
         ''' Return a dictionary mapping component to (multiplicity, edge) for each component of self that is parallel to an edge. '''
         
@@ -374,6 +374,7 @@ class Lamination(object):
         
         return components
     
+    @memoize
     def components(self):
         ''' Return a dictionary mapping components to their multiplicities. '''
         
@@ -405,6 +406,7 @@ class Lamination(object):
         
         return lamination.is_empty()
     
+    @memoize
     @ensure(lambda data: data.result(data.self).is_short())
     def shorten(self, accelerate=True):
         ''' Return a mapping which maps this lamination to a short one.
