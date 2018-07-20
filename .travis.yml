@@ -26,7 +26,7 @@ install:
 script:
 - tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
 after_success:
-- if [[ $TRAVIS_PYTHON_VERSION == 2.7 ]]; then coveralls; fi
+- if [[ $TOX_ENV == "py36" ]]; then coveralls; fi
 deploy:
   provider: pypi
   user: mark_bell
@@ -34,4 +34,4 @@ deploy:
     secure: Z6r1ttgEv1G/88Qlgdkqx72yW9DFUaLoYqUiKVyX/AyBRxGjSTV7g9o5rViD4Hx4oN4OOerc/nV+zp1d97cA3QseHZDSdN+VzkrBB9iIVvroR5u4cvthRoTSOZxaifGHUcH5veBFFjyH7gOSwGP5jtYttoWD/bkGNapoD0G4au9bEdpMCVIc428mPBgtix1uqU07npbOBb1n+8gqFlOoA32wbworFbjhiaF2MvG+f+yaZJ0wr7s+57NXT36YePvG4eJ57Sl66x+EdI6udO1JRJpM6PeTpHRlFz1TlASXBL9SSDKxXP/hjosJ+mVkoSTAZ0QLRJUK5TOcHwPLIgzsZgRnlI4OKSTdX5sqSmwfjWy4qBjtMIf3CxXnqd5OKTpkFrpYNpcskaKplSxsBIOsSwrNflL9L46ta52ez1Oe44XEtbzkaEXfoTnt2mcHPRpYIaaMBjQFHt9DUx63goVvgfmNuF79TaProxKsQcLlqAjffI1iPy8MXJ0lVggbwOCJOZid1vL0ZVc3d1ek7LBXT4+8gZcF3qzfMx1hEuI5fFVOIPk/ADraGX3EWKuFeN0UL7FfX2qjdP7yMjym+oCI3tIZ/Z5lSbaaOfvpCOu3jP6+pHxBsnAx+jM2YuyYT/zXdDfVKPN8x5yj4BkySiBx1BLbwAuTz/Exl1f6rub9RTA=
   on:
     tags: true
-    python: 2.7
+    condition: $TOX_ENV == "py36"
