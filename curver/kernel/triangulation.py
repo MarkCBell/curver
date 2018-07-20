@@ -417,8 +417,8 @@ class Triangulation(object):
         # Make a local copy as we may need to make a lot of changes.
         label_map = dict(label_map)
         
-        source_orders = dict([(edge.label, len(vertex)) for vertex in self.vertices for edge in vertex])
-        target_orders = dict([(edge.label, len(vertex)) for vertex in other.vertices for edge in vertex])
+        source_orders = dict((edge.label, len(vertex)) for vertex in self.vertices for edge in vertex)
+        target_orders = dict((edge.label, len(vertex)) for vertex in other.vertices for edge in vertex)
         # We do a depth first search extending the corner map across the triangulation.
         # This is a stack of labels that may still have consequences to check.
         to_process = [(edge_from_label, label_map[edge_from_label]) for edge_from_label in label_map]
