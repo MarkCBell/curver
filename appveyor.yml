@@ -37,7 +37,6 @@ init:
 install:
   - pip.exe install setuptools --upgrade
   - pip.exe install tox
-  - pip.exe install --editable .
 
 test_script:
   - tox.exe -e %TOX_ENV% -- --hypothesis-profile=ci --duration=20
