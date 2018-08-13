@@ -7,7 +7,7 @@ from setuptools import setup, find_packages
 
 requirements = [
     'networkx>=2.0',
-    'numpy',
+    'numpy!=1.15.0',
     'decorator'
 ]
 
