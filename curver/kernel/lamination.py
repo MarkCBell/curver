@@ -413,6 +413,7 @@ class Lamination(object):
         
         In each round, we do not look for an accelerating Dehn twist if a flip can drop the weight by at least `drop`%.
         So if `drop` == 0.0 then acceleration is never done.
+        As long as `drop` > 0 this method runs in poly(||self||) time.
         
         The original version of this method was based on [Bell16]_ but now a simpler and more efficient technique is used.
         The argument why this version runs in polynomial time follows that of [EricksonNayyeri13]_. '''
