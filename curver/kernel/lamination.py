@@ -408,11 +408,16 @@ class Lamination(object):
     
     @memoize
     @ensure(lambda data: data.result(data.self).is_short())
-    def shorten(self, accelerate=True):
+    def shorten(self, drop=0.1):
         ''' Return a mapping which maps this lamination to a short one.
+        
+        In each round, we do not look for an accelerating Dehn twist if a flip can drop the weight by at least `drop`%.
+        So if `drop` == 0.0 then acceleration is never done.
         
         The original version of this method was based on [Bell16]_ but now a simpler and more efficient technique is used.
         The argument why this version runs in polynomial time follows that of [EricksonNayyeri13]_. '''
+        
+        assert 0.0 <= drop <= 1.0
         
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
@@ -464,29 +469,24 @@ class Lamination(object):
                 
                 a, b, c, d, e = lamination.triangulation.square(edge)
                 flip = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
-                try:  # Accelerate!
-                    if not accelerate:  # Unless we can't.
-                        raise curver.AssumptionError('Acceleration disabled.')
-                    
-                    if (1 - 0.1 / lamination.zeta) * lamination.weight() > flip(lamination).weight():  # Drop is at least 10% of average edge weight.
-                        raise curver.AssumptionError('Flip made definite progress.')
-                    
-                    intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
-                    trace = lamination.trace(edge, intersection_point, 2*self.zeta)
-                    trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
-                    
-                    curve = lamination.triangulation.lamination_from_cut_sequence(trace)
-                    if not isinstance(curve, curver.kernel.Curve):
-                        raise ValueError
-                    
-                    slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
-                    if -1 <= slope <= 1:  # Can't accelerate. We should probably also skip cases where slope is too close to small to be efficient.
-                        raise ValueError
-                    else:  # slope < -1 or 1 < slope:
-                        move = curve.encode_twist(power=-int(slope))  # Round towards zero.
-                except (ValueError, curver.AssumptionError):
-                    move = flip
-                    extra = [x for x in [c, d] if x in active_edges]
+                
+                move = flip
+                old_extra = extra
+                extra = [x for x in [c, d] if x in active_edges]
+                if (1 - drop) * lamination.weight() < flip(lamination).weight():  # Flipping drops weight by less than drop%, so look for a twist to accelerate.
+                    try:
+                        intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
+                        trace = lamination.trace(edge, intersection_point, 2*self.zeta)
+                        trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
+                        
+                        curve = lamination.triangulation.lamination_from_cut_sequence(trace)
+                        if isinstance(curve, curver.kernel.Curve):
+                            slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
+                            if abs(slope) > 1:  # Can accelerate. We should probably also skip cases where slope is too close to small to be efficient.
+                                move = curve.encode_twist(power=-int(slope))  # Round towards zero.
+                                extra = old_extra
+                    except (ValueError, curver.AssumptionError):
+                        pass
                 
                 conjugator = move * conjugator
                 lamination = move(lamination)
