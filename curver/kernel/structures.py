@@ -138,7 +138,6 @@ class StraightLineProgram(object):
                 yield v.value
             else:  # isinstance(v, curver.IntegerType):
                 todo.extend(reversed(self(v)))
-        return
     
     def __lshift__(self, index):
         return [[item if isinstance(item, Terminal) else item + index for item in lst] for lst in self.graph]

@@ -399,8 +399,6 @@ class Triangulation(object):
                     step = self.encode_flip(edge)
                     for encoding in step.target_triangulation.all_encodings(num_flips-1):
                         yield encoding * step
-        
-        return
     
     def find_isometry(self, other, label_map):
         ''' Return the isometry from this triangulation to other defined by label_map.

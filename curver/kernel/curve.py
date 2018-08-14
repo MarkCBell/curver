@@ -50,8 +50,6 @@ class MultiCurve(Lamination):
             curve = self.triangulation.lamination_from_cut_sequence(cycle)
             if isinstance(curve, curver.kernel.Curve):
                 yield curve
-        
-        return
     
     def vertex_cycle(self):
         ''' Return a vertex cycle of this multicurve. '''
