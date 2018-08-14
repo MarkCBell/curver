@@ -172,7 +172,7 @@ class Curve(MultiCurve):
             return self.weight() == 1
         elif self.is_isolating():
             shapes = [len([edge for edge in triangle if self.dual_weight(edge) > 0]) for triangle in self.triangulation]
-            return all(weight == 0 or weight == 2 for weight in self) and shapes.count(1) == 1 and shapes.count(2) == 0  # Exactly one corridor and no bipods.
+            return all(weight in (0, 2) for weight in self) and shapes.count(1) == 1 and shapes.count(2) == 0  # Exactly one corridor and no bipods.
         else:
             return self.weight() == 2
     
