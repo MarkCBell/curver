@@ -143,7 +143,7 @@ class CurveGraph(object):
         assert a.triangulation == self.triangulation
         assert b.triangulation == self.triangulation
         
-        return tuple(multicurve.peek_component() for multicurve in self.tight_geodesic(a, b))
+        return tuple(multicurve.peek_component() for multicurve in self.tight_geodesic(a, b))  # pylint: disable=no-member
     
     def distance(self, a, b):
         ''' Return the distance from a to b in the curve complex. '''
