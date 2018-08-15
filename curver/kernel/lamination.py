@@ -459,12 +459,27 @@ class Lamination(object):
             
             return 0.5
         
+        def find_twist(lamination, edge):
+            ''' Return a twist based at the given edge that drops the weight of this lamination as much as possible.
+            
+            Raises an AssumptionError or ValueError if no twist can be found. '''
+            
+            # Deps: edge, lamination, old_extra
+            trace = lamination.trace(edge, lamination.side_weight(edge), 2*self.zeta)
+            trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
+            
+            curve = lamination.triangulation.lamination_from_cut_sequence(trace)
+            if isinstance(curve, curver.kernel.Curve):
+                slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
+                if abs(slope) > 1:  # Can accelerate. We should probably also skip cases where slope is too close to small to be efficient.
+                    return curve.encode_twist(power=-int(slope))  # Round towards zero.
+            
+            raise curver.AssumptionError('No accelerating twist exists.')
+        
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
         while not lamination.is_empty():
-            
             extra = []  # High priority edges to check.
             while active_edges:
-                # Could be another try / except block.
                 edge = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: shorten_strategy(lamination, edge), upper_bound=1)
                 if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
                 
@@ -472,22 +487,13 @@ class Lamination(object):
                 flip = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
                 
                 move = flip
-                old_extra = extra
-                extra = [x for x in [c, d] if x in active_edges]
                 if (1 - drop) * lamination.weight() < flip(lamination).weight():  # Flipping drops weight by less than drop%, so look for a twist to accelerate.
                     try:
-                        intersection_point = lamination.side_weight(e) if lamination.side_weight(e) > 0 else -lamination.dual_weight(a)
-                        trace = lamination.trace(edge, intersection_point, 2*self.zeta)
-                        trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
-                        
-                        curve = lamination.triangulation.lamination_from_cut_sequence(trace)
-                        if isinstance(curve, curver.kernel.Curve):
-                            slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
-                            if abs(slope) > 1:  # Can accelerate. We should probably also skip cases where slope is too close to small to be efficient.
-                                move = curve.encode_twist(power=-int(slope))  # Round towards zero.
-                                extra = old_extra
+                        move = find_twist(lamination, edge)
                     except (ValueError, curver.AssumptionError):
-                        pass
+                        extra = [x for x in [c, d] if x in active_edges]
+                else:
+                    extra = [x for x in [c, d] if x in active_edges]
                 
                 conjugator = move * conjugator
                 lamination = move(lamination)
@@ -506,7 +512,7 @@ class Lamination(object):
                     curve = lamination.triangulation.curve_from_cut_sequence(trace)
                     extra = []
                     while not curve.is_short():
-                        edgey = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: curve_shorten_strategy(curve, edge), upper_bound=1)
+                        edgey = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: curve_shorten_strategy(curve, edge), upper_bound=1)  # pylint: disable=cell-var-from-loop
                         # This edge is always flippable.
                         a, b, c, d, e = lamination.triangulation.square(edgey)
                         
