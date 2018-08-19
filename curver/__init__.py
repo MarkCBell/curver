@@ -7,10 +7,8 @@ import warnings
 import curver.kernel
 from curver.load import load  # noqa: F401
 
-with warnings.catch_warnings():
-    warnings.simplefilter("ignore")
-    import pkg_resources  # Suppress 'UserWarning: Module curver was already imported from ...'
-    __version__ = pkg_resources.require('curver')[0].version
+import pkg_resources  # Suppress 'UserWarning: Module curver was already imported from ...'
+__version__ = pkg_resources.get_distribution('curver').version
 
 # Set up really short names for the most commonly used classes and functions by users.
 create_triangulation = curver.kernel.create_triangulation
