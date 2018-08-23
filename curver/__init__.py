@@ -7,7 +7,7 @@ import warnings
 import curver.kernel
 from curver.load import load  # noqa: F401
 
-import pkg_resources  # Suppress 'UserWarning: Module curver was already imported from ...'
+import pkg_resources
 __version__ = pkg_resources.get_distribution('curver').version
 
 # Set up really short names for the most commonly used classes and functions by users.
