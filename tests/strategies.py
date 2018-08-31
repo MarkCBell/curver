@@ -50,32 +50,43 @@ def mappings(draw, triangulation=None):
 def encodings(draw, triangulation=None, distribution=None):
     if triangulation is None: triangulation = draw(triangulations())
     if distribution is None: distribution = [0, 0, 0, 0, 1, 2, 3, 4]
-    h = triangulation.id_encoding()
+    terms_reversed = []
     move_types = draw(st.lists(elements=st.sampled_from(distribution), max_size=10))
+    T = triangulation
     for move_type in move_types:
-        T = h.target_triangulation
         if move_type == 0:  # EdgeFlip.
             edge = draw(st.sampled_from([edge for edge in T.edges if T.is_flippable(edge)]))
-            move = T.encode_flip(edge)
+            term = T.encode_flip(edge)
         elif move_type == 1:  # Isometry.
-            move = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
+            term = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
         elif move_type == 2:  # Twist.
-            curve = draw(curves(T))
-            move = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
+            curves = [T.edge_curve(edge) for edge in T.edges]
+            curve = draw(st.sampled_from(curves))
+            term = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
         elif move_type == 3:  # HalfTwist.
             arcs = [T.edge_arc(edge) for edge in T.edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
             if arcs:
                 arc = draw(st.sampled_from(arcs))
-                move = arc.encode_halftwist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
+                term = arc.encode_halftwist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
             else:
-                move = T.id_encoding()
+                term = T.id_encoding()
         else:  # move_type == 4:  # Crush.
-            curve = draw(curves(T))
-            move = curve.crush()
+            curves = [T.edge_curve(edge) for edge in T.edges]
+            curve = draw(st.sampled_from(curves))
+            term = curve.crush()
         
-        h = move * h
+        terms_reversed.append(term)
+        T = term.target_triangulation
     
-    return h
+    if not terms_reversed: terms_reversed = [triangulation.id_encoding()]
+    moves = [move for term in reversed(terms_reversed) for move in term]
+    if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves):
+        if moves[0].target_triangulation == moves[-1].source_triangulation:
+            return curver.kernel.MappingClass(moves)
+        else:
+            return curver.kernel.Mapping(moves)
+    else:
+        return curver.kernel.Encoding(moves)
 
 @st.composite
 def homology_classes(draw, triangulation=None):
