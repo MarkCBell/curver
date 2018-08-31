@@ -567,6 +567,21 @@ class Triangulation(object):
         else:
             return NotImplemented
     
+    def edge_curve(self, edge):
+        ''' Return the curve \\partial N(edge).
+        
+        If edge connects a vertex to itself then there are two candidate curves
+        in which case the one to the right of the (oriented) edge is returned. '''
+        
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
+        
+        if self.vertex_lookup[edge] == self.vertex_lookup[~edge]:
+            edges = curver.kernel.utilities.cyclic_slice(self.vertex_lookup[edge], edge, ~edge)[1:]
+        else:
+            edges = [edgy for edgy in self.vertex_lookup[edge] + self.vertex_lookup[edge] if edgy not in (edge, ~edge)]
+        
+        return self.curve_from_cut_sequence(edges)  # Avoids promote.
+    
     def edge_arc(self, edge):
         ''' Return the given edge as an Arc. '''
         
@@ -703,18 +718,14 @@ class Triangulation(object):
                 edge = Edge(label)
                 
                 if power == 0:  # Crush:
-                    edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge], edge, ~edge)[1:]
-                    curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
+                    curve = T.edge_curve(edge)
                     move = curve.crush()[0]
-                else:
-                    # Check where it connects.
-                    if T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
-                        edges = curver.kernel.utilities.cyclic_slice(T.vertex_lookup[edge], edge, ~edge)[1:]
-                        curve = T.curve_from_cut_sequence(edges)  # Avoids promote.
-                        move = curver.kernel.Twist(curve, power)
-                    else:  # HalfTwist.
-                        arc = T.edge_arc(edge)
-                        move = curver.kernel.HalfTwist(arc, power)
+                elif T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
+                    curve = T.edge_curve(edge)
+                    move = curver.kernel.Twist(curve, power)
+                else:  # HalfTwist.
+                    arc = T.edge_arc(edge)
+                    move = curver.kernel.HalfTwist(arc, power)
             elif item is None:  # Identity isometry.
                 move = T.id_encoding()[0]
             elif isinstance(item, curver.kernel.Move):  # Move.
