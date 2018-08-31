@@ -51,13 +51,15 @@ def name_objects(objects, skip=None):
     
     return zip(string_generator(len(objects), skip), objects)
 
-def cyclic_slice(L, x, y):
+def cyclic_slice(L, x, y=None):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
     
-    L may be cyclically permuted if needed. '''
+    L may be cyclically permuted if needed.
+    y may be omitted in which case the entire list (cyclically permuted so x is first) is returned. '''
+    
     i = L.index(x)
     L = L[i:] + L[:i]  # x is now L[0].
-    j = L.index(y)
+    j = None if y is None else L.index(y)
     return L[:j]
 
 def maximum(iterable, key=lambda x: x, upper_bound=None):
