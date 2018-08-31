@@ -703,45 +703,46 @@ class Triangulation(object):
         assert sequence
         
         T = self
-        moves_reversed = []
+        terms_reversed = []
         for item in reversed(sequence):
             if isinstance(item, curver.IntegerType):  # Flip.
-                move = T.encode_flip(item)[0]
+                term = T.encode_flip(item)
             elif isinstance(item, dict):  # Isometry.
                 if all(i in item or ~i in item for i in self.indices):
-                    move = T.encode_relabel_edges(item)[0]
+                    term = T.encode_relabel_edges(item)
                 else:  # If some edges are missing then we assume that we must be mapping back to this triangulation.
-                    move = T.find_isometry(self, item)
+                    term = T.find_isometry(self, item)
             elif isinstance(item, tuple) and len(item) == 2:  # Twist or HalfTwist.
                 label, power = item
                 edge = Edge(label)
                 
                 if power == 0:  # Crush:
                     curve = T.edge_curve(edge)
-                    move = curve.crush()[0]
+                    term = curve.crush()
                 elif T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
                     curve = T.edge_curve(edge)
-                    move = curver.kernel.Twist(curve, power)
+                    term = curve.encode_twist(power)
                 else:  # HalfTwist.
                     arc = T.edge_arc(edge)
-                    move = curver.kernel.HalfTwist(arc, power)
+                    term = arc.encode_halftwist(power)
             elif item is None:  # Identity isometry.
-                move = T.id_encoding()[0]
+                term = T.id_encoding()
             elif isinstance(item, curver.kernel.Move):  # Move.
-                move = item
+                term = item.encode()
             else:  # Other.
-                move = item
+                term = item
             
-            moves_reversed.append(move)
-            T = move.target_triangulation
+            terms_reversed.append(term)
+            T = term.target_triangulation
         
-        if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves_reversed):
-            if moves_reversed[0].source_triangulation != moves_reversed[-1].target_triangulation:
-                return curver.kernel.Mapping(moves_reversed[::-1])
+        moves = [move for item in reversed(reversed_terms) for move in item]
+        if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves):
+            if moves[0].target_triangulation == moves[-1].source_triangulation:
+                return curver.kernel.MappingClass(moves)
             else:
-                return curver.kernel.MappingClass(moves_reversed[::-1])
+                return curver.kernel.Mapping(moves)
         else:
-            return curver.kernel.Encoding(moves_reversed[::-1])
+            return curver.kernel.Encoding(moves)
 
 def create_triangulation(cls, edge_labels):
     ''' A helper function for pickling. '''
