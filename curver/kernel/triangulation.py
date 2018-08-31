@@ -577,8 +577,12 @@ class Triangulation(object):
         
         if self.vertex_lookup[edge] == self.vertex_lookup[~edge]:
             edges = curver.kernel.utilities.cyclic_slice(self.vertex_lookup[edge], edge, ~edge)[1:]
+        elif len(self.vertex_lookup[edge]) == 1:  # Folded triangle.
+            edges = curver.kernel.utilities.cyclic_slice(self.vertex_lookup[~edge], ~edge)[2:-1]
+        elif len(self.vertex_lookup[~edge]) == 1:  # Folded triangle.
+            edges = curver.kernel.utilities.cyclic_slice(self.vertex_lookup[edge], edge)[2:-1]
         else:
-            edges = [edgy for edgy in self.vertex_lookup[edge] + self.vertex_lookup[edge] if edgy not in (edge, ~edge)]
+            edges = [edgy for edgy in self.vertex_lookup[edge] + self.vertex_lookup[~edge] if edgy not in (edge, ~edge)]
         
         return self.curve_from_cut_sequence(edges)  # Avoids promote.
     
@@ -735,7 +739,8 @@ class Triangulation(object):
             terms_reversed.append(term)
             T = term.target_triangulation
         
-        moves = [move for item in reversed(reversed_terms) for move in item]
+        if not terms_reversed: terms_reversed = [self.id_encoding()]
+        moves = [move for item in reversed(terms_reversed) for move in item]
         if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves):
             if moves[0].target_triangulation == moves[-1].source_triangulation:
                 return curver.kernel.MappingClass(moves)
