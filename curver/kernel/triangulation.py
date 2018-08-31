@@ -704,7 +704,6 @@ class Triangulation(object):
         
         T = self
         moves_reversed = []
-        flip_graph = True
         for item in reversed(sequence):
             if isinstance(item, curver.IntegerType):  # Flip.
                 move = T.encode_flip(item)[0]
@@ -734,16 +733,15 @@ class Triangulation(object):
                 move = item
             
             moves_reversed.append(move)
-            flip_graph = flip_graph and isinstance(move, curver.kernel.FlipGraphMove)
             T = move.target_triangulation
         
-        if not flip_graph:
-            return curver.kernel.Encoding(moves_reversed[::-1])
-        else:  # flip_graph:
+        if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves_reversed):
             if moves_reversed[0].source_triangulation != moves_reversed[-1].target_triangulation:
                 return curver.kernel.Mapping(moves_reversed[::-1])
             else:
                 return curver.kernel.MappingClass(moves_reversed[::-1])
+        else:
+            return curver.kernel.Encoding(moves_reversed[::-1])
 
 def create_triangulation(cls, edge_labels):
     ''' A helper function for pickling. '''
