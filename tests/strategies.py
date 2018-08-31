@@ -79,7 +79,7 @@ def encodings(draw, triangulation=None, distribution=None):
         T = term.target_triangulation
     
     if not terms_reversed: terms_reversed = [triangulation.id_encoding()]
-    moves = [move for term in reversed(terms_reversed) for move in term]
+    moves = [move for item in reversed(terms_reversed) for move in item]
     if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves):
         if moves[0].target_triangulation == moves[-1].source_triangulation:
             return curver.kernel.MappingClass(moves)
