@@ -7,23 +7,22 @@ by "Assumes that ..." meaning that:
     - If the assumptions are met then this function is guaranteed to terminate correctly.
     - If not then a curver.AssumptionError will be raised. '''
 
-# flake8: noqa  # Can't check this file since the imports are never used.
-from .arc import Arc, MultiArc
-from .crush import Crush, Lift
-from .curve import Curve, MultiCurve
-from .curvegraph import CurveGraph
-from .encoding import Encoding, Mapping, MappingClass
-from .error import AssumptionError, AbortError
-from .homology import HomologyClass
-from .lamination import Lamination
-from .mappingclassgroup import MappingClassGroup
-from .moves import Move, FlipGraphMove, EdgeFlip, Isometry
-from .partition import CurvePartitionGraph
-from .permutation import Permutation
-from .structures import UnionFind, StraightLineProgram
-from .triangulation import Edge, Triangle, Triangulation, norm
-from .twist import Twist, HalfTwist
-from .utilities import matrix_vector
+from .arc import Arc, MultiArc  # noqa: F401
+from .crush import Crush, Lift  # noqa: F401
+from .curve import Curve, MultiCurve  # noqa: F401
+from .curvegraph import CurveGraph  # noqa: F401
+from .encoding import Encoding, Mapping, MappingClass  # noqa: F401
+from .error import AssumptionError, AbortError  # noqa: F401
+from .homology import HomologyClass  # noqa: F401
+from .lamination import Lamination  # noqa: F401
+from .mappingclassgroup import MappingClassGroup  # noqa: F401
+from .moves import Move, FlipGraphMove, EdgeFlip, Isometry  # noqa: F401
+from .partition import CurvePartitionGraph  # noqa: F401
+from .permutation import Permutation  # noqa: F401
+from .structures import UnionFind, StraightLineProgram  # noqa: F401
+from .triangulation import Edge, Triangle, Triangulation, norm  # noqa: F401
+from .twist import Twist, HalfTwist  # noqa: F401
+from .utilities import matrix_vector  # noqa: F401
 
 # Set up shorter names for all of the different classes.
 MCG = MappingClassGroup  # Alias.
