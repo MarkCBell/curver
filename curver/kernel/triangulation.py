@@ -600,11 +600,18 @@ class Triangulation(object):
         
         return [self.edge_arc(edge) for edge in self.positive_edges]  # Could use self.lamination.
     
+    def edge_homology(self, edge):
+        ''' Return the HomologyClass of the given edge. '''
+        
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
+        
+        return curver.kernel.HomologyClass(self, [0 if i != edge.index else edge.sign() for i in range(self.zeta)])
+    
     def edge_homologies(self):
         ''' Return a list containing the HomologyClass of each Edge. '''
         
         # Could skip those in self.dual_tree().
-        return [curver.kernel.HomologyClass(self, [0 if i != index else 1 for i in range(self.zeta)]) for index in self.indices]
+        return [self.edge_homology(edge) for edge in self.positive_edges]
     
     def id_isometry(self):
         ''' Return the isometry representing the identity map. '''
