@@ -62,16 +62,6 @@ class MultiArc(Lamination):
         return conjugator.inverse()(boundary)
     
     @topological_invariant
-    def is_polygonalisation(self):
-        ''' Return if this MultiArc is a polygonalisation, that is, if it cuts the surface into polygons. '''
-        short = self.shorten()(self)
-       
-        avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
-        dual_tree = short.triangulation.dual_tree(avoid=avoid)
-        
-        return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
-    
-    @topological_invariant
     def is_triangulation(self):
         ''' Return if this MultiArc is a triangulation. '''
         short = self.shorten()(self)

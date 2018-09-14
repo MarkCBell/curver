@@ -285,6 +285,20 @@ class Lamination(object):
         
         return self.boundary().is_peripheral()
     
+    @topological_invariant
+    def is_polygonalisation(self):
+        ''' Return if this Lamination is a polygonalisation, that is, if it cuts the surface into polygons. '''
+        
+        if any(isinstance(component, curver.kernel.Curve) for component in self.components()):
+            return False
+        
+        short = self.shorten()(self)
+       
+        avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
+        dual_tree = short.triangulation.dual_tree(avoid=avoid)
+        
+        return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
+    
     def fills_with(self, other):  # pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''
         assert isinstance(other, Lamination)
