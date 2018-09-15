@@ -3,6 +3,7 @@
 
 from collections import defaultdict, namedtuple
 from fractions import Fraction
+from itertools import groupby
 import numpy as np
 
 import curver
@@ -429,7 +430,12 @@ class MappingClass(Mapping):
                     break
         
         # Make all the data canonical by sorting.
-        return sorted((surface[component], component_multiplicities[component], sorted(cone_points[component])) for component in components)
+        signature = sorted((surface[component], component_multiplicities[component], sorted(cone_points[component])) for component in components)
+        
+        # Compress.
+        signature = [((g, n), m, cp) for ((g, n), m, cp), group in groupby(signature) for _ in range(len(list(group)) // m)]
+        signature = [((g, n), m, [key for key, group in groupby(cp) for _ in range(len(list(group)) // key.multiplicity)]) for ((g, n), m, cp) in signature]
+        return signature
 
     def is_conjugate_to(self, other):
         ''' Return whether this mapping class is conjugate to other.
