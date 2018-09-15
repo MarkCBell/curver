@@ -383,13 +383,13 @@ class MappingClass(Mapping):
         # How h permutes the components.
         h_component = dict((component_lookup[oriented_arc], component_lookup[image]) for oriented_arc, image in h_oriented.items())
         # The multiplicities of the action of h on the components.
-        component_multiplicities = dict()
+        component_orbit_length = dict()
         for component in components:
             image = component
-            for multiplicity in range(1, h_order+1):
+            for i in range(1, h_order+1):
                 image = h_component[image]
                 if image == component:
-                    component_multiplicities[component] = multiplicity
+                    component_orbit_length[component] = i
                     break
         
         # Compute the polygons cut out by short.
@@ -430,11 +430,12 @@ class MappingClass(Mapping):
                     break
         
         # Make all the data canonical by sorting.
-        signature = sorted((surface[component], component_multiplicities[component], sorted(cone_points[component])) for component in components)
+        Orbifold = namedtuple('Orbifold', ['surface', 'multiplicity', 'cone_points'])
+        signature = sorted(Orbifold(surface[component], component_orbit_length[component], sorted(cone_points[component])) for component in components)
         
         # Compress.
-        signature = [((g, n), m, cp) for ((g, n), m, cp), group in groupby(signature) for _ in range(len(list(group)) // m)]
-        signature = [((g, n), m, [key for key, group in groupby(cp) for _ in range(len(list(group)) // key.multiplicity)]) for ((g, n), m, cp) in signature]
+        signature = [key for key, group in groupby(signature) for _ in range(len(list(group)) // key.multiplicity)]
+        signature = [Orbifold(orbifold.surface, orbifold.multiplicity, [key for key, group in groupby(orbifold.cone_points) for _ in range(len(list(group)) // key.multiplicity)]) for orbifold in signature]
         return signature
 
     def is_conjugate_to(self, other):
