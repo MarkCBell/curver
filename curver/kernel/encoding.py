@@ -409,7 +409,7 @@ class MappingClass(Mapping):
                 used = used.union(polygon)  # Mark everything as used.
                 polygons.append(polygon)
         
-        ConePoint = namedtuple('ConePoint', ['punctured', 'rotation', 'multiplicity'])
+        ConePoint = namedtuple('ConePoint', ['punctured', 'rotation', 'preimages'])
         # There are three places to look for cone points:
         # 1) at vertices,
         # 2) at the midpoints of edges, and
@@ -421,21 +421,22 @@ class MappingClass(Mapping):
         cone_points = defaultdict(list)
         for punctured, oriented_arcs in candidates:
             oriented_arc = image = oriented_arcs[0]
-            for multiplicity in range(1, h_order+1):
+            for i in range(1, h_order+1):
                 image = h_oriented[image]
                 if image in oriented_arcs:
                     rotation = Fraction(oriented_arcs.index(image), len(oriented_arcs))
-                    if rotation > 0:  # Real cone point.
-                        cone_points[component_lookup[oriented_arc]].append(ConePoint(punctured, rotation, multiplicity))  # Put it in the correct component.
+                    if punctured or rotation > 0:  # Real cone point.
+                        cone_points[component_lookup[oriented_arc]].append(ConePoint(punctured, rotation, i))  # Put it in the correct component.
                     break
         
         # Make all the data canonical by sorting.
-        Orbifold = namedtuple('Orbifold', ['surface', 'multiplicity', 'cone_points'])
-        signature = sorted(Orbifold(surface[component], component_orbit_length[component], sorted(cone_points[component])) for component in components)
+        Orbifold = namedtuple('Orbifold', ['euler_characteristic', 'preimages', 'cone_points'])
+        euler_characteristic = dict((component, Fraction((2 - 2*surface[component][0] - surface[component][1]) * component_orbit_length[component], h_order)) for component in components)
+        signature = sorted(Orbifold(euler_characteristic[component], component_orbit_length[component], sorted(cone_points[component])) for component in components)
         
-        # Compress.
-        signature = [key for key, group in groupby(signature) for _ in range(len(list(group)) // key.multiplicity)]
-        signature = [Orbifold(orbifold.surface, orbifold.multiplicity, [key for key, group in groupby(orbifold.cone_points) for _ in range(len(list(group)) // key.multiplicity)]) for orbifold in signature]
+        # Group.
+        signature = [key for key, group in groupby(signature) for _ in range(len(list(group)) // key.preimages)]
+        signature = [Orbifold(orbifold.euler_characteristic, orbifold.preimages, [key for key, group in groupby(orbifold.cone_points) for _ in range(len(list(group)) // key.preimages)]) for orbifold in signature]
         return signature
 
     def is_conjugate_to(self, other):
