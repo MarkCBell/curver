@@ -1,10 +1,12 @@
 
 ''' A module for representing and manipulating maps between Triangulations. '''
 
+from collections import defaultdict, namedtuple
 from fractions import Fraction
 import numpy as np
 
 import curver
+from curver.kernel.decorators import ensure, memoize
 
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
@@ -281,7 +283,173 @@ class MappingClass(Mapping):
         m = geodesic[len(geodesic)//2]  # midpoint
         
         return C.distance(m, (self**C.M2)(m)) > 4
+    
+    @memoize
+    @ensure(lambda data: data.result.is_polygonalisation(), lambda data: data.self(data.result) == data.result)
+    def invariant_polygonalisation(self):
+        ''' Return a multiarc that is a polygonalisation and is invariant under self.
+        
+        self must be a periodic mapping class. '''
+        
+        assert self.is_periodic()
+        
+        def orbit(a):
+            ''' Return the orbit of a under self. '''
+            
+            A = [a, self(a)]
+            while A[0] != A[-1]:
+                A.append(self(A[-1]))
+            return A[:-1]
+        
+        def unicorns(a, b):
+            ''' Yield a collection of arcs that includes all unicorn arcs that can be made with a & b. '''
+            
+            conjugator_a = a.shorten()
+            conjugator_a_inv = conjugator_a.inverse()
+            short_b = conjugator_a(b)
+            conjugator_b = short_b.shorten(drop=0)
+            for i in range(1, len(conjugator_b)-1):
+                f = conjugator_b[i:].inverse()
+                if isinstance(f[-1], curver.kernel.EdgeFlip):
+                    e = f.source_triangulation.edge_arc(f[-1].edge)
+                    yield conjugator_a_inv(f(e))
+            for arc in conjugator_a.target_triangulation.edge_arcs():
+                yield conjugator_a_inv(arc)
+        
+        invariant_multiarc = self.source_triangulation.empty_lamination()
+        for _ in range(self.zeta):
+            conjugator = invariant_multiarc.shorten()
+            conjugator_inv = conjugator.inverse()
+            arcs = [conjugator_inv(conjugator.target_triangulation.edge_arc(i)) for i, w in enumerate(conjugator(invariant_multiarc)) if w == 0]
+            
+            done = False
+            for arc in arcs:
+                for v in orbit(arc):
+                    for u in unicorns(arc, v):
+                        if u.intersection(*orbit(u)) == 0 and invariant_multiarc.intersection(*orbit(u)) == 0 and u not in invariant_multiarc.components():
+                            invariant_multiarc += self.source_triangulation.disjoint_sum(orbit(u))
+                            done = True
+                            break
+                    if done: break
+                if done: break
+            if not done: break
+        
+        return invariant_multiarc
+    
+    @memoize
+    def quotient_orbifold_signature(self):
+        ''' Return the signature of self.surface() / self
+        
+        This is a total conjugacy invariant for periodic mapping classes.
+        
+        Assumes that self is periodic. '''
+        
+        assert self.is_periodic()
+        
+        polygonalisation = self.invariant_polygonalisation()
+        
+        conjugator = polygonalisation.shorten()
+        short = conjugator(polygonalisation)
+        
+        h = conjugator * self * conjugator.inverse()
+        
+        # Some short names.
+        h_order = h.order()
+        triangulation = short.triangulation
+        components = short.triangulation.components()
+        surface = triangulation.surface()
+        
+        OrientedArc = namedtuple('OrientedArc', ['arc', 'hc', 'boundary'])
+        # Build the oriented arcs.
+        oriented = dict()
+        for edge in triangulation.edges:
+            if short(edge) < 0:
+                arc = triangulation.edge_arc(edge)
+                if len(arc.vertices()) == 1:
+                    [vertex] = arc.vertices()
+                    v_edges = curver.kernel.utilities.cyclic_slice(vertex, edge, ~edge)
+                    boundary = triangulation.curve_from_cut_sequence(v_edges[1:])
+                else:  # two vertices:
+                    boundary = arc.boundary()
+                oriented[edge] = OrientedArc(arc, triangulation.edge_homology(edge).canonical(), boundary)  # Remove canonical().
+        oriented_arcs = list(oriented.values())
+        
+        # Some useful maps.
+        # How h permutes the oriented arcs.
+        h_oriented = dict((oriented_arc, OrientedArc(h(oriented_arc.arc), h(oriented_arc.hc).canonical(), h(oriented_arc.boundary))) for oriented_arc in oriented_arcs)
+        # Which component of triangulation does each oriented_arc live in.
+        component_lookup = dict((oriented[edge], component) for component in components for edge in component if edge in oriented)
+        # How h permutes the components.
+        h_component = dict((component_lookup[oriented_arc], component_lookup[image]) for oriented_arc, image in h_oriented.items())
+        # The multiplicities of the action of h on the components.
+        component_multiplicities = dict()
+        for component in components:
+            image = component
+            for multiplicity in range(1, h_order+1):
+                image = h_component[image]
+                if image == component:
+                    component_multiplicities[component] = multiplicity
+                    break
+        
+        # Compute the polygons cut out by short.
+        # Remember to walk around their boundary in the correct direction.
+        polygons = []
+        used = set()
+        for edge in triangulation.edges:
+            if short(edge) < 0 and edge not in used:
+                polygon = [edge]
+                while True:
+                    # Correct direction requires taking the last oriented arc out of the vertex each time.
+                    polygon.append([edgy for edgy in curver.kernel.utilities.cyclic_slice(triangulation.vertex_lookup[~polygon[-1]], ~polygon[-1]) if short(edgy) < 0][-1])
+                    if polygon[-1] == polygon[0]:  # if back where we started.
+                        polygon = polygon[:-1]
+                        break
+                
+                used = used.union(polygon)  # Mark everything as used.
+                polygons.append(polygon)
+        
+        ConePoint = namedtuple('ConePoint', ['punctured', 'rotation', 'multiplicity'])
+        # There are three places to look for cone points:
+        # 1) at vertices,
+        # 2) at the midpoints of edges, and
+        # 3) at the centres of polygons (note that these are not once-punctured polygons since we started with an invariant polygonalisation).
+        candidates = [(True, [oriented[edge] for edge in vertex if short(edge) < 0]) for vertex in triangulation.vertices] + \
+            [(False, [oriented[edge], oriented[~edge]]) for edge in triangulation.positive_edges if short(edge) < 0] + \
+            [(False, [oriented[edge] for edge in polygon]) for polygon in polygons]
+        
+        cone_points = defaultdict(list)
+        for punctured, oriented_arcs in candidates:
+            oriented_arc = image = oriented_arcs[0]
+            for multiplicity in range(1, h_order+1):
+                image = h_oriented[image]
+                if image in oriented_arcs:
+                    rotation = Fraction(oriented_arcs.index(image), len(oriented_arcs))
+                    if rotation > 0:  # Real cone point.
+                        cone_points[component_lookup[oriented_arc]].append(ConePoint(punctured, rotation, multiplicity))  # Put it in the correct component.
+                    break
+        
+        # Make all the data canonical by sorting.
+        return sorted((surface[component], component_multiplicities[component], sorted(cone_points[component])) for component in components)
 
+    def is_conjugate_to(self, other):
+        ''' Return whether this mapping class is conjugate to other.
+        
+        It would also be straightforward to check whether self^i ~~ other^j for some i, j.
+        
+        Currently assumes that at least one mapping class is periodic. '''
+        
+        assert isinstance(other, curver.kernel.MappingClass)
+        
+        if self.source_triangulation.surface() != other.source_triangulation.surface():  # Defined on different surfaces.
+            return False
+        
+        if self.is_periodic() != other.is_periodic():
+            return False
+        
+        if self.is_periodic():
+            return self.quotient_orbifold_signature() == other.quotient_orbifold_signature()
+        else:
+            raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.
