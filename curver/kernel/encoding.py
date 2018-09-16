@@ -374,25 +374,27 @@ class MappingClass(Mapping):
                     boundary = triangulation.curve_from_cut_sequence(v_edges[1:])
                 else:  # two vertices:
                     boundary = arc.boundary()
-                oriented[edge] = OrientedArc(arc, triangulation.edge_homology(edge).canonical(), boundary)  # Remove canonical().
+                oriented[edge] = OrientedArc(arc, triangulation.edge_homology(edge), boundary)
         oriented_arcs = list(oriented.values())
         
         # Some useful maps.
         # How h permutes the oriented arcs.
-        h_oriented = dict((oriented_arc, OrientedArc(h(oriented_arc.arc), h(oriented_arc.hc).canonical(), h(oriented_arc.boundary))) for oriented_arc in oriented_arcs)
-        # Which component of triangulation does each oriented_arc live in.
+        h_oriented = dict((oriented_arc, OrientedArc(h(oriented_arc.arc), h(oriented_arc.hc), h(oriented_arc.boundary))) for oriented_arc in oriented_arcs)
+        # The component of triangulation each oriented_arc lives in.
         component_lookup = dict((oriented[edge], component) for component in components for edge in component if edge in oriented)
-        # How h permutes the components.
-        h_component = dict((component_lookup[oriented_arc], component_lookup[image]) for oriented_arc, image in h_oriented.items())
-        # The multiplicities of the action of h on the components.
+        # The length of the orbit of each component of triangulation under the action of h.
         component_orbit_length = dict()
-        for component in components:
-            image = component
-            for i in range(1, h_order+1):
-                image = h_component[image]
-                if image == component:
-                    component_orbit_length[component] = i
-                    break
+        for oriented_arc in oriented_arcs:
+            component = component_lookup[oriented_arc]
+            if component not in component_orbit_length:  # Save repeating calculations.
+                image = oriented_arc
+                for i in range(1, h_order+1):
+                    image = h_oriented[image]
+                    if component_lookup[image] == component:
+                        component_orbit_length[component] = i
+                        break
+        # The (orbifold) Euler characteristic of each components quotient.
+        euler_characteristic = dict((component, Fraction((2 - 2*surface[component][0] - surface[component][1]) * component_orbit_length[component], h_order)) for component in components)
         
         # Compute the polygons cut out by short.
         # Remember to walk around their boundary in the correct direction.
@@ -431,9 +433,8 @@ class MappingClass(Mapping):
                         cone_points[component_lookup[oriented_arc]].append(ConePoint(punctured, rotation, i))  # Put it in the correct component.
                     break
         
-        # Make all the data canonical by sorting.
+        # Remember to make all the data canonical by sorting.
         Orbifold = namedtuple('Orbifold', ['euler_characteristic', 'preimages', 'cone_points'])
-        euler_characteristic = dict((component, Fraction((2 - 2*surface[component][0] - surface[component][1]) * component_orbit_length[component], h_order)) for component in components)
         signature = sorted(Orbifold(euler_characteristic[component], component_orbit_length[component], sorted(cone_points[component])) for component in components)
         
         # Group.
