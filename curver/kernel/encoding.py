@@ -339,9 +339,11 @@ class MappingClass(Mapping):
     
     @memoize
     def quotient_orbifold_signature(self):
-        ''' Return the signature of self.surface() / self
+        ''' Return the signature of self.surface() / self.
         
-        This is a total conjugacy invariant for periodic mapping classes.
+        Since this also records the covering map via the `preimage` and
+        `rotation` fields, this is a total conjugacy invariant for periodic
+        mapping classes.
         
         Assumes that self is periodic. '''
         
