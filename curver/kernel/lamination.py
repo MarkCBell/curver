@@ -426,7 +426,7 @@ class Lamination(object):
         ''' Return a mapping which maps this lamination to a short one.
         
         In each round, we do not look for an accelerating Dehn twist if a flip can drop the weight by at least `drop`%.
-        So if `drop` == 0.0 then acceleration is never done.
+        So if `drop` == 0.0 then acceleration is never done and this returns the Mosher flip sequence.
         As long as `drop` > 0 this method runs in poly(||self||) time.
         
         The original version of this method was based on [Bell16]_ but now a simpler and more efficient technique is used.
