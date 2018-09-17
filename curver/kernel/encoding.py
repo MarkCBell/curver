@@ -331,10 +331,12 @@ class MappingClass(Mapping):
                 tested.add(arc)
                 for image in orbit(arc):
                     for unicorn in unicorns(arc, image):
-                        if unicorn.intersection(*orbit(unicorn)) == 0 and invariant_multiarc.intersection(*orbit(unicorn)) == 0 and unicorn not in invariant_multiarc.components():
-                            invariant_multiarc += self.source_triangulation.disjoint_sum(orbit(unicorn))
-                            done = True
-                            break
+                        if unicorn not in invariant_multiarc.components():  # Easy test first.
+                            unicorn_orbit = orbit(unicorn)  # Save result for performance.
+                            if unicorn.intersection(*unicorn_orbit) == 0 and invariant_multiarc.intersection(*unicorn_orbit) == 0:
+                                invariant_multiarc += self.source_triangulation.disjoint_sum(orbit(unicorn))
+                                done = True
+                                break
                     if done: break
                 if done: break
             if not done: break
