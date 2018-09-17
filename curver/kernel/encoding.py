@@ -413,7 +413,7 @@ class MappingClass(Mapping):
                     # Correct direction requires taking the last oriented arc out of the vertex each time.
                     polygon.append([edgy for edgy in curver.kernel.utilities.cyclic_slice(triangulation.vertex_lookup[~polygon[-1]], ~polygon[-1]) if short(edgy) < 0][-1])
                     if polygon[-1] == polygon[0]:  # if back where we started.
-                        polygon = polygon[:-1]
+                        polygon = polygon[:-1]  # Remeber to discard the last edge as it duplicates the first.
                         break
                 
                 used = used.union(polygon)  # Mark everything as used.
