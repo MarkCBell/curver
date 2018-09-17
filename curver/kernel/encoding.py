@@ -310,10 +310,10 @@ class MappingClass(Mapping):
             short_b = conjugator_a(b)
             conjugator_b = short_b.shorten(drop=0)
             for i in range(1, len(conjugator_b)-1):
-                f = conjugator_b[i:].inverse()
-                if isinstance(f[-1], curver.kernel.EdgeFlip):
-                    e = f.source_triangulation.edge_arc(f[-1].edge)
-                    yield conjugator_a_inv(f(e))
+                prefix_inv = conjugator_b[i:].inverse()
+                if isinstance(prefix_inv[-1], curver.kernel.EdgeFlip):
+                    arc = prefix_inv.source_triangulation.edge_arc(prefix_inv[-1].edge)
+                    yield conjugator_a_inv(prefix_inv(arc))
             for arc in conjugator_a.target_triangulation.edge_arcs():
                 yield conjugator_a_inv(arc)
         
