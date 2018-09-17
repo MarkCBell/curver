@@ -317,18 +317,22 @@ class MappingClass(Mapping):
             for arc in conjugator_a.target_triangulation.edge_arcs():
                 yield conjugator_a_inv(arc)
         
+        tested = set()  # For performance we will keep track of arcs that we have tried starting with and avoid repeating the work.
         invariant_multiarc = self.source_triangulation.empty_lamination()
+        conjugator = self.source_triangulation.id_encoding()
         for _ in range(self.zeta):
-            conjugator = invariant_multiarc.shorten()
+            conjugator = conjugator(invariant_multiarc).shorten() * conjugator
             conjugator_inv = conjugator.inverse()
-            arcs = [conjugator_inv(conjugator.target_triangulation.edge_arc(i)) for i, w in enumerate(conjugator(invariant_multiarc)) if w == 0]
+            arcs = [conjugator_inv(conjugator_inv.source_triangulation.edge_arc(i)) for i, w in enumerate(conjugator(invariant_multiarc)) if w == 0]
+            arcs = [arc for arc in arcs if arc not in tested]  # Only for performance.
             
             done = False
             for arc in arcs:
-                for v in orbit(arc):
-                    for u in unicorns(arc, v):
-                        if u.intersection(*orbit(u)) == 0 and invariant_multiarc.intersection(*orbit(u)) == 0 and u not in invariant_multiarc.components():
-                            invariant_multiarc += self.source_triangulation.disjoint_sum(orbit(u))
+                tested.add(arc)
+                for image in orbit(arc):
+                    for unicorn in unicorns(arc, image):
+                        if unicorn.intersection(*orbit(unicorn)) == 0 and invariant_multiarc.intersection(*orbit(unicorn)) == 0 and unicorn not in invariant_multiarc.components():
+                            invariant_multiarc += self.source_triangulation.disjoint_sum(orbit(unicorn))
                             done = True
                             break
                     if done: break
