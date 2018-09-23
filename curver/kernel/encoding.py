@@ -329,7 +329,7 @@ class MappingClass(Mapping):
             
             done = False
             for arc in arcs:
-                tested.add(arc)
+                tested.add(arc)  # To prevent us from trying this arc again.
                 for image in orbit(arc):
                     for unicorn in unicorns(arc, image):
                         # Perform tests in order of difficulty.
