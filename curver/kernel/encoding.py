@@ -295,12 +295,13 @@ class MappingClass(Mapping):
         assert self.is_periodic()
         
         def orbit(a):
-            ''' Return the orbit of a under self. '''
+            ''' Yield the orbit of a under self. '''
             
-            A = [a, self(a)]
-            while A[0] != A[-1]:
-                A.append(self(A[-1]))
-            return A[:-1]
+            yield a
+            image = self(a)
+            while image != a:
+                yield image
+                image = self(image)
         
         def unicorns(a, b):
             ''' Yield a collection of arcs that includes all unicorn arcs that can be made with a & b. '''
@@ -331,12 +332,17 @@ class MappingClass(Mapping):
                 tested.add(arc)
                 for image in orbit(arc):
                     for unicorn in unicorns(arc, image):
-                        if unicorn not in invariant_multiarc.components():  # Easy test first.
-                            unicorn_orbit = orbit(unicorn)  # Save result for performance.
-                            if unicorn.intersection(*unicorn_orbit) == 0 and invariant_multiarc.intersection(*unicorn_orbit) == 0:
-                                invariant_multiarc += self.source_triangulation.disjoint_sum(orbit(unicorn))
-                                done = True
-                                break
+                        # Perform tests in order of difficulty.
+                        if unicorn in invariant_multiarc.components():
+                            continue
+                        if unicorn.intersection(invariant_multiarc) != 0:
+                            continue
+                        unicorn_orbit = list(orbit(unicorn))  # Save result for performance.
+                        if unicorn.intersection(*unicorn_orbit) != 0:
+                            continue
+                        invariant_multiarc += self.source_triangulation.disjoint_sum(unicorn_orbit)
+                        done = True
+                        break
                     if done: break
                 if done: break
             if not done: break
