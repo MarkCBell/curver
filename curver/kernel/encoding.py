@@ -470,7 +470,7 @@ class MappingClass(Mapping):
             return False
         
         if self.is_periodic():
-            if self.order() != other.order():  # Conjugacy invariant test.
+            if self.order() != other.order():  # Conjugacy invariant.
                 return False
             return self.quotient_orbifold_signature() == other.quotient_orbifold_signature()  # Total conjugacy invariant.
         else:
