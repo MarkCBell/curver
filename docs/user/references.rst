@@ -11,6 +11,7 @@ Some of the papers that the algorithms within curver are based on:
 .. [EricksonNayyeri13] `Tracing compressed curves in triangulated surfaces <http://jeffe.cs.illinois.edu/pubs/tracing.html>`_
 .. [FarbMarg12] A primer on mapping class groups
 .. [GadreTsai11] `Minimal pseudo-Anosov translation lengths on the complex of curves <https://arxiv.org/abs/1101.2692>`_
+.. [Mosher07] `Mapping Class Groups <http://andromeda.rutgers.edu/~mosher/MCG7.pdf>`_
 .. [Webb15] `Combinatorics of tight geodesics and stable lengths <https://arxiv.org/abs/1305.3566>`_
 
 
