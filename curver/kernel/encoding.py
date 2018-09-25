@@ -355,7 +355,7 @@ class MappingClass(Mapping):
         
         Since this also records the covering map via the `preimage` and
         `rotation` fields, this is a total conjugacy invariant for periodic
-        mapping classes.
+        mapping classes by Theorem 9 of [Mosher07]_.
         
         Assumes that self is periodic. '''
         
@@ -470,7 +470,9 @@ class MappingClass(Mapping):
             return False
         
         if self.is_periodic():
-            return self.quotient_orbifold_signature() == other.quotient_orbifold_signature()
+            if self.order() != other.order():  # Conjugacy invariant test.
+                return False
+            return self.quotient_orbifold_signature() == other.quotient_orbifold_signature()  # Total conjugacy invariant.
         else:
             raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
 
