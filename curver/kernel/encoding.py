@@ -330,6 +330,7 @@ class MappingClass(Mapping):
         triangulation = h.source_triangulation
         invariant_multiarc = self.source_triangulation.empty_lamination()
         while not invariant_multiarc.is_polygonalisation():  # Loops at most zeta times.
+            # Find a new multiarc that is not a component of invariant_multiarc, is disjoint from invariant_multiarc and is invariant under h.
             # Start by finding an arc that does not cut off a disk in S - invariant_multiarc.
             # Since invariant_multiarc is not a polygonalisation, one exists and in fact one of the edges of triangulation must be one.
             dual_tree = triangulation.dual_tree(avoid={index for index in triangulation.indices if invariant_multiarc(index) == 0})
@@ -346,8 +347,6 @@ class MappingClass(Mapping):
                     continue
                 invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + unicorn_orbit)
                 break
-            else:
-                raise RuntimeError('')
             
             # Reshorten invariant_multiarc.
             next_conjugator = invariant_multiarc.shorten()
