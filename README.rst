@@ -31,7 +31,7 @@ Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm [BellWebb16]_ to determine the Nielsen--Thurston type of a mapping class.
 This algorithm runs in polynomial time but the constants involved currently make this implementation impractical.
 
-Curver officially supports Python 2.7 and 3.4 -- 3.6.
+Curver officially supports Python 2.7 and 3.4 -- 3.7.
 It also runs on PyPy and `Sage`_.
 
 .. note:: The use of **Python 3** is *highly* preferred over Python 2.
@@ -43,13 +43,18 @@ A taste of curver::
     >>> S = curver.load(0, 5)
     >>> S('s_0.s_1.s_0') == S('s_1.s_0.s_1')
     True
-    >>> S('S_2.S_3.S_4').is_periodic()
+    >>> S('s_0.s_1.s_2.s_3').order(), S('s_0.s_1.s_3.s_2').order(), S('s_0.s_1.S_2.S_3').order()
+    (5, 5, 5)
+    >>> S('s_0.s_1.s_2.s_3').is_conjugate_to(S('s_0.s_1.s_3.s_2'))
     True
+    >>> S('s_0.s_1.s_2.s_3').is_conjugate_to(S('s_0.s_1.S_2.S_3'))
+    False
 
 Features
 --------
 
     - Performs Nielsen--Thurston classification of mapping classes.
+    - Solves the conjugacy problem for periodic mapping classes.
     - Solves the word problem for mapping class groups.
     - Computes the asymptotic translation length of mapping classes on the curve complex.
     - Computes geodesics in the curve complex.
