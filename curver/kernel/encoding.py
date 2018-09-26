@@ -295,13 +295,13 @@ class MappingClass(Mapping):
         assert self.is_periodic()
         
         def orbit(a):
-            ''' Yield the orbit of a under self. '''
+            ''' Yield the orbit of a under h (self conjugated by conjugator). '''
             
             yield a
-            image = self(a)
+            image = h(a)
             while image != a:
                 yield image
-                image = self(image)
+                image = h(image)
         
         def unicorns(a, b):
             ''' Yield a collection of arcs that includes all unicorn arcs that can be made with a & b. '''
@@ -318,36 +318,45 @@ class MappingClass(Mapping):
             for arc in conjugator_a.target_triangulation.edge_arcs():
                 yield conjugator_a_inv(arc)
         
-        tested = set()  # For performance we will keep track of arcs that we have tried starting with and avoid repeating the work.
-        invariant_multiarc = self.source_triangulation.empty_lamination()
-        conjugator = self.source_triangulation.id_encoding()
-        for _ in range(self.zeta):
-            conjugator = conjugator(invariant_multiarc).shorten() * conjugator
-            conjugator_inv = conjugator.inverse()
-            arcs = [conjugator_inv(conjugator_inv.source_triangulation.edge_arc(i)) for i, w in enumerate(conjugator(invariant_multiarc)) if w == 0]
-            arcs = [arc for arc in arcs if arc not in tested]  # Only for performance.
+        def orbit_unicorns(arc):
+            ''' Yield a collection of arcs including all unicorn arcs that can be made from arc and h^i(arc) for each i. '''
             
-            done = False
-            for arc in arcs:
-                tested.add(arc)  # To prevent us from trying this arc again.
-                for image in orbit(arc):
-                    for unicorn in unicorns(arc, image):
-                        # Perform tests in order of difficulty.
-                        if unicorn in invariant_multiarc.components():
-                            continue
-                        if unicorn.intersection(invariant_multiarc) != 0:
-                            continue
-                        unicorn_orbit = list(orbit(unicorn))  # Save result for performance.
-                        if unicorn.intersection(*unicorn_orbit) != 0:
-                            continue
-                        invariant_multiarc += self.source_triangulation.disjoint_sum(unicorn_orbit)
-                        done = True
-                        break
-                    if done: break
-                if done: break
-            if not done: break
+            for image in orbit(arc):
+                for unicorn in unicorns(arc, image):
+                    yield unicorn
         
-        return invariant_multiarc
+        h = self
+        conjugator = self.source_triangulation.id_encoding()
+        triangulation = h.source_triangulation
+        invariant_multiarc = self.source_triangulation.empty_lamination()
+        while not invariant_multiarc.is_polygonalisation():  # Loops at most zeta times.
+            # Start by finding an arc that does not cut off a disk in S - invariant_multiarc.
+            # Since invariant_multiarc is not a polygonalisation, one exists and in fact one of the edges of triangulation must be one.
+            dual_tree = triangulation.dual_tree(avoid={index for index in triangulation.indices if invariant_multiarc(index) == 0})
+            arc = triangulation.edge_arc([index for index in triangulation.indices if not dual_tree[index] and invariant_multiarc(index) == 0][0])
+            
+            for unicorn in orbit_unicorns(arc):  # Loops at most zeta^2 * ||self|| times.
+                # Perform tests in order of difficulty.
+                if unicorn in invariant_multiarc.components():
+                    continue
+                if invariant_multiarc.intersection(unicorn) != 0:
+                    continue
+                unicorn_orbit = list(orbit(unicorn))  # Save result for performance.
+                if unicorn.intersection(*unicorn_orbit) != 0:
+                    continue
+                invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + unicorn_orbit)
+                break
+            else:
+                raise RuntimeError('')
+            
+            # Reshorten invariant_multiarc.
+            next_conjugator = invariant_multiarc.shorten()
+            conjugator = next_conjugator * conjugator
+            invariant_multiarc = next_conjugator(invariant_multiarc)
+            h = next_conjugator * h * next_conjugator.inverse()
+            triangulation = h.source_triangulation
+        
+        return conjugator.inverse()(invariant_multiarc)
     
     @memoize
     def quotient_orbifold_signature(self):
