@@ -88,5 +88,5 @@ def alphanum_key(strn):
 def matrix_vector(M, v):
     ''' Return M*v where v is interpreted as a column vector. '''
     
-    return (v * M.T).tolist()[0]
+    return M.dot(v).tolist()
 
