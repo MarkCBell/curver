@@ -66,3 +66,10 @@ class TestPermutation(unittest.TestCase):
             self.assertNotEqual(perm**i, identity)
         self.assertEqual(perm**perm.order(), identity)
 
+    @given(st.data())
+    def test_conjugate(self, data):
+        perm1 = data.draw(strategies.permutations())
+        perm2 = data.draw(strategies.permutations(len(perm1)))
+        self.assertTrue(perm1.is_conjugate_to(perm2 * perm1 * ~perm2))
+        self.assertTrue(perm1.is_conjugate_to(~perm2 * perm1 * perm2))
+
