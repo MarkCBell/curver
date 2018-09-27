@@ -297,26 +297,29 @@ class MappingClass(Mapping):
         def orbit(a):
             ''' Yield the orbit of a under h (self conjugated by conjugator). '''
             
-            yield a
             image = h(a)
             while image != a:
                 yield image
                 image = h(image)
+            yield a
         
         def unicorns(a, b):
-            ''' Yield a collection of arcs that includes all unicorn arcs that can be made with a & b. '''
+            ''' Yield a collection of arcs that includes all unicorn arcs that can be made with a & b.
             
-            conjugator_a = a.shorten()
-            conjugator_a_inv = conjugator_a.inverse()
-            short_b = conjugator_a(b)
-            conjugator_b = short_b.shorten(drop=0)
-            for i in range(1, len(conjugator_b)-1):
-                prefix_inv = conjugator_b[i:].inverse()
+            Assumes that a is short. The general version of this function would begin by shortening a. '''
+            
+            assert a.is_short()
+            assert b.triangulation == a.triangulation
+            
+            conjugator = b.shorten(drop=0)
+            conjugator_inv = conjugator.inverse()
+            for i in range(1, len(conjugator)-1):
+                prefix_inv = conjugator_inv[:i]
                 if isinstance(prefix_inv[-1], curver.kernel.EdgeFlip):
                     arc = prefix_inv.source_triangulation.edge_arc(prefix_inv[-1].edge)
-                    yield conjugator_a_inv(prefix_inv(arc))
-            for arc in conjugator_a.target_triangulation.edge_arcs():
-                yield conjugator_a_inv(arc)
+                    yield prefix_inv(arc)
+            for arc in b.triangulation.edge_arcs():
+                yield arc
         
         def orbit_unicorns(arc):
             ''' Yield a collection of arcs including all unicorn arcs that can be made from arc and h^i(arc) for each i. '''
