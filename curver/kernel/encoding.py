@@ -227,6 +227,14 @@ class MappingClass(Mapping):
         
         return 0
     
+    def vertex_permutation(self):
+        ''' Return a permutation describing how the vertices of self.source_triangulation (labelled in sorted order) are permuted. '''
+        
+        vertex_map = self.vertex_map()
+        vertices = sorted(self.source_triangulation.vertices)
+        vertex_lookup = dict((vertex, index) for index, vertex in enumerate(vertices))
+        return curver.kernel.Permutation([vertex_lookup[vertex_map[vertex]] for vertex in vertices])
+    
     def is_identity(self):
         ''' Return if this mapping class is the identity. '''
         
@@ -476,6 +484,9 @@ class MappingClass(Mapping):
         assert isinstance(other, curver.kernel.MappingClass)
         
         if self.source_triangulation.surface() != other.source_triangulation.surface():  # Defined on different surfaces.
+            return False
+        
+        if not self.vertex_permutation().is_conjugate_to(other.vertex_permutation()):  # Induce non-conjugate permutations of the vertices.
             return False
         
         if self.is_periodic() != other.is_periodic():

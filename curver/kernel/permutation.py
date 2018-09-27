@@ -115,4 +115,36 @@ class Permutation(object):
         ''' Return whether this permutation is the composition of an even number of transposiions. '''
         
         return sum(1 if a > b else 0 for a, b in combinations(self, r=2) if a > b) % 2 == 0
+    
+    def cycle_lengths(self):
+        ''' Return the sorted list of cycle lengths of this Permutation.
+        
+        This is a total conjugacy invariant. '''
+        
+        N = len(self)
+        cycle_lengths = []
+        seen = set()
+        for i in range(N):
+            if i not in seen:
+                image = self(i)
+                seen.add(image)
+                for j in range(1, N+1):
+                    if image == i:
+                        cycle_lengths.append(j)
+                        break
+                    image = self(image)
+                    seen.add(image)
+        
+        return sorted(cycle_lengths)
+    
+    def is_conjugate_to(self, other):
+        ''' Return whether this permutation in conjugate to other.
+        
+        Two permutations are conjugate iff they have the same cycle lengths. '''
+        
+        assert isinstance(other, Permutation)
+        if len(self) != len(other):
+            return False
+        
+        return self.cycle_lengths() == other.cycle_lengths()
 
