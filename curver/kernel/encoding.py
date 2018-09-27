@@ -333,7 +333,7 @@ class MappingClass(Mapping):
             # Find a new multiarc that is not a component of invariant_multiarc, is disjoint from invariant_multiarc and is invariant under h.
             # Start by finding an arc that does not cut off a disk in S - invariant_multiarc.
             # Since invariant_multiarc is not a polygonalisation, one exists and in fact one of the edges of triangulation must be one.
-            invariant_multiarc_indices = {index for index in triangulation.indices if invariant_multiarc(index) < 0}
+            invariant_multiarc_indices = {index for index, weight in enumerate(invariant_multiarc) if weight < 0}
             dual_tree = triangulation.dual_tree(avoid=invariant_multiarc_indices)
             arc = triangulation.edge_arc([index for index in triangulation.indices if not dual_tree[index] and index not in invariant_multiarc_indices][0])
             
