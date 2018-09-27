@@ -85,8 +85,3 @@ def alphanum_key(strn):
     
     return blocks
 
-def matrix_vector(M, v):
-    ''' Return M*v where v is interpreted as a column vector. '''
-    
-    return M.dot(v).tolist()
-
