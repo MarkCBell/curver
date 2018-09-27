@@ -333,8 +333,9 @@ class MappingClass(Mapping):
             # Find a new multiarc that is not a component of invariant_multiarc, is disjoint from invariant_multiarc and is invariant under h.
             # Start by finding an arc that does not cut off a disk in S - invariant_multiarc.
             # Since invariant_multiarc is not a polygonalisation, one exists and in fact one of the edges of triangulation must be one.
-            dual_tree = triangulation.dual_tree(avoid={index for index in triangulation.indices if invariant_multiarc(index) == 0})
-            arc = triangulation.edge_arc([index for index in triangulation.indices if not dual_tree[index] and invariant_multiarc(index) == 0][0])
+            invariant_multiarc_indices = {index for index in triangulation.indices if invariant_multiarc(index) < 0}
+            dual_tree = triangulation.dual_tree(avoid=invariant_multiarc_indices)
+            arc = triangulation.edge_arc([index for index in triangulation.indices if not dual_tree[index] and index not in invariant_multiarc_indices][0])
             
             for unicorn in orbit_unicorns(arc):  # Loops at most zeta^2 * ||self|| times.
                 # Perform tests in order of difficulty.
