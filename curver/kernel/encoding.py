@@ -401,8 +401,7 @@ class MappingClass(Mapping):
             if short(edge) < 0:
                 arc = triangulation.edge_arc(edge)
                 if len(arc.vertices()) == 1:
-                    [vertex] = arc.vertices()
-                    v_edges = curver.kernel.utilities.cyclic_slice(vertex, edge, ~edge)
+                    v_edges = curver.kernel.utilities.cyclic_slice(arc.vertices()[0], edge, ~edge)
                     boundary = triangulation.curve_from_cut_sequence(v_edges[1:])
                 else:  # two vertices:
                     boundary = arc.boundary()
@@ -434,16 +433,16 @@ class MappingClass(Mapping):
         used = set()
         for edge in triangulation.edges:
             if short(edge) < 0 and edge not in used:
-                polygon = [edge]
+                polygon_edges = [edge]
                 while True:
                     # Correct direction requires taking the last oriented arc out of the vertex each time.
-                    polygon.append([edgy for edgy in curver.kernel.utilities.cyclic_slice(triangulation.vertex_lookup[~polygon[-1]], ~polygon[-1]) if short(edgy) < 0][-1])
-                    if polygon[-1] == polygon[0]:  # if back where we started.
-                        polygon = polygon[:-1]  # Remeber to discard the last edge as it duplicates the first.
+                    polygon_edges.append([edgy for edgy in curver.kernel.utilities.cyclic_slice(triangulation.vertex_lookup[~polygon_edges[-1]], ~polygon_edges[-1]) if short(edgy) < 0][-1])
+                    if polygon_edges[-1] == polygon_edges[0]:  # if back where we started.
+                        polygon_edges = polygon_edges[:-1]  # Remeber to discard the last edge as it duplicates the first.
                         break
                 
-                used = used.union(polygon)  # Mark everything as used.
-                polygons.append(polygon)
+                used = used.union(polygon_edges)  # Mark everything as used.
+                polygons.append(polygon_edges)
         
         ConePoint = namedtuple('ConePoint', ['punctured', 'rotation', 'preimages'])
         # There are three places to look for cone points:
