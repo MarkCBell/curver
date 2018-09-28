@@ -46,7 +46,7 @@ class TestPermutation(unittest.TestCase):
         power = data.draw(st.integers())
         self.assertEqual(perm**power, (~perm)**(-power))
         power = data.draw(st.integers(min_value=0))  # Numpy doesn't like inverting integer matrices.
-        self.assertEqualArray((perm.matrix())**power, (perm**power).matrix())
+        self.assertEqualArray(np.linalg.matrix_power(perm.matrix(), power), (perm**power).matrix())
     
     @given(strategies.permutations())
     def test_involution(self, perm):

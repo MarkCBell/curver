@@ -45,7 +45,7 @@ class TestMapping(TestEncoding):
     def test_homology_matrix(self, data):
         g = data.draw(self._strategy())
         h = data.draw(self._strategy(g.target_triangulation))
-        self.assertEqualArray(h.homology_matrix() * g.homology_matrix(), (h * g).homology_matrix())
+        self.assertEqualArray(h.homology_matrix().dot(g.homology_matrix()), (h * g).homology_matrix())
     
     @given(st.data())
     def test_intersection_matrix(self, data):

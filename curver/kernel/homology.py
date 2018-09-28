@@ -53,7 +53,7 @@ class HomologyClass(object):
         
         This is the HomologyClass that is homologous to this one and has weight 0 on each edge of the standard dual tree of the underlying triangulation. '''
         
-        return HomologyClass(self.triangulation, curver.kernel.matrix_vector(self.triangulation.homology_matrix(), self.algebraic))
+        return HomologyClass(self.triangulation, self.triangulation.homology_matrix().dot(self.algebraic).tolist())
     
     def is_canonical(self):
         ''' Return whether this homology class is already in canonical form.

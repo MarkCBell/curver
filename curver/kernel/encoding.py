@@ -126,7 +126,7 @@ class Mapping(Encoding):
         
         Except when on S_{1,1}, this uniquely determines self. '''
         
-        return np.matrix([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
+        return np.array([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
     
     def homology_matrix(self):
         ''' Return a matrix describing the action of this mapping on first homology (relative to the punctures).
@@ -138,7 +138,7 @@ class Mapping(Encoding):
         
         source_images = [self(hc).canonical() for hc in source_basis]
         
-        return np.matrix([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
+        return np.array([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
     def __eq__(self, other):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
@@ -218,7 +218,7 @@ class MappingClass(Mapping):
         for power in range(1, self.source_triangulation.max_order()+1):
             for i in range(len(originals)):  # pylint: disable=consider-using-enumerate
                 while powers[i] < power:
-                    images[i] = self(images[i]) if i > 0 else homology_matrix * images[i]
+                    images[i] = self(images[i]) if i > 0 else homology_matrix.dot(images[i])
                     powers[i] += 1
                 if (i == 0 and not np.array_equal(images[i], originals[i])) or (i > 0 and images[i] != originals[i]):
                     break

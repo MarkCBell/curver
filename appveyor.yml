@@ -1,11 +1,6 @@
 
 build: false
 
-branches:
-  only:
-  - master
-  - dev
-
 environment:
   matrix:
     - PYTHON: "C:\\Python27"
@@ -26,7 +21,10 @@ environment:
     - PYTHON: "C:\\Python36"
       TOX_ENV: "py36"
 
-    - PYTHON: "C:\\Python36"
+    - PYTHON: "C:\\Python37"
+      TOX_ENV: "py37"
+
+    - PYTHON: "C:\\Python37"
       TOX_ENV: "docs"
 
 init:

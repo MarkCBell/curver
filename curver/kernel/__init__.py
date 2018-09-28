@@ -22,7 +22,7 @@ from .permutation import Permutation  # noqa: F401
 from .structures import UnionFind, StraightLineProgram  # noqa: F401
 from .triangulation import Edge, Triangle, Triangulation, norm  # noqa: F401
 from .twist import Twist, HalfTwist  # noqa: F401
-from .utilities import matrix_vector  # noqa: F401
+from . import utilities  # noqa: F401
 
 # Set up shorter names for all of the different classes.
 MCG = MappingClassGroup  # Alias.

@@ -168,7 +168,7 @@ class Lift(Move):
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
         
-        geometric = curver.kernel.matrix_vector(self.matrix, lamination.geometric)
+        geometric = self.matrix.dot(lamination.geometric).tolist()
         return lamination.__class__(self.target_triangulation, geometric)  # Avoid promote since the lift has to be the same type as the given lamination.
     
     def apply_homology(self, homology_class):
