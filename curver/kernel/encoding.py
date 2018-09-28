@@ -215,7 +215,7 @@ class MappingClass(Mapping):
         for power in range(1, self.source_triangulation.max_order()+1):
             for i in range(len(originals)):  # pylint: disable=consider-using-enumerate
                 while powers[i] < power:
-                    images[i] = self(images[i]) if i > 0 else homology_matrix * images[i]
+                    images[i] = self(images[i]) if i > 0 else homology_matrix.dot(images[i])
                     powers[i] += 1
                 if (i == 0 and not np.array_equal(images[i], originals[i])) or (i > 0 and images[i] != originals[i]):
                     break
