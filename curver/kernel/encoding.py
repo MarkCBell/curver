@@ -305,6 +305,7 @@ class MappingClass(Mapping):
         def orbit(a):
             ''' Yield the orbit of a under h (self conjugated by conjugator). '''
             
+            # a is rarely a useful image so we will yield it last.
             image = h(a)
             while image != a:
                 yield image
@@ -401,7 +402,8 @@ class MappingClass(Mapping):
             if short(edge) < 0:
                 arc = triangulation.edge_arc(edge)
                 if len(arc.vertices()) == 1:
-                    v_edges = curver.kernel.utilities.cyclic_slice(arc.vertices()[0], edge, ~edge)
+                    [v] = arc.vertices()
+                    v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)
                     boundary = triangulation.curve_from_cut_sequence(v_edges[1:])
                 else:  # two vertices:
                     boundary = arc.boundary()
