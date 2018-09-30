@@ -120,9 +120,7 @@ def multicurves(draw, triangulation=None):
     indices = set()
     available_indices = set(triangulation.indices)
     
-    tree = triangulation.dual_tree()
-    tree = set([index for index in triangulation.indices if tree[index]])
-    available_indices = available_indices - tree
+    available_indices = available_indices - triangulation.dual_tree()
     
     classes = curver.kernel.UnionFind(triangulation.vertices)
     for component, (g, v) in triangulation.surface().items():

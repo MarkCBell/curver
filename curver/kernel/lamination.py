@@ -297,7 +297,7 @@ class Lamination(object):
         avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
         dual_tree = short.triangulation.dual_tree(avoid=avoid)
         
-        return all(dual_tree[index] or index in avoid for index in short.triangulation.indices)
+        return all(index in dual_tree or index in avoid for index in short.triangulation.indices)
     
     def fills_with(self, other):  # pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''

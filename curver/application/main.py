@@ -181,7 +181,7 @@ class Drawing(object):
         # Get a dual tree.
         dual_tree = triangulation.dual_tree()
         colours = dict((index, None) for index in triangulation.indices)
-        outside = [index for index in triangulation.indices if not dual_tree[index]]
+        outside = [index for index in triangulation.indices if index not in dual_tree]
         for index, colour in zip(outside, get_colours(len(outside))):
             colours[index] = colour
         components = triangulation.components()
