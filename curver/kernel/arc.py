@@ -1,6 +1,9 @@
 
 ''' A module for representing (multi)arcs on triangulations. '''
 
+from itertools import combinations
+import networkx
+
 import curver
 from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
@@ -100,6 +103,67 @@ class MultiArc(Lamination):
             triangulations.add(conjugator.inverse()(encoding.inverse()(T)))
         
         return triangulations
+    
+    def all_disjoint_arcs(self):
+        ''' Yield all arcs that are disjoint from this multiarc.
+        
+        Note that is only well defined if self is filling. '''
+        
+        assert self.is_filling()
+        
+        conjugator = self.shorten()
+        short = conjugator(self)
+        conjugator_inv = conjugator.inverse()
+        
+        # All arcs that meet 0 edges.
+        for arc in short.triangulation.edge_arcs():
+            yield conjugator_inv(arc)
+        
+        # All arcs that meet 1 edge.
+        for index in short.triangulation.indices:
+            if short(index) == 0:
+                arc = short.triangulation([1 if i == index else 0 for i in range(short.triangulation.zeta)])
+                yield conjugator_inv(arc)
+        
+        # All arcs that meet at least two edges.
+        edges = [(short.triangulation.triangle_lookup[edge], short.triangulation.triangle_lookup[~edge]) for edge in short.triangulation.positive_edges if short(edge) == 0]
+        G = networkx.Graph(edges)
+        for t1, t2 in combinations(G.nodes(), r=2):
+            paths = networkx.all_simple_paths(G, t1, t2)
+            for path in paths:
+                if len(path) > 2:  # Not covered by above case.
+                    # Convert back to a sequence of edges.
+                    cut_sequence = [edge.index for p1, p2 in zip(path, path[1:]) for edge in p1 if ~edge in p2]
+                    arc = short.triangulation.lamination_from_cut_sequence(cut_sequence)
+                    yield conjugator_inv(arc)
+    
+    def all_disjoint_multiarcs(self):
+        ''' Yield all multiarcs that are disjoint from this one.
+        
+        Assumes that this multiarc is filling. '''
+        
+        arcs = list(self.all_disjoint_arcs())  # Checks is filling.
+        
+        G = networkx.Graph()
+        G.add_nodes_from(arcs)
+        G.add_edges_from([(a_1, a_2) for a_1, a_2 in combinations(arcs, r=2) if a_1.intersection(a_2) == 0])
+        
+        for clique in networkx.enumerate_all_cliques(G):
+            yield self.triangulation.disjoint_sum(clique)
+    
+    def all_containing_triangulations(self):
+        ''' Yield all multiarcs that are triangulations and contain this multiarc.
+        
+        Assumes that this multiarc is filling. '''
+        
+        arcs = list(self.all_disjoint_arcs())  # Checks is filling.
+        
+        G = networkx.Graph()
+        G.add_nodes_from(arcs)
+        G.add_edges_from([(a_1, a_2) for a_1, a_2 in combinations(arcs, r=2) if a_1.intersection(a_2) == 0])
+        
+        for clique in networkx.find_cliques(G):
+            yield self.triangulation.disjoint_sum(clique)
     
     # @topological_invariant
     def topological_type(self):
