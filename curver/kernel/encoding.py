@@ -346,7 +346,7 @@ class MappingClass(Mapping):
             # Start by finding an arc that does not cut off a disk in S - invariant_multiarc.
             # Since invariant_multiarc is not a polygonalisation, one exists and in fact one of the edges of triangulation must be one since it is short.
             dual_tree = triangulation.dual_tree(avoid={edge for edge in triangulation.positive_edges if invariant_multiarc(edge) < 0})
-            arc = triangulation.edge_arc([edge for edge in triangulation.positive_edges if not dual_tree[edge.index] and invariant_multiarc(edge) == 0][0])
+            arc = triangulation.edge_arc([edge for edge in triangulation.positive_edges if edge.index not in dual_tree and invariant_multiarc(edge) == 0][0])
             
             for unicorn in orbit_unicorns(arc):  # Loops at most zeta^2 * ||self|| times.
                 # Perform tests in order of difficulty.
