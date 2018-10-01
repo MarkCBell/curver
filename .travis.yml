@@ -23,7 +23,7 @@ install:
 - pip install tox
 - pip install coveralls
 script:
-- tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20 tests/encoding.py -s
+- tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20 tests/encoding.py::TestMappingClass::test_quotient -s
 after_success:
 - if [[ $TOX_ENV == "py36" ]]; then coveralls; fi
 deploy:
