@@ -42,7 +42,7 @@ class Lamination(object):
         
         return self.geometric[edge.index]
     def __bool__(self):
-        return any(self)
+        return not self.is_empty()
     def __nonzero__(self):  # For Python2.
         return self.__bool__()
     def __eq__(self, other):
