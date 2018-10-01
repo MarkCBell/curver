@@ -151,8 +151,10 @@ class MultiArc(Lamination):
         for clique in networkx.enumerate_all_cliques(G):
             yield self.triangulation.disjoint_sum(clique)
     
-    def all_containing_triangulations(self):
-        ''' Yield all multiarcs that are triangulations and contain this multiarc.
+    def all_disjoint_triangulations(self):
+        ''' Yield all multiarcs that are triangulations that are disjoint from self.
+        
+        Note that these must all therefore contain this multiarc.
         
         Assumes that this multiarc is filling. '''
         
