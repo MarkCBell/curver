@@ -5,6 +5,7 @@ from collections import defaultdict, namedtuple
 from fractions import Fraction
 from itertools import groupby
 import numpy as np
+import operator
 
 import curver
 from curver.kernel.decorators import ensure, memoize
@@ -215,13 +216,15 @@ class MappingClass(Mapping):
         homology_matrix = self.homology_matrix()
         originals = [np.identity(homology_matrix.shape[0]), self.source_triangulation.as_lamination()]
         images = list(originals)
-        powers = [0] * len(originals)
+        cmps = [np.array_equal, operator.eq]
+        applies = [lambda M: homology_matrix.dot(M), self]
+        powers = [0, 0]
         for power in range(1, self.source_triangulation.max_order()+1):
             for i in range(len(originals)):  # pylint: disable=consider-using-enumerate
                 while powers[i] < power:
-                    images[i] = self(images[i]) if i > 0 else homology_matrix.dot(images[i])
+                    images[i] = applies[i](images[i])
                     powers[i] += 1
-                if (i == 0 and not np.array_equal(images[i], originals[i])) or (i > 0 and images[i] != originals[i]):
+                if not cmps[i](images[i], originals[i]):
                     break
             else:
                 return power
