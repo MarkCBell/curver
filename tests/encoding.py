@@ -114,8 +114,9 @@ class TestMappingClass(TestMapping):
             curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
             ]))
         
-        f = data.draw(strategies.mapping_classes(h.source_triangulation))
+        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))
         print('-' * 30)
+        print(h.source_triangulation)
         print(h.package())
         print(f.package())
         g = ~f * h * f
