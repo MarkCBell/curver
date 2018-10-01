@@ -46,6 +46,10 @@ class Permutation(object):
     
     @classmethod
     def from_dict(cls, dictionary, ordering=None):
+        ''' Return a Permutation from a dictionary.
+        
+        The order of the elements within the dictionary may also be specified. '''
+        
         if ordering is None: ordering = list(dictionary)
         
         index_lookup = dict((item, index) for index, item in enumerate(ordering))

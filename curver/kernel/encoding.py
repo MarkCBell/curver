@@ -4,8 +4,8 @@
 from collections import defaultdict, namedtuple
 from fractions import Fraction
 from itertools import groupby
-import numpy as np
 import operator
+import numpy as np
 
 import curver
 from curver.kernel.decorators import ensure, memoize
@@ -217,7 +217,7 @@ class MappingClass(Mapping):
         originals = [np.identity(homology_matrix.shape[0]), self.source_triangulation.as_lamination()]
         images = list(originals)
         cmps = [np.array_equal, operator.eq]
-        applies = [lambda M: homology_matrix.dot(M), self]
+        applies = [homology_matrix.dot, self]
         powers = [0, 0]
         for power in range(1, self.source_triangulation.max_order()+1):
             for i in range(len(originals)):  # pylint: disable=consider-using-enumerate
