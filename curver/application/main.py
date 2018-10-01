@@ -215,12 +215,12 @@ class Drawing(object):
                 ''' Return the number of triangles that can be reached in the dual tree starting at the given edge_label. '''
                 
                 corner = triangulation.corner_lookup[edge_label]
-                left = (1 + sum(num_descendants(~(corner.labels[2])))) if dual_tree[corner.indices[2]] else 0
-                right = (1 + sum(num_descendants(~(corner.labels[1])))) if dual_tree[corner.indices[1]] else 0
+                left = (1 + sum(num_descendants(~(corner.labels[2])))) if corner.indices[2] in dual_tree else 0
+                right = (1 + sum(num_descendants(~(corner.labels[1])))) if corner.indices[1] in dual_tree else 0
                 
                 return left, right
             
-            initial_edge_index = min(edge.index for edge in component if not dual_tree[edge.index])
+            initial_edge_index = min(edge.index for edge in component if edge.index not in dual_tree)
             to_extend = [(num_used_vertices, num_used_vertices+1, initial_edge_index)]
             # Hmmm, need to be more careful here to ensure that we correctly orient the edges.
             self.create_edge(self.vertices[num_used_vertices+1], self.vertices[num_used_vertices+0], initial_edge_index, colours[initial_edge_index])
