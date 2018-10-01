@@ -539,14 +539,14 @@ class Triangulation(object):
     def disjoint_sum(self, laminations):
         ''' An efficient way of summing multiple disjoint laminations without computing intermediate values. '''
         
-        laminations = list(laminations)
-        if all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
+        laminations = [lamination for lamination in laminations if lamination]  # Discard empty laminations.
+        if not laminations:
+            return self.empty_lamination()
+        elif all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
             if any(lamination.triangulation != self for lamination in laminations):
                 raise ValueError('Laminations must all be defined on this triangulation to add them.')
             
             num_components = sum(lamination.num_components() for lamination in laminations)
-            if num_components == 0:
-                return self.empty_lamination()
             
             geometric = [sum(weights) for weights in zip(*laminations)]
             if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):

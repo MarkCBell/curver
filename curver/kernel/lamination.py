@@ -41,6 +41,10 @@ class Lamination(object):
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
         return self.geometric[edge.index]
+    def __bool__(self):
+        return any(self)
+    def __nonzero__(self):  # For Python2.
+        return self.__bool__()
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.geometric == other.geometric
     def __ne__(self, other):
