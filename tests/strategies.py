@@ -40,11 +40,11 @@ def mcgs(draw):
 
 @st.composite
 def mapping_classes(draw, triangulation=None, power_range=10):
-    return draw(encodings(triangulation, distribution=[2, 3]))
+    return draw(encodings(triangulation, distribution=[2, 3], power_range=power_range))
 
 @st.composite
 def mappings(draw, triangulation=None, power_range=10):
-    return draw(encodings(triangulation, distribution=[0, 0, 0, 0, 1, 2, 3]))
+    return draw(encodings(triangulation, distribution=[0, 0, 0, 0, 1, 2, 3], power_range=power_range))
 
 @st.composite
 def encodings(draw, triangulation=None, distribution=None, power_range=10):

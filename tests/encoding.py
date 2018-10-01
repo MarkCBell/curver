@@ -11,9 +11,6 @@ import curver
 class TestEncoding(unittest.TestCase):
     _strategy = staticmethod(strategies.encodings)
     
-    def setup_method(self, method):
-        print("\n%s:%s" % (type(self).__name__, method.__name__))
-    
     def assertEqualArray(self, M, N):
         self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
     
@@ -110,15 +107,18 @@ class TestMappingClass(TestMapping):
     def test_orbifold(self, data):
         # Periodic mapping classes.
         h = data.draw(st.sampled_from([
+            curver.load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
+            curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^2'),
+            curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^3'),
+            curver.load(0, 6)('s_0.s_1.S_3.S_4'),
+            curver.load(1, 1)('a_0.b_0'),
+            curver.load(1, 1)('a_0.b_0.a_0'),
+            curver.load(2, 1)('a_0.b_0.c_0.b_1'),
             curver.load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
             curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
             ]))
         
         f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))
-        print('-' * 30)
-        print(h.source_triangulation)
-        print(h.package())
-        print(f.package())
         g = ~f * h * f
         self.assertEqual(g.quotient_orbifold_signature(), h.quotient_orbifold_signature())
 
