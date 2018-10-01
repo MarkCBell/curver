@@ -49,7 +49,7 @@ class Permutation(object):
         if ordering is None: ordering = list(dictionary)
         
         index_lookup = dict((item, index) for index, item in enumerate(ordering))
-        return cls([item_lookup[dictionary[item]] for item in ordering])
+        return cls([index_lookup[dictionary[item]] for item in ordering])
     
     def order(self):
         ''' Return the order of this permutation. '''
