@@ -44,6 +44,13 @@ class Permutation(object):
     def __invert__(self):
         return self.inverse()
     
+    @classmethod
+    def from_dict(cls, dictionary, ordering=None):
+        if ordering is None: ordering = list(dictionary)
+        
+        index_lookup = dict((item, index) for index, item in enumerate(ordering))
+        return cls([item_lookup[dictionary[item]] for item in ordering])
+    
     def order(self):
         ''' Return the order of this permutation. '''
         

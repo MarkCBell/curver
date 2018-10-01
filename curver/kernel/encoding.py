@@ -231,9 +231,7 @@ class MappingClass(Mapping):
         ''' Return a permutation describing how the vertices of self.source_triangulation (labelled in sorted order) are permuted. '''
         
         vertex_map = self.vertex_map()
-        vertices = sorted(self.source_triangulation.vertices)
-        vertex_lookup = dict((vertex, index) for index, vertex in enumerate(vertices))
-        return curver.kernel.Permutation([vertex_lookup[vertex_map[vertex]] for vertex in vertices])
+        return curver.kernel.Permutation.from_dict(vertex_map, sorted(vertex_map))
     
     def is_identity(self):
         ''' Return if this mapping class is the identity. '''
