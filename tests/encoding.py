@@ -11,26 +11,26 @@ import curver
 class TestEncoding(unittest.TestCase):
     _strategy = staticmethod(strategies.encodings)
     
+    def setup_method(self, method):
+        print("\n%s:%s" % (type(self).__name__, method.__name__))
+    
     def assertEqualArray(self, M, N):
         self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
     
     @given(st.data())
     def test_pickle(self, data):
         h = data.draw(self._strategy())
-        print('1', self.__class__, h)
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
     
     @given(st.data())
     def test_hash(self, data):
         g = data.draw(self._strategy())
         h = data.draw(self._strategy(g.source_triangulation))
-        print('2', self.__class__, h)
         self.assertTrue(g != h or hash(g) == hash(h))
     
     @given(st.data())
     def test_slice(self, data):
         h = data.draw(self._strategy())
-        print('3', self.__class__, h)
         i = data.draw(st.integers(min_value=0, max_value=len(h)))
         j = data.draw(st.integers(min_value=0, max_value=len(h)))
         i, j = sorted([i, j])
@@ -39,7 +39,6 @@ class TestEncoding(unittest.TestCase):
     @given(st.data())
     def test_package(self, data):
         h = data.draw(self._strategy())
-        print('4', self.__class__, h)
         self.assertEqual(h, h.source_triangulation.encode(h.package()))
 
 class TestMapping(TestEncoding):
@@ -49,13 +48,11 @@ class TestMapping(TestEncoding):
     def test_homology_matrix(self, data):
         g = data.draw(self._strategy())
         h = data.draw(self._strategy(g.target_triangulation))
-        print('5', self.__class__, h)
         self.assertEqualArray(h.homology_matrix().dot(g.homology_matrix()), (h * g).homology_matrix())
     
     @given(st.data())
     def test_intersection_matrix(self, data):
         h = data.draw(self._strategy())
-        print('6', self.__class__, h)
         self.assertEqualArray(h.intersection_matrix().transpose(), (~h).intersection_matrix())
     
     @given(st.data())
@@ -63,20 +60,17 @@ class TestMapping(TestEncoding):
     def test_inverse(self, data):
         g = data.draw(self._strategy())
         h = data.draw(self._strategy(g.target_triangulation))
-        print('7', self.__class__, h)
         self.assertEqual(~(~g), g)
         self.assertEqual(~g * ~h, ~(h * g))
     
     @given(st.data())
     def test_simplify(self, data):
-        print('8', self.__class__, h)
         h = data.draw(self._strategy())
         self.assertEqual(h.simplify(), h)
     
     @given(st.data())
     def test_vertex_map(self, data):
         h = data.draw(self._strategy())
-        print('9', self.__class__, h)
         vertex_map = h.vertex_map()
         self.assertEqual(sorted(vertex_map.keys()), sorted(h.source_triangulation.vertices))
         self.assertEqual(sorted(vertex_map.values()), sorted(h.target_triangulation.vertices))
@@ -84,7 +78,6 @@ class TestMapping(TestEncoding):
     @given(st.data())
     def test_flip_mapping(self, data):
         h = data.draw(self._strategy())
-        print('10', self.__class__, h)
         self.assertEqual(h, h.flip_mapping())
 
 class TestMappingClass(TestMapping):
@@ -94,7 +87,6 @@ class TestMappingClass(TestMapping):
     # @settings(max_examples=2)
     def test_identity(self, data):
         h = data.draw(self._strategy())
-        print('11', self.__class__, h)
         self.assertEqual(h.is_identity(), h == h.source_triangulation.id_encoding())
     
     @given(st.data())
@@ -102,7 +94,6 @@ class TestMappingClass(TestMapping):
         T = data.draw(strategies.triangulations())
         
         h = T.id_encoding()
-        print('12', self.__class__, h)
         self.assertEqual(h.order(), 1)
         
         T_signature = [(2 - 2*g - n, 1, [(True, 0, 1) for _ in range(n)]) for (g, n) in T.surface().values()]
@@ -112,7 +103,6 @@ class TestMappingClass(TestMapping):
     @settings(max_examples=2)
     def test_order(self, data):
         h = data.draw(self._strategy())
-        print('13', self.__class__, h)
         self.assertLessEqual(h.order(), h.source_triangulation.max_order())
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())
     
@@ -130,9 +120,9 @@ class TestMappingClass(TestMapping):
             curver.load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
             curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
             ]))
-        print('14', self.__class__, h)
         
         f = data.draw(strategies.mapping_classes(h.source_triangulation))
+        print(h, f)
         g = ~f * h * f
         self.assertEqual(g.quotient_orbifold_signature(), h.quotient_orbifold_signature())
 
