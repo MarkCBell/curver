@@ -199,6 +199,7 @@ class MappingClass(Mapping):
         homology_matrix = self.homology_matrix()
         return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0]))
     
+    @memoize
     def order(self):
         ''' Return the order of this mapping class.
         
@@ -239,29 +240,35 @@ class MappingClass(Mapping):
         return self.order() == 1
     
     def is_periodic(self):
-        ''' Return if this mapping class has finite order. '''
+        ''' Return whether this mapping class has finite order. '''
         
         return self.order() > 0
     
     def is_reducible(self):
-        ''' Return if this mapping class is reducible (and *not* periodic). '''
+        ''' Return whether this mapping class is reducible. '''
         
-        return self.nielsen_thurston_type() == NT_TYPE_REDUCIBLE
+        if self.is_periodic():
+            # A periodic mapping class is reducible iff at least one of the components of its quotient orbifold is not a triangle orbifold.
+            # The genus of the surface underlying an orbifold.
+            genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.rotation.denominator)) for cone_point in orbifold.cone_points)) // 2
+            return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.quotient_orbifold_signature())
+        else:
+            return not self.positive_asymptotic_translation_length()
     
     def is_pseudo_anosov(self):
-        ''' Return if this mapping class is pseudo-Anosov. '''
+        ''' Return whether this mapping class is pseudo-Anosov. '''
         
-        return self.nielsen_thurston_type() == NT_TYPE_PSEUDO_ANOSOV
+        return not self.is_periodic() and not self.is_reducible()
     
     def nielsen_thurston_type(self):
         ''' Return the Nielsen--Thurston type of this mapping class. '''
         
         if self.is_periodic():
             return NT_TYPE_PERIODIC
-        elif self.positive_asymptotic_translation_length():
-            return NT_TYPE_PSEUDO_ANOSOV
-        else:  # self.asymptotic_translation_length() == 0:
+        elif self.is_reducible():
             return NT_TYPE_REDUCIBLE
+        else:  # self.is_pesudo_anosov():
+            return NT_TYPE_PSEUDO_ANOSOV
     
     def asymptotic_translation_length(self):
         ''' Return the asymptotic translation length of this mapping class on the curve complex.
