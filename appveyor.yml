@@ -3,6 +3,9 @@ build: false
 
 environment:
   matrix:
+    - PYTHON: "C:\\Python37"
+      TOX_ENV: "docs"
+
     - PYTHON: "C:\\Python27"
       TOX_ENV: "lint2"
 
@@ -23,9 +26,6 @@ environment:
 
     - PYTHON: "C:\\Python37"
       TOX_ENV: "py37"
-
-    - PYTHON: "C:\\Python37"
-      TOX_ENV: "docs"
 
 init:
   - set "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
