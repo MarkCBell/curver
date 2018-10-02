@@ -39,15 +39,15 @@ def mcgs(draw):
     return draw(st.sampled_from(MCGS))
 
 @st.composite
-def mapping_classes(draw, triangulation=None):
-    return draw(encodings(triangulation, distribution=[2, 3]))
+def mapping_classes(draw, triangulation=None, power_range=10):
+    return draw(encodings(triangulation, power_range, distribution=[2, 3]))
 
 @st.composite
-def mappings(draw, triangulation=None):
-    return draw(encodings(triangulation, distribution=[0, 0, 0, 0, 1, 2, 3]))
+def mappings(draw, triangulation=None, power_range=10):
+    return draw(encodings(triangulation, power_range, distribution=[0, 0, 0, 0, 1, 2, 3]))
 
 @st.composite
-def encodings(draw, triangulation=None, distribution=None):
+def encodings(draw, triangulation=None, power_range=10, distribution=None):
     if triangulation is None: triangulation = draw(triangulations())
     if distribution is None: distribution = [0, 0, 0, 0, 1, 2, 3, 4]
     terms_reversed = []
@@ -62,12 +62,12 @@ def encodings(draw, triangulation=None, distribution=None):
         elif move_type == 2:  # Twist.
             curves = [T.edge_curve(edge) for edge in T.edges]
             curve = draw(st.sampled_from(curves))
-            term = curve.encode_twist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
+            term = curve.encode_twist(power=draw(st.integers(min_value=-power_range, max_value=power_range).filter(lambda p: p)))
         elif move_type == 3:  # HalfTwist.
             arcs = [T.edge_arc(edge) for edge in T.edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
             if arcs:
                 arc = draw(st.sampled_from(arcs))
-                term = arc.encode_halftwist(power=draw(st.integers(min_value=-10, max_value=10).filter(lambda p: p)))
+                term = arc.encode_halftwist(power=draw(st.integers(min_value=-power_range, max_value=power_range).filter(lambda p: p)))
             else:
                 term = T.id_encoding()
         else:  # move_type == 4:  # Crush.

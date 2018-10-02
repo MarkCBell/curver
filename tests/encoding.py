@@ -118,7 +118,7 @@ class TestMappingClass(TestMapping):
             curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
             ]))
         
-        f = data.draw(strategies.mapping_classes(h.source_triangulation))
+        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
         g = ~f * h * f
         self.assertEqual(g.quotient_orbifold_signature(), h.quotient_orbifold_signature())
 
