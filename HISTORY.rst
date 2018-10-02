@@ -2,6 +2,17 @@
 History
 =======
 
+0.3.0 (2018-10-02)
+------------------
+
+* Solves the conjugacy problem for periodic mapping classes.
+* Computes quotient orbifold signature of periodic mapping classes.
+* Finds invariant polygonalisations of periodic mapping classes.
+* Switched to standard version number extraction.
+* Switched documentation to use autosummary.
+* Separated out Tox testing evnironments.
+* Tox checks for print statements in the kernel.
+* Mirgrated from NumPy matrices to arrays.
 
 0.2.5 (2018-06-24)
 ------------------
