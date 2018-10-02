@@ -53,11 +53,12 @@ A taste of curver::
 Features
 --------
 
+    - Solves the word problem for mapping class groups.
     - Performs Nielsen--Thurston classification of mapping classes.
     - Solves the conjugacy problem for periodic mapping classes.
-    - Solves the word problem for mapping class groups.
     - Computes the asymptotic translation length of mapping classes on the curve complex.
     - Computes geodesics in the curve complex.
+    - Computes quotient orbifolds and their quotient maps.
     - Computes the action of mapping classes on H_1.
     - Determines the topological type of multicurves.
 
