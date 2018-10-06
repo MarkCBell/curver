@@ -5,6 +5,7 @@ History
 0.3.1 (2018-??-??)
 ------------------
 
+* Now using a quadratic time algorithm to compute invariant multiarcs.
 * Fixed bug in computing Mosher sequence.
 
 0.3.0 (2018-10-02)
