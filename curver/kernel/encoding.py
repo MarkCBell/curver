@@ -2,6 +2,7 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from collections import defaultdict, namedtuple
+from copy import deepcopy
 from fractions import Fraction
 from itertools import groupby
 import operator
@@ -330,20 +331,21 @@ class MappingClass(Mapping):
             assert arc.is_short()
             
             # Start by constructing a list of lists of arcs so that power_images[i][j] contains (h**i)(edge_j)
-            power_images = [h.source_triangulation.edge_arcs()]
+            original_power_images = [h.source_triangulation.edge_arcs()]
             for _ in range(order):
-                power_images.append([h(arcy) for arcy in power_images[-1]])
+                original_power_images.append([h(arcy) for arcy in original_power_images[-1]])
             
             # With these it is easy to test if an arcs h--orbit is embedded.
-            # First time we have to chcek every edge.
+            # Initially we have to chcek every edge, so we do this once here to avoid repeating it for every image in the next loop.
             for edge in h.source_triangulation.positive_edges:
-                if all(power_images[i][edge.index](edge) <= 0 for i in range(order+1)):  # if h--orbit is embedded.
+                if all(original_power_images[i][edge.index](edge) <= 0 for i in range(order+1)):  # if h--orbit is embedded.
                     yield h.source_triangulation.edge_arc(edge)
             
             for image in orbit(arc):
+                power_images = deepcopy(original_power_images)  # Get a fresh copy to work with.
                 conjugator = image.shorten(drop=0)
                 for index, move in enumerate(reversed(conjugator)):
-                    # Currently  power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = conjugator[len(conjugator) - 1 - index:]
+                    # Currently power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = conjugator[len(conjugator) - 1 - index:]
                     # Update so that power_images[i][j] = (prefix * ~h**i * ~prefix)(edge_j)
                     power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
                     # Update so that power_images[i][j] = (move * prefix * ~h**i * ~prefix)(edge_j)
