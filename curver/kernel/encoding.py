@@ -338,7 +338,7 @@ class MappingClass(Mapping):
             # With these it is easy to test if an arcs h--orbit is embedded.
             # Initially we have to chcek every edge, so we do this once here to avoid repeating it for every image in the next loop.
             for edge in h.source_triangulation.positive_edges:
-                if all(original_power_images[i][edge.index](edge) <= 0 for i in range(order+1)):  # if h--orbit is embedded.
+                if invariant_multiarc(edge) == 0 and all(original_power_images[i][edge.index](edge) <= 0 for i in range(order+1)):  # if not existing component and h--orbit is embedded.
                     yield h.source_triangulation.edge_arc(edge)
             
             for image in orbit(arc):
@@ -375,9 +375,9 @@ class MappingClass(Mapping):
             arc = triangulation.edge_arc([edge for edge in triangulation.positive_edges if edge.index not in dual_tree and invariant_multiarc(edge) == 0][0])
             
             for unicorn in embedded_orbit_unicorns(arc):  # Loops at most zeta^2 * ||self|| times.
-                if unicorn not in invariant_multiarc.components():  # Not seen it before.
-                    invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(unicorn)))
-                    break
+                assert unicorn not in invariant_multiarc.components()
+                invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(unicorn)))
+                break
             
             # Reshorten invariant_multiarc.
             next_conjugator = invariant_multiarc.shorten()
