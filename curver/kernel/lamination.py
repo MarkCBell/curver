@@ -453,8 +453,11 @@ class Lamination(object):
             
             ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
             
-            if ed < 0 or (ed == 0 and ad > 0 and bd > 0):  # Non-parallel arc or bipod.
+            if ed < 0:  # Non-parallel arc.
                 return 1
+            
+            if ed == 0 and ad > 0 and bd > 0:  # Bipod.
+                return 0.5
             
             return 0
         
