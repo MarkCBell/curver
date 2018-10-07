@@ -362,7 +362,7 @@ class MappingClass(Mapping):
                         power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
                         # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[len(image_conjugator) - 1 - index:]
                         
-                        if isinstance(move, curver.kernel.EdgeFlip):
+                        if not isinstance(move, curver.kernel.EdgeFlip):
                             continue
                         
                         edge = move.edge  # Only one place to check.
