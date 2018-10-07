@@ -350,7 +350,7 @@ class MappingClass(Mapping):
                     power_images = deepcopy(original_power_images)  # Get a fresh copy to work with.
                     image_conjugator = image.shorten(drop=0)  # Mosher sequence.
                     for index, move in enumerate(reversed(image_conjugator)):
-                        # Currently power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[len(image_conjugator) - 1 - index:]
+                        # Currently power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[len(image_conjugator) - index:]
                         # Update so that power_images[i][j] = (prefix * ~h**i * ~prefix)(edge_j)
                         power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
                         # Update so that power_images[i][j] = (move * prefix * ~h**i * ~prefix)(edge_j)
@@ -359,7 +359,7 @@ class MappingClass(Mapping):
                         power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
                         # Update so that power_images[i][j] = (move * prefix * h**i * ~prefix * ~move)(edge_j)
                         power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
-                        # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j)
+                        # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[len(image_conjugator) - 1 - index:]
                         
                         if isinstance(move, curver.kernel.EdgeFlip):
                             edge = move.edge  # Only one place to check.
