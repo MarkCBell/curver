@@ -346,6 +346,7 @@ class MappingClass(Mapping):
                 dual_tree = triangulation.dual_tree(avoid={edge for edge in triangulation.positive_edges if invariant_multiarc(edge) < 0})
                 arc = triangulation.edge_arc([edge for edge in triangulation.positive_edges if edge.index not in dual_tree and invariant_multiarc(edge) == 0][0])
                 
+                done = False
                 for image in orbit(arc):
                     power_images = deepcopy(original_power_images)  # Get a fresh copy to work with.
                     image_conjugator = image.shorten(drop=0)  # Mosher sequence.
@@ -362,15 +363,19 @@ class MappingClass(Mapping):
                         # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[len(image_conjugator) - 1 - index:]
                         
                         if isinstance(move, curver.kernel.EdgeFlip):
-                            edge = move.edge  # Only one place to check.
-                            if all(power_images[i][edge.index](edge) <= 0 for i in range(order+1)):  # if h--orbit is embedded.
-                                arcy = move.target_triangulation.edge_arc(edge)
-                                prefix = image_conjugator[len(image_conjugator) - 1 - index:]
-                                unicorn = prefix.inverse()(arcy)  # Pull it back.
-                                invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(unicorn)))
-                                # Break out and start again.
-                                done = True
-                                break
+                            continue
+                        
+                        edge = move.edge  # Only one place to check.
+                        if any(power_images[i][edge.index](edge) > 0 for i in range(order+1)):  # if h--orbit is not embedded.
+                            continue
+                        
+                        arcy = move.target_triangulation.edge_arc(edge)
+                        prefix = image_conjugator[len(image_conjugator) - 1 - index:]
+                        unicorn = prefix.inverse()(arcy)  # Pull it back.
+                        invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(unicorn)))
+                        # Break out and start again.
+                        done = True
+                        break
                     if done: break
                 else:
                     raise RuntimeError('Unable to find invariant unicorn arc.')
