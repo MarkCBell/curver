@@ -353,7 +353,7 @@ class MappingClass(Mapping):
                     power_images = deepcopy(original_power_images)  # Get a fresh copy to work with.
                     image_conjugator = image.shorten(drop=0)  # The Mosher sequence from image back to arc, this contains all the unicorn arcs.
                     for index, move in enumerate(reversed(image_conjugator)):
-                        # Currently, by induction, power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[len(image_conjugator) - index:].
+                        # Currently, by induction, power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[-index:].
                         # Update so that power_images[i][j] = (prefix * ~h**i * ~prefix)(edge_j).
                         power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
                         # Update so that power_images[i][j] = (move * prefix * ~h**i * ~prefix)(edge_j).
@@ -362,7 +362,7 @@ class MappingClass(Mapping):
                         power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
                         # Update so that power_images[i][j] = (move * prefix * h**i * ~prefix * ~move)(edge_j)
                         power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
-                        # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[len(image_conjugator) - 1 - index:].
+                        # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[-index-1:].
                         
                         if not isinstance(move, curver.kernel.EdgeFlip):
                             continue
@@ -373,7 +373,7 @@ class MappingClass(Mapping):
                             continue
                         
                         arcy = move.target_triangulation.edge_arc(edge)
-                        prefix = image_conjugator[len(image_conjugator) - 1 - index:]
+                        prefix = image_conjugator[-1-index:]
                         unicorn = prefix.inverse()(arcy)  # Pull it back.
                         invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(unicorn)))  # Add it to the invariant arc.
                         # Break out and start again.
