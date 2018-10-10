@@ -331,6 +331,8 @@ class MappingClass(Mapping):
             # Start by constructing a list of lists of arcs where power_images[i][j] contains (h**i)(edge_j)
             # These make it easy to test whether the h--orbit of edge_j is embedded: this occurs iff
             # power_images[i][j](j) <= 0 for every 0 <= i < order.
+            # Note that since we will be needing this repeatedly, we will create the original here and
+            # make a deepcopy at the start of each calculation later.
             original_power_images = [h.source_triangulation.edge_arcs()]
             for _ in range(order-1):
                 original_power_images.append([h(arcy) for arcy in original_power_images[-1]])
@@ -342,17 +344,20 @@ class MappingClass(Mapping):
                     invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(arc)))  # Add it to the invariant arc.
                     break
             else:  # If that doesn't work then we can search the unicorn arcs.
-                # We use an arc that does not cut off a disk in S - invariant_multiarc.
-                # One exists since invariant_multiarc is not a polygonalisation, and in fact one of the edges of triangulation must be one since invariant_multiarc is short.
+                # Theorem: For any arc a there is an i such that there is a unicorn of a and (h**i)(a) whose h--orbit is embedded.
+                # In fact if a is an arc that does not cut off a disk in S - invariant_multiarc then the obtained unicorn is also disjoint and not a component of invariant_multiarc.
+                # Such an arc exists since invariant_multiarc is not a polygonalisation, and in fact one of the edges of triangulation must be one since invariant_multiarc is short.
                 dual_tree = triangulation.dual_tree(avoid={edge for edge in triangulation.positive_edges if invariant_multiarc(edge) < 0})
                 arc = triangulation.edge_arc([edge for edge in triangulation.positive_edges if edge.index not in dual_tree and invariant_multiarc(edge) == 0][0])
                 
                 done = False
-                for image in orbit(arc):
+                for image in orbit(arc):  # Loops at most zeta+3 times.
                     # Check the unicorn arcs that can be made from arc and image.
                     power_images = deepcopy(original_power_images)  # Get a fresh copy to work with.
                     image_conjugator = image.shorten(drop=0)  # The Mosher sequence from image back to arc, this contains all the unicorn arcs.
-                    for index, move in enumerate(reversed(image_conjugator)):
+                    # Theorem: Since arc is short, the set of arcs that appear in the Mosher flip sequence includes all unicorns made from arc and image.
+                    for index, move in enumerate(reversed(image_conjugator)):  # Loops at most ||h|| <= zeta ||self|| times.
+                        # Note that each of the following modifications runs in O(||h||) <= O(zeta ||self||).
                         # Currently, by induction, power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[-index:].
                         # Update so that power_images[i][j] = (prefix * ~h**i * ~prefix)(edge_j).
                         power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
