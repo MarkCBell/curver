@@ -2,7 +2,7 @@
 History
 =======
 
-0.3.1 (2018-??-??)
+0.3.1 (2018-10-10)
 ------------------
 
 * Now using a quadratic time algorithm to compute invariant multiarcs.
