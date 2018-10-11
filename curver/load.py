@@ -337,7 +337,7 @@ def load(*args):
         assert isinstance(n, curver.IntegerType)
         
         zeta = 6*g + 3*n - 6
-        if g < 0 or n < 0 or zeta < 3:
+        if g < 0 or n < 1 or zeta < 3:
             raise curver.AssumptionError('Surface cannot be triangulated.')
         
         if g == 0:  # and n >= 3.
