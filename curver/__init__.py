@@ -13,9 +13,6 @@ __version__ = pkg_resources.get_distribution('curver').version
 create_triangulation = curver.kernel.create_triangulation
 triangulation_from_sig = curver.kernel.triangulation_from_sig
 
-AbortError = curver.kernel.AbortError
-AssumptionError = curver.kernel.AssumptionError
-
 def show(*items):
     import curver.application
     curver.application.start(*items)

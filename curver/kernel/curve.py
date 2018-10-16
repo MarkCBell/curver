@@ -237,10 +237,12 @@ class Curve(MultiCurve):
         This is a Fraction that increases by one each time a right Dehn twist about
         this curve is performed unless -1 <= slope <= 1.
         
-        Assumes that this curve and the given lamination intersect.
-        This curve must be non-peripheral. '''
+        This curve must be non-peripheral and intersect the given lamination. '''
         
-        assert not self.is_peripheral()
+        assert isinstance(lamination, curver.kernel.Lamination)
+        
+        if self.is_peripheral():
+            raise ValueError('Curve is peripheral.')
         
         conjugator = self.shorten()
         short = conjugator(self)
@@ -248,7 +250,7 @@ class Curve(MultiCurve):
         
         denominator = short.intersection(short_lamination)
         if denominator == 0:
-            raise curver.AssumptionError('Slope is undefined when curves are disjoint.')
+            raise ValueError('Slope is undefined when curves are disjoint.')
         
         # Get some edges.
         a = short.parallel()
@@ -270,17 +272,17 @@ class Curve(MultiCurve):
         
         This is the number of (right) Dehn twists about self that must be applied to b in order to minimise its intersection with c.
         
-        Assumes that this curve and the given laminations intersect.
-        This curve must be non-peripheral. '''
+        This curve must be non-peripheral and intersect the given laminations. '''
         
         assert isinstance(b, curver.kernel.Lamination)
         assert isinstance(c, curver.kernel.Lamination)
-        assert not self.is_peripheral()
+        if self.is_peripheral():
+            raise ValueError('Curve is peripheral.')
         
         ab = self.intersection(b)
-        if ab == 0: raise curver.AssumptionError('Relative slope is undefined when self and b are disjoint.')
+        if ab == 0: raise ValueError('Relative slope is undefined when self and b are disjoint.')
         ac = self.intersection(c)  # Faster than c.intersection(a) since we know a is a curve.
-        if ac == 0: raise curver.AssumptionError('Relative slope is undefined when self and c are disjoint.')
+        if ac == 0: raise ValueError('Relative slope is undefined when self and c are disjoint.')
         bc = b.intersection(c)
         
         f_lower = self.encode_twist(power=-2*bc)(b).intersection(c)  # f(-2*bc).

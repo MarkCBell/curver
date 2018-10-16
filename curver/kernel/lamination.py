@@ -483,7 +483,7 @@ class Lamination(object):
         def find_twist(lamination, edge):
             ''' Return a twist based at the given edge that drops the weight of this lamination as much as possible.
             
-            Raises an AssumptionError or ValueError if no twist can be found. '''
+            Raises a ValueError if no twist can be found. '''
             
             # Deps: edge, lamination, old_extra
             trace = lamination.trace(edge, lamination.side_weight(edge), 2*self.zeta)
@@ -491,11 +491,11 @@ class Lamination(object):
             
             curve = lamination.triangulation.lamination_from_cut_sequence(trace)
             if isinstance(curve, curver.kernel.Curve):
-                slope = curve.slope(lamination)  # Will raise a curver.AssumptionError if these are disjoint.
+                slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
                 if abs(slope) > 1:  # Can accelerate. We should probably also skip cases where slope is too close to small to be efficient.
                     return curve.encode_twist(power=-int(slope))  # Round towards zero.
             
-            raise curver.AssumptionError('No accelerating twist exists.')
+            raise ValueError('No accelerating twist exists.')
         
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
         while not lamination.is_empty():
@@ -511,7 +511,7 @@ class Lamination(object):
                 if (1 - drop) * lamination.weight() < flip(lamination).weight():  # Flipping drops weight by less than drop%, so look for a twist to accelerate.
                     try:
                         move = find_twist(lamination, edge)
-                    except (ValueError, curver.AssumptionError):
+                    except ValueError:
                         extra = [x for x in [c, d] if x in active_edges]
                 else:
                     extra = [x for x in [c, d] if x in active_edges]

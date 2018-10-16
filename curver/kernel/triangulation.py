@@ -407,7 +407,7 @@ class Triangulation(object):
         automatically. Additionally, if an entire component is omitted then we assume
         that the map is the identity on it.
         
-        Assumes that such an isometry exists and is unique. '''
+        This isometry must exists and be is unique. '''
         
         assert isinstance(label_map, dict)
         
@@ -430,11 +430,11 @@ class Triangulation(object):
                 if new_from_label in label_map:
                     # Check that this map is still consistent.
                     if new_to_label != label_map[new_from_label]:
-                        raise curver.AssumptionError('This label_map does not extend to an isometry.')
+                        raise ValueError('This label_map does not extend to an isometry.')
                 else:
                     # Extend the map.
                     if source_orders[new_from_label] != target_orders[new_to_label]:
-                        raise curver.AssumptionError('This label_map does not extend to an isometry.')
+                        raise ValueError('This label_map does not extend to an isometry.')
                     label_map[new_from_label] = new_to_label
                     to_process.append((new_from_label, new_to_label))
         
@@ -444,7 +444,7 @@ class Triangulation(object):
         for edge in self.edges:
             if edge.label not in used_labels:
                 if self.corner_lookup[edge] != other.corner_lookup[edge]:
-                    raise curver.AssumptionError('This label_map does not extend to an isometry.')
+                    raise ValueError('This label_map does not extend to an isometry.')
                 label_map[edge.label] = edge.label
         
         return curver.kernel.Isometry(self, other, label_map)
@@ -468,7 +468,7 @@ class Triangulation(object):
         for chosen_targets in product(*targets):
             try:
                 isometries.append(self.find_isometry(other, dict(zip(sources, chosen_targets))))
-            except curver.AssumptionError:  # Map does not extend uniquely.
+            except ValueError:  # Map does not extend uniquely.
                 pass
         
         return isometries
@@ -683,7 +683,7 @@ class Triangulation(object):
             elif i in label_map and ~i not in label_map:
                 label_map[~i] = ~label_map[i]
             else:
-                raise curver.AssumptionError('Missing new label for %d.' % i)
+                raise ValueError('Missing new label for %d.' % i)
         
         edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges)
         new_triangulation = Triangulation([Triangle([edge_map[edge] for edge in triangle]) for triangle in self])

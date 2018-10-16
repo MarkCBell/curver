@@ -70,7 +70,7 @@ class Isometry(FlipGraphMove):
         
         It is given by a map taking each edge label of source_triangulation to a label of target_triangulation.
         
-        Assumes that this map is defined on all labels. '''
+        This map must be defined on all labels. '''
         
         super(Isometry, self).__init__(source_triangulation, target_triangulation)
         

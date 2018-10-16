@@ -338,7 +338,7 @@ def load(*args):
         
         zeta = 6*g + 3*n - 6
         if g < 0 or n < 1 or zeta < 3:
-            raise curver.AssumptionError('Surface cannot be triangulated.')
+            raise ValueError('Surface cannot be triangulated.')
         
         if g == 0:  # and n >= 3.
             return S_0_n(n)

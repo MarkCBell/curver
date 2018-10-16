@@ -307,11 +307,11 @@ class MappingClass(Mapping):
     def invariant_polygonalisation(self):
         ''' Return a multiarc that is a polygonalisation and is invariant under self.
         
-        self must be a periodic mapping class. '''
-        
-        assert self.is_periodic()
+        Self must be a periodic mapping class. '''
         
         order = self.order()
+        if order == 0:  # self is not periodic.
+            raise ValueError('MappingClass is not periodic.')
         
         def orbit(a):
             ''' Yield the orbit of a under h (self conjugated by conjugator). '''
@@ -323,10 +323,10 @@ class MappingClass(Mapping):
                 image = h(image)
             yield a
         
-        h = self
         conjugator = self.source_triangulation.id_encoding()
+        h = conjugator * self * conjugator.inverse()
         triangulation = h.source_triangulation
-        invariant_multiarc = self.source_triangulation.empty_lamination()
+        invariant_multiarc = h.source_triangulation.empty_lamination()
         while not invariant_multiarc.is_polygonalisation():  # Loops at most zeta times.
             # Start by constructing a list of lists of arcs where power_images[i][j] contains (h**i)(edge_j)
             # These make it easy to test whether the h--orbit of edge_j is embedded: this occurs iff
@@ -405,11 +405,9 @@ class MappingClass(Mapping):
         `rotation` fields, this is a total conjugacy invariant for periodic
         mapping classes by Theorem 9 of [Mosher07]_.
         
-        Assumes that self is periodic. '''
+        Self must be is periodic. '''
         
-        assert self.is_periodic()
-        
-        polygonalisation = self.invariant_polygonalisation()
+        polygonalisation = self.invariant_polygonalisation()  # Will raise a ValueError if self is not periodic.
         
         conjugator = polygonalisation.shorten()
         short = conjugator(polygonalisation)
@@ -417,7 +415,7 @@ class MappingClass(Mapping):
         h = conjugator * self * conjugator.inverse()
         
         # Some short names.
-        h_order = h.order()
+        order = h.order()
         triangulation = short.triangulation
         components = short.triangulation.components()
         surface = triangulation.surface()
@@ -448,13 +446,13 @@ class MappingClass(Mapping):
             component = component_lookup[oriented_arc]
             if component not in component_orbit_length:  # Save repeating calculations.
                 image = oriented_arc
-                for i in range(1, h_order+1):
+                for i in range(1, order+1):
                     image = h_oriented[image]
                     if component_lookup[image] == component:
                         component_orbit_length[component] = i
                         break
         # The (orbifold) Euler characteristic of each components quotient.
-        euler_characteristic = dict((component, Fraction((2 - 2*surface[component][0] - surface[component][1]) * component_orbit_length[component], h_order)) for component in components)
+        euler_characteristic = dict((component, Fraction((2 - 2*surface[component][0] - surface[component][1]) * component_orbit_length[component], order)) for component in components)
         
         # Compute the polygons cut out by short.
         # Remember to walk around their boundary in the correct direction.
@@ -485,7 +483,7 @@ class MappingClass(Mapping):
         cone_points = defaultdict(list)
         for punctured, oriented_arcs in candidates:
             oriented_arc = image = oriented_arcs[0]
-            for i in range(1, h_order+1):
+            for i in range(1, order+1):
                 image = h_oriented[image]
                 if image in oriented_arcs:
                     rotation = Fraction(oriented_arcs.index(image), len(oriented_arcs))
@@ -507,7 +505,7 @@ class MappingClass(Mapping):
         
         It would also be straightforward to check whether self^i ~~ other^j for some i, j.
         
-        Currently assumes that at least one mapping class is periodic. '''
+        Currently, at least one mapping class must be is periodic. '''
         
         assert isinstance(other, curver.kernel.MappingClass)
         
