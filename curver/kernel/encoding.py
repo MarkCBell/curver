@@ -254,7 +254,7 @@ class MappingClass(Mapping):
         if self.is_periodic():
             # A periodic mapping class is reducible iff at least one of the components of its quotient orbifold is not a triangle orbifold.
             # The genus of the surface underlying an orbifold.
-            genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.rotation.denominator)) for cone_point in orbifold.cone_points)) // 2
+            genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.order)) for cone_point in orbifold.cone_points)) // 2
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.quotient_orbifold_signature())
         else:
             return not self.positive_asymptotic_translation_length()
@@ -471,7 +471,7 @@ class MappingClass(Mapping):
                 used = used.union(polygon_edges)  # Mark everything as used.
                 polygons.append(polygon_edges)
         
-        ConePoint = namedtuple('ConePoint', ['punctured', 'rotation', 'preimages'])
+        ConePoint = namedtuple('ConePoint', ['punctured', 'order', 'rotation', 'preimages'])
         # There are three places to look for cone points:
         # 1) at vertices,
         # 2) at the midpoints of edges, and
@@ -488,7 +488,7 @@ class MappingClass(Mapping):
                 if image in oriented_arcs:
                     rotation = Fraction(oriented_arcs.index(image), len(oriented_arcs))
                     if punctured or rotation > 0:  # Real cone point.
-                        cone_points[component_lookup[oriented_arc]].append(ConePoint(punctured, rotation, i))  # Put it in the correct component.
+                        cone_points[component_lookup[oriented_arc]].append(ConePoint(punctured, rotation.denominator, rotation, i))  # Put it in the correct component.
                     break
         
         # Remember to make all the data canonical by sorting.
