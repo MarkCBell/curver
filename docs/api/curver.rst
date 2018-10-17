@@ -28,8 +28,6 @@ curver.kernel
     ~encoding.Encoding
     ~encoding.Mapping
     ~encoding.MappingClass
-    ~error.AbortError
-    ~error.AssumptionError
     ~homology.HomologyClass
     ~lamination.Lamination
     ~mappingclassgroup.MappingClassGroup
