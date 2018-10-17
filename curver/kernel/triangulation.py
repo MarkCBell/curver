@@ -666,7 +666,7 @@ class Triangulation(object):
     def encode_relabel_edges(self, label_map):
         ''' Return an encoding of the effect of relabelling the edges according to label_map.
         
-        Assumes that label_map[index] or label_map[~index] is defined for each index. '''
+        label_map[index] or label_map[~index] must be defined for each index. '''
         
         if isinstance(label_map, (list, tuple)):
             label_map = dict(enumerate(label_map))
