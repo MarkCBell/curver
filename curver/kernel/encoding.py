@@ -359,14 +359,17 @@ class MappingClass(Mapping):
                     for index, move in enumerate(reversed(image_conjugator)):  # Loops at most ||h|| <= zeta ||self|| times.
                         # Note that each of the following modifications runs in O(||h||) <= O(zeta ||self||).
                         # Currently, by induction, power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[-index:].
-                        # Update so that power_images[i][j] = (prefix * ~h**i * ~prefix)(edge_j).
-                        power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
-                        # Update so that power_images[i][j] = (move * prefix * ~h**i * ~prefix)(edge_j).
+                        # We tackle this in four steps, starting with the easy side.
+                        # 1) Update so that power_images[i][j] = (move * prefix * h**i * ~prefix)(edge_j).
                         power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
-                        # Update so that power_images[i][j] = (prefix * h**i * ~prefix * ~move)(edge_j).
+                        # Now for the hard side. To make this easy, we use the fact that power_images[i].transpose() records the inverse map.
+                        # 2) Update so that power_images[i][j] = (prefix * ~h**i * ~prefix * ~move)(edge_j).
                         power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
-                        # Update so that power_images[i][j] = (move * prefix * h**i * ~prefix * ~move)(edge_j)
+                        # 3) Update so that power_images[i][j] = (move * prefix * ~h**i * ~prefix * ~move)(edge_j).
                         power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
+                        # Finally flip back by using the same trick.
+                        # 4) Update so that power_images[i][j] = (move * prefix * h**i * ~prefix * ~move)(edge_j)
+                        power_images = [[curver.kernel.Arc(move.target_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
                         # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[-index-1:].
                         
                         if not isinstance(move, curver.kernel.EdgeFlip):
