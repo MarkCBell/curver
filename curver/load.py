@@ -32,9 +32,9 @@ def S_0_n(n):
     #  3) Left triangle given by [~0, ~(n-2), ~(2n-4)], and
     #  4) Right triangle given by [n-3, 3n-7, 2n-5].
     T = curver.create_triangulation(
-        [(i, i + 2 * n - 4, ~(i + 1)) for i in range(0, n - 3)] +
-        [(i, ~(i + 1), ~(i + n - 1)) for i in range(n-2, 2*n - 5)] +
-        [(~0, ~(n - 2), ~(2 * n - 4)), (n - 3, 3 * n - 7, 2 * n - 5)]
+        [(i, i + 2 * n - 4, ~(i + 1)) for i in range(0, n - 3)]
+        + [(i, ~(i + 1), ~(i + n - 1)) for i in range(n-2, 2*n - 5)]
+        + [(~0, ~(n - 2), ~(2 * n - 4)), (n - 3, 3 * n - 7, 2 * n - 5)]
         )
     
     # We'll then create an arc connecting the ith to (i+1)st punctures.
@@ -59,11 +59,11 @@ def S_1_n(n):
         curves['b_0'] = T.curve_from_cut_sequence([0, 1])
     else:  # n > 1:
         T = curver.create_triangulation(
-            [(0, 1, 2)] +
-            [(~(1+2*i), 1+2*i+2, 1+2*i+3) for i in range(n-1)] +
-            [(2*n+1, ~(2*n), ~(2*n-1))] +
-            [(2*n+1 + i, ~(2*n-2*i), ~(2*n + i)) for i in range(1, n-1)] +
-            [(~0, ~(3*n-1), ~2)]
+            [(0, 1, 2)]
+            + [(~(1+2*i), 1+2*i+2, 1+2*i+3) for i in range(n-1)]
+            + [(2*n+1, ~(2*n), ~(2*n-1))]
+            + [(2*n+1 + i, ~(2*n-2*i), ~(2*n + i)) for i in range(1, n-1)]
+            + [(~0, ~(3*n-1), ~2)]
             )
         
         curves['a_0'] = T.curve_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1)] + [] + [2*n+1 + j for j in range(n-1)])
@@ -96,10 +96,10 @@ def S_2_n(n):
         curves['c_0'] = T.curve_from_cut_sequence([0, 1, 2, 3, 0, 5, 6, 7])
     else:  # n > 1:
         T = curver.create_triangulation(
-            [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (~0, 5, 6), (~6, ~(3*n+5), ~8)] +
-            [(~(5+2*i), 5+2*i+2, 5+2*i+3) for i in range(n)] +
-            [(2*n+7, ~(2*n+6), ~(2*n+5))] +
-            [(2*n+7+i, ~(2*n+6 - 2*i), ~(2*n+6+i)) for i in range(1, n-1)]
+            [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (~0, 5, 6), (~6, ~(3*n+5), ~8)]
+            + [(~(5+2*i), 5+2*i+2, 5+2*i+3) for i in range(n)]
+            + [(2*n+7, ~(2*n+6), ~(2*n+5))]
+            + [(2*n+7+i, ~(2*n+6 - 2*i), ~(2*n+6+i)) for i in range(1, n-1)]
             )
         
         curves['a_0'] = T.curve_from_cut_sequence([1, 2, 3])
@@ -140,12 +140,12 @@ def S_3_n(n):
         curves['c_1'] = T.curve_from_cut_sequence([5, 7, 9, 6, 7, 8, 9, 7, 5, 10, 11, 13, 12, 10])
     else:  # n > 1:
         T = curver.create_triangulation(
-            [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (5, 6, 7), (~6, 8, 9), (~7, ~8, ~9)] +
-            [(10, 11, 12), (~11, 13, 14), (~12, ~(3*n+11), ~14)] +
-            [(~(13+2*i), 13+2*i+2, 13+2*i+3) for i in range(n-1)] +
-            [(2*n+13, ~(2*n+12), ~(2*n+11))] +
-            [(2*n+13+i, ~(2*n+12-2*i), ~(2*n+12+i)) for i in range(1, n-1)] +
-            [(~0, ~5, ~10)]
+            [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (5, 6, 7), (~6, 8, 9), (~7, ~8, ~9)]
+            + [(10, 11, 12), (~11, 13, 14), (~12, ~(3*n+11), ~14)]
+            + [(~(13+2*i), 13+2*i+2, 13+2*i+3) for i in range(n-1)]
+            + [(2*n+13, ~(2*n+12), ~(2*n+11))]
+            + [(2*n+13+i, ~(2*n+12-2*i), ~(2*n+12+i)) for i in range(1, n-1)]
+            + [(~0, ~5, ~10)]
             )
         
         curves['a_0'] = T.curve_from_cut_sequence([1, 2, 3])
@@ -175,13 +175,13 @@ def S_g_n(g, n):
     if n == 1:
         T = curver.create_triangulation(
             # Build the fins using the first 5g edges.
-            [(5*i+0, 5*i+1, 5*i+2) for i in range(g)] + \
-            [(~(5*i+1), 5*i+3, 5*i+4) for i in range(g)] + \
-            [(~(5*i+2), ~(5*i+3), ~(5*i+4)) for i in range(g)] + \
+            [(5*i+0, 5*i+1, 5*i+2) for i in range(g)]
+            + [(~(5*i+1), 5*i+3, 5*i+4) for i in range(g)]
+            + [(~(5*i+2), ~(5*i+3), ~(5*i+4)) for i in range(g)]
             # Finally triangulate the centre polygon using the last g - 3 edges.
-            [(~0, ~5, 5*g)] + \
-            [(5*g+1+i, ~(5*g+i), ~(5*i+10)) for i in range(g-4)] + \
-            [(~(5*g+g-4), ~(5*g-10), ~(5*g-5))]
+            + [(~0, ~5, 5*g)]
+            + [(5*g+1+i, ~(5*g+i), ~(5*i+10)) for i in range(g-4)]
+            + [(~(5*g+g-4), ~(5*g-10), ~(5*g-5))]
             )  # 0, ..., 6g - 4.
         
         for i in range(g):
@@ -194,19 +194,19 @@ def S_g_n(g, n):
     else:  # n > 1:
         T = curver.create_triangulation(
             # Build the fins using the first 5g edges.
-            [(5*i+0, 5*i+1, 5*i+2) for i in range(g)] +
-            [(~(5*i+1), 5*i+3, 5*i+4) for i in range(g)] +
-            [(~(5*i+2), ~(5*i+3), ~(5*i+4)) for i in range(g-1)] +
+            [(5*i+0, 5*i+1, 5*i+2) for i in range(g)]
+            + [(~(5*i+1), 5*i+3, 5*i+4) for i in range(g)]
+            + [(~(5*i+2), ~(5*i+3), ~(5*i+4)) for i in range(g-1)]
             # Don't forget the last one is special.
-            [(~(5*(g-1)+2), ~(5*(g-1)+4+(3*n-3)), ~(5*(g-1)+4))] +
+            + [(~(5*(g-1)+2), ~(5*(g-1)+4+(3*n-3)), ~(5*(g-1)+4))]
             # Now fold to put in the additional punctures using the next 3n - 3 edges.
-            [(~(5*g-2 + 2*i), 5*g-2 + 2*i + 2, 5*g-2 + 2*i + 3) for i in range(n-1)] +
-            [(5*g-2 + 2*(n-1) + 2, ~(5*g-2 + 2*(n-1) + 1), ~(5*g-2 + 2*(n-1)))] +
-            [(5*g-2 + 2*(n-1) + 2 + i, ~(5*g-2 + 2*(n-1) + 1 - 2*i), ~(5*g-2 + 2*(n-1) + 2 + i - 1)) for i in range(1, n-1)] +
+            + [(~(5*g-2 + 2*i), 5*g-2 + 2*i + 2, 5*g-2 + 2*i + 3) for i in range(n-1)]
+            + [(5*g-2 + 2*(n-1) + 2, ~(5*g-2 + 2*(n-1) + 1), ~(5*g-2 + 2*(n-1)))]
+            + [(5*g-2 + 2*(n-1) + 2 + i, ~(5*g-2 + 2*(n-1) + 1 - 2*i), ~(5*g-2 + 2*(n-1) + 2 + i - 1)) for i in range(1, n-1)]
             # Finally triangulate the centre polygon using the last g - 3 edges.
-            [(~0, ~5, 5*g+3*n-3)] +
-            [(5*g+3*n-3+1+i, ~(5*g+3*n-3+i), ~(5*i+10)) for i in range(g-4)] +
-            [(~(5*g+3*n-3+g-4), ~(5*g-10), ~(5*g-5))]
+            + [(~0, ~5, 5*g+3*n-3)]
+            + [(5*g+3*n-3+1+i, ~(5*g+3*n-3+i), ~(5*i+10)) for i in range(g-4)]
+            + [(~(5*g+3*n-3+g-4), ~(5*g-10), ~(5*g-5))]
             )
         
         for i in range(g-1):
