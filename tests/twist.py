@@ -29,6 +29,23 @@ class TestTwist(unittest.TestCase):
         self.assertEqual(twist_i * twist_j, twist_j * twist_i)  # Commute.
         self.assertEqual(twist_i * twist_j, twist_ij)  # Additive.
         self.assertEqual(twist_neg_i, ~twist_i)  # Inverse.
+    
+    @given(st.data())
+    def test_intersection(self, data):
+        # From Proposition 3.2 of FarbMarg12.
+        a = data.draw(strategies.curves())
+        b = data.draw(strategies.curves(a.triangulation))
+        k = data.draw(st.integers())
+        
+        self.assertEqual(a.encode_twist(power=k)(b).intersection(b), abs(k) * a.intersection(b)**2)
+    
+    @given(st.data())
+    def test_conjugation(self, data):
+        # From Fact 3.7 of FarbMarg12.
+        a = data.draw(strategies.curves())
+        f = data.draw(strategies.mapping_classes(a.triangulation))
+        
+        self.assertEqual(f(a).encode_twist(), f * a.encode_twist() * f.inverse())
 
 class TestHalfTwist(unittest.TestCase):
     @given(strategies.arcs().filter(lambda a: a.connects_distinct_vertices()), st.integers(), st.integers())
