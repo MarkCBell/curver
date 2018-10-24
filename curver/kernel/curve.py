@@ -223,7 +223,7 @@ class Curve(MultiCurve):
     def encode_twist(self, power=1):
         ''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
         
-        if self.is_peripheral():  # Boring case.
+        if self.is_peripheral() or power == 0:  # Boring case.
             return self.triangulation.id_encoding()
         
         conjugator = self.shorten()
