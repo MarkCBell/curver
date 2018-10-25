@@ -25,8 +25,6 @@ class Crush(Move):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.matrix == other.matrix
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def apply_lamination(self, lamination):
         geometric = list(lamination)
@@ -166,8 +164,6 @@ class Lift(Move):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.matrix == other.matrix
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)

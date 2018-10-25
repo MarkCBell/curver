@@ -43,8 +43,6 @@ class Twist(FlipGraphMove):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.power == other.power
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def apply_lamination(self, lamination):
         # Take care of some easy cases for speed.
@@ -179,8 +177,6 @@ class HalfTwist(FlipGraphMove):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.arc == other.arc and self.power == other.power
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def apply_lamination(self, lamination):
         return self.encoding_power(lamination)

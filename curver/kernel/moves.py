@@ -24,6 +24,8 @@ class Move(object):
             return self.apply_homology(other)
         else:
             raise TypeError('Unknown type %s' % other)
+    def __ne__(self, other):
+        return not self == other
     
     def encode(self):
         ''' Return the Encoding induced by this move. '''
@@ -99,8 +101,6 @@ class Isometry(FlipGraphMove):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.label_map == other.label_map
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def apply_lamination(self, lamination):
         geometric = [lamination(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
@@ -140,8 +140,6 @@ class EdgeFlip(FlipGraphMove):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.edge == other.edge
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def apply_lamination(self, lamination):
         ''' See Lemma 5.1.3 of [Bell15]_ for details of the cases involved in performing a flip. '''
