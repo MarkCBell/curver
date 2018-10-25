@@ -41,6 +41,10 @@ class Crush(Move):
         out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
         # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
         twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+        
+        # We could have initially removed the twisting via the fact that:
+        # twisting == abs(self.curve.slope(lamination) * lamination(a))
+        
         # Computing around_v and twisting can be done more efficiently.
         
         # We work by manipulating the side weights around v.
