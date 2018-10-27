@@ -39,10 +39,11 @@ class Twist(FlipGraphMove):
     def package(self):
         return (self.curve.parallel().label, self.power)
     def __eq__(self, other):
-        if isinstance(other, Twist):
-            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.power == other.power
-        else:
-            return NotImplemented
+        eq = super(Twist, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.curve == other.curve and self.power == other.power
     
     def apply_lamination(self, lamination):
         # Take care of some easy cases for speed.
@@ -173,10 +174,11 @@ class HalfTwist(FlipGraphMove):
     def package(self):
         return (self.arc.parallel().label, self.power)
     def __eq__(self, other):
-        if isinstance(other, HalfTwist):
-            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.arc == other.arc and self.power == other.power
-        else:
-            return NotImplemented
+        eq = super(HalfTwist, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.arc == other.arc and self.power == other.power
     
     def apply_lamination(self, lamination):
         return self.encoding_power(lamination)

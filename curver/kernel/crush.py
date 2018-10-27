@@ -21,10 +21,11 @@ class Crush(Move):
     def __reduce__(self):
         return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
     def __eq__(self, other):
-        if isinstance(other, Crush):
-            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.matrix == other.matrix
-        else:
-            return NotImplemented
+        eq = super(Crush, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.curve == other.curve and self.matrix == other.matrix
     
     def apply_lamination(self, lamination):
         geometric = list(lamination)
@@ -160,10 +161,11 @@ class Lift(Move):
     def __reduce__(self):
         return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
     def __eq__(self, other):
-        if isinstance(other, Lift):
-            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.curve == other.curve and self.matrix == other.matrix
-        else:
-            return NotImplemented
+        eq = super(Lift, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.curve == other.curve and self.matrix == other.matrix
     
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)

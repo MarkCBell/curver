@@ -24,6 +24,11 @@ class Move(object):
             return self.apply_homology(other)
         else:
             raise TypeError('Unknown type %s' % other)
+    def __eq__(self, other):
+        if isinstance(other, self.__class__):
+            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation
+        else:
+            return NotImplemented
     def __ne__(self, other):
         return not self == other
     
@@ -97,10 +102,11 @@ class Isometry(FlipGraphMove):
         else:
             return None
     def __eq__(self, other):
-        if isinstance(other, Isometry):
-            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.label_map == other.label_map
-        else:
-            return NotImplemented
+        eq = super(Isometry, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.label_map == other.label_map
     
     def apply_lamination(self, lamination):
         geometric = [lamination(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
@@ -136,10 +142,11 @@ class EdgeFlip(FlipGraphMove):
     def package(self):
         return self.edge.label
     def __eq__(self, other):
-        if isinstance(other, EdgeFlip):
-            return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation and self.edge == other.edge
-        else:
-            return NotImplemented
+        eq = super(EdgeFlip, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.edge == other.edge
     
     def apply_lamination(self, lamination):
         ''' See Lemma 5.1.3 of [Bell15]_ for details of the cases involved in performing a flip. '''
