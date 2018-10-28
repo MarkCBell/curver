@@ -18,6 +18,7 @@ class TestEncoding(unittest.TestCase):
     def test_pickle(self, data):
         h = data.draw(self._strategy())
         self.assertEqual(h, pickle.loads(pickle.dumps(h)))
+        self.assertEqual(h.sequence, pickle.loads(pickle.dumps(h)).sequence)
     
     @given(st.data())
     def test_hash(self, data):

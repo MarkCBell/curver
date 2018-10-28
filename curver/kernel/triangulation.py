@@ -728,13 +728,13 @@ class Triangulation(object):
                 
                 if power == 0:  # Crush:
                     curve = T.edge_curve(edge)
-                    term = curve.crush()
+                    term = curve.crush()[:-1]  # Remove the trailing identity isometry.
                 elif T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
                     curve = T.edge_curve(edge)
-                    term = curve.encode_twist(power)
+                    term = curve.encode_twist(power)[1:-1]  # Remove the leading and trailing identity isometries.
                 else:  # HalfTwist.
                     arc = T.edge_arc(edge)
-                    term = arc.encode_halftwist(power)
+                    term = arc.encode_halftwist(power)[1:-1]  # Remove the leading and trailing identity isometries.
             elif item is None:  # Identity isometry.
                 term = T.id_encoding()
             elif isinstance(item, curver.kernel.Move):  # Move.

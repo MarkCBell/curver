@@ -3,6 +3,7 @@
 
 import curver
 from curver.kernel.moves import Move  # Special import needed for subclassing.
+import numpy as np
 
 class Crush(Move):
     ''' This represents the effect of crushing along a curve. '''
@@ -25,7 +26,7 @@ class Crush(Move):
         if eq in [NotImplemented, False]:
             return eq
         
-        return self.curve == other.curve and self.matrix == other.matrix
+        return self.curve == other.curve and np.array_equal(self.matrix, other.matrix)
     
     def apply_lamination(self, lamination):
         geometric = list(lamination)
@@ -165,7 +166,7 @@ class Lift(Move):
         if eq in [NotImplemented, False]:
             return eq
         
-        return self.curve == other.curve and self.matrix == other.matrix
+        return self.curve == other.curve and np.array_equal(self.matrix, other.matrix)
     
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
