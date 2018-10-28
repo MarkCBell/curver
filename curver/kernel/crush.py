@@ -1,9 +1,10 @@
 
 ''' A module for representing more advanced ways of changing triangulations. '''
 
+import numpy as np
+
 import curver
 from curver.kernel.moves import Move  # Special import needed for subclassing.
-import numpy as np
 
 class Crush(Move):
     ''' This represents the effect of crushing along a curve. '''
