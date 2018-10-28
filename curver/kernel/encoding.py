@@ -170,11 +170,18 @@ class Mapping(Encoding):
         
         conjugator = self(self.source_triangulation.as_lamination()).shorten()
         # conjugator.inverse() is almost self, however the edge labels might not agree.
-        potential_closers = [isom.encode() for isom in conjugator.target_triangulation.isometries_to(self.source_triangulation)]
-        identity = self.source_triangulation.id_encoding()
-        [closer] = [potential_closer for potential_closer in potential_closers if potential_closer * conjugator * self == identity]  # There should only be one.
         
-        return (closer * conjugator).inverse()
+        potential_closers = [isom.encode() for isom in self.source_triangulation.isometries_to(conjugator.target_triangulation)]
+        
+        # We used to test:
+        #   if potential_closer.inverse() * conjugator * self == identity
+        # However since conjugator * self preserves self.source_triangulation.as_lamination() it is periodic, and so we can find the correct closer simply
+        # by finding the one that induces the same action on homology since the only periodic mapping class in the Torelli group is the identity.
+        
+        homology_images = [conjugator(self(hc)) for hc in self.source_triangulation.edge_homologies()]
+        [closer] = [potential_closer for potential_closer in potential_closers if all(potential_closer(hc) == hci for hc, hci in zip(self.source_triangulation.edge_homologies(), homology_images))]
+        
+        return conjugator.inverse() * closer
     
     def flip_mapping(self):
         ''' Return a Mapping equal to self that only uses EdgeFlips and Isometries. '''
