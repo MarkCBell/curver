@@ -154,7 +154,7 @@ class EdgeFlip(FlipGraphMove):
         ei = lamination(self.edge)
         ai0, bi0, ci0, di0, ei0 = [max(lamination(edge), 0) for edge in self.square]
         
-        # Most of the nei information matches the old, so we'll take a copy and modi0fy the places that have changed.
+        # Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
         geometric = list(lamination.geometric)
         
         if ei >= ai0 + bi0 and ai0 >= di0 and bi0 >= ci0:  # CASE: A(ab)
