@@ -534,6 +534,26 @@ class MappingClass(Mapping):
             return self.quotient_orbifold_signature() == other.quotient_orbifold_signature()  # Total conjugacy invariant.
         else:
             raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
+    
+    def extract_twisting_multicurve(self):
+        ''' Return a Multicurve c such that c.encode_twist() == self.
+        
+        This raises a ValueError if no such MultiCurve exists.'''
+        
+        lamination = self.source_triangulation.as_lamination()
+        for _ in range(self.zeta):
+            image = self(lamination)
+            try:
+                multicurve = self.source_triangulation([x - y for x, y in zip(image, lamination)])
+                if isinstance(multicurve, curver.kernel.MultiCurve):
+                    weighted_multicurve = self.source_triangulation.disjoint_sum([(multiplicity // lamination.intersection(component)) * component for component, multiplicity in multicurve.components().items()])
+                    if self == weighted_multicurve.encode_twist():
+                        return weighted_multicurve
+            except AssertionError:
+                pass
+            lamination = image
+        
+        raise ValueError('')
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.
