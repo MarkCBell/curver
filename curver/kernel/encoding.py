@@ -553,7 +553,7 @@ class MappingClass(Mapping):
                 pass
             lamination = image
         
-        raise ValueError('')
+        raise ValueError('Mapping Class is not a twist about a MultiCurve.')
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.
