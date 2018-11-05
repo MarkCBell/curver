@@ -536,7 +536,7 @@ class MappingClass(Mapping):
             raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
     
     def extract_twisting_multicurve(self):
-        ''' Return a Multicurve c such that c.encode_twist() == self.
+        ''' Return a MultiCurve c such that c.encode_twist() == self.
         
         This raises a ValueError if no such MultiCurve exists.'''
         
