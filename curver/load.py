@@ -96,7 +96,7 @@ def S_2_n(n):
         curves['b_0'] = T.curve_from_cut_sequence([1, 2, 4])
         curves['b_1'] = T.curve_from_cut_sequence([5, 6, 8])
         curves['c_0'] = T.curve_from_cut_sequence([0, 1, 2, 3, 0, 5, 6, 7])
-        curves['p_1'] = T([2, 2, 2, 2, 2, 1,1,1,0])
+        curves['p_1'] = T([2, 2, 2, 2, 2, 1, 1, 1, 0])
     else:  # n > 1:
         T = curver.create_triangulation(
             [(0, 1, 2), (~1, 3, 4), (~2, ~3, ~4), (~0, 5, 6), (~6, ~(3*n+5), ~8)]
@@ -197,7 +197,7 @@ def S_g_n(g, n):
         for i in range(1, g-2):
             curves['c_%d' % i] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + i - 1, 5*g + i - 1])
         curves['c_%d' % (g-2)] = T.curve_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
-        curves['p_1'] = T([2] * (5*g - 4) + [1,1,1,0] + [2]*(g-3))
+        curves['p_1'] = T([2] * (5*g - 4) + [1, 1, 1, 0] + [2]*(g-3))
         # curves['p_1'] = T([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 0] + [1, 0] * (n-1) + [1] * (n-1) + [2] * (g-3))
     else:  # n > 1:
         T = curver.create_triangulation(
@@ -233,7 +233,7 @@ def S_g_n(g, n):
         # Note that if the loop ran with i=0 then it would create p_0 == a_{g-1}.
         for i in range(1, n):
             curves['p_%d' % i] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n-i)] + [5*g + 2*n - 1 - 2*i] + [5*g+2*n-3+i + j for j in range(n-i)])
-        curves['p_%d' % n] = T([2] * (5*g - 4) + [1,1,1,0] + [1,0]*(n-1) + [1]*(n-1) + [2]*(g-3))
+        curves['p_%d' % n] = T([2] * (5*g - 4) + [1, 1, 1, 0] + [1, 0]*(n-1) + [1]*(n-1) + [2]*(g-3))
         # The half-twists that permute the ith and (i+1)st punctures.
         arcs['s_0'] = T.edge_arc(5*g + 2*n - 4)
         for i in range(1, n):
