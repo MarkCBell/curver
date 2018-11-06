@@ -2,6 +2,16 @@
 History
 =======
 
+0.3.2 (2018-??-??)
+------------------
+
+* Extended the generating sets produced by curver.load().
+* Can now identify which mapping classes are Dehn twists together with their twisting curve(s).
+* Improved EdgeFlip performance.
+* Improved simplification performance.
+* Simplified use of error classes.
+* Fixed bug in scaling Laminations.
+
 0.3.1 (2018-10-10)
 ------------------
 
