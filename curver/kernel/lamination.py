@@ -71,9 +71,9 @@ class Lamination(object):
             new_class = Lamination
         elif other == 1:
             new_class = self.__class__
-        elif isinstance(other, curver.kernel.MultiArc):  # or Arc.
+        elif isinstance(self, curver.kernel.MultiArc):  # or Arc.
             new_class = curver.kernel.MultiArc
-        elif isinstance(other, curver.kernel.MultiCurve):  # or Curve.
+        elif isinstance(self, curver.kernel.MultiCurve):  # or Curve.
             new_class = curver.kernel.MultiCurve
         else:
             new_class = Lamination
