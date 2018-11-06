@@ -1,5 +1,5 @@
 
-from hypothesis import given, settings
+from hypothesis import given, assume, settings
 import hypothesis.strategies as st
 import unittest
 
@@ -49,6 +49,12 @@ class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
         multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
         self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
+    
+    @given(st.data())
+    def test_extract_twisting(self, data):
+        multicurve = data.draw(self._strategy())
+        assume(not multicurve.is_peripheral())
+        self.assertEqual(multicurve.encode_twist().extract_twisting_multicurve(), multicurve)
 
 class TestCurve(TestMultiCurve):
     _strategy = staticmethod(strategies.curves)
