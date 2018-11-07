@@ -320,71 +320,71 @@ class MappingClass(Mapping):
         if order == 0:  # self is not periodic.
             raise ValueError('MappingClass is not periodic.')
         
+        H = [self**i for i in range(order)]  # |H| <= zeta + 3.
+        # ||H|| := max(||h|| for h in H) which in this case is at most zeta ||self||.
+        
         def orbit(a):
-            ''' Yield the orbit of a under h (self conjugated by conjugator). '''
+            ''' Yield the orbit of a under H. '''
             
-            # a is rarely a useful image so we will yield it last.
-            image = h(a)
-            while image != a:
-                yield image
-                image = h(image)
-            yield a
+            images = set()
+            for h in H:
+                image = h(a)
+                if image not in images:
+                    yield h(a)
         
         conjugator = self.source_triangulation.id_encoding()
-        h = conjugator * self * conjugator.inverse()
-        triangulation = h.source_triangulation
-        invariant_multiarc = h.source_triangulation.empty_lamination()
+        triangulation = conjugator.target_triangulation
+        invariant_multiarc = triangulation.empty_lamination()
         while not invariant_multiarc.is_polygonalisation():  # Loops at most zeta times.
-            # Start by constructing a list of lists of arcs where power_images[i][j] contains (h**i)(edge_j)
-            # These make it easy to test whether the h--orbit of edge_j is embedded: this occurs iff
-            # power_images[i][j](j) <= 0 for every 0 <= i < order.
+            # Start by constructing a list of lists of images of edges under elements in H. So
+            #   H_images[i][j] = H[i](edge_j)
+            # These make it easy to test whether the H--orbit of edge_j is embedded: this occurs iff
+            #   H_images[i][j](j) <= 0 for every 0 <= i < |H|.
             # Note that since we will be needing this repeatedly, we will create the original here and
             # make a deepcopy at the start of each calculation later.
-            original_power_images = [h.source_triangulation.edge_arcs()]
-            for _ in range(order-1):
-                original_power_images.append([h(arcy) for arcy in original_power_images[-1]])
+            original_H_images = [[h(arc) for arc in triangulation.edge_arcs()] for h in H]
             
             # Initially we have to check every edge, so we do this once here to avoid repeating it for every image in the next loop.
-            for edge in h.source_triangulation.positive_edges:
-                if invariant_multiarc(edge) == 0 and all(original_power_images[i][edge.index](edge) <= 0 for i in range(order)):  # if not existing component and h--orbit is embedded.
-                    arc = h.source_triangulation.edge_arc(edge)
+            for edge in triangulation.positive_edges:
+                if invariant_multiarc(edge) == 0 and all(images[edge.index](edge) <= 0 for images in original_H_images):  # if not existing component and H--orbit is embedded.
+                    arc = triangulation.edge_arc(edge)
                     invariant_multiarc = triangulation.disjoint_sum([invariant_multiarc] + list(orbit(arc)))  # Add it to the invariant arc.
                     break
             else:  # If that doesn't work then we can search the unicorn arcs.
-                # Theorem: For any arc a there is an i such that there is a unicorn of a and (h**i)(a) whose h--orbit is embedded.
+                # Theorem: For any arc a there is an h in H such that there is a unicorn of a and h(a) whose H--orbit is embedded.
                 # In fact if a is an arc that does not cut off a disk in S - invariant_multiarc then the obtained unicorn is also disjoint and not a component of invariant_multiarc.
                 # Such an arc exists since invariant_multiarc is not a polygonalisation, and in fact one of the edges of triangulation must be one since invariant_multiarc is short.
                 dual_tree = triangulation.dual_tree(avoid={edge for edge in triangulation.positive_edges if invariant_multiarc(edge) < 0})
                 arc = triangulation.edge_arc([edge for edge in triangulation.positive_edges if edge.index not in dual_tree and invariant_multiarc(edge) == 0][0])
                 
                 done = False
-                for image in orbit(arc):  # Loops at most zeta+3 times.
+                for image in orbit(arc):  # Loops at most |H| times.
                     # Check the unicorn arcs that can be made from arc and image.
-                    power_images = deepcopy(original_power_images)  # Get a fresh copy to work with.
+                    H_images = deepcopy(original_H_images)  # Get a fresh copy to work with.
                     image_conjugator = image.shorten(drop=0)  # The Mosher sequence from image back to arc, this contains all the unicorn arcs.
                     # Theorem: Since arc is short, the set of arcs that appear in the Mosher flip sequence includes all unicorns made from arc and image.
-                    for index, move in enumerate(reversed(image_conjugator)):  # Loops at most ||h|| <= zeta ||self|| times.
-                        # Note that each of the following modifications runs in O(||h||) <= O(zeta ||self||).
-                        # Currently, by induction, power_images[i][j] = (prefix * h**i * ~prefix)(edge_j) where prefix = image_conjugator[-index:].
+                    for index, move in enumerate(reversed(image_conjugator)):  # Loops at most ||H|| times.
+                        # Note that each of the following modifications runs in O(||H||).
+                        # Currently, by induction, H_images[i][j] = (prefix * H[i] * ~prefix)(edge_j) where prefix = image_conjugator[-index:].
                         # We tackle this in four steps, starting with the easy side.
-                        # 1) Update so that power_images[i][j] = (move * prefix * h**i * ~prefix)(edge_j).
-                        power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
-                        # Now for the hard side. To make this easy, we use the fact that power_images[i].transpose() records the inverse map.
-                        # 2) Update so that power_images[i][j] = (prefix * ~h**i * ~prefix * ~move)(edge_j).
-                        power_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
-                        # 3) Update so that power_images[i][j] = (move * prefix * ~h**i * ~prefix * ~move)(edge_j).
-                        power_images = [[move(arcy) for arcy in power_image] for power_image in power_images]
+                        # 1) Update so that H_images[i][j] = (move * prefix * H[i] * ~prefix)(edge_j).
+                        H_images = [[move(arcy) for arcy in images] for images in H_images]
+                        # Now for the hard side. To make this easy, we use the fact that H_images[i].transpose() records the inverse map.
+                        # 2) Update so that H_images[i][j] = (prefix * ~H[i] * ~prefix * ~move)(edge_j).
+                        H_images = [[curver.kernel.Arc(move.source_triangulation, geometric) for geometric in zip(*images)] for images in H_images]
+                        # 3) Update so that H_images[i][j] = (move * prefix * ~H[i] * ~prefix * ~move)(edge_j).
+                        H_images = [[move(arcy) for arcy in images] for images in H_images]
                         # Finally flip back by using the same trick.
-                        # 4) Update so that power_images[i][j] = (move * prefix * h**i * ~prefix * ~move)(edge_j)
-                        power_images = [[curver.kernel.Arc(move.target_triangulation, geometric) for geometric in zip(*power_image)] for power_image in power_images]
-                        # Now power_images[i][j] = (next_prefix * h**i * ~next_prefix)(edge_j) where next_prefix = image_conjugator[-index-1:].
+                        # 4) Update so that H_images[i][j] = (move * prefix * H[i] * ~prefix * ~move)(edge_j)
+                        H_images = [[curver.kernel.Arc(move.target_triangulation, geometric) for geometric in zip(*images)] for images in H_images]
+                        # Now H_images[i][j] = (next_prefix * H[i] * ~next_prefix)(edge_j) where next_prefix = image_conjugator[-index-1:].
                         
                         if not isinstance(move, curver.kernel.EdgeFlip):
                             continue
                         
                         edge = move.edge  # Only have to check the one new edge that has appeared.
                         # This arc is not already in invariant_multiarc so we only have to check ...
-                        if any(power_images[i][edge.index](edge) > 0 for i in range(order)):  # if h--orbit is not embedded.
+                        if any(images[edge.index](edge) > 0 for images in H_images):  # if H--orbit is not embedded.
                             continue
                         
                         arcy = move.target_triangulation.edge_arc(edge)
@@ -402,8 +402,8 @@ class MappingClass(Mapping):
             next_conjugator = invariant_multiarc.shorten()
             conjugator = next_conjugator * conjugator
             invariant_multiarc = next_conjugator(invariant_multiarc)
-            h = next_conjugator * h * next_conjugator.inverse()
-            triangulation = h.source_triangulation
+            H = [next_conjugator * h * next_conjugator.inverse() for h in H]
+            triangulation = conjugator.target_triangulation
         
         return conjugator.inverse()(invariant_multiarc)
     
