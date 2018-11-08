@@ -1,7 +1,7 @@
 
 ''' A module for representing a triangulation of a punctured surface. '''
 
-from collections import Counter
+from collections import Counter, namedtuple
 from functools import total_ordering
 from itertools import groupby, product
 from math import factorial
@@ -250,7 +250,8 @@ class Triangulation(object):
         # Compute pairs of #vertices and #edges for each component.
         VE = dict((component, (len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2)) for component in self.components())
         # Compute pairs of genus and #vertices edges for each component.
-        return dict((component, ((2 - v + e // 3) // 2, v)) for component, (v, e) in VE.items())
+        S = namedtuple('S', ['g', 'p', 'chi'])
+        return dict((component, S((2 - v + e // 3) // 2, v, v - e // 3)) for component, (v, e) in VE.items())
     
     def max_order(self):
         ''' Return the maximum order of a mapping class on this surface. '''
@@ -267,11 +268,8 @@ class Triangulation(object):
             else:  # g == 0:
                 return v
         
-        # List of pairs of genus and #vertices edges for each component.
-        GV = self.surface().values()
-        
         # List of pairs of orders and multiplicity.
-        OM = [(order(g, v), len(list(group))) for (g, v), group in groupby(sorted(GV))]
+        OM = [(order(S.g, S.p), len(list(group))) for S, group in groupby(sorted(self.surface().values()))]
         
         prod = 1
         for o, m in OM:
