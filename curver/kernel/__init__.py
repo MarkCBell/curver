@@ -6,6 +6,7 @@ from .crush import Crush, Lift  # noqa: F401
 from .curve import Curve, MultiCurve  # noqa: F401
 from .curvegraph import CurveGraph  # noqa: F401
 from .encoding import Encoding, Mapping, MappingClass  # noqa: F401
+from .finite import FiniteSubgroup  # noqa: F401
 from .homology import HomologyClass  # noqa: F401
 from .lamination import Lamination  # noqa: F401
 from .mappingclassgroup import MappingClassGroup  # noqa: F401
