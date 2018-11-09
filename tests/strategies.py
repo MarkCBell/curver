@@ -123,9 +123,9 @@ def multicurves(draw, triangulation=None):
     available_indices = available_indices - triangulation.dual_tree()
     
     classes = curver.kernel.UnionFind(triangulation.vertices)
-    for component, (g, v) in triangulation.surface().items():
+    for component, S in triangulation.surface().items():
         available_component_indices = set([index for index in available_indices if index in component])
-        if g != 0 and draw(st.booleans()):  # merge vertices:
+        if S.g != 0 and draw(st.booleans()):  # merge vertices:
             for index in sorted(available_component_indices):
                 a, b = triangulation.vertex_lookup[index], triangulation.vertex_lookup[~index]
                 if classes(a) != classes(b):

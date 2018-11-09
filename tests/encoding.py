@@ -94,7 +94,7 @@ class TestMappingClass(TestMapping):
         h = T.id_encoding()
         self.assertEqual(h.order(), 1)
         
-        T_signature = [(2 - 2*g - n, 1, [(True, 1, 0, 1) for _ in range(n)]) for (g, n) in T.surface().values()]
+        T_signature = [(S.chi, 1, [(True, 1, [0], 1) for _ in range(S.p)]) for S in T.surface().values()]
         self.assertEqual(h.quotient_orbifold_signature(), T_signature)
     
     @given(st.data())
