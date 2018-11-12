@@ -6,7 +6,7 @@ import operator
 import numpy as np
 
 import curver
-from curver.kernel.decorators import ensure, memoize
+from curver.kernel.decorators import memoize
 
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
@@ -259,7 +259,7 @@ class MappingClass(Mapping):
             # A periodic mapping class is reducible iff at least one of the components of its quotient orbifold is not a triangle orbifold.
             # The genus of the surface underlying an orbifold.
             genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.order)) for cone_point in orbifold.cone_points)) // 2
-            return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.quotient_orbifold_signature())
+            return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
             return not self.positive_asymptotic_translation_length()
     
