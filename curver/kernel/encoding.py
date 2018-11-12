@@ -317,27 +317,6 @@ class MappingClass(Mapping):
             raise ValueError('MappingClass is not periodic.')
         
         return curver.kernel.FiniteSubgroup({i: self**i for i in range(order)})
-    
-    @memoize
-    @ensure(lambda data: data.result.is_polygonalisation(), lambda data: data.self(data.result) == data.result)
-    def invariant_polygonalisation(self):
-        ''' Return a multiarc that is a polygonalisation and is invariant under self.
-        
-        Self must be a periodic mapping class. '''
-        
-        return self.subgroup().invariant_polygonalisation()  # Will raise a ValueError if self is not periodic.
-    
-    @memoize
-    def quotient_orbifold_signature(self):
-        ''' Return the signature of self.surface() / self.
-        
-        Since this also records the covering map via the `preimage` and
-        `rotation` fields, this is a total conjugacy invariant for periodic
-        mapping classes by Theorem 9 of [Mosher07]_.
-        
-        Self must be periodic. '''
-        
-        return self.subgroup().quotient_orbifold_signature()  # Will raise a ValueError if self is not periodic.
 
     def is_conjugate_to(self, other):
         ''' Return whether this mapping class is conjugate to other.
@@ -360,7 +339,7 @@ class MappingClass(Mapping):
         if self.is_periodic():
             if self.order() != other.order():  # Conjugacy invariant.
                 return False
-            return self.quotient_orbifold_signature() == other.quotient_orbifold_signature()  # Total conjugacy invariant.
+            return self.subgroup().quotient_orbifold_signature() == other.subgroup().quotient_orbifold_signature()  # Total conjugacy invariant.
         else:
             raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
     
