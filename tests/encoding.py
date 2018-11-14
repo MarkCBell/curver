@@ -95,7 +95,7 @@ class TestMappingClass(TestMapping):
         self.assertEqual(h.order(), 1)
         
         T_signature = [(S.chi, 1, [(True, 1, [0], 1) for _ in range(S.p)]) for S in T.surface().values()]
-        self.assertEqual(h.quotient_orbifold_signature(), T_signature)
+        self.assertEqual(h.subgroup().quotient_orbifold_signature(), T_signature)
     
     @given(st.data())
     @settings(max_examples=2)
@@ -121,5 +121,5 @@ class TestMappingClass(TestMapping):
         
         f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
         g = ~f * h * f
-        self.assertEqual(g.quotient_orbifold_signature(), h.quotient_orbifold_signature())
+        self.assertEqual(g.subgroup().quotient_orbifold_signature(), h.subgroup().quotient_orbifold_signature())
 
