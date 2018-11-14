@@ -323,6 +323,9 @@ class MappingClass(Mapping):
         
         It would also be straightforward to check whether self^i ~~ other^j for some i, j.
         
+        In the periodic case we use the quotient orbifold and its covering map, the covering map is recorded via the `preimage` and `holonomy` fields.
+        This is a total conjugacy invariant for periodic mapping classes by Theorem 9 of [Mosher07]_.
+        
         Currently, at least one mapping class must be is periodic. '''
         
         assert isinstance(other, curver.kernel.MappingClass)
