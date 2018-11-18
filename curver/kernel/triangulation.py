@@ -251,7 +251,7 @@ class Triangulation(object):
         VE = dict((component, (len([vertex for vertex in self.vertices if vertex[0] in component]), len(component) // 2)) for component in self.components())
         # Compute pairs of genus and #vertices edges for each component.
         S = namedtuple('S', ['g', 'p', 'chi'])
-        return dict((component, S((2 - v + e // 3) // 2, v, v - e // 3)) for component, (v, e) in VE.items())
+        return dict((component, S((2 - v + e // 3) // 2, v, - e // 3)) for component, (v, e) in VE.items())
     
     def max_order(self):
         ''' Return the maximum order of a mapping class on this surface. '''
