@@ -5,17 +5,22 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from fractions import Fraction
 from itertools import groupby
+try:
+    from Queue import Queue
+except ImportError:  # Python3.
+    from queue import Queue
 
 import curver
-from curver.kernel.decorators import memoize
+from curver.kernel.decorators import memoize, ensure
 
 ConePoint = namedtuple('ConePoint', ['punctured', 'order', 'holonomy', 'preimages'])
 Orbifold = namedtuple('Orbifold', ['euler_characteristic', 'preimages', 'cone_points'])
 
 class FiniteSubgroup(object):
     ''' This represents a finite subgroup of a mapping class group. '''
-    def __init__(self, mapping_classes):
+    def __init__(self, mapping_classes, generators=None):
         self.mapping_classes = mapping_classes  # Dict: name |--> mapping class.
+        self.generators = list(self.mapping_classes) if generators is None else generators
         self.triangulation = list(self.mapping_classes.values())[0].source_triangulation
         # asserts?
     
@@ -26,7 +31,35 @@ class FiniteSubgroup(object):
     def __getitem__(self, item):
         return self.mapping_classes[item]
     
+    @classmethod
+    def from_generators(cls, generators):
+        ''' Build the FiniteSubgroup from these generators (a dict mapping names to mapping classes).
+        
+        Currently this does not check that the subgroup generated is finite. '''
+        
+        mapping_classes = dict(generators)
+        seen = set(generators.values())
+        to_check = Queue()
+        for word in sorted(generators):
+            to_check.put(word)
+        
+        while not to_check.empty():
+            word = to_check.get()
+            current = mapping_classes[word]
+            for letter, generator in generators.items():
+                if letter + word not in mapping_classes:
+                    neighbour = generator * current
+                    if neighbour not in seen:
+                        mapping_classes[letter + word] = neighbour
+                        to_check.put(letter + word)
+                        seen.add(neighbour)
+                        # if len(seen) > 84 * (g-1):
+                            # raise ValueError('Mapping classes do not generate a finite subgroup.')
+        
+        return cls(mapping_classes, list(generators))
+    
     @memoize
+    @ensure(lambda data: data.result.is_polygonalisation, lambda data: all(data.self[word](data.result) == data.result for word in data.self.generators))
     def invariant_polygonalisation(self):
         ''' Return a multiarc that is a polygonalisation and is invariant under self. '''
         
