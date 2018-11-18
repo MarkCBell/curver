@@ -53,8 +53,9 @@ class FiniteSubgroup(object):
                         mapping_classes[letter + word] = neighbour
                         to_check.put(letter + word)
                         seen.add(neighbour)
+                        # Once we know the correct bound we can add:
                         # if len(seen) > 84 * (g-1):
-                            # raise ValueError('Mapping classes do not generate a finite subgroup.')
+                        #   raise ValueError('Mapping classes do not generate a finite subgroup.')
         
         return cls(mapping_classes, list(generators))
     
