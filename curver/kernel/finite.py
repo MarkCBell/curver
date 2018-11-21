@@ -24,6 +24,10 @@ class FiniteSubgroup(object):
         self.triangulation = list(self.mapping_classes.values())[0].source_triangulation
         # asserts?
     
+    def __str__(self):
+        return '< ' + ', '.join(str(name) for name in self.generators) + ' >'
+    def __repr__(self):
+        return str(self)
     def __iter__(self):
         return iter(self.mapping_classes)
     def __len__(self):
