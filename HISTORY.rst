@@ -5,6 +5,7 @@ History
 0.3.2 (2018-??-??)
 ------------------
 
+* Extended quotient orbifolds to all finite subgroups.
 * Extended the generating sets produced by curver.load().
 * Can now identify which mapping classes are Dehn twists together with their twisting curve(s).
 * Improved EdgeFlip performance.
