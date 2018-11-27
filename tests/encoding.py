@@ -88,16 +88,6 @@ class TestMappingClass(TestMapping):
         self.assertEqual(h.is_identity(), h == h.source_triangulation.id_encoding())
     
     @given(st.data())
-    def test_identity_quotient(self, data):
-        T = data.draw(strategies.triangulations())
-        
-        h = T.id_encoding()
-        self.assertEqual(h.order(), 1)
-        
-        T_signature = [(S.chi, 1, [(True, 1, [0], 1) for _ in range(S.p)]) for S in T.surface().values()]
-        self.assertEqual(h.subgroup().quotient_orbifold_signature(), T_signature)
-    
-    @given(st.data())
     @settings(max_examples=2)
     def test_order(self, data):
         h = data.draw(self._strategy())
@@ -105,7 +95,7 @@ class TestMappingClass(TestMapping):
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())
     
     @given(st.data())
-    def test_orbifold(self, data):
+    def test_conjugacy(self, data):
         # Periodic mapping classes.
         h = data.draw(st.sampled_from([
             curver.load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
@@ -119,7 +109,9 @@ class TestMappingClass(TestMapping):
             curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
             ]))
         
+        self.assertTrue(h.is_periodic())
+        
         f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
         g = ~f * h * f
-        self.assertEqual(g.subgroup().quotient_orbifold_signature(), h.subgroup().quotient_orbifold_signature())
+        self.assertTrue(g.is_conjugate_to(h))
 
