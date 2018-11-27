@@ -20,7 +20,7 @@ class FiniteSubgroup(object):
     ''' This represents a finite subgroup of a mapping class group. '''
     def __init__(self, mapping_classes, generators=None):
         self.mapping_classes = mapping_classes  # Dict: name |--> mapping class.
-        self.generators = list(self.mapping_classes) if generators is None else generators
+        self.generators = sorted(self.mapping_classes) if generators is None else generators
         self.triangulation = list(self.mapping_classes.values())[0].source_triangulation
         # asserts?
     
@@ -34,6 +34,15 @@ class FiniteSubgroup(object):
         return len(self.mapping_classes)
     def __getitem__(self, item):
         return self.mapping_classes[item]
+    def __eq__(self, other):
+        if isinstance(other, FiniteSubgroup):
+            return self.mapping_classes == other.mapping_classes and self.generators == other.generators
+        else:
+            return NotImplemented
+    def __ne__(self, other):
+        return not self == other
+    def __hash__(self):
+        return hash(tuple(self[letter] for letter in sorted(self)))
     
     @classmethod
     def from_generators(cls, generators):
