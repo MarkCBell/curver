@@ -248,10 +248,6 @@ class Curve(MultiCurve):
         short = conjugator(self)
         short_lamination = conjugator(lamination)
         
-        denominator = short.intersection(short_lamination)
-        if denominator == 0:
-            raise ValueError('Slope is undefined when curves are disjoint.')
-        
         # Get some edges.
         a = short.parallel()
         v = short.triangulation.vertex_lookup[a]  # = short.triangulation.vertex_lookup[~a].
@@ -259,6 +255,12 @@ class Curve(MultiCurve):
         
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
         around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
+        out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
+        
+        denominator = max(short_lamination(a), 0) - 2 * around_v + out_v  # = short.intersection(short_lamination)
+        if denominator == 0:
+            raise ValueError('Slope is undefined when self is disjoint from lamination.')
+        
         twisting = min(max(short_lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
         
         numerator = twisting
