@@ -3,7 +3,7 @@ Surfaces
 ========
 
 Curver's :meth:`~curver.load.load` function automatically builds the Lickorish generators [FarbMarg12]_ for any punctured surface from its genus :math:`g` and number of punctures :math:`n`.
-This consists of four families of Dehn twists :math:`a_i, b_i, c_i, p_i` and a family of half-twists :math:`s_i`.
+This consists of four families of Dehn twists :math:`a_i, b_i, c_i, d_i, p_i` and a family of half-twists :math:`s_i`.
 The :math:`p_i` twists are parallel to :math:`a_{g-1}` and are arranged as shown below:
 
 .. image:: ../figures/surface.svg
@@ -16,7 +16,7 @@ For example::
 
     >>> S = curver.load(5, 4)
     >>> S
-    Mapping class group < a_0, a_1, a_2, a_3, a_4, b_0, b_1, b_2, b_3, b_4, c_0, c_1, c_2, c_3, p_1, p_2, p_3, s_0, s_1, s_2, s_3 > on A-0wUXPZwTTUvsjvktbsTgIgjJ7aqCDyJNKbtky0Ajvrz4SWEQ+5CjlC9F1
+    Mapping class group < a_0, a_1, a_2, a_3, a_4, b_0, b_1, b_2, b_3, b_4, c_0, c_1, c_2, c_3, d_1, d_2, d_3, d_4, p_1, p_2, p_3, s_0, s_1, s_2, s_3 > on A_0wUXPZwTTUvsjvktbsTgIgjJ7aqCDyJNKbtky0Ajvrz4SWEQ+5CjlC9F1
 
 Of course, as shown by Humphries, this generating set is redundant.
 For example, following the proof of Theorem 4.14 of [FarbMarg12]_::
