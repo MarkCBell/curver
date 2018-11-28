@@ -3,6 +3,7 @@ from hypothesis import given
 import hypothesis.strategies as st
 import unittest
 
+from fractions import Fraction
 import strategies
 import curver
 
@@ -38,3 +39,15 @@ class TestFiniteSubgroup(unittest.TestCase):
         H = h.subgroup()
         self.assertEqual(G.quotient_orbifold_signature(), H.quotient_orbifold_signature())
 
+    @given(st.integers(min_value=1, max_value=4))
+    def test_klein(self, genus):
+        S = curver.load(genus, 2)
+        
+        g = S('(a_0.b_0.' + '.'.join('c_{}.b_{}'.format(i, i+1) for i in range(genus-1)) + '.p_1)^{}'.format(genus+1)).simplify()
+        h = S('(a_0.b_0.' + '.'.join('c_{}.b_{}'.format(i, i+1) for i in range(genus-1)) + ')^{}.S_1'.format(2*genus+1)).simplify()
+        
+        K = curver.kernel.FiniteSubgroup.from_generators({'g': g, 'h': h})
+        self.assertEqual(len(K), 4)
+        
+        signature = [(Fraction(-genus, 2), 1, sorted([(False, 2, ['hg' if genus % 2 == 0 else 'g'], 2), (True, 2, ['g'], 2)] + [(False, 2, ['h'], 2)] * (genus+1)))]
+        self.assertEqual(K.quotient_orbifold_signature(), signature)
