@@ -51,3 +51,17 @@ class TestFiniteSubgroup(unittest.TestCase):
         
         signature = [(Fraction(-genus, 2), 1, sorted([(False, 2, ['hg' if genus % 2 == 0 else 'g'], 2), (True, 2, ['g'], 2)] + [(False, 2, ['h'], 2)] * (genus+1)))]
         self.assertEqual(K.quotient_orbifold_signature(), signature)
+    
+    @given(st.integers(min_value=1, max_value=3))
+    def test_dihedral(self, genus):
+        S = curver.load(genus, 2)
+        
+        g = S('a_0.b_0.' + '.'.join('c_{}.b_{}'.format(i, i+1) for i in range(genus-1)) + '.p_1').simplify()
+        h = S('(a_0.b_0.' + '.'.join('c_{}.b_{}'.format(i, i+1) for i in range(genus-1)) + ')^{}.S_1'.format(2*genus+1)).simplify()
+        
+        K = curver.kernel.FiniteSubgroup.from_generators({'g': g, 'h': h})
+        self.assertEqual(len(K), 4*(genus+1))
+        
+        signature = [(Fraction(-genus, 2*(genus+1)), 1, [(False, 2, ['h'], 2*(genus+1)), (False, 2*(genus+1), ['hg'], 2), (True, 2*(genus+1), ['g' * (2*genus + 1)], 2)])]
+        self.assertEqual(K.quotient_orbifold_signature(), signature)
+
