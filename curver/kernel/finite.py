@@ -59,7 +59,8 @@ class FiniteSubgroup(object):
         while not to_check.empty():
             word = to_check.get()
             current = mapping_classes[word]
-            for letter, generator in generators.items():
+            for letter in sorted(generators):
+                generator = generators[letter]
                 if letter + word not in mapping_classes:
                     neighbour = generator * current
                     if neighbour not in seen:
