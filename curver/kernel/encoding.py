@@ -119,6 +119,7 @@ class Mapping(Encoding):
     Hence this encoding is a sequence of moves in the same flip graph. '''
     def __str__(self):
         return 'Mapping %s' % self.sequence
+    
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
         Here e_i and e'_j are the edges of self.source_triangulation and self.target_triangulation respectively.
@@ -138,6 +139,7 @@ class Mapping(Encoding):
         source_images = [self(hc).canonical() for hc in source_basis]
         
         return np.array([[sum(x * y for x, y in zip(hc, hc2)) for hc in source_images] for hc2 in target_basis], dtype=object)
+    
     def __eq__(self, other):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
@@ -149,7 +151,7 @@ class Mapping(Encoding):
         else:
             return NotImplemented
     def __hash__(self):
-        return hash(tuple(entry for row in self.intersection_matrix().tolist() for entry in row))
+        return hash(tuple(entry for entry in self(self.source_triangulation.as_lamination())))
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
