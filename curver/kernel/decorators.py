@@ -10,13 +10,19 @@ def memoize(function, *args, **kwargs):
     
     inputs = inspect.getcallargs(function, *args, **kwargs)  # pylint: disable=deprecated-method
     self = inputs['self']
-    key = (function.__name__, frozenset(inputs.items()))
     
-    if not hasattr(self, '_cache'):
-        self._cache = dict()
-    if key not in self._cache:
-        self._cache[key] = function(*args, **kwargs)
-    return self._cache[key]
+    if function.__name__ == '__hash__':
+        # We have to handle the __hash__ method differently since it is used in the other block of code.
+        if not hasattr(self, '_hash'):
+            self._hash = function(*args, **kwargs)
+        return self._hash
+    else:
+        if not hasattr(self, '_cache'):
+            self._cache = dict()
+        key = (function.__name__, frozenset(inputs.items()))
+        if key not in self._cache:
+            self._cache[key] = function(*args, **kwargs)
+        return self._cache[key]
 
 def topological_invariant(function):
     ''' Mark this function as a topological invariant.

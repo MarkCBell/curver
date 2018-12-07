@@ -150,6 +150,7 @@ class Mapping(Encoding):
                 all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
         else:
             return NotImplemented
+    @memoize
     def __hash__(self):
         return hash(tuple(entry for entry in self(self.source_triangulation.as_lamination())))
     def vertex_map(self):
