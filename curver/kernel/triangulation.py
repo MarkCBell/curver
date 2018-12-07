@@ -3,8 +3,7 @@
 
 from collections import Counter, namedtuple
 from functools import total_ordering
-from itertools import groupby, product
-from math import factorial
+from itertools import product
 import numpy as np
 
 import curver
@@ -256,6 +255,24 @@ class Triangulation(object):
     def max_order(self):
         ''' Return the maximum order of a mapping class on this surface. '''
         
+        def landau(a):
+            ''' Return an integer that is larger than Landau's function of a.
+            
+            That is, larger than exp(1.05314 * sqrt(a * ln(a))). '''
+            
+            b = a * (a.bit_length() - 1)  # b >= a * ln(a)
+            
+            c = 0
+            for i in reversed(range(b.bit_length() >> 1)):
+                new_c = c + (1 << i)
+                if new_c**2 <= b: c = new_c
+            if c**2 < b: c += 1  # c >= sqrt(b).
+            d = c + c // 18  # d >= 1.05314 * c.
+            e = 3**d  # e >= exp(d).
+            return e
+        
+        prod = landau(len(self.components()))
+        
         def order(g, v):
             ''' Return the maximum order of a periodic mapping class on S_{g, v}. '''
             # These bounds follow from the 4g + 4 bound on the closed surface [FarbMarg12]
@@ -268,12 +285,10 @@ class Triangulation(object):
             else:  # g == 0:
                 return v
         
-        # List of pairs of orders and multiplicity.
-        OM = [(order(S.g, S.p), len(list(group))) for S, group in groupby(sorted(self.surface().values()))]
-        
-        prod = 1
-        for o, m in OM:
-            prod *= o * factorial(m)  # Actually need o*lcm(1, 2, ..., m), but this is easier (and not significantly larger?)
+        # Set of orders that appear.
+        orders = set(order(S.g, S.p) for S in self.surface().values())
+        for order in orders:
+            prod *= order
         
         return prod
     
