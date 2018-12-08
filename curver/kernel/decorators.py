@@ -9,20 +9,14 @@ def memoize(function, *args, **kwargs):
     ''' A decorator that memoizes a method of a class. '''
     
     inputs = inspect.getcallargs(function, *args, **kwargs)  # pylint: disable=deprecated-method
-    self = inputs['self']
+    self = inputs.pop('self')
     
-    if function.__name__ == '__hash__':
-        # We have to handle the __hash__ method differently since it is used in the other block of code.
-        if not hasattr(self, '_hash'):
-            self._hash = function(*args, **kwargs)
-        return self._hash
-    else:
-        if not hasattr(self, '_cache'):
-            self._cache = dict()
-        key = (function.__name__, frozenset(inputs.items()))
-        if key not in self._cache:
-            self._cache[key] = function(*args, **kwargs)
-        return self._cache[key]
+    if not hasattr(self, '_cache'):
+        self._cache = dict()
+    key = (function.__name__, frozenset(inputs.items()))
+    if key not in self._cache:
+        self._cache[key] = function(*args, **kwargs)
+    return self._cache[key]
 
 def topological_invariant(function):
     ''' Mark this function as a topological invariant.
