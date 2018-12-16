@@ -8,6 +8,7 @@ History
 * Extended quotient orbifolds to all finite subgroups.
 * Extended the generating sets produced by curver.load().
 * Can now identify which mapping classes are Dehn twists together with their twisting curve(s).
+* Can now apply a mapping class together with a power.
 * Improved EdgeFlip performance.
 * Improved simplification performance.
 * Simplified use of error classes.

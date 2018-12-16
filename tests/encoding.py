@@ -88,6 +88,14 @@ class TestMappingClass(TestMapping):
         self.assertEqual(h.is_identity(), h == h.source_triangulation.id_encoding())
     
     @given(st.data())
+    # @settings(max_examples=2)
+    def test_power(self, data):
+        h = data.draw(self._strategy())
+        c = data.draw(strategies.curves(h.source_triangulation))
+        i = data.draw(st.integers(min_value=-10, max_value=10))
+        self.assertEqual(h(c, power=i), (h**i)(c))
+    
+    @given(st.data())
     @settings(max_examples=2)
     def test_order(self, data):
         h = data.draw(self._strategy())
