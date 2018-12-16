@@ -86,8 +86,15 @@ class Encoding(object):
         if self.source_triangulation != other.triangulation:
             raise ValueError('Cannot apply an Encoding to something on a triangulation other than source_triangulation.')
         
+        is_lamination = isinstance(other, curver.kernel.Lamination)
+        is_homology = isinstance(other, curver.kernel.HomologyClass)
+        if not is_lamination and not is_homology: raise TypeError('Unknown type %s' % other)
+        
         for item in reversed(self.sequence):
-            other = item(other)
+            if is_lamination:
+                other = item.apply_lamination(other)
+            elif is_homology:
+                other = item.apply_homology(other)
         
         return other
     def __mul__(self, other):
