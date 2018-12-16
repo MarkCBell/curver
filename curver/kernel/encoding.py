@@ -199,6 +199,10 @@ class MappingClass(Mapping):
     ''' A Mapping from a Triangulation to itself.
     
     That is, one where self.source_triangulation == self.target_triangulation. '''
+    def __call__(self, other, power=1):
+        for _ in range(power):
+            other = super(MappingClass, self).__call__(other)
+        return other
     def __str__(self):
         return 'MappingClass %s' % self.sequence
     def __pow__(self, k):
@@ -295,10 +299,10 @@ class MappingClass(Mapping):
         
         C = curver.kernel.CurveGraph(self.source_triangulation)
         c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
-        geodesic = C.geodesic(c, (self**C.M)(c))
+        geodesic = C.geodesic(c, self(c, power=C.M))
         m = geodesic[len(geodesic)//2]  # midpoint
         
-        numerator = C.distance(m, (self**C.M)(m))
+        numerator = C.distance(m, self(m, power=C.M))
         denominator = C.M
         return Fraction(numerator, denominator).limit_denominator(C.D)
     
@@ -311,10 +315,10 @@ class MappingClass(Mapping):
         
         C = curver.kernel.CurveGraph(self.source_triangulation)
         c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
-        geodesic = C.geodesic(c, (self**C.M2)(c))
+        geodesic = C.geodesic(c, self(c, power=C.M2))
         m = geodesic[len(geodesic)//2]  # midpoint
         
-        return C.distance(m, (self**C.M2)(m)) > 4
+        return C.distance(m, self(m, power=C.M2)) > 4
     
     @memoize
     def subgroup(self):
