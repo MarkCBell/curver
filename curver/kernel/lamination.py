@@ -522,9 +522,9 @@ class Lamination(object):
                     active_edges.discard(edge)
                     active_edges.discard(~edge)
             
-            # There should now be no bigons and all arcs should be parallel to edges.
+            # Now all arcs should be parallel to edges and there should now be no bipods.
             assert all(lamination.side_weight(edge) >= 0 for edge in lamination.triangulation.edges)
-            assert all([lamination.side_weight(edge) > 0 for edge in triangle].count(True) != 2 for triangle in lamination.triangulation)
+            assert all(sum(1 if lamination.side_weight(edge) > 0 else 0 for edge in triangle) != 2 for triangle in lamination.triangulation)
             
             # This is pretty inefficient.
             for edge in active_edges:
