@@ -43,17 +43,23 @@ class CurveGraph(object):
         assert a.triangulation == self.triangulation
         assert b.triangulation == self.triangulation
         
+        if b.weight() < a.weight():
+            a, b = b, a
+        
         conjugator_a = a.shorten()
+        inv_conjugator_a = conjugator_a.inverse()
         
         short_b = conjugator_a(b)
-        conjugator_b = short_b.shorten()
         
+        conjugator_b = short_b.shorten()
+        inv_conjugator_b = conjugator_b.inverse()
+        
+        train_track = short_b
         quasiconvex = set()
-        for i in range(len(conjugator_b)+1):
-            prefix = conjugator_b[i:]  # Get the first bit of conjugator_b.
-            split_train_track = prefix(short_b)
-            vertex_cycle = split_train_track.vertex_cycle()
-            quasiconvex.add(conjugator_a.inverse()(prefix.inverse()(vertex_cycle)))
+        for index, move in enumerate(reversed(conjugator_b), start=1):
+            train_track = move(train_track)
+            vertex_cycle = train_track.vertex_cycle()
+            quasiconvex.add(inv_conjugator_a(inv_conjugator_b[:index](vertex_cycle)))
         
         return quasiconvex
     
