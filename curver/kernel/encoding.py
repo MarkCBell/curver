@@ -90,7 +90,7 @@ class Encoding(object):
         is_homology = isinstance(other, curver.kernel.HomologyClass)
         if not is_lamination and not is_homology: raise TypeError('Unknown type %s' % other)
         
-        for item in reversed(self.sequence):
+        for item in reversed(self):
             if is_lamination:
                 other = item.apply_lamination(other)
             elif is_homology:
