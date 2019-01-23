@@ -42,6 +42,22 @@ def mcgs(draw):
 def mapping_classes(draw, triangulation=None, power_range=10):
     return draw(encodings(triangulation, power_range, distribution=[2, 3]))
 
+PERIODICS = [
+    curver.load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
+    curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^2'),
+    curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^3'),
+    curver.load(0, 6)('s_0.s_1.S_3.S_4'),
+    curver.load(1, 1)('a_0.b_0'),
+    curver.load(1, 1)('a_0.b_0.a_0'),
+    curver.load(2, 1)('a_0.b_0.c_0.b_1'),
+    curver.load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
+    curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
+    ]
+
+@st.composite
+def periodic_mapping_classes(draw):
+    return draw(st.sampled_from(PERIODICS))
+
 @st.composite
 def mappings(draw, triangulation=None, power_range=10):
     return draw(encodings(triangulation, power_range, distribution=[0, 0, 0, 0, 1, 2, 3]))
