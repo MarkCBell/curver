@@ -1,5 +1,5 @@
 
-from hypothesis import given
+from hypothesis import given, settings
 import hypothesis.strategies as st
 import unittest
 
@@ -9,6 +9,7 @@ import curver
 
 class TestFiniteSubgroup(unittest.TestCase):
     @given(st.data())
+    @settings(max_examples=5)
     def test_trivial_subgroup(self, data):
         T = data.draw(strategies.triangulations())
         
@@ -19,6 +20,7 @@ class TestFiniteSubgroup(unittest.TestCase):
         self.assertEqual(h.subgroup().quotient_orbifold_signature(), T_signature)
     
     @given(st.data())
+    @settings(max_examples=3)
     def test_conjugacy(self, data):
         h = data.draw(strategies.periodic_mapping_classes())
         
@@ -29,6 +31,7 @@ class TestFiniteSubgroup(unittest.TestCase):
         self.assertEqual(G.quotient_orbifold_signature(), H.quotient_orbifold_signature())
 
     @given(st.integers(min_value=1, max_value=3))
+    @settings(max_examples=3)
     def test_klein(self, genus):
         S = curver.load(genus, 2)
         
@@ -42,6 +45,7 @@ class TestFiniteSubgroup(unittest.TestCase):
         self.assertEqual(K.quotient_orbifold_signature(), signature)
     
     @given(st.integers(min_value=1, max_value=2))
+    @settings(max_examples=3)
     def test_dihedral(self, genus):
         S = curver.load(genus, 2)
         

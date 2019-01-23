@@ -6,7 +6,6 @@ import unittest
 
 import strategies
 import numpy as np
-import curver
 
 class TestEncoding(unittest.TestCase):
     _strategy = staticmethod(strategies.encodings)
@@ -103,6 +102,7 @@ class TestMappingClass(TestMapping):
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())
     
     @given(st.data())
+    @settings(max_examples=3)
     def test_conjugacy(self, data):
         h = data.draw(strategies.periodic_mapping_classes())
         self.assertTrue(h.is_periodic())
