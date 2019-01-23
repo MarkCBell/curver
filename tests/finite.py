@@ -28,7 +28,7 @@ class TestFiniteSubgroup(unittest.TestCase):
         H = h.subgroup()
         self.assertEqual(G.quotient_orbifold_signature(), H.quotient_orbifold_signature())
 
-    @given(st.integers(min_value=1, max_value=4))
+    @given(st.integers(min_value=1, max_value=3))
     def test_klein(self, genus):
         S = curver.load(genus, 2)
         
@@ -41,7 +41,7 @@ class TestFiniteSubgroup(unittest.TestCase):
         signature = [(Fraction(-genus, 2), 1, sorted([(False, 2, ['hg' if genus % 2 == 0 else 'g'], 2), (True, 2, ['g'], 2)] + [(False, 2, ['h'], 2)] * (genus+1)))]
         self.assertEqual(K.quotient_orbifold_signature(), signature)
     
-    @given(st.integers(min_value=1, max_value=3))
+    @given(st.integers(min_value=1, max_value=2))
     def test_dihedral(self, genus):
         S = curver.load(genus, 2)
         
