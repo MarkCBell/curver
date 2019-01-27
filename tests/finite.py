@@ -1,6 +1,7 @@
 
 from hypothesis import given, settings
 import hypothesis.strategies as st
+import pytest
 import unittest
 
 from fractions import Fraction
@@ -21,6 +22,7 @@ class TestFiniteSubgroup(unittest.TestCase):
     
     @given(st.data())
     @settings(max_examples=3)
+    @pytest.mark.slow
     def test_conjugacy(self, data):
         h = data.draw(strategies.periodic_mapping_classes())
         
@@ -32,6 +34,7 @@ class TestFiniteSubgroup(unittest.TestCase):
 
     @given(st.integers(min_value=1, max_value=3))
     @settings(max_examples=3)
+    @pytest.mark.slow
     def test_klein(self, genus):
         S = curver.load(genus, 2)
         
@@ -46,6 +49,7 @@ class TestFiniteSubgroup(unittest.TestCase):
     
     @given(st.integers(min_value=1, max_value=2))
     @settings(max_examples=3)
+    @pytest.mark.slow
     def test_dihedral(self, genus):
         S = curver.load(genus, 2)
         
