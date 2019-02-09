@@ -2,7 +2,7 @@
 History
 =======
 
-0.3.2 (2018-??-??)
+0.3.2 (2019-02-09)
 ------------------
 
 * Extended quotient orbifolds to all finite subgroups.
