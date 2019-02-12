@@ -88,7 +88,8 @@ class FiniteSubgroup(object):
             for h in H:
                 image = h(a)
                 if image not in images:
-                    yield h(a)
+                    yield image
+                    images.add(image)
         
         conjugator = self.triangulation.id_encoding()
         triangulation = conjugator.target_triangulation
