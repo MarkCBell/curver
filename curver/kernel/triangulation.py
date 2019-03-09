@@ -598,6 +598,11 @@ class Triangulation(object):
         
         return self.curve_from_cut_sequence(edges)  # Avoids promote.
     
+    def edge_curves(self):
+        ''' Return a list containing the curves generate from each edge. '''
+        
+        return [self.edge_curve(edge) for edge in self.edges]
+    
     def edge_arc(self, edge):
         ''' Return the given edge as an Arc. '''
         
