@@ -55,7 +55,7 @@ Features
 
     - Solves the word problem for mapping class groups.
     - Performs Nielsen--Thurston classification of mapping classes.
-    - Solves the conjugacy problem for periodic mapping classes.
+    - `Solves the conjugacy problem for periodic mapping classes <https://periodic.herokuapp.com>`_.
     - Computes the asymptotic translation length of mapping classes on the curve complex.
     - Computes geodesics in the curve complex.
     - Computes quotient orbifolds and their quotient maps.
