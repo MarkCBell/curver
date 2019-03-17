@@ -248,84 +248,85 @@ def S_g_n(g, n):
 def load_old(surface):
     if surface == 'S_0_4':
         S = load(0, 4)
-        return curver.kernel.MappingClassGroup({
-            'a': S('s_1'),
-            'b': S('s_2'),
-            'c': S('s_3'),
-            'd': S('s_0'),
+        return curver.kernel.MappingClassGroup(arcs={
+            'a': S.arcs['s_1'],
+            'b': S.arcs['s_2'],
+            'c': S.arcs['s_3'],
+            'd': S.arcs['s_0'],
             })
     elif surface == 'S_1_1':
         S = load(1, 1)
-        return curver.kernel.MappingClassGroup({
-            'a': S('a_0'),
-            'b': S('b_0'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['a_0'],
+            'b': S.curves['b_0'],
             })
     elif surface == 'S_1_2':
         S = load(1, 2)
-        return curver.kernel.MappingClassGroup({
-            'a': S('a_0'),
-            'b': S('b_0'),
-            'c': S('p_1'),
-            'x': S('s_1'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['a_0'],
+            'b': S.curves['b_0'],
+            'c': S.curves['p_1'],
+            }, arcs={
+            'x': S.arcs['s_1'],
             })
     elif surface == 'S_1_2p':
         S = load(1, 2)
-        return curver.kernel.MappingClassGroup({
-            'a': S('a_0'),
-            'b': S('b_0'),
-            'c': S('p_0'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['a_0'],
+            'b': S.curves['b_0'],
+            'c': S.curves['p_0'],
             })
     elif surface == 'S_2_1':
         S = load(2, 1)
-        return curver.kernel.MappingClassGroup({
-            'a': S('b_0'),
-            'b': S('c_0'),
-            'c': S('b_1'),
-            'd': S('a_1'),
-            'e': S('d_1'),
-            'f': S('a_0'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['b_0'],
+            'b': S.curves['c_0'],
+            'c': S.curves['b_1'],
+            'd': S.curves['a_1'],
+            'e': S.curves['d_1'],
+            'f': S.curves['a_0'],
             })
     elif surface == 'S_3_1':
         S = load(3, 1)
-        return curver.kernel.MappingClassGroup({
-            'a': S('b_0'),
-            'b': S('c_0'),
-            'c': S('b_1'),
-            'd': S('c_1'),
-            'e': S('b_2'),
-            'f': S('d_2'),
-            'g': S('a_2'),
-            'h': S('a_1'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['b_0'],
+            'b': S.curves['c_0'],
+            'c': S.curves['b_1'],
+            'd': S.curves['c_1'],
+            'e': S.curves['b_2'],
+            'f': S.curves['d_2'],
+            'g': S.curves['a_2'],
+            'h': S.curves['a_1'],
             })
     elif surface == 'S_4_1':
         S = load(4, 1)
-        return curver.kernel.MappingClassGroup({
-            'a': S('b_0'),
-            'b': S('c_0'),
-            'c': S('b_1'),
-            'd': S('c_1'),
-            'e': S('b_2'),
-            'f': S('c_2'),
-            'g': S('b_3'),
-            'h': S('d_3'),
-            'i': S('a_3'),
-            'j': S('a_2'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['b_0'],
+            'b': S.curves['c_0'],
+            'c': S.curves['b_1'],
+            'd': S.curves['c_1'],
+            'e': S.curves['b_2'],
+            'f': S.curves['c_2'],
+            'g': S.curves['b_3'],
+            'h': S.curves['d_3'],
+            'i': S.curves['a_3'],
+            'j': S.curves['a_2'],
             })
     elif surface == 'S_5_1':
         S = load(5, 1)
-        return curver.kernel.MappingClassGroup({
-            'a': S('b_0'),
-            'b': S('c_0'),
-            'c': S('b_1'),
-            'd': S('c_1'),
-            'e': S('b_2'),
-            'f': S('c_2'),
-            'g': S('b_3'),
-            'h': S('c_3'),
-            'i': S('b_4'),
-            'j': S('d_4'),
-            'k': S('a_4'),
-            'l': S('a_3'),
+        return curver.kernel.MappingClassGroup(curves={
+            'a': S.curves['b_0'],
+            'b': S.curves['c_0'],
+            'c': S.curves['b_1'],
+            'd': S.curves['c_1'],
+            'e': S.curves['b_2'],
+            'f': S.curves['c_2'],
+            'g': S.curves['b_3'],
+            'h': S.curves['c_3'],
+            'i': S.curves['b_4'],
+            'j': S.curves['d_4'],
+            'k': S.curves['a_4'],
+            'l': S.curves['a_3'],
             })
     elif REGEX_IS_SPHERE_BRAID.match(surface):
         return S_0_n(int(REGEX_IS_SPHERE_BRAID.match(surface).groupdict()['num_strands']))
