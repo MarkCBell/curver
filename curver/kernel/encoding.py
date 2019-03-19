@@ -159,7 +159,7 @@ class Mapping(Encoding):
             return NotImplemented
     @memoize
     def __hash__(self):
-        return hash(tuple(entry for entry in self(self.source_triangulation.as_lamination())))
+        return hash(self(self.source_triangulation.as_lamination()))
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
