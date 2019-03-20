@@ -6,6 +6,7 @@ History
 0.3.3 (2019-XX-XX)
 ------------------
 
+* Added link to herokuapp.
 * Fixed typo in orbit calculations.
 
 0.3.2 (2019-02-09)
