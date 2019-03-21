@@ -9,7 +9,7 @@ The :math:`p_i` twists are parallel to :math:`a_{g-1}` and are arranged as shown
 .. image:: ../figures/surface.svg
     :height: 300
     :alt: MCG generators
-    :target: _images/surface.svg
+    :target: ../_images/surface.svg
     :align: center
 
 For example::
@@ -50,7 +50,7 @@ These correspond to the half-twists :math:`s_i` that interchange the :math:`i^{\
 .. image:: ../figures/sphere.svg
     :height: 300
     :alt: MCG generators
-    :target: _images/sphere.svg
+    :target: ../_images/sphere.svg
     :align: center
 
 Alternatively, this function can also be used to load a flipper surface with its corresponding generators.
