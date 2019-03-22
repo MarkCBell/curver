@@ -15,6 +15,7 @@ instructions for getting the most out of Curver.
    user/install
    user/quickstart
    user/surfaces
+   user/representations
    user/references
    user/citing
    user/history

@@ -1,13 +1,10 @@
-curver package
-==============
+Curver Package API
+==================
 
 .. automodule:: curver
 
-Subpackages
------------
-
 curver.kernel
-~~~~~~~~~~~~~
+-------------
 
 .. automodule:: curver.kernel
 
@@ -43,11 +40,8 @@ curver.kernel
     ~twist.HalfTwist
     ~twist.Twist
 
-Submodules
-----------
-
 curver.load module
-~~~~~~~~~~~~~~~~~~
+------------------
 
 .. automodule:: curver.load
     :members:
