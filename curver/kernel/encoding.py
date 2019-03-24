@@ -127,6 +127,11 @@ class Mapping(Encoding):
     def __str__(self):
         return 'Mapping %s' % self.sequence
     
+    @memoize
+    def self_image(self):
+        return self(self.source_triangulation.as_lamination())
+    
+    @memoize
     def intersection_matrix(self):
         ''' Return the matrix M = {signed_intersection(self(e_i), e'_j)}_{ij}.
         Here e_i and e'_j are the edges of self.source_triangulation and self.target_triangulation respectively.
@@ -135,6 +140,7 @@ class Mapping(Encoding):
         
         return np.array([list(self(arc)) for arc in self.source_triangulation.edge_arcs()], dtype=object)
     
+    @memoize
     def homology_matrix(self):
         ''' Return a matrix describing the action of this mapping on first homology (relative to the punctures).
         
@@ -152,14 +158,14 @@ class Mapping(Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
                 return False
             
-            tri_lamination = self.source_triangulation.as_lamination()
-            return self(tri_lamination) == other(tri_lamination) and \
-                all(self(hc) == other(hc) for hc in self.source_triangulation.edge_homologies())  # We only really need this for S_{1,1}.
+            return self.self_image() == other.self_image() and self.homology_matrix() == other.homology_matrix()  # We only really need this for S_{1,1}.
         else:
             return NotImplemented
+    
     @memoize
     def __hash__(self):
-        return hash(self(self.source_triangulation.as_lamination()))
+        return hash(self.self_image())
+    
     def vertex_map(self):
         ''' Return the dictionary (vertex, self(vertex)) for each vertex in self.source_triangulation.
         
