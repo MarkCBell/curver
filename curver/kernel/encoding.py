@@ -129,6 +129,7 @@ class Mapping(Encoding):
     
     @memoize
     def self_image(self):
+        ''' Return the image of self.source_triangulation under self. '''
         return self(self.source_triangulation.as_lamination())
     
     @memoize
