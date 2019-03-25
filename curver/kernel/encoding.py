@@ -159,7 +159,7 @@ class Mapping(Encoding):
             if self.source_triangulation != other.source_triangulation or self.target_triangulation != other.target_triangulation:
                 return False
             
-            return self.self_image() == other.self_image() and self.homology_matrix() == other.homology_matrix()  # We only really need this for S_{1,1}.
+            return self.self_image() == other.self_image() and np.array_equal(self.homology_matrix(), other.homology_matrix())  # We only really need this for S_{1,1}.
         else:
             return NotImplemented
     
