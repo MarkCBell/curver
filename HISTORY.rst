@@ -6,6 +6,7 @@ History
 0.3.3 (2019-XX-XX)
 ------------------
 
+* Increased performance via increased memoization.
 * Added link to herokuapp.
 * Fixed typo in orbit calculations.
 
