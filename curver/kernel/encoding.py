@@ -381,7 +381,7 @@ class MappingClass(Mapping):
                 multicurve = self.source_triangulation([x - y for x, y in zip(image, lamination)])
                 if isinstance(multicurve, curver.kernel.MultiCurve):
                     weighted_multicurve = self.source_triangulation.disjoint_sum([(multiplicity // lamination.intersection(component)) * component for component, multiplicity in multicurve.components().items()])
-                    if self == weighted_multicurve.encode_twist():
+                    if not weighted_multicurve.is_empty() and self == weighted_multicurve.encode_twist():
                         return weighted_multicurve
             except AssertionError:
                 pass
