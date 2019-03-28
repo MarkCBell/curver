@@ -18,6 +18,21 @@ def memoize(function, *args, **kwargs):
         self._cache[key] = function(*args, **kwargs)
     return self._cache[key]
 
+def memoizable(cls):
+    ''' A class decorator that add the 'set_cache' method to a class. '''
+    
+    def set_cache(self, function, answer, *args, **kwargs):
+        inputs = inspect.getcallargs(function, *args, **kwargs)  # pylint: disable=deprecated-method
+        self = inputs.pop('self')
+        
+        if not hasattr(self, '_cache'):
+            self._cache = dict()
+        key = (function.__name__, frozenset(inputs.items()))
+        self._cache[key] = answer
+    
+    setattr(cls, 'set_cache', set_cache)
+    return cls
+
 def topological_invariant(function):
     ''' Mark this function as a topological invariant.
     
