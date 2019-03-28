@@ -2,10 +2,10 @@
 History
 =======
 
-
-0.3.3 (2019-XX-XX)
+0.3.3 (2019-03-29)
 ------------------
 
+* Extra decorators.
 * Increased performance via increased memoization.
 * Added link to herokuapp.
 * Fixed typo in orbit calculations.
