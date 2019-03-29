@@ -62,4 +62,17 @@ Features
     - Computes the action of mapping classes on H_1.
     - Determines the topological type of multicurves.
 
+External Links
+--------------
+
+* `PyPI`_
+* `ReadTheDocs`_
+* `GitHub`_
+* `Travis`_
+
+.. _GitHub: https://github.com/MarkCBell/curver
+.. _PyPI: https://pypi.python.org/pypi/curver
+.. _ReadTheDocs: http://curver.readthedocs.io/
 .. _Sage: http://www.sagemath.org/
+.. _Travis: https://travis-ci.org/MarkCBell/curver
+
