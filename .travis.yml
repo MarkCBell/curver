@@ -3,10 +3,14 @@ stages:
   - test
   - deploy
 
+install:
+- pip install tox
+- pip install coveralls
+
 jobs:
   include:
   - stage: test
-  - python: "3.6"
+    python: "3.6"
     env: TOX_ENV="docs"
   - python: "2.7"
     env: TOX_ENV="lint2"
@@ -36,14 +40,8 @@ jobs:
         tags: true
         branch: master
 
-install:
-- pip install tox
-- pip install coveralls
 script:
 - tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
 after_success:
 - if [[ $TOX_ENV == "py36" ]]; then coveralls; fi
-
-jobs:
-  include:
 
