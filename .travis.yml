@@ -3,7 +3,7 @@ stages:
   - test
   - deploy
 
-matrix:
+jobs:
   include:
   - stage: test
   - python: "3.6"
@@ -24,17 +24,6 @@ matrix:
     env: TOX_ENV="py37"
     dist: xenial
     sudo: true
-
-install:
-- pip install tox
-- pip install coveralls
-script:
-- tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
-after_success:
-- if [[ $TOX_ENV == "py36" ]]; then coveralls; fi
-
-jobs:
-  include:
   - stage: deploy
     install: skip
     script: echo "Deploying..."
@@ -46,4 +35,15 @@ jobs:
       on:
         tags: true
         branch: master
+
+install:
+- pip install tox
+- pip install coveralls
+script:
+- tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
+after_success:
+- if [[ $TOX_ENV == "py36" ]]; then coveralls; fi
+
+jobs:
+  include:
 
