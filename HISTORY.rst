@@ -5,6 +5,7 @@ History
 0.3.4 (2019-03-29)
 ------------------
 
+* Better documentation including installation instructions.
 * Travis now using stages.
 * Docstring bugfix.
 
