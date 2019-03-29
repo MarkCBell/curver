@@ -22,6 +22,8 @@ def memoizable(cls):
     ''' A class decorator that add the 'set_cache' method to a class. '''
     
     def set_cache(self, function, answer, *args, **kwargs):
+        ''' Set self._cache so that self.function(*args, **kwargs) returns `answer`. '''
+        
         inputs = inspect.getcallargs(function, *args, **kwargs)  # pylint: disable=deprecated-method
         self = inputs.pop('self')
         
