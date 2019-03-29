@@ -4,8 +4,8 @@ stages:
   - deploy
 
 install:
-  pip install tox
-  pip install coveralls
+  - pip install tox
+  - pip install coveralls
 
 script:
   tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
