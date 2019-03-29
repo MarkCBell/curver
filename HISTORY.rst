@@ -5,6 +5,7 @@ History
 0.3.4 (2019-03-29)
 ------------------
 
+* Travis now using stages.
 * Docstring bugfix.
 
 0.3.3 (2019-03-29)
