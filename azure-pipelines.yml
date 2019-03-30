@@ -12,7 +12,7 @@ jobs:
   strategy:
     matrix:
       Docs:
-        python.version: '2.7'
+        python.version: '3.7'
         TOX_ENV: 'docs'
       Lint2:
         python.version: '2.7'
@@ -42,6 +42,10 @@ jobs:
     displayName: 'Install tox'
   - script: tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
     displayName: 'Run tox'
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: 'reports/flask-basic-coverage.xml'
+      testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
 
 - job: 'Deploy'
   dependsOn: Test

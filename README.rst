@@ -10,6 +10,10 @@ Curver
     :target: https://pypi.org/project/curver/
     :alt: PyPI license
 
+.. image:: https://img.shields.io/azure-devops/build/markcbell/curver/1.svg
+    :target: https://dev.azure.com/MarkCBell/curver/
+    :alt: Azure build status
+
 .. image:: https://travis-ci.org/MarkCBell/curver.svg?branch=master
     :target: https://travis-ci.org/MarkCBell/curver
     :alt: Travis build status
