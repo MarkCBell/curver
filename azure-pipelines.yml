@@ -33,7 +33,7 @@ jobs:
 
 - job: 'Deploy'
   dependsOn: Test
-  condition: succeeded()
+  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
@@ -41,14 +41,12 @@ jobs:
     displayName: 'Set Python'
     inputs:
       versionSpec: '3.7'
+  - script: python setup.py sdist
+    displayName: 'Build sdist'
   - script: python -m pip install twine
     displayName: 'Install twine'
-  - script: python setup.py sdist
-    displayName: 'Build'
   - task: TwineAuthenticate@0
     inputs:
       externalFeeds: testpypi
-  - script: cat $PYPIRC_PATH
+  - script: twine upload -r pypi --config-file $PYPIRC_PATH dist/*
     displayName: 'Run twine'
-#  - script: twine upload -r pypi --config-file $PYPIRC_PATH dist/*
-#    displayName: 'Run twine'
