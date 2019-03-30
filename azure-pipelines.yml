@@ -1,0 +1,57 @@
+
+trigger:
+  # Trigger on all branches and ...
+  tags:
+    include:
+    - v*
+
+jobs:
+- job: 'Test'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  strategy:
+    matrix:
+      Docs:
+        python.version: '2.7'
+        TOX_ENV: 'docs'
+      Lint2:
+        python.version: '2.7'
+        TOX_ENV: 'lint2'
+      Lint3:
+        python.version: '3.6'
+        TOX_ENV: 'lint3'
+      Python27:
+        python.version: '2.7'
+        TOX_ENV: 'py27'
+      Python35:
+        python.version: '3.5'
+        TOX_ENV: 'py35'
+      Python36:
+        python.version: '3.6'
+        TOX_ENV: 'py36'
+      Python37:
+        python.version: '3.7'
+        TOX_ENV: 'py37'
+  
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Set Python'
+    inputs:
+      versionSpec: '$(python.version)'
+  - script: python -m pip install tox
+    displayName: 'Install tox'
+  - script: tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
+    displayName: 'Run tox'
+
+- job: 'Test Deploy'
+  pool:
+    vmImage: 'Ubuntu-16.04'
+  steps:
+  - task: UsePythonVersion@0
+    displayName: 'Set Python'
+    inputs:
+      versionSpec: '3.7'
+  - script: python -m pip install twine
+    displayName: 'Install twine'
+  - script: echo "Could deploy now"
+    displayName: 'Run deploy'
