@@ -43,7 +43,7 @@ jobs:
   - script: tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
     displayName: 'Run tox'
 
-- job: 'Test Deploy'
+- job: 'Deploy'
   pool:
     vmImage: 'Ubuntu-16.04'
   steps:
