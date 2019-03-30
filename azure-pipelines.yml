@@ -42,8 +42,8 @@ jobs:
       versionSpec: '3.7'
   - script: python -m pip install twine
     displayName: 'Install twine'
-  - script:
-    python setup.py sdist bdist_wheel
+  - script: python setup.py sdist bdist_wheel
+    displayName: 'Build'
   - task: TwineAuthenticate@0
     inputs:
       externalFeeds: pypi
