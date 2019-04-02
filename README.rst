@@ -62,6 +62,7 @@ External Links
 * `Travis`_
 * `AppVeyor`_
 * `Azure`_
+* `Coveralls`_
 
 .. _AppVeyor: https://ci.appveyor.com/project/MarkCBell/curver
 .. _Azure: https://dev.azure.com/MarkCBell/curver
@@ -70,4 +71,5 @@ External Links
 .. _ReadTheDocs: http://curver.readthedocs.io
 .. _Sage: http://www.sagemath.org
 .. _Travis: https://travis-ci.org/MarkCBell/curver
+.. _Coveralls: https://coveralls.io/github/MarkCBell/curver
 
