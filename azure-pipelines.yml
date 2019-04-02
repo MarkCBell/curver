@@ -1,6 +1,8 @@
 
 trigger:
-  # Trigger on all branches and ...
+  branches:
+    include:
+    - '*'
   tags:
     include:
     - 'v*'
@@ -38,32 +40,14 @@ jobs:
     displayName: 'Use Python $(python.version)'
     inputs:
       versionSpec: '$(python.version)'
-  - script: python -m pip install tox
+  - script: pip install tox
     displayName: 'Install tox'
-  - script: tox -e $TOX_ENV -- --hypothesis-profile=ci --duration=20
+  - script: tox -e $(TOX_ENV) -- --hypothesis-profile=ci --duration=20 --junitxml=results.xml
     displayName: 'Run tox'
   - task: PublishTestResults@2
+    displayName: 'Publish results file'
+    condition: startswith(variables['TOX_ENV'], 'py')
     inputs:
-      testResultsFiles: 'reports/flask-basic-coverage.xml'
-      testRunTitle: '$(Agent.OS) - $(Build.BuildNumber)[$(Agent.JobName)] - Python $(python.version)'
-
-- job: 'Deploy'
-  dependsOn: Test
-  condition: and(succeeded(), startsWith(variables['Build.SourceBranch'], 'refs/tags/'))
-  pool:
-    vmImage: 'Ubuntu-16.04'
-  steps:
-  - task: UsePythonVersion@0
-    displayName: 'Set Python'
-    inputs:
-      versionSpec: '3.7'
-  - script: python setup.py sdist
-    displayName: 'Build sdist'
-  - script: python -m pip install twine
-    displayName: 'Install twine'
-  - task: TwineAuthenticate@0
-    inputs:
-      externalFeeds: pypi
-  - script: twine upload -r pypi --config-file $PYPIRC_PATH dist/*
-    displayName: 'Run twine'
+      testResultsFiles: 'results.xml'
+      testRunTitle: 'Test results for Python $(python.version)'
 

@@ -10,26 +10,13 @@ Curver
     :target: https://pypi.org/project/curver/
     :alt: PyPI license
 
-.. image:: https://img.shields.io/azure-devops/build/markcbell/curver/1.svg
-    :target: https://dev.azure.com/MarkCBell/curver/
-    :alt: Azure build status
-
 .. image:: https://travis-ci.org/MarkCBell/curver.svg?branch=master
     :target: https://travis-ci.org/MarkCBell/curver
     :alt: Travis build status
 
-.. image:: https://ci.appveyor.com/api/projects/status/kd8b36bkas7h9pp6/branch/master?svg=true
-    :target: https://ci.appveyor.com/project/MarkCBell/curver/branch/master
-    :alt: AppVeyor build status
-
-.. image:: https://readthedocs.org/projects/curver/badge/?version=master
-    :target: https://curver.readthedocs.io
-    :alt: Documentation status
-
 .. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg?branch=master
     :target: https://coveralls.io/github/MarkCBell/curver?branch=master
     :alt: Coveralls status
-
 
 Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm to determine the Nielsen--Thurston type of a mapping class.
@@ -73,10 +60,14 @@ External Links
 * `ReadTheDocs`_
 * `GitHub`_
 * `Travis`_
+* `AppVeyor`_
+* `Azure`_
 
+.. _AppVeyor: https://ci.appveyor.com/project/MarkCBell/curver
+.. _Azure: https://dev.azure.com/MarkCBell/curver
 .. _GitHub: https://github.com/MarkCBell/curver
 .. _PyPI: https://pypi.python.org/pypi/curver
-.. _ReadTheDocs: http://curver.readthedocs.io/
-.. _Sage: http://www.sagemath.org/
+.. _ReadTheDocs: http://curver.readthedocs.io
+.. _Sage: http://www.sagemath.org
 .. _Travis: https://travis-ci.org/MarkCBell/curver
 
