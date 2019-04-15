@@ -10,8 +10,8 @@ Curver
     :target: https://pypi.org/project/curver/
     :alt: PyPI license
 
-.. image:: https://travis-ci.org/MarkCBell/curver.svg?branch=master
-    :target: https://travis-ci.org/MarkCBell/curver
+.. image:: https://api.travis-ci.com/MarkCBell/curver.svg?branch=master
+    :target: https://travis-ci.com/MarkCBell/curver
     :alt: Travis build status
 
 .. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg?branch=master
