@@ -70,7 +70,7 @@ External Links
 .. _PyPI: https://pypi.python.org/pypi/curver
 .. _ReadTheDocs: http://curver.readthedocs.io
 .. _Sage: http://www.sagemath.org
-.. _Travis: https://travis-ci.org/MarkCBell/curver
+.. _Travis: https://travis-ci.com/MarkCBell/curver
 .. _Coveralls: https://coveralls.io/github/MarkCBell/curver
 .. _PyPy: https://pypy.org/
 
