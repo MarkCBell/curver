@@ -7,6 +7,7 @@ from setuptools import setup, find_packages
 
 requirements = [
     'decorator>=4.3.0',
+    'cypari',
     'networkx>=2.0',
     'numpy>=1.15.1',
     'realalg>=0.3.1',

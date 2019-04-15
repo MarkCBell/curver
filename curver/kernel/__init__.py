@@ -14,6 +14,7 @@ from .lamination import Lamination, IntegralLamination  # noqa: F401
 from .mappingclassgroup import MappingClassGroup  # noqa: F401
 from .moves import Move, FlipGraphMove, Isometry, EdgeFlip, MultiEdgeFlip  # noqa: F401
 from .permutation import Permutation  # noqa: F401
+from .PL import PartialLinearFunction  # noqa: F401
 from .structures import UnionFind, StraightLineProgram  # noqa: F401
 from .triangulation import Edge, Triangle, Triangulation, norm  # noqa: F401
 from .twist import Twist, HalfTwist  # noqa: F401
