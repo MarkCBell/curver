@@ -63,10 +63,13 @@ class FlipGraphMove(Move):
         
         return NotImplemented
     
-    def pl_action(self, lamination):
+    def pl_action(self, multicurve):  # pylint: disable=no-self-use, unused-argument
+        ''' Return the PartialLinearFunction that this FlipGraphMove applies to the given multicurve. '''
+        
         return NotImplemented
     
-    def pl_actions(self):
+    def pl_actions(self):  # pylint: disable=no-self-use
+        ''' Return the PartialLinearFunctions that this FlipGraphMoves applies to multicurves. '''
         
         return NotImplemented
 
@@ -122,7 +125,7 @@ class Isometry(FlipGraphMove):
         
         return all(key == value for key, value in self.label_map.items())
     
-    def pl_action(self, lamination):
+    def pl_action(self, multicurve):
         action = np.array([[1 if j == self.index_map[i] else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
         condition = np.array([[0] * self.zeta], dtype=object)
         return curver.kernel.PartialLinearFunction(action, condition)
@@ -200,30 +203,34 @@ class EdgeFlip(FlipGraphMove):
         return self.encode()
     
     def pl_action(self, multicurve):
-        I = np.identity(self.zeta, dtype=object)
+        identity = np.identity(self.zeta, dtype=object)
+        
         def E(x, y, h=self.zeta):
+            ''' Return the h x self.zeta matrix that has a 1 at (x, y). '''
             return np.array([[1 if i == x and j == y else 0 for i in range(self.zeta)] for j in range(h)], dtype=object)
         
         ai, bi, ci, di, ei = [edge.index for edge in self.square]
         ai0, bi0, ci0, di0, ei0 = [max(multicurve(edge), 0) for edge in self.square]
         if ai0 + ci0 - bi0 - di0 >= 0:
-            action = I + E(ai, ei) + E(ci, ei) - 2*E(ei, ei)
+            action = identity + E(ai, ei) + E(ci, ei) - 2*E(ei, ei)
             condition = E(ai, ei, 1) + E(ci, ei, 1) - E(bi, ei, 1) - E(di, ei, 1)
         else:
-            action = I + E(bi, ei) + E(di, ei) - 2*E(ei, ei)
+            action = identity + E(bi, ei) + E(di, ei) - 2*E(ei, ei)
             condition = E(bi, ei, 1) + E(di, ei, 1) - E(ai, ei, 1) - E(ci, ei, 1)
         
         return curver.kernel.PartialLinearFunction(action, condition)
     
     def pl_actions(self):
-        I = np.identity(self.zeta)
+        identity = np.identity(self.zeta)
+        
         def E(x, y, h=self.zeta):
+            ''' Return the h x self.zeta matrix that has a 1 at (x, y). '''
             return np.array([[1 if i == x and j == y else 0 for i in range(self.zeta)] for j in range(h)], dtype=object)
         
         ai, bi, ci, di, ei = [edge.index for edge in self.square]
         actions = [
-            I + E(ai, ei) + E(ci, ei) - 2*E(ei, ei),
-            I + E(bi, ei) + E(di, ei) - 2*E(ei, ei),
+            identity + E(ai, ei) + E(ci, ei) - 2*E(ei, ei),
+            identity + E(bi, ei) + E(di, ei) - 2*E(ei, ei),
             ]
         conditions = [
             E(ai, ei, 1) + E(ci, ei, 1) - E(bi, ei, 1) - E(di, ei, 1),

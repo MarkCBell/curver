@@ -219,19 +219,21 @@ class Mapping(Encoding):
         return self.__class__([item for move in self for item in move.flip_mapping()])
     
     def pl_action(self, multicurve):
-        ''' Return the PartialLinearFunction that this mapping applies to the given multicurve. '''
+        ''' Return the PartialLinearFunction that this Mapping applies to the given multicurve. '''
+        
         assert isinstance(multicurve, curver.kernel.MultiCurve)
         
         current = None
-        for item in reversed(self.flip_mapping()):
+        for item in reversed(self.flip_mapping()):  # TODO: Remove flip_mapping().
             current = item.pl_action(multicurve) * current
             multicurve = item(multicurve)
         
         return current
     
     def pl_actions(self):
-        ''' Return the PartialLinearFunctions that this mapping applies to multicurves. '''
-        for sequence in product(*[item.pl_actions() for item in self.flip_mapping()]):
+        ''' Return the PartialLinearFunctions that this Mapping applies to multicurves. '''
+        
+        for sequence in product(*[item.pl_actions() for item in self.flip_mapping()]):  # TODO: Remove flip_mapping().
             current = None
             for item in reversed(sequence):
                 current = item * current

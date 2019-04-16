@@ -1,10 +1,13 @@
 
+''' A module for representing and manipulating partial linear functions. '''
+
 import numpy as np
 import cypari
 
 import curver
 
 class PartialLinearFunction(object):
+    ''' A Linear function defined on a linear subset of Euclidean space. '''
     def __init__(self, action, condition):
         assert isinstance(action, np.ndarray)
         assert isinstance(condition, np.ndarray)
