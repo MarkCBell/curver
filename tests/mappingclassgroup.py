@@ -1,5 +1,5 @@
 
-from hypothesis import given, settings
+from hypothesis import given, settings, assume
 import hypothesis.strategies as st
 import pickle
 import unittest
@@ -15,6 +15,7 @@ class TestMCG(unittest.TestCase):
     @given(st.data())
     def test_curve_intersection(self, data):
         mcg = data.draw(strategies.mcgs())
+        assume(mcg.curves)
         name1 = data.draw(st.sampled_from(sorted(mcg.curves)))
         name2 = data.draw(st.sampled_from(sorted(mcg.curves)))
         curve1 = mcg.curves[name1]
@@ -26,6 +27,7 @@ class TestMCG(unittest.TestCase):
     @given(st.data())
     def test_arc_intersection(self, data):
         mcg = data.draw(strategies.mcgs())
+        assume(mcg.arcs)
         name1 = data.draw(st.sampled_from(sorted(mcg.arcs)))
         name2 = data.draw(st.sampled_from(sorted(mcg.arcs)))
         arc1 = mcg.arcs[name1]
@@ -36,6 +38,7 @@ class TestMCG(unittest.TestCase):
     @settings(max_examples=30)
     def test_curve_relation(self, data):
         mcg = data.draw(strategies.mcgs())
+        assume(mcg.curves)
         name1 = data.draw(st.sampled_from(sorted(mcg.curves)))
         name2 = data.draw(st.sampled_from(sorted(mcg.curves)))
         curve1 = mcg.curves[name1]
@@ -52,6 +55,7 @@ class TestMCG(unittest.TestCase):
     def test_arc_relation(self, data):
         mcg = data.draw(strategies.mcgs())
         distinct_end_arcs = sorted(name for name, arc in mcg.arcs.items() if arc.connects_distinct_vertices)
+        assume(distinct_end_arcs)
         name1 = data.draw(st.sampled_from(distinct_end_arcs))
         name2 = data.draw(st.sampled_from(distinct_end_arcs))  # Hmm, should we check arc1.intersection(arc2) == 0?
         arc1 = mcg.arcs[name1]
