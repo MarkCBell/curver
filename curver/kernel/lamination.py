@@ -17,6 +17,16 @@ class Lamination(object):
         self.zeta = self.triangulation.zeta
         self.geometric = geometric
         
+        def half(x):
+            ''' Return x / 2 safely. '''
+            if isinstance(x, curver.IntegerType):
+                return x // 2
+            else:
+                return x / 2
+        def halfable(x):
+            ''' Return whether x is divisable by 2 in its field. '''
+            return 2*half(x) == x
+        
         # Store some additional weights that are often used.
         self._dual = dict()
         self._side = dict()
@@ -25,10 +35,10 @@ class Lamination(object):
             a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
             af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
             correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
-            assert (af + bf + cf + correction) % 2 == 0, '(%d, %d, %d) violates the extended triangle inequality.' % (a, b, c)
-            self._dual[i] = self._side[k] = (bf + cf - af + correction) // 2
-            self._dual[j] = self._side[i] = (cf + af - bf + correction) // 2
-            self._dual[k] = self._side[j] = (af + bf - cf + correction) // 2
+            assert halfable(af + bf + cf + correction), '(%d, %d, %d) violates the extended triangle inequality.' % (a, b, c)
+            self._dual[i] = self._side[k] = half(bf + cf - af + correction)
+            self._dual[j] = self._side[i] = half(cf + af - bf + correction)
+            self._dual[k] = self._side[j] = half(af + bf - cf + correction)
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
@@ -63,26 +73,7 @@ class Lamination(object):
             return NotImplemented
     def __radd__(self, other):
         return self + other  # Commutative.
-    def __mul__(self, other):
-        assert isinstance(other, curver.IntegerType)
-        assert other >= 0
-        
-        if other == 0:
-            new_class = Lamination
-        elif other == 1:
-            new_class = self.__class__
-        elif isinstance(self, curver.kernel.MultiArc):  # or Arc.
-            new_class = curver.kernel.MultiArc
-        elif isinstance(self, curver.kernel.MultiCurve):  # or Curve.
-            new_class = curver.kernel.MultiCurve
-        else:
-            new_class = Lamination
-        
-        geometric = [other * x for x in self]
-        # TODO: 3) Could save components if they have already been computed.
-        return new_class(self.triangulation, geometric)  # Preserve promotion.
-    def __rmul__(self, other):
-        return self * other  # Commutative.
+    
     def __reduce__(self):
         return (self.__class__, (self.triangulation, self.geometric))
     
@@ -109,11 +100,137 @@ class Lamination(object):
         
         return self._side[edge]
     
+    def is_integral(self):
+        return all(self.dual_weight(edge) == int(self.dual_weight(edge)) for edge in self.triangulation.edges)
+    
+    def promote(self):
+        ''' Return this lamination in its finest form. '''
+        
+        if self.is_integral():
+            return IntegralLamination(self.triangulation, self.geometric).promote()
+        else:
+            return self
+    
     @topological_invariant
     def is_empty(self):
         ''' Return if this lamination has no components. '''
         
         return not any(self)  # self.num_components() == 0
+    
+    @topological_invariant
+    def is_peripheral(self):
+        ''' Return whether this lamination consists entirely of parallel components. '''
+        
+        return self.peripheral() == self
+    
+    def peripheral(self, promote=True):
+        ''' Return the lamination consisting of the peripheral components of this Lamination. '''
+        
+        geometric = [0] * self.zeta
+        for component, (multiplicity, _) in self.peripheral_components().items():
+            geometric = [x + multiplicity * y for x, y in zip(geometric, component)]
+        
+        return self.triangulation(geometric, promote)  # Have to promote.
+    
+    def non_peripheral(self, promote=True):
+        ''' Return the lamination consisting of the non-peripheral components of this Lamination. '''
+        
+        geometric = [x - y for x, y in zip(self, self.peripheral(promote=False))]
+        
+        return self.triangulation(geometric, promote)  # Have to promote.
+    
+    def trace(self, edge, intersection_point, length):
+        ''' Return the sequence of edges encountered by following along this lamination.
+        
+        We start at the given edge and intersection point for the specified number of steps.
+        However we terminate early if the lamination closes up before this number of steps is completed. '''
+        
+        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
+        
+        start = (edge, intersection_point)
+        
+        assert 0 <= intersection_point < self(edge)  # Sanity.
+        dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
+        edges = []
+        for _ in range(length):
+            x, y, z = self.triangulation.corner_lookup[~edge]
+            if intersection_point < dual_weights[z]:  # Turn right.
+                edge, intersection_point = y, intersection_point
+            elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:  # Terminate.
+                break
+            else:  # Turn left.
+                edge, intersection_point = z, self(z) - self(x) + intersection_point
+            if (edge, intersection_point) == start:  # Closes up.
+                break
+            edges.append(edge)
+            assert 0 <= intersection_point < self(edge)  # Sanity.
+        
+        return edges
+    
+    def peripheral_components(self):
+        ''' Return a dictionary mapping component to (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
+        
+        components = dict()
+        for vertex in self.triangulation.vertices:
+            multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
+            if multiplicity > 0:
+                component = self.triangulation.curve_from_cut_sequence(vertex)
+                components[component] = (multiplicity, vertex)
+        
+        return components
+    
+    @memoize
+    def parallel_components(self):
+        ''' Return a dictionary mapping component to (multiplicity, edge) for each component of self that is parallel to an edge. '''
+        
+        components = dict()
+        for edge in self.triangulation.edges:
+            if edge.sign() == +1:  # Don't double count.
+                multiplicity = -self(edge)
+                if multiplicity > 0:
+                    component = self.triangulation.edge_arc(edge)
+                    components[component] = (multiplicity, edge)
+            
+            if self.triangulation.vertex_lookup[edge] == self.triangulation.vertex_lookup[~edge]:
+                v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
+                v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
+                if len(v_edges) > 2:
+                    around_v = min(max(self.side_weight(edge), 0) for edge in v_edges)
+                    twisting = min(max(self.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+                    
+                    if self.side_weight(v_edges[0]) == around_v and self.side_weight(v_edges[-1]) == around_v:
+                        multiplicity = twisting
+                        
+                        if multiplicity > 0:
+                            component = self.triangulation.curve_from_cut_sequence(v_edges[1:])
+                            components[component] = (multiplicity, edge)
+        
+        return components
+    
+
+
+class IntegralLamination(Lamination):
+    ''' This represents a lamination in which all weights are integral. '''
+    def __mul__(self, other):  # FIXME: Make work for non-integrals.
+        assert isinstance(other, curver.IntegerType)
+        assert other >= 0
+        
+        if other == 0:
+            new_class = Lamination
+        elif other == 1:
+            new_class = self.__class__
+        elif isinstance(self, curver.kernel.MultiArc):  # or Arc.
+            new_class = curver.kernel.MultiArc
+        elif isinstance(self, curver.kernel.MultiCurve):  # or Curve.
+            new_class = curver.kernel.MultiCurve
+        else:
+            new_class = Lamination
+        
+        geometric = [other * x for x in self]
+        # TODO: 3) Could save components if they have already been computed.
+        return new_class(self.triangulation, geometric)  # Preserve promotion.
+    def __rmul__(self, other):
+        return self * other  # Commutative.
     
     @topological_invariant
     def is_multicurve(self):
@@ -139,15 +256,7 @@ class Lamination(object):
         
         return self.is_multiarc() and self.num_components() == 1
     
-    @topological_invariant
-    def is_peripheral(self):
-        ''' Return whether this lamination consists entirely of parallel components. '''
-        
-        return self.peripheral() == self
-    
     def promote(self):
-        ''' Return this lamination in its finest form. '''
-        
         if self.is_multicurve():
             if self.is_curve():
                 other = curver.kernel.Curve(self.triangulation, self.geometric)
@@ -215,9 +324,9 @@ class Lamination(object):
         return intersection
     
     def no_common_component(self, lamination):
-        ''' Return that self does not share any components with the given Lamination. '''
+        ''' Return that self does not share any components with the given IntegralLamination. '''
         
-        assert isinstance(lamination, Lamination)
+        assert isinstance(lamination, IntegralLamination)
         
         self_components = self.components()
         return not any(component in self_components for component in lamination.components())
@@ -233,22 +342,6 @@ class Lamination(object):
         
         components = self.components()
         return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]  # Powerset.
-    
-    def peripheral(self, promote=True):
-        ''' Return the lamination consisting of the peripheral components of this Lamination. '''
-        
-        geometric = [0] * self.zeta
-        for component, (multiplicity, _) in self.peripheral_components().items():
-            geometric = [x + multiplicity * y for x, y in zip(geometric, component)]
-        
-        return self.triangulation(geometric, promote)  # Have to promote.
-    
-    def non_peripheral(self, promote=True):
-        ''' Return the lamination consisting of the non-peripheral components of this Lamination. '''
-        
-        geometric = [x - y for x, y in zip(self, self.peripheral(promote=False))]
-        
-        return self.triangulation(geometric, promote)  # Have to promote.
     
     def multiarc(self):
         ''' Return the maximal MultiArc contained within this lamination. '''
@@ -270,7 +363,7 @@ class Lamination(object):
     
     @topological_invariant
     def is_filling(self):
-        ''' Return if this Lamination fills the surface, that is, if it intersects all curves on the surface.
+        ''' Return if this IntegralLamination fills the surface, that is, if it intersects all curves on the surface.
         
         Note that this is equivalent to:
             - it meets every non S_{0,3} component of the surface, and
@@ -291,7 +384,7 @@ class Lamination(object):
     
     @topological_invariant
     def is_polygonalisation(self):
-        ''' Return if this Lamination is a polygonalisation, that is, if it cuts the surface into polygons. '''
+        ''' Return if this IntegralLamination is a polygonalisation, that is, if it cuts the surface into polygons. '''
         
         if any(isinstance(component, curver.kernel.Curve) for component in self.components()):
             return False
@@ -305,37 +398,9 @@ class Lamination(object):
     
     def fills_with(self, other):  # pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''
-        assert isinstance(other, Lamination)
+        assert isinstance(other, IntegralLamination)
         
         return NotImplemented  # TODO: 2) Implement! (And remove the PyLint disable when done.)
-    
-    def trace(self, edge, intersection_point, length):
-        ''' Return the sequence of edges encountered by following along this lamination.
-        
-        We start at the given edge and intersection point for the specified number of steps.
-        However we terminate early if the lamination closes up before this number of steps is completed. '''
-        
-        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-        
-        start = (edge, intersection_point)
-        
-        assert 0 <= intersection_point < self(edge)  # Sanity.
-        dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
-        edges = []
-        for _ in range(length):
-            x, y, z = self.triangulation.corner_lookup[~edge]
-            if intersection_point < dual_weights[z]:  # Turn right.
-                edge, intersection_point = y, intersection_point
-            elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:  # Terminate.
-                break
-            else:  # Turn left.
-                edge, intersection_point = z, self(z) - self(x) + intersection_point
-            if (edge, intersection_point) == start:  # Closes up.
-                break
-            edges.append(edge)
-            assert 0 <= intersection_point < self(edge)  # Sanity.
-        
-        return edges
     
     # @topological_invariant
     def topological_type(self):  # pylint: disable=no-self-use
@@ -351,46 +416,6 @@ class Lamination(object):
         # Note that in order for this to work the topological type MUST be compatible with the permutation of the punctures.
         
         return NotImplemented  # TODO: 2) Implement. (And remove the PyLint disable when done.)
-    
-    def peripheral_components(self):
-        ''' Return a dictionary mapping component to (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
-        
-        components = dict()
-        for vertex in self.triangulation.vertices:
-            multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
-            if multiplicity > 0:
-                component = self.triangulation.curve_from_cut_sequence(vertex)
-                components[component] = (multiplicity, vertex)
-        
-        return components
-    
-    @memoize
-    def parallel_components(self):
-        ''' Return a dictionary mapping component to (multiplicity, edge) for each component of self that is parallel to an edge. '''
-        
-        components = dict()
-        for edge in self.triangulation.edges:
-            if edge.sign() == +1:  # Don't double count.
-                multiplicity = -self(edge)
-                if multiplicity > 0:
-                    component = self.triangulation.edge_arc(edge)
-                    components[component] = (multiplicity, edge)
-            
-            if self.triangulation.vertex_lookup[edge] == self.triangulation.vertex_lookup[~edge]:
-                v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
-                v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
-                if len(v_edges) > 2:
-                    around_v = min(max(self.side_weight(edge), 0) for edge in v_edges)
-                    twisting = min(max(self.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
-                    
-                    if self.side_weight(v_edges[0]) == around_v and self.side_weight(v_edges[-1]) == around_v:
-                        multiplicity = twisting
-                        
-                        if multiplicity > 0:
-                            component = self.triangulation.curve_from_cut_sequence(v_edges[1:])
-                            components[component] = (multiplicity, edge)
-        
-        return components
     
     @memoize
     def components(self):
@@ -553,7 +578,7 @@ class Lamination(object):
                     active_edges.discard(edge)
                     active_edges.discard(~edge)
             
-            lamination = Lamination(lamination.triangulation, geometric)
+            lamination = Lamination(lamination.triangulation, geometric)  # FIXME: Does this need to be integral?
         
         return conjugator
 

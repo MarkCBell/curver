@@ -5,11 +5,11 @@ from itertools import combinations
 import networkx
 
 import curver
-from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
+from curver.kernel.lamination import IntegralLamination  # Special import needed for subclassing.
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
-class MultiArc(Lamination):
-    ''' A Lamination in which every component is an Arc. '''
+class MultiArc(IntegralLamination):
+    ''' A IntegralLamination in which every component is an Arc. '''
     def is_multicurve(self):
         return False
     def is_multiarc(self):

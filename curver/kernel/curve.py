@@ -7,11 +7,11 @@ import networkx
 import numpy as np
 
 import curver
-from curver.kernel.lamination import Lamination  # Special import needed for subclassing.
+from curver.kernel.lamination import IntegralLamination  # Special import needed for subclassing.
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
-class MultiCurve(Lamination):
-    ''' A Lamination in which every component is a Curve. '''
+class MultiCurve(IntegralLamination):
+    ''' A IntegralLamination in which every component is a Curve. '''
     def is_multicurve(self):
         return True
     def is_multiarc(self):
@@ -73,7 +73,7 @@ class MultiCurve(Lamination):
     
     def boundary_union(self, other):
         ''' Return \\partial N(self \\cup other). '''
-        assert isinstance(other, Lamination)
+        assert isinstance(other, IntegralLamination)
         
         crush = self.crush()
         lift = crush.inverse()
@@ -83,7 +83,7 @@ class MultiCurve(Lamination):
     
     def fills_with(self, other):
         ''' Return whether self \\cup other fills. '''
-        assert isinstance(other, Lamination)
+        assert isinstance(other, IntegralLamination)
         
         if any(component.intersection(other) == 0 for component in self.components()):
             return False
@@ -281,8 +281,8 @@ class Curve(MultiCurve):
         
         This curve must be non-peripheral and intersect the given laminations. '''
         
-        assert isinstance(b, curver.kernel.Lamination)
-        assert isinstance(c, curver.kernel.Lamination)
+        assert isinstance(b, curver.kernel.IntegralLamination)
+        assert isinstance(c, curver.kernel.IntegralLamination)
         if self.is_peripheral():
             raise ValueError('Curve is peripheral.')
         

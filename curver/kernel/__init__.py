@@ -8,7 +8,7 @@ from .curvegraph import CurveGraph  # noqa: F401
 from .encoding import Encoding, Mapping, MappingClass  # noqa: F401
 from .finite import FiniteSubgroup  # noqa: F401
 from .homology import HomologyClass  # noqa: F401
-from .lamination import Lamination  # noqa: F401
+from .lamination import Lamination, IntegralLamination  # noqa: F401
 from .mappingclassgroup import MappingClassGroup  # noqa: F401
 from .moves import Move, FlipGraphMove, Isometry, EdgeFlip, MultiEdgeFlip  # noqa: F401
 from .partition import CurvePartitionGraph  # noqa: F401
