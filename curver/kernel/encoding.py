@@ -2,6 +2,7 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from fractions import Fraction
+from itertools import product
 import operator
 import numpy as np
 
@@ -216,6 +217,26 @@ class Mapping(Encoding):
         ''' Return a Mapping equal to self that only uses EdgeFlips and Isometries. '''
         
         return self.__class__([item for move in self for item in move.flip_mapping()])
+    
+    def pl_action(self, multicurve):
+        ''' Return the PartialLinearFunction that this mapping applies to the given multicurve. '''
+        assert isinstance(multicurve, curver.kernel.MultiCurve)
+        
+        current = None
+        for item in reversed(self.flip_mapping()):
+            current = item.pl_action(multicurve) * current
+            multicurve = item(multicurve)
+        
+        return current
+    
+    def pl_actions(self):
+        ''' Return the PartialLinearFunctions that this mapping applies to multicurves. '''
+        for sequence in product(*[item.pl_actions() for item in self.flip_mapping()]):
+            current = None
+            for item in reversed(sequence):
+                current = item * current
+            
+            yield current
 
 class MappingClass(Mapping):
     ''' A Mapping from a Triangulation to itself.

@@ -79,6 +79,12 @@ class TestMapping(TestEncoding):
     def test_flip_mapping(self, data):
         h = data.draw(self._strategy())
         self.assertEqual(h, h.flip_mapping())
+    
+    @given(st.data())
+    def test_pl_action(self, data):
+        h = data.draw(self._strategy())
+        c = data.draw(strategies.multicurves(h.source_triangulation))
+        self.assertEqual(h.pl_action(c)(c.geometric), h(c).geometric)
 
 class TestMappingClass(TestMapping):
     _strategy = staticmethod(strategies.mapping_classes)

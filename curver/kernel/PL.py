@@ -11,6 +11,11 @@ class PartialLinearFunction(object):
         self.action = action
         self.condition = condition
     
+    def __str__(self):
+        return 'Action: {}\nCondition: {}'.format(self.action, self.condition)
+    def __repr__(self):
+        return str(self)
+    
     def __call__(self, item):
         if (self.condition.dot(item) < 0).any():
             raise ValueError('Cannot apply a PartialLinearFunction outside of the domain specified by its condition matrix.')
@@ -18,6 +23,9 @@ class PartialLinearFunction(object):
         return list(self.action.dot(item))
     
     def __mul__(self, other):
+        if other is None:
+            return self
+        
         assert isinstance(other, PartialLinearFunction)
         
         return PartialLinearFunction(self.action.dot(other.action), np.concatenate([other.condition, self.condition.dot(other.action)]))
@@ -52,7 +60,7 @@ class PartialLinearFunction(object):
                     
                     if len(kernel_basis) == 1:  # Rank 1 kernel.
                         eigenvalue = K.lmbda
-                        eigenvector = np.array([K([entry.lift().polcoeff(i) for i in range(degree)]) for entry in kernel_basis[0]])
+                        eigenvector = np.array([K([entry.lift().polcoeff(i) for i in range(degree)]) for entry in kernel_basis[0]], dtype=object)
                         assert np.array_equal(self.action.dot(eigenvector), eigenvalue * eigenvector)
                         if (self.condition.dot(eigenvector) > 0).all():
                             return eigenvalue, eigenvector
