@@ -2,7 +2,7 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from fractions import Fraction
-from itertools import product
+from itertools import product, count
 import operator
 import numpy as np
 
@@ -462,6 +462,96 @@ class MappingClass(Mapping):
             return True
         except ValueError:
             return False
+    
+    @memoize
+    def projective_invariant_lamination(self, curve=None):
+        ''' Return (d, L) such that self(L) == d.
+        
+        Raises a ValueError if no such lamination exists. '''
+        resolution = 200
+        
+        def curve_hash(curve, resolution):
+            ''' A simple hash mapping cuves to a coarse lattice in PML. '''
+            # Hmmm, this can suffer from // always rounding down.
+            w = curve.weight()
+            return (resolution,) + tuple([entry * resolution // w for entry in curve])
+        
+        def test_cell(cell):
+            ''' Return an eigenvector of this action matrix inside the cone defined by condtion matrix.
+            
+            Raise a ValueError if no such vector exists. '''
+            # We'll store cell in a set to ensure that we never test the same cell twice.
+            if cell in tested:
+                raise ValueError('No interesting eigenvectors in cell.')
+            
+            tested.add(cell)
+            
+            eigenvalue, eigenvector = cell.eigenvector()
+            invariant_lamination = curver.kernel.Lamination(triangulation, eigenvector.tolist())
+            if invariant_lamination.is_empty():  # But it might have been entirely peripheral.  # TODO: Change to is_peripheral()?
+                raise ValueError('No interesting eigenvectors in cell.')
+            
+            return eigenvalue, invariant_lamination
+        
+        # We start with a fast test for periodicity.
+        # This isn't needed but it means that if we ever discover that
+        # self is not pA then it must be reducible.
+        if self.is_periodic():
+            raise ValueError('Mapping class is periodic.')
+        
+        triangulation = self.source_triangulation
+        max_order = triangulation.max_order()
+        if curve is None: curve = triangulation.edge_curve(0)
+        curves = [curve]
+        seen = {curve_hash(curves[0], resolution): [0]}
+        tested = set()
+        cells = self.pl_actions()
+        
+        # The result of Margalit--Strenner--Yurtas implies that this count will never go over some polynomial function of len(self).
+        # So in the future this could be replaced by range(poly(len(self))).
+        for i in count():
+            new_curve = self(curves[-1])
+            curves.append(new_curve)
+            hsh = curve_hash(new_curve, resolution)
+            
+            # We try to find a projective fixed point through iteration.
+            if hsh in seen:
+                for j in reversed(seen[hsh]):  # Better to work backwards as the later ones are likely to be longer and so projectively closer.
+                    # Check if we have seen this curve before.
+                    if new_curve == curves[j]:  # self**(i-j)(new_curve) == new_curve, so self is reducible.
+                        raise ValueError('Mapping class is reducible.')
+                    # Test the cell containing the average the last few curves in case they have 'spiralled' around the fixedpoint.
+                    average_curve = triangulation.sum(curves[j:])
+                    try:
+                        return test_cell(self.pl_action(average_curve))
+                    except ValueError:
+                        pass
+                
+                seen[hsh].append(i+1)
+            else:
+                seen[hsh] = [i+1]
+            
+            # Performance.
+            if len(seen[hsh]) > 6:
+                # Recompute seen to a higher resolution.
+                # This reduces the chances that we will get false positives that need
+                # to have an expensive eigenvector calculation done on them.
+                resolution = resolution * 10  # Crank up exponentially.
+            
+            # Extra test: just examine every cell.
+            if i > max(10 * max_order, 100):  # Is this a reasonable threshold?
+                # There can be (and generically are) exponentially many cells so this process is extremely slow.
+                # However it is guaranteed to terminate with an invariant lamination or prove that the mapping class is reducible.
+                try:
+                    return test_cell(next(cells))
+                except ValueError:
+                    pass
+                except StopIteration:
+                    # If none of the cells contained a projective fixed-point with eigenvalue > 1 then this mapping class must be reducible.
+                    raise ValueError('Mapping class is reducible.')
+        
+        # Currently, we can never reach this line. But it is here in case we ever replace the count() with range().
+        raise ValueError('Mapping class is reducible.')
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.

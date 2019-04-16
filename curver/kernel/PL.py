@@ -18,6 +18,12 @@ class PartialLinearFunction(object):
         return 'Action: {}\nCondition: {}'.format(self.action, self.condition)
     def __repr__(self):
         return str(self)
+    def __eq__(self, other):
+        pass  # TODO.
+    def __ne__(self, other):
+        return not self == other
+    def __hash__(self):
+        pass  # TODO.
     
     def __call__(self, item):
         if (self.condition.dot(item) < 0).any():
@@ -65,7 +71,7 @@ class PartialLinearFunction(object):
                         eigenvalue = K.lmbda
                         eigenvector = np.array([K([entry.lift().polcoeff(i) for i in range(degree)]) for entry in kernel_basis[0]], dtype=object)
                         assert np.array_equal(self.action.dot(eigenvector), eigenvalue * eigenvector)
-                        if (self.condition.dot(eigenvector) > 0).all():
+                        if (self.condition.dot(eigenvector) >= 0).all():
                             return eigenvalue, eigenvector
                     else:
                         pass  # We can't handle higher rank kernels yet.
