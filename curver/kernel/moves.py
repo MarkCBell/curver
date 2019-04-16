@@ -3,6 +3,7 @@
 These moves can also track how laminations and homology classes move through those changes. '''
 
 from abc import ABC, abstractmethod
+import numpy as np
 
 import curver
 
@@ -59,6 +60,15 @@ class FlipGraphMove(Move):
     @abstractmethod
     def flip_mapping(self):
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
+        
+        return NotImplemented
+    
+    def pl_action(self, lamination):
+        return NotImplemented
+    
+    def pl_actions(self):
+        
+        return NotImplemented
 
 class Isometry(FlipGraphMove):
     ''' This represents an isometry from one Triangulation to another.
@@ -111,6 +121,16 @@ class Isometry(FlipGraphMove):
         ''' Return whether this isometry is the identity. '''
         
         return all(key == value for key, value in self.label_map.items())
+    
+    def pl_action(self, lamination):
+        action = np.array([[1 if j == self.index_map[i] else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
+        condition = np.array([[0] * self.zeta], dtype=object)
+        return curver.kernel.PartialLinearFunction(action, condition)
+    
+    def pl_actions(self):
+        action = np.array([[1 if j == self.index_map[i] else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
+        condition = np.array([[0] * self.zeta], dtype=object)
+        return [curver.kernel.PartialLinearFunction(action, condition)]
 
 class EdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
@@ -178,6 +198,39 @@ class EdgeFlip(FlipGraphMove):
     
     def flip_mapping(self):
         return self.encode()
+    
+    def pl_action(self, multicurve):
+        I = np.identity(self.zeta, dtype=object)
+        def E(x, y, h=self.zeta):
+            return np.array([[1 if i == x and j == y else 0 for i in range(self.zeta)] for j in range(h)], dtype=object)
+        
+        ai, bi, ci, di, ei = [edge.index for edge in self.square]
+        ai0, bi0, ci0, di0, ei0 = [max(multicurve(edge), 0) for edge in self.square]
+        if ai0 + ci0 - bi0 - di0 >= 0:
+            action = I + E(ai, ei) + E(ci, ei) - 2*E(ei, ei)
+            condition = E(ai, ei, 1) + E(ci, ei, 1) - E(bi, ei, 1) - E(di, ei, 1)
+        else:
+            action = I + E(bi, ei) + E(di, ei) - 2*E(ei, ei)
+            condition = E(bi, ei, 1) + E(di, ei, 1) - E(ai, ei, 1) - E(ci, ei, 1)
+        
+        return curver.kernel.PartialLinearFunction(action, condition)
+    
+    def pl_actions(self):
+        I = np.identity(self.zeta)
+        def E(x, y, h=self.zeta):
+            return np.array([[1 if i == x and j == y else 0 for i in range(self.zeta)] for j in range(h)], dtype=object)
+        
+        ai, bi, ci, di, ei = [edge.index for edge in self.square]
+        actions = [
+            I + E(ai, ei) + E(ci, ei) - 2*E(ei, ei),
+            I + E(bi, ei) + E(di, ei) - 2*E(ei, ei),
+            ]
+        conditions = [
+            E(ai, ei, 1) + E(ci, ei, 1) - E(bi, ei, 1) - E(di, ei, 1),
+            E(bi, ei, 1) + E(di, ei, 1) - E(ai, ei, 1) - E(ci, ei, 1),
+            ]
+        
+        return [curver.kernel.PartialLinearFunction(action, condition) for action, condition in zip(actions, conditions)]
 
 class MultiEdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
