@@ -19,11 +19,11 @@ class PartialLinearFunction(object):
     def __repr__(self):
         return str(self)
     def __eq__(self, other):
-        pass  # TODO.
+        return np.array_equal(self.action, other.action) and np.array_equal(self.condition, other.condition)
     def __ne__(self, other):
         return not self == other
     def __hash__(self):
-        pass  # TODO.
+        return hash((tuple(self.action.flatten()), tuple(self.condition.flatten()))
     
     def __call__(self, item):
         if (self.condition.dot(item) < 0).any():
