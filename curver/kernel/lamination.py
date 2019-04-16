@@ -31,6 +31,16 @@ class Lamination:
         self.zeta = self.triangulation.zeta
         self.geometric = geometric
         
+        def half(x):
+            ''' Return x / 2 safely. '''
+            if isinstance(x, curver.IntegerType):
+                return x // 2
+            else:
+                return x / 2
+        def halfable(x):
+            ''' Return whether x is divisable by 2 in its field. '''
+            return 2*half(x) == x
+        
         # Store some additional weights that are often used.
         self._dual = dict()
         self._left = dict()
@@ -281,6 +291,26 @@ class Lamination:
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
+    def __mul__(self, other):  # FIXME: Make work for non-integrals.
+        assert isinstance(other, curver.IntegerType)
+        assert other >= 0
+        
+        if other == 0:
+            new_class = Lamination
+        elif other == 1:
+            new_class = self.__class__
+        elif isinstance(self, curver.kernel.MultiArc):  # or Arc.
+            new_class = curver.kernel.MultiArc
+        elif isinstance(self, curver.kernel.MultiCurve):  # or Curve.
+            new_class = curver.kernel.MultiCurve
+        else:
+            new_class = Lamination
+        
+        geometric = [other * x for x in self]
+        # TODO: 3) Could save components if they have already been computed.
+        return new_class(self.triangulation, geometric)  # Preserve promotion.
+    def __rmul__(self, other):
+        return self * other  # Commutative.
     
     def skeleton(self):
         ''' Return the lamination obtained by collapsing parallel components. '''
