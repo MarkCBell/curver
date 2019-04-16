@@ -7,9 +7,9 @@ import curver
 class UnionFindRules(RuleBasedStateMachine):
     def __init__(self):
         super(UnionFindRules, self).__init__()
-        self.initialize([])
+        self.initialize([0])
     
-    @rule(items=st.sets(elements=st.integers()))
+    @rule(items=st.sets(elements=st.integers(), min_size=1))
     def initialize(self, items):
         self.__items = list(items)
         self.__union_find = curver.kernel.UnionFind(items)
