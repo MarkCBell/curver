@@ -7,7 +7,7 @@ import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 class Lamination(object):
-    ''' This represents an (integral) lamination on a triangulation.
+    ''' This represents a lamination on a triangulation.
     
     Users should create these via Triangulation(...) or Triangulation.lamination(...). '''
     def __init__(self, triangulation, geometric):
@@ -73,6 +73,27 @@ class Lamination(object):
             return NotImplemented
     def __radd__(self, other):
         return self + other  # Commutative.
+    def __mul__(self, other):  # FIXME: Make work for non-integrals.
+        assert other >= 0
+        
+        # TODO: 3) Could save components if they have already been computed.
+        geometric = [other * x for x in self]
+        
+        # In some easy cases we use short-cuts to avoid promote.
+        if other == 0:
+            return IntegralLamination(self.triangulation, geometric)
+        elif other == 1:
+            return self.__class__(self.triangulation, geometric)
+        elif isinstance(other, curver.IntegerType) and isinstance(self, curver.kernel.MultiArc):  # or Arc.
+            return curver.kernel.MultiArc(self.triangulation, geometric)
+        elif isinstance(other, curver.IntegerType) and isinstance(self, curver.kernel.MultiCurve):  # or Curve.
+            return curver.kernel.MultiCurve(self.triangulation, geometric)
+        elif isinstance(other, curver.IntegerType) and isinstance(self, curver.kernel.IntegralLamination):
+            return curver.kernel.IntegralLamination(self.triangulation, geometric)
+        else:
+            return self.triangulation(geometric)  # Have to promote.
+    def __rmul__(self, other):
+        return self * other  # Commutative.
     
     def __reduce__(self):
         return (self.__class__, (self.triangulation, self.geometric))
@@ -101,7 +122,7 @@ class Lamination(object):
         return self._side[edge]
     
     def is_integral(self):
-        return all(self.dual_weight(edge) == int(self.dual_weight(edge)) for edge in self.triangulation.edges)
+        return all(weight == int(weight) for weight in self) and all(self.dual_weight(edge) == int(self.dual_weight(edge)) for edge in self.triangulation.edges)
     
     def promote(self):
         ''' Return this lamination in its finest form. '''
@@ -206,31 +227,9 @@ class Lamination(object):
                             components[component] = (multiplicity, edge)
         
         return components
-    
-
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
-    def __mul__(self, other):  # FIXME: Make work for non-integrals.
-        assert isinstance(other, curver.IntegerType)
-        assert other >= 0
-        
-        if other == 0:
-            new_class = Lamination
-        elif other == 1:
-            new_class = self.__class__
-        elif isinstance(self, curver.kernel.MultiArc):  # or Arc.
-            new_class = curver.kernel.MultiArc
-        elif isinstance(self, curver.kernel.MultiCurve):  # or Curve.
-            new_class = curver.kernel.MultiCurve
-        else:
-            new_class = Lamination
-        
-        geometric = [other * x for x in self]
-        # TODO: 3) Could save components if they have already been computed.
-        return new_class(self.triangulation, geometric)  # Preserve promotion.
-    def __rmul__(self, other):
-        return self * other  # Commutative.
     
     @topological_invariant
     def is_multicurve(self):
