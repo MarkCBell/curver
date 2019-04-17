@@ -17,16 +17,6 @@ class Lamination(object):
         self.zeta = self.triangulation.zeta
         self.geometric = geometric
         
-        def half(x):
-            ''' Return x / 2 safely. '''
-            if isinstance(x, curver.IntegerType):
-                return x // 2
-            else:
-                return x / 2
-        def halfable(x):
-            ''' Return whether x is divisable by 2 in its field. '''
-            return 2*half(x) == x
-        
         # Store some additional weights that are often used.
         self._dual = dict()
         self._side = dict()
@@ -35,10 +25,12 @@ class Lamination(object):
             a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
             af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
             correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
-            assert halfable(af + bf + cf + correction), '(%d, %d, %d) violates the extended triangle inequality.' % (a, b, c)
-            self._dual[i] = self._side[k] = half(bf + cf - af + correction)
-            self._dual[j] = self._side[i] = half(cf + af - bf + correction)
-            self._dual[k] = self._side[j] = half(af + bf - cf + correction)
+            try:
+                self._dual[i] = self._side[k] = curver.kernel.utilities.half(bf + cf - af + correction)
+                self._dual[j] = self._side[i] = curver.kernel.utilities.half(cf + af - bf + correction)
+                self._dual[k] = self._side[j] = curver.kernel.utilities.half(af + bf - cf + correction)
+            except ValueError:
+                raise ValueError('(%d, %d, %d) violates the extended triangle inequality.' % (a, b, c))
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)

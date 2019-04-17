@@ -159,9 +159,9 @@ class EdgeFlip(FlipGraphMove):
         elif ei >= 0 and bi0 >= ai0 + ei and ci0 >= di0 + ei:  # CASE: N(bc)
             geometric[self.edge.index] = bi0 + ci0 - 2*ei
         elif ai0 + bi0 >= ei and bi0 + ei >= 2*ci0 + ai0 and ai0 + ei >= 2*di0 + bi0:  # CASE: N(ab)
-            geometric[self.edge.index] = (ai0 + bi0 - ei) // 2
+            geometric[self.edge.index] = curver.kernel.utilities.half(ai0 + bi0 - ei)
         elif ci0 + di0 >= ei and di0 + ei >= 2*ai0 + ci0 and ci0 + ei >= 2*bi0 + di0:  # CASE: N(cd)
-            geometric[self.edge.index] = (ci0 + di0 - ei) // 2
+            geometric[self.edge.index] = curver.kernel.utilities.half(ci0 + di0 - ei)
         else:
             geometric[self.edge.index] = max(ai0 + ci0, bi0 + di0) - ei
         
