@@ -5,6 +5,7 @@ from fractions import Fraction
 from itertools import product, count
 import operator
 import numpy as np
+import cypari
 
 import curver
 from curver.kernel.decorators import memoize
@@ -487,10 +488,13 @@ class MappingClass(Mapping):
             tested.add(cell)
             
             eigenvalue, eigenvector = cell.eigenvector()
+            # Rescale to clear denominators for performance.
+            scale = cypari.pari.one()
+            for entry in eigenvector:
+                for coefficient in entry.coefficients:
+                    scale = scale.lcm(coefficient.denominator)
+            scaled_eigenvector = eigenvector * int(scale)
             invariant_lamination = curver.kernel.Lamination(triangulation, eigenvector.tolist())
-            if invariant_lamination.is_empty():  # But it might have been entirely peripheral.  # TODO: Change to is_peripheral()?
-                raise ValueError('No interesting eigenvectors in cell.')
-            
             return eigenvalue, invariant_lamination
         
         # We start with a fast test for periodicity.
@@ -502,6 +506,7 @@ class MappingClass(Mapping):
         triangulation = self.source_triangulation
         max_order = triangulation.max_order()
         if curve is None: curve = triangulation.edge_curve(0)
+        assert isinstance(curve, curver.kernel.Curve)
         curves = [curve]
         seen = {curve_hash(curves[0], resolution): [0]}
         tested = set()
