@@ -23,7 +23,7 @@ class PartialLinearFunction(object):
     def __ne__(self, other):
         return not self == other
     def __hash__(self):
-        return hash((tuple(self.action.flatten()), tuple(self.condition.flatten()))
+        return hash((tuple(self.action.flatten()), tuple(self.condition.flatten())))
     
     def __call__(self, item):
         if (self.condition.dot(item) < 0).any():
