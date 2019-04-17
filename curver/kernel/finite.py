@@ -74,7 +74,10 @@ class FiniteSubgroup(object):
         return cls(mapping_classes, list(generators))
     
     @memoize
-    @ensure(lambda data: data.result.is_polygonalisation, lambda data: all(data.self[word](data.result) == data.result for word in data.self.generators))
+    @ensure(
+        lambda data: data.result.is_polygonalisation,
+        lambda data: all(data.self[word](data.result) == data.result for word in data.self.generators),
+        )
     def invariant_polygonalisation(self):
         ''' Return a multiarc that is a polygonalisation and is invariant under self. '''
         
