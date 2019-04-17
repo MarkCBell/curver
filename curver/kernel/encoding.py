@@ -8,7 +8,7 @@ import numpy as np
 import cypari
 
 import curver
-from curver.kernel.decorators import memoize
+from curver.kernel.decorators import memoize, ensure
 
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
@@ -465,8 +465,13 @@ class MappingClass(Mapping):
             return False
     
     @memoize
+    @ensure(
+        lambda data: data.result[0] > 0,
+        lambda data: data.result[1],  # Non-empty.
+        lambda data: data.self(data.result[1]) == data.result[0] * data.result[1],
+        )
     def projective_invariant_lamination(self, curve=None):
-        ''' Return (d, L) such that self(L) == d.
+        ''' Return (d, L) such that self(L) == d * L.
         
         Raises a ValueError if no such lamination exists. '''
         resolution = 200
