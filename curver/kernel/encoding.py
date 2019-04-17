@@ -473,7 +473,7 @@ class MappingClass(Mapping):
     def projective_invariant_lamination(self, curve=None):
         ''' Return (d, L) such that self(L) == d * L.
         
-        Raises a ValueError if no such lamination exists. '''
+        May raise a ValueError if self is not pseudo-Anosov. '''
         resolution = 200
         
         def curve_hash(curve, resolution):
