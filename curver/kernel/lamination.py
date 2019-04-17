@@ -31,16 +31,6 @@ class Lamination:
         self.zeta = self.triangulation.zeta
         self.geometric = geometric
         
-        def half(x):
-            ''' Return x / 2 safely. '''
-            if isinstance(x, curver.IntegerType):
-                return x // 2
-            else:
-                return x / 2
-        def halfable(x):
-            ''' Return whether x is divisable by 2 in its field. '''
-            return 2*half(x) == x
-        
         # Store some additional weights that are often used.
         self._dual = dict()
         self._left = dict()
