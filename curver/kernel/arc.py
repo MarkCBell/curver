@@ -9,7 +9,7 @@ from curver.kernel.lamination import IntegralLamination  # Special import needed
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 class MultiArc(IntegralLamination):
-    ''' A IntegralLamination in which every component is an Arc. '''
+    ''' An IntegralLamination in which every component is an Arc. '''
     def is_multicurve(self):
         return False
     def is_multiarc(self):
