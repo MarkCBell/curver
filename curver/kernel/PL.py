@@ -48,7 +48,7 @@ class PartialLinearFunction(object):
           - irrational, and
           - bigger than all of its Galois conjugates.
         
-        Raises a ValueError if  if it cannot find an interesting vectors in C. '''
+        Raises a ValueError if it cannot find an interesting vectors in the cone. '''
         
         x = cypari.pari('x')
         
