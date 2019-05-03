@@ -114,6 +114,8 @@ class Lamination(object):
         return self._side[edge]
     
     def is_integral(self):
+        ''' Return whether this lamination is integral. '''
+        
         return all(weight == int(weight) for weight in self) and all(self.dual_weight(edge) == int(self.dual_weight(edge)) for edge in self.triangulation.edges)
     
     def promote(self):
