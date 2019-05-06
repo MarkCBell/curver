@@ -461,15 +461,11 @@ class Triangulation(object):
                     raise ValueError('This label_map does not extend to an isometry.')
                 label_map[edge.label] = edge.label
         
-        # Check we can invert.
-        inverse_label_map = dict()
-        for source, target in label_map.items():
-            if target in inverse_label_map:
-                raise ValueError('label_map is not injective.')
-            else:
-                inverse_label_map[target] = source
+        # Check map is a bijection.
         if set(label_map.keys()) != set(self.labels):
             raise ValueError('label_map is not defined everywhere.')
+        if len(label_map.values()) != len(set(label_map.values())):
+            raise ValueError('label_map is not injective.')
         if set(label_map.values()) != set(other.labels):
             raise ValueError('label_map is not surjective.')
         
