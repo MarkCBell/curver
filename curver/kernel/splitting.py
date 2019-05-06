@@ -48,11 +48,6 @@ class SplittingSequence(object):
         assert all(weight >= 0 for weight in lamination)
         assert all(lamination.dual_weight(edge) >= 0 for edge in lamination.triangulation.edges)
         
-        # This is a dict taking the hash of each lamination to the index where we saw it.
-        encodings = []
-        laminations = dict()  # i |--> L_i.
-        seen = defaultdict(list)  # hash |--> [i]
-        
         # Puncture all the triangles where the lamination is a tripod.
         zeta = lamination.zeta
         geometric = list(lamination)
@@ -71,8 +66,9 @@ class SplittingSequence(object):
         
         lamination = curver.kernel.Triangulation(triangles)(geometric)
         
-        # The identity map.
-        id_isometry = lamination.triangulation.id_isometry()
+        encodings = [lamination.triangulation.id_encoding()]
+        laminations = dict()  # i |--> L_i.
+        seen = defaultdict(list)  # hash |--> [i]  # This is a dict taking the hash of each lamination to the index where we saw it.
         
         while True:
             # Save lamination.
@@ -107,7 +103,7 @@ class SplittingSequence(object):
                 for isometry in lamination.triangulation.isometries_to(old_lamination.triangulation):
                     isom_e = isometry.encode()
                     if isom_e(lamination) * old_weight == weight * old_lamination:  # A projective isometry.
-                        preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item] + [id_isometry]).promote()
+                        preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item]).promote()
                         open_periodic = curver.kernel.Encoding([move for item in reversed(encodings[index:]) for move in item]).promote()
                         periodic = isom_e * open_periodic
                         # We really should only return for the correct isometry.
