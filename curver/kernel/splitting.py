@@ -1,16 +1,15 @@
 
-import heapq
 from collections import defaultdict
 
 import curver
-from curver.kernel.moves import Move
-
-def puncture():
-    pass
 
 class SplittingSequence(object):
-    def __init__(self, x):
-        self.x = x
+    def __init__(self, preperiodic, periodic, lamination):
+        self.preperiodic = preperiodic
+        self.periodic = periodic
+        self.lamination = lamination
+        
+        self.boundary = self.lamination.triangulation([2 if weight > 0 else 0 for weight in self.lamination])
     
     @classmethod
     def from_lamination(cls, lamination, mapping_class):
@@ -33,7 +32,7 @@ class SplittingSequence(object):
         # this lamination.
         
         def projective_hash(L, precision=30):
-            w = self.weight()
+            w = L.weight()
             PL = [x * 10**precision // w for x in L]
             
             # We'll try to preserve as much of the structure as possible to try to reduce hash collisions.
@@ -46,42 +45,58 @@ class SplittingSequence(object):
             return L * (1 / w)
         
         assert projectivise(mapping_class(lamination)) == projectivise(lamination)
+        assert all(weight >= 0 for weight in lamination)
+        assert all(lamination.dual_weight(edge) >= 0 for edge in lamination.triangulation.edges)
         
         # This is a dict taking the hash of each lamination to the index where we saw it.
         encodings = []
         laminations = dict()  # i |--> L_i.
         seen = defaultdict(list)  # hash |--> [i]
         
-        def store_move(move, lamination):
-            encodings.append(move)
-            return move(lamination)
-        
-        def store_lamination(lamination):
-            laminations[len(encodings)] = lamination
-            seen[projective_hash(lamination)].append(len(encodings))
-        
-        # Remove all of the obvious places.
-        for edge_index in range(lamination.zeta):
-            if lamination(edge_index) == 0:
-                # TODO: Choose crush curve best.
-                lamination = store_move(lamination.triangulation.edge_curve(edge_index).crush(), lamination)
-        
         # Puncture all the triangles where the lamination is a tripod.
-        lamination = store_move(puncture_tripods(lamination), lamination)
+        zeta = lamination.zeta
+        geometric = list(lamination)
         
-        store_lamination(lamination)
+        triangles = []
+        for triangle in lamination.triangulation:
+            a, b, c = triangle.edges
+            if all(lamination.dual_weight(edge) > 0 for edge in triangle):  # Is tripod.
+                s, t, u = curver.kernel.Edge(zeta), curver.kernel.Edge(zeta+1), curver.kernel.Edge(zeta+2)  # New edges.
+                triangles.extend([curver.kernel.Triangle([a, ~u, t]), curver.kernel.Triangle([b, ~s, u]), curver.kernel.Triangle([c, ~t, s])])
+                geometric.extend([lamination.dual_weight(a), lamination.dual_weight(b), lamination.dual_weight(c)])
+                
+                zeta += 3
+            else:
+                triangles.append(curver.kernel.Triangle([a, b, c]))
+        
+        lamination = curver.kernel.Triangulation(triangles)(geometric)
+        
+        # The identity map.
+        id_isometry = lamination.triangulation.id_isometry()
         
         while True:
-            # Get the indices of the largest weight edges since we will be changing lamination as we iterate over the edges.
-            max_weight = max(lamination)
-            max_indices = [index for index, weight in enumerate(lamination) if weight == max_weight]
+            # Save lamination.
+            laminations[len(encodings)] = lamination
+            seen[projective_hash(lamination)].append(len(encodings))
             
-            # Flip all of these edges.
-            for flip_index in max_indices:
-                lamination = store_move(lamination.triangulation.encode_flip(flip_index), lamination)
-                # Check if we have created any edges of weight 0. Of course it is enough to just check the flip_index.
-                if lamination(flip_index) == 0:
-                    lamination = store_move(lamination.triangulation.edge_curve(flip_index).crush(), lamination)
+            # Remove all of the obvious boundary.
+            non_peripheral_boundary = lamination.triangulation([2 if lamination(index) > 0 else 0 for index in lamination.triangulation.indices]).non_peripheral()
+            if non_peripheral_boundary:  # is not empty.
+                move = non_peripheral_boundary.crush()
+                encodings.append(move)
+                lamination = move(lamination)
+                
+                # Re-save lamination.
+                laminations[len(encodings)] = lamination
+                seen[projective_hash(lamination)].append(len(encodings))
+            
+            # Split all of the maximal branches
+            max_weight = max(lamination)
+            max_edges = [edge for edge in lamination.triangulation.positive_edges if lamination(edge) == max_weight]
+            for edge in max_edges:
+                move = lamination.triangulation.encode_flip(edge)
+                encodings.append(move)
+                lamination = move(lamination)
             
             # Check if lamination now (projectively) matches a lamination we've already seen.
             for index in seen.get(projective_hash(lamination), []):
@@ -90,11 +105,15 @@ class SplittingSequence(object):
                 old_weight = old_lamination.weight()
                 
                 for isometry in lamination.triangulation.isometries_to(old_lamination.triangulation):
-                    if isometry.encode()(lamination) * old_weight == weight * old_lamination:  # A projective isometry.
-                        encoding = flipper.kernel.Encoding([move for item in reversed(encodings) for move in item])
-                        return cls(encoding, isometry, index, old_lamination)
-            
-            store_lamination(lamination)
+                    isom_e = isometry.encode()
+                    if isom_e(lamination) * old_weight == weight * old_lamination:  # A projective isometry.
+                        preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item] + [id_isometry]).promote()
+                        open_periodic = curver.kernel.Encoding([move for item in reversed(encodings[index:]) for move in item]).promote()
+                        periodic = isom_e * open_periodic
+                        # We really should only return for the correct isometry.
+                        # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
+                        # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
+                        return cls(preperiodic, periodic, old_lamination)
         
         raise RuntimeError('Unreachable code.')
 
