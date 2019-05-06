@@ -494,7 +494,7 @@ class MappingClass(Mapping):
                 for coefficient in entry.coefficients:
                     scale = scale.lcm(coefficient.denominator)
             scaled_eigenvector = eigenvector * int(scale)
-            invariant_lamination = curver.kernel.Lamination(triangulation, eigenvector.tolist())
+            invariant_lamination = curver.kernel.Lamination(triangulation, scaled_eigenvector.tolist())
             return eigenvalue, invariant_lamination
         
         # We start with a fast test for periodicity.
