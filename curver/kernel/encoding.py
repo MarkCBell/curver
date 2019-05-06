@@ -119,6 +119,13 @@ class Encoding(object):
         return self.__class__([item.inverse() for item in reversed(self.sequence)])  # Data structure issue.
     def __invert__(self):
         return self.inverse()
+    def promote(self):
+        if not all(isinstance(item, curver.kernel.FlipGraphMove) for item in self):
+            return Encoding(self.sequence)
+        elif self.source_triangulation != self.target_triangulation:
+            return Mapping(self.sequence)
+        else:
+            return MappingClass(self.sequence)
 
 class Mapping(Encoding):
     ''' An Encoding where every move is a FlipGraphMove.

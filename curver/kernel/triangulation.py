@@ -432,6 +432,7 @@ class Triangulation(object):
         # We do a depth first search extending the corner map across the triangulation.
         # This is a stack of labels that may still have consequences to check.
         to_process = [(edge_from_label, label_map[edge_from_label]) for edge_from_label in label_map]
+        
         while to_process:
             from_label, to_label = to_process.pop()
             
@@ -460,6 +461,18 @@ class Triangulation(object):
                     raise ValueError('This label_map does not extend to an isometry.')
                 label_map[edge.label] = edge.label
         
+        # Check we can invert.
+        inverse_label_map = dict()
+        for source, target in label_map.items():
+            if target in inverse_label_map:
+                raise ValueError('label_map is not injective.')
+            else:
+                inverse_label_map[target] = source
+        if set(label_map.keys()) != set(self.labels):
+            raise ValueError('label_map is not defined everywhere.')
+        if set(label_map.values()) != set(other.labels):
+            raise ValueError('label_map is not surjective.')
+        
         return curver.kernel.Isometry(self, other, label_map)
     
     def isometries_to(self, other):
@@ -468,6 +481,9 @@ class Triangulation(object):
         assert isinstance(other, Triangulation)
         
         if self.zeta != other.zeta:
+            return []
+        
+        if sorted(self.surface().values()) != sorted(other.surface().values()):
             return []
         
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
