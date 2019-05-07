@@ -102,6 +102,9 @@ class Encoding(object):
             if self.source_triangulation != other.target_triangulation:
                 raise ValueError('Cannot compose Encodings over different triangulations.')
             
+            # We could do
+            #   return Encoding(self.sequence + other.sequence).promote()
+            # but since we know the types of self and other we can avoid rechecking the move types.
             if not (isinstance(self, Mapping) and isinstance(other, Mapping)):
                 return Encoding(self.sequence + other.sequence)
             else:  # self and other both at least Mappings:
@@ -120,6 +123,8 @@ class Encoding(object):
     def __invert__(self):
         return self.inverse()
     def promote(self):
+        ''' Return this Encoding in its finest form. '''
+        
         if not all(isinstance(item, curver.kernel.FlipGraphMove) for item in self):
             return Encoding(self.sequence)
         elif self.source_triangulation != self.target_triangulation:
