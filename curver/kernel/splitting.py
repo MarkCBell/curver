@@ -1,26 +1,57 @@
 
-from collections import defaultdict
+from collections import Counter, defaultdict
+import numpy as np
 
 import curver
+from curver.kernel.moves import Move
+
+class LinearTransformation(Move):
+    def __init__(self, source_triangulation, target_triangulation, matrix, inverse_matrix):
+        super(LinearTransformation, self).__init__(source_triangulation, target_triangulation)
+        assert matrix.shape == (target_triangulation.zeta, source_triangulation.zeta)
+        assert inverse_matrix.shape == matrix.shape[::-1]
+        
+        self.matrix = matrix
+        self.inverse_matix = inverse_matrix
+    
+    def __str__(self):
+        return 'L'
+    
+    def apply_lamination(self, lamination):
+        return self.target_triangulation(self.matrix.dot(lamination.geometric).tolist())
+    
+    def inverse(self):
+        return LinearTransformation(self.target_triangulation, self.source_triangulation, self.inverse_matrix, self.matrix)
 
 class SplittingSequence(object):
-    def __init__(self, preperiodic, periodic, lamination):
+    def __init__(self, lamination, puncture, preperiodic, periodic):
+        self.puncture = puncture
         self.preperiodic = preperiodic
         self.periodic = periodic
-        self.lamination = lamination
         
-        self.boundary = self.lamination.triangulation([2 if weight > 0 else 0 for weight in self.lamination])
+        self.lamination = lamination
+        self.punctured_lamination = self.puncture(self.lamination)
+        self.periodic_lamination = self.preperiodic(self.punctured_lamination)
+        
+        # Save some useful triangulations.
+        self.triangulation = self.puncture.source_triangulation
+        self.punctured_triangulation = self.preperiodic.source_triangulation  # = self.puncture.target_triangulation.
+        self.periodic_triangulation = self.periodic.source_triangulation  # = self.preperiodic.target_triangulation.
+        
+        # The boundary 
+        self.periodic_boundary = self.periodic_triangulation([2 if weight > 0 else 0 for weight in self.periodic_lamination])
+        self.punctured_boundary = self.preperiodic.inverse()(self.periodic_boundary)
+        
+        assert self.periodic(self.periodic_boundary) == self.periodic_boundary  # TODO: Make a unittest from this.
     
     @classmethod
-    def from_lamination(cls, lamination, mapping_class):
-        ''' Return a splitting sequence from a projectively invariant lamination.
+    def from_lamination(cls, starting_lamination, mapping_class):
+        ''' Return a splitting sequence from a projectively invariant starting_lamination.
         
         This is the encoding obtained by flipping edges to repeatedly split
         the branches of the corresponding train track with maximal weight
         until you reach a projectively periodic sequence (with the required
         dilatation if given).
-        
-        Assumes (and checks) that this lamination is filling.
         
         Each entry of self.geometric must be an Integer or a RealAlgebraic (over
         the same RealNumberField). '''
@@ -44,27 +75,50 @@ class SplittingSequence(object):
             w = L.weight()
             return L * (1 / w)
         
-        assert projectivise(mapping_class(lamination)) == projectivise(lamination)
-        assert all(weight >= 0 for weight in lamination)
-        assert all(lamination.dual_weight(edge) >= 0 for edge in lamination.triangulation.edges)
+        assert projectivise(mapping_class(starting_lamination)) == projectivise(starting_lamination)
+        assert all(weight >= 0 for weight in starting_lamination)
+        assert all(starting_lamination.dual_weight(edge) >= 0 for edge in starting_lamination.triangulation.edges)
         
-        # Puncture all the triangles where the lamination is a tripod.
-        zeta = lamination.zeta
-        geometric = list(lamination)
+        # Puncture all the triangles where the starting_lamination is a tripod.
+        geometric = list(starting_lamination)
+        triangulation = starting_lamination.triangulation
+        zeta = triangulation.zeta
+        
+        def E(x):
+            ''' Return the length zeta array with a 1 at position x. '''
+            return np.array([1 if i == x else 0 for i in range(triangulation.zeta)], dtype=object)
         
         triangles = []
-        for triangle in lamination.triangulation:
+        matrix_rows = [2*E(i) for i in range(zeta)]
+        geometric = list(starting_lamination)
+        for triangle in triangulation:
             a, b, c = triangle.edges
-            if all(lamination.dual_weight(edge) > 0 for edge in triangle):  # Is tripod.
+            if all(starting_lamination.dual_weight(edge) > 0 for edge in triangle):  # Is tripod.
                 s, t, u = curver.kernel.Edge(zeta), curver.kernel.Edge(zeta+1), curver.kernel.Edge(zeta+2)  # New edges.
                 triangles.extend([curver.kernel.Triangle([a, ~u, t]), curver.kernel.Triangle([b, ~s, u]), curver.kernel.Triangle([c, ~t, s])])
-                geometric.extend([lamination.dual_weight(a), lamination.dual_weight(b), lamination.dual_weight(c)])
+                matrix_rows.append(E(b.index) + E(c.index) - E(a.index))
+                matrix_rows.append(E(c.index) + E(a.index) - E(b.index))
+                matrix_rows.append(E(a.index) + E(b.index) - E(c.index))
+                geometric.extend([starting_lamination.dual_weight(a), starting_lamination.dual_weight(b), starting_lamination.dual_weight(c)])
                 
                 zeta += 3
             else:
                 triangles.append(curver.kernel.Triangle([a, b, c]))
         
-        lamination = curver.kernel.Triangulation(triangles)(geometric)
+        punctured_triangulation = curver.kernel.Triangulation(triangles)
+        matrix = np.stack(matrix_rows)
+        inverse_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(triangulation.zeta)], dtype=object)
+        half_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
+        inverse_half_matrix = np.array([[2 if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
+        
+        puncture = curver.kernel.Encoding([
+            LinearTransformation(punctured_triangulation, punctured_triangulation, half_matrix, inverse_half_matrix),
+            LinearTransformation(triangulation, punctured_triangulation, matrix, inverse_matrix)
+            ])
+        # Apply move.
+        lamination = puncture(starting_lamination)
+        
+        assert lamination.geometric == geometric
         
         encodings = [lamination.triangulation.id_encoding()]
         laminations = dict()  # i |--> L_i.
@@ -82,7 +136,10 @@ class SplittingSequence(object):
                 encodings.append(move)
                 lamination = move(lamination)
                 
-                # Re-save lamination.
+                # Reset dictionaries ...
+                laminations = dict()
+                seen = defaultdict(list)
+                # ... and re-save lamination.
                 laminations[len(encodings)] = lamination
                 seen[projective_hash(lamination)].append(len(encodings))
             
@@ -109,7 +166,33 @@ class SplittingSequence(object):
                         # We really should only return for the correct isometry.
                         # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
                         # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                        return cls(preperiodic, periodic, old_lamination)
+                        return cls(starting_lamination, puncture, preperiodic, periodic)
         
         raise RuntimeError('Unreachable code.')
+    
+    def essential_punctured_boundary(self):
+        ''' Return the MultiCurve consisiting of the components of punctured_boundary that are essential in self.triangulation.
+        
+        We do this by looking for components of self.punctured_boundary that do not bound a disk or punctured disk.
+        We test for this by 
+        
+        '''
+        
+        def is_essential(curve):
+            ''' Return whether the given curve is essential in the original surface. '''
+            
+            if curve.is_peripheral():  # x is obviously peripheral or null-homotopic in the original surface.
+                return False
+            
+            crush = curve.crush()
+            T = crush.target_triangulation
+            S = T.surface()
+            bb_T = crush(self.puncture(self.triangulation([2] * self.triangulation.zeta)))  # Find the punctures of T that are real.
+            comp_counts = Counter([component for component in T.components() for bb_Tc in bb_T.components() if any(bb_Tc(edge) for edge in component)])
+            if any(S[component].g == 0 and comp_counts[component] <= 1 for component in T.components()):
+                return False
+            
+            return True
+        
+        return self.punctured_triangulation.disjoint_sum([curve for curve in self.punctured_boundary.components() if is_essential(curve)])
 
