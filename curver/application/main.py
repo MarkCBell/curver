@@ -10,6 +10,7 @@ from math import sin, cos, pi, ceil, sqrt
 from random import random
 from colorsys import hls_to_rgb
 from collections import namedtuple
+from numbers import Integral
 
 import tkinter as TK
 import tkinter.filedialog as TK_FILE
