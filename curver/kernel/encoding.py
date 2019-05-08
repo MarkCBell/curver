@@ -324,25 +324,12 @@ class MappingClass(Mapping):
             genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.order)) for cone_point in orbifold.cone_points)) // 2
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
-            C = curver.kernel.CurveGraph(self.source_triangulation)
-            c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
-            
-            # Set some constants.
-            D = max(C.BOUNDED_GEODESIC_IMAGE, 2*C.QUASICONVEXITY + 3) + 1  # Universal
-            k = D * C.R  # Universal
-            
-            # If self is not reducible then d(x, self(x, power=k)) >= k / R == D for every x.
-            # If self is reducible then:
-            #   If d(c, \sigma(self)) <= BGI//2 then d(c, self(c, power=k)) <= BGI < D.
-            #   Otherwise d([c, self(c, power=BGI*R)], \sigma(self)) <= 1. Therefore for some x in QC_K(c, self(c, power=BGI*R)),
-            #     a K--quasiconvex subset containing these curves, d(x, self(x, power=k)) <= 2*K + 3 < D.
-            #
-            # Hence self is reducible iff any(d(x, self(x, power=k)) < D for x in QC_K(c, self(c, power=BGI*R)))
-            
-            if C.distance(c, self(c, power=k)) < D:
+            try:
+                d, L = self.projective_invariant_lamination()
+            except ValueError:
                 return True
             
-            return any(C.distance(x, self(x, power=k)) < D for x in C.quasiconvex(c, self(c, power=C.BOUNDED_GEODESIC_IMAGE * C.R)))
+            return curver.kernel.SplittingSequence.from_lamination(L, self).essential_punctured_boundary():
     
     def is_pseudo_anosov(self):
         ''' Return whether this mapping class is pseudo-Anosov. '''
