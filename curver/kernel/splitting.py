@@ -5,35 +5,12 @@ from collections import Counter, defaultdict
 import numpy as np
 
 import curver
-from curver.kernel.moves import Move
-
-class LinearTransformation(Move):
-    def __init__(self, source_triangulation, target_triangulation, matrix, inverse_matrix):
-        super(LinearTransformation, self).__init__(source_triangulation, target_triangulation)
-        assert matrix.shape == (target_triangulation.zeta, source_triangulation.zeta)
-        assert inverse_matrix.shape == matrix.shape[::-1]
-        
-        self.matrix = matrix
-        self.inverse_matix = inverse_matrix
-    
-    def __str__(self):
-        return 'L'
-    
-    def apply_lamination(self, lamination):
-        return self.target_triangulation(self.matrix.dot(lamination.geometric).tolist())
-    
-    def inverse(self):
-        return LinearTransformation(self.target_triangulation, self.source_triangulation, self.inverse_matrix, self.matrix)
-
-class SplittingSequence(object):
-=======
 
 class SplittingSequence(object):
     ''' This represents a splitting sequence.
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
->>>>>>> Stashed changes
     def __init__(self, lamination, puncture, preperiodic, periodic):
         self.puncture = puncture
         self.preperiodic = preperiodic
@@ -118,21 +95,13 @@ class SplittingSequence(object):
         punctured_triangulation = curver.kernel.Triangulation(triangles)
         matrix = np.stack(matrix_rows)
         inverse_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(triangulation.zeta)], dtype=object)
-<<<<<<< Updated upstream
-=======
         
->>>>>>> Stashed changes
         half_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
         inverse_half_matrix = np.array([[2 if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
         
         puncture = curver.kernel.Encoding([
-<<<<<<< Updated upstream
-            LinearTransformation(punctured_triangulation, punctured_triangulation, half_matrix, inverse_half_matrix),
-            LinearTransformation(triangulation, punctured_triangulation, matrix, inverse_matrix)
-=======
             curver.kernel.create.lineartransformation(punctured_triangulation, punctured_triangulation, half_matrix, inverse_half_matrix),
             curver.kernel.create.lineartransformation(triangulation, punctured_triangulation, matrix, inverse_matrix)
->>>>>>> Stashed changes
             ])
         # Apply move.
         lamination = puncture(starting_lamination)
