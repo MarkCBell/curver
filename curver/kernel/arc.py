@@ -215,5 +215,5 @@ class Arc(MultiArc):
         conjugator = self.shorten()
         short = conjugator(self)
         
-        return conjugator.inverse() * curver.kernel.HalfTwist(short, power).encode() * conjugator
+        return conjugator.inverse() * curver.kernel.create.halftwist(short, power).encode() * conjugator
 

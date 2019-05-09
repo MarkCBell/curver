@@ -34,8 +34,6 @@ class Twist(FlipGraphMove):
     
     def __str__(self):
         return 'Twist^%d_%s ' % (self.power, self.curve)
-    def __reduce__(self):
-        return (self.__class__, (self.curve, self.power))
     def package(self):
         return (self.curve.parallel().label, self.power)
     def __eq__(self, other):
@@ -169,8 +167,6 @@ class HalfTwist(FlipGraphMove):
     
     def __str__(self):
         return 'HalfTwist^%d_%s ' % (self.power, self.arc)
-    def __reduce__(self):
-        return (self.__class__, (self.arc, self.power))
     def package(self):
         return (self.arc.parallel().label, self.power)
     def __eq__(self, other):

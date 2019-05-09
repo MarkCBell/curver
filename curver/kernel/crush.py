@@ -8,7 +8,7 @@ from curver.kernel.moves import Move  # Special import needed for subclassing.
 
 class Crush(Move):
     ''' This represents the effect of crushing along a curve. '''
-    def __init__(self, source_triangulation, target_triangulation, curve, matrix):
+    def __init__(self, source_triangulation, target_triangulation, curve):
         super(Crush, self).__init__(source_triangulation, target_triangulation)
         
         assert isinstance(curve, curver.kernel.Curve)
@@ -16,18 +16,15 @@ class Crush(Move):
         assert curve.triangulation == self.source_triangulation
         
         self.curve = curve
-        self.matrix = matrix
     
     def __str__(self):
         return 'Crush ' + str(self.curve)
-    def __reduce__(self):
-        return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
     def __eq__(self, other):
         eq = super(Crush, self).__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
-        return self.curve == other.curve and np.array_equal(self.matrix, other.matrix)
+        return self.curve == other.curve
     
     def apply_lamination(self, lamination):
         geometric = list(lamination)
@@ -137,22 +134,35 @@ class Crush(Move):
     def apply_homology(self, homology_class):
         return NotImplemented  # I don't think we ever need this.
     
-    def inverse(self):
-        return Lift(self.target_triangulation, self.source_triangulation, self.curve, self.matrix)
-    
     def package(self):
         return (self.curve.parallel(), 0)
 
-class Lift(Move):
+class LinearTransformation(Move):
+    ''' This represents a linear transformation between two triangulations. '''
+    def __init__(self, source_triangulation, target_triangulation, matrix):
+        super(LinearTransformation, self).__init__(source_triangulation, target_triangulation)
+        assert matrix.shape == (target_triangulation.zeta, source_triangulation.zeta)
+        
+        self.matrix = matrix
+    
+    def __str__(self):
+        return 'LT'
+    def __eq__(self, other):
+        eq = super(LinearTransformation, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return np.array_equal(self.matrix, other.matrix)
+    
+    def apply_lamination(self, lamination):
+        return self.target_triangulation(self.matrix.dot(lamination.geometric).tolist())
+
+class Lift(LinearTransformation):
     ''' This represents the inverse of crushing along a curve. '''
     def __init__(self, source_triangulation, target_triangulation, curve, matrix):
-        super(Lift, self).__init__(source_triangulation, target_triangulation)
-        
-        assert isinstance(curve, curver.kernel.Curve)
-        assert curve.triangulation == self.target_triangulation
+        super(Lift, self).__init__(source_triangulation, target_triangulation, matrix)
         
         self.curve = curve
-        self.matrix = matrix
         
         corner = self.curve.triangulation.corner_lookup[self.curve.parallel()]
         # The vertices that will be glued together:
@@ -160,24 +170,9 @@ class Lift(Move):
     
     def __str__(self):
         return 'Lift ' + str(self.curve)
-    def __reduce__(self):
-        return (self.__class__, (self.source_triangulation, self.target_triangulation, self.curve, self.matrix))
-    def __eq__(self, other):
-        eq = super(Lift, self).__eq__(other)
-        if eq in [NotImplemented, False]:
-            return eq
-        
-        return self.curve == other.curve and np.array_equal(self.matrix, other.matrix)
     
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
         
-        geometric = self.matrix.dot(lamination.geometric).tolist()
-        return lamination.__class__(self.target_triangulation, geometric)  # Avoid promote since the lift has to be the same type as the given lamination.
-    
-    def apply_homology(self, homology_class):
-        return NotImplemented  # I don't think we ever need this.
-    
-    def inverse(self):
-        return Crush(self.target_triangulation, self.source_triangulation, self.curve, self.matrix)
+        return super(Lift, self).apply_lamination(lamination)
 

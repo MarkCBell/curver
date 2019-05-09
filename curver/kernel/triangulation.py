@@ -469,7 +469,7 @@ class Triangulation(object):
         if set(label_map.values()) != set(other.labels):
             raise ValueError('label_map is not surjective.')
         
-        return curver.kernel.Isometry(self, other, label_map)
+        return curver.kernel.create.isometry(self, other, label_map)
     
     def isometries_to(self, other):
         ''' Return a list of all isometries from this triangulation to other. '''
@@ -645,7 +645,7 @@ class Triangulation(object):
     def id_isometry(self):
         ''' Return the isometry representing the identity map. '''
         
-        return curver.kernel.Isometry(self, self, dict((i, i) for i in self.labels))
+        return curver.kernel.create.isometry(self, self, dict((i, i) for i in self.labels))
     
     def id_encoding(self):
         ''' Return an encoding of the identity map on this triangulation. '''
@@ -691,7 +691,7 @@ class Triangulation(object):
             triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
         new_triangulation = Triangulation(triangles + [triangle_A2, triangle_B2])
         
-        return curver.kernel.EdgeFlip(self, new_triangulation, edge).encode()
+        return curver.kernel.create.edgeflip(self, new_triangulation, edge).encode()
     
     def encode_relabel_edges(self, label_map):
         ''' Return an encoding of the effect of relabelling the edges according to label_map.
@@ -718,7 +718,7 @@ class Triangulation(object):
         edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges)
         new_triangulation = Triangulation([Triangle([edge_map[edge] for edge in triangle]) for triangle in self])
         
-        return curver.kernel.Isometry(self, new_triangulation, label_map).encode()
+        return curver.kernel.create.isometry(self, new_triangulation, label_map).encode()
     
     def encode(self, sequence):
         ''' Return the encoding given by a sequence of Moves.
@@ -776,14 +776,8 @@ class Triangulation(object):
             T = term.target_triangulation
         
         if not terms_reversed: terms_reversed = [self.id_encoding()]
-        moves = [move for item in reversed(terms_reversed) for move in item]
-        if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves):
-            if moves[0].target_triangulation == moves[-1].source_triangulation:
-                return curver.kernel.MappingClass(moves)
-            else:
-                return curver.kernel.Mapping(moves)
-        else:
-            return curver.kernel.Encoding(moves)
+        
+        return curver.kernel.Encoding([move for item in reversed(terms_reversed) for move in item]).promote()
 
 def create_triangulation(cls, edge_labels):
     ''' A helper function for pickling. '''

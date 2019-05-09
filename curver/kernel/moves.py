@@ -13,6 +13,7 @@ class Move(object):
         self.source_triangulation = source_triangulation
         self.target_triangulation = target_triangulation
         self.zeta = self.source_triangulation.zeta
+        self._inverse = None
     def __repr__(self):
         return str(self)
     def __invert__(self):
@@ -45,7 +46,8 @@ class Move(object):
     def inverse(self):  # pylint: disable=no-self-use
         ''' Return the inverse of this move. '''
         
-        return NotImplemented
+        return self._inverse
+    
     def apply_lamination(self, lamination):  # pylint: disable=no-self-use,unused-argument
         ''' Return the lamination obtained by mapping the given lamination through this move. '''
         
@@ -89,8 +91,6 @@ class Isometry(FlipGraphMove):
     
     def __str__(self):
         return 'Isometry ' + str([curver.kernel.Edge(self.label_map[index]) for index in self.source_triangulation.indices])
-    def __reduce__(self):
-        return (self.__class__, (self.source_triangulation, self.target_triangulation, self.label_map))
     def package(self):
         if not all(self.label_map[i] == i for i in self.source_triangulation.indices):  # If self is not the identity isometry.
             return {i: self.label_map[i] for i in self.source_triangulation.labels}
@@ -111,10 +111,6 @@ class Isometry(FlipGraphMove):
         algebraic = [homology_class(self.inverse_label_map[index]) for index in self.source_triangulation.indices]
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
     
-    def inverse(self):
-        
-        return Isometry(self.target_triangulation, self.source_triangulation, self.inverse_label_map)
-    
     def flip_mapping(self):
         return self.encode()
 
@@ -132,8 +128,6 @@ class EdgeFlip(FlipGraphMove):
     
     def __str__(self):
         return 'Flip %s' % self.edge
-    def __reduce__(self):
-        return (self.__class__, (self.source_triangulation, self.target_triangulation, self.edge))
     def package(self):
         return self.edge.label
     def __eq__(self, other):
@@ -183,9 +177,6 @@ class EdgeFlip(FlipGraphMove):
         algebraic[e.index] = 0
         
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
-    
-    def inverse(self):
-        return EdgeFlip(self.target_triangulation, self.source_triangulation, ~self.edge)
     
     def flip_mapping(self):
         return self.encode()
