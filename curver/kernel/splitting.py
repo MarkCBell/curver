@@ -192,10 +192,7 @@ class SplittingSequence(object):
             S = T.surface()
             bb_T = crush(self.puncture(self.triangulation([2] * self.triangulation.zeta)))  # Find the punctures of T that are real.
             comp_counts = Counter(component.containing_components().pop() for component in bb_T.components())
-            if any(S[component].g == 0 and comp_counts[component] <= 1 for component in T_components):
-                return False
-            
-            return True
+            return not any(S[component].g == 0 and comp_counts[component] <= 1 for component in T_components):
         
         return self.punctured_triangulation.disjoint_sum([curve for curve in self.punctured_boundary.components() if is_essential(curve)])
 
