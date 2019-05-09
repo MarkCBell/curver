@@ -35,7 +35,7 @@ class Move(object):
     def encode(self):
         ''' Return the Encoding induced by this move. '''
         
-        return curver.kernel.Encoding([self])
+        return curver.kernel.Encoding([self]).promote()
     
     def package(self):
         ''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
@@ -57,11 +57,6 @@ class Move(object):
 
 class FlipGraphMove(Move):
     ''' A Move between two triangulations in the same flip graph. '''
-    def encode(self):
-        if self.source_triangulation != self.target_triangulation:
-            return curver.kernel.Mapping([self])
-        else:
-            return curver.kernel.MappingClass([self])
     def flip_mapping(self):  # pylint: disable=no-self-use
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
         
