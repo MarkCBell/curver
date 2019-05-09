@@ -38,7 +38,7 @@ class SplittingSequence(object):
         self.punctured_triangulation = self.preperiodic.source_triangulation  # = self.puncture.target_triangulation.
         self.periodic_triangulation = self.periodic.source_triangulation  # = self.preperiodic.target_triangulation.
         
-        # The boundary 
+        # The boundary of lamination.
         self.periodic_boundary = self.periodic_triangulation([2 if weight > 0 else 0 for weight in self.periodic_lamination])
         self.punctured_boundary = self.preperiodic.inverse()(self.periodic_boundary)
         
@@ -184,11 +184,15 @@ class SplittingSequence(object):
                 return False
             
             crush = curve.crush()
+            lift = crush.inverse()
             T = crush.target_triangulation
+            T_components = set(c.containing_components().pop() for c in T([2] * T.zeta).components() if lift(c) == curve)  # The components of T that contain the curve vertices.
+            assert len(T_components) <= 2
+            
             S = T.surface()
             bb_T = crush(self.puncture(self.triangulation([2] * self.triangulation.zeta)))  # Find the punctures of T that are real.
             comp_counts = Counter(component.containing_components().pop() for component in bb_T.components())
-            if any(S[component].g == 0 and comp_counts[component] <= 1 for component in T.components()):  # Should only check the T.components() that correspond to crush.
+            if any(S[component].g == 0 and comp_counts[component] <= 1 for component in T_components):
                 return False
             
             return True
