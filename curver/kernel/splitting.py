@@ -174,9 +174,8 @@ class SplittingSequence(object):
         ''' Return the MultiCurve consisiting of the components of punctured_boundary that are essential in self.triangulation.
         
         We do this by looking for components of self.punctured_boundary that do not bound a disk or punctured disk.
-        We test for this by 
-        
-        '''
+        We test for this by crushing along a candidate curve and checking whether all the components that correspond to it either:
+        have genus or have more than one real vertex. '''
         
         def is_essential(curve):
             ''' Return whether the given curve is essential in the original surface. '''
@@ -188,8 +187,8 @@ class SplittingSequence(object):
             T = crush.target_triangulation
             S = T.surface()
             bb_T = crush(self.puncture(self.triangulation([2] * self.triangulation.zeta)))  # Find the punctures of T that are real.
-            comp_counts = Counter([component for component in T.components() for bb_Tc in bb_T.components() if any(bb_Tc(edge) for edge in component)])
-            if any(S[component].g == 0 and comp_counts[component] <= 1 for component in T.components()):
+            comp_counts = Counter(component.containing_components().pop() for component in bb_T.components())
+            if any(S[component].g == 0 and comp_counts[component] <= 1 for component in T.components()):  # Should only check the T.components() that correspond to crush.
                 return False
             
             return True
