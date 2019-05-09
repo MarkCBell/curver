@@ -278,6 +278,11 @@ class Lamination:
                             components[self.triangulation.edge_curve(edge)] = (multiplicity, edge)
         
         return components
+    
+    def containing_components(self):
+        ''' Return the set of components of the underlying triangulation that this lamination lives in. '''
+        
+        return set(component for component in self.triangulation.components() if any(self(edge) for edge in component))
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
