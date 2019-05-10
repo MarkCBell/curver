@@ -42,7 +42,7 @@ def crush(source_triangulation, target_triangulation, curve, matrix):
     ''' Create a crush. '''
     return link(
         curver.kernel.Crush(source_triangulation, target_triangulation, curve),
-        curver.kernel.Lift(target_triangulation, source_triangulation, curve, matrix)
+        curver.kernel.Lift(target_triangulation, source_triangulation, matrix)
         )
 
 def lineartransformation(source_triangulation, target_triangulation, matrix, inverse_matrix):

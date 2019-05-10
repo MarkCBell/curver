@@ -146,7 +146,7 @@ class LinearTransformation(Move):
         self.matrix = matrix
     
     def __str__(self):
-        return 'LT'
+        return 'LT to %s' % self.target_triangulation
     def __eq__(self, other):
         eq = super(LinearTransformation, self).__eq__(other)
         if eq in [NotImplemented, False]:
@@ -159,17 +159,15 @@ class LinearTransformation(Move):
 
 class Lift(LinearTransformation):
     ''' This represents the inverse of crushing along a curve. '''
-    def __init__(self, source_triangulation, target_triangulation, curve, matrix):
+    def __init__(self, source_triangulation, target_triangulation, matrix):
         super(Lift, self).__init__(source_triangulation, target_triangulation, matrix)
         
-        self.curve = curve
-        
-        corner = self.curve.triangulation.corner_lookup[self.curve.parallel()]
-        # The vertices that will be glued together:
-        self.vertices = [self.source_triangulation.vertex_lookup[corner[i]] for i in [1, 2]]
+        # We need to use super again since we have not found the vertices needed so that we can call self yet.
+        is_crush_vertex = lambda vertex: not super(Lift, self).apply_lamination(self.source_triangulation.curve_from_cut_sequence(vertex)).is_peripheral()
+        self.vertices = [vertex for vertex in self.source_triangulation.vertices if is_crush_vertex(vertex)]
     
     def __str__(self):
-        return 'Lift ' + str(self.curve)
+        return 'Lift to %s' % self.target_triangulation
     
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
