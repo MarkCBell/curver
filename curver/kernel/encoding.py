@@ -400,6 +400,40 @@ class MappingClass(Mapping):
             lamination = image
         
         raise ValueError('Mapping Class is not a twist about a MultiCurve.')
+    
+    def restrict_to_complement(self, multicurve):
+        
+        assert isinstance(multicurve, curver.kernel.MultiCurve)
+        assert self(multicurve) == multicurve
+        
+        # TODO: Make something like this work. This requires worrying about getting exactly the right isometry on the end.
+        # crush = multicurve.crush()
+        # source = crush(self.source_triangulation.as_lamination())
+        # target = crush(self.self_image())  # self(self.source_triangulation.as_lamintation()).
+        # return target.shorten() * source.shorten().inverse()
+        
+        conjugator = multicurve.shorten()
+        short = conjugator(multicurve)
+        
+        h = conjugator * self * conjugator.inverse()
+        
+        moves2 = []
+        T = short.crush().target_triangulation
+        for move in h.flip_mapping():  # TODO: Make this work for all moves.
+            if isinstance(move, curver.kernel.EdgeFlip):
+                if short.dual_weight(move.square[0]) == short.dual_weight(move.square[3]):
+                    continue
+                move2 = T.encode_flip(move.edge)
+            elif isinstance(move, curver.kernel.Isometry):
+                move2 = T.encode_relabel_edges(move.label_map)
+            else:
+                continue
+            
+            moves2.append(move2)
+            T = move2.target_triangulation
+            short = move(short)
+        
+        return curver.kernel.MappingClass([item for move2 in reversed(moves2) for item in move2])
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.
