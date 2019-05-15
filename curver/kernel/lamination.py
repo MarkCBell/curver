@@ -499,9 +499,11 @@ class Lamination(object):
         
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
         while not lamination.is_empty():
+            has_arcs = any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)
             extra = []  # High priority edges to check.
             while active_edges:
-                edge = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: shorten_strategy(lamination, edge), upper_bound=1)
+                # Note that if lamination does not have any arcs then the max value that shorten_strategy can return is 0.5.
+                edge = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: shorten_strategy(lamination, edge), upper_bound=1 if has_arcs else 0.5)
                 if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
                 
                 a, b, c, d, e = lamination.triangulation.square(edge)
