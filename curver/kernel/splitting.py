@@ -78,6 +78,8 @@ class SplittingSequence(object):
             laminations[len(encodings)] = lamination
             seen[projective_hash(lamination)].append(len(encodings))
             
+            assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 1, 2) for triangle in lamination.triangulation)
+            
             # Remove all of the obvious boundary.
             non_peripheral_boundary = lamination.triangulation([2 if lamination(index) > 0 else 0 for index in lamination.triangulation.indices]).non_peripheral()
             if non_peripheral_boundary:  # is not empty.
@@ -91,6 +93,8 @@ class SplittingSequence(object):
                 # ... and re-save lamination.
                 laminations[len(encodings)] = lamination
                 seen[projective_hash(lamination)].append(len(encodings))
+            
+            assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 2) for triangle in lamination.triangulation)
             
             # Split all of the maximal branches
             max_weight = max(lamination)
