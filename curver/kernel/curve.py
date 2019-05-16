@@ -59,12 +59,17 @@ class MultiCurve(Lamination):
     def crush(self):
         ''' Return the crush map associated to this MultiCurve. '''
         
-        g = self.triangulation.id_encoding()
-        for curve in self.components():
-            h = g(curve).crush()  # Map forward under crushes first.
-            g = h * g
+        conjugator = self.shorten()
+        short = conjugator(self)
         
-        return g
+        crush = short.triangulation.id_encoding()
+        for curve in short.components():
+            next_crush = crush(curve).crush()  # Map forward under crushes first.
+            crush = next_crush * crush
+        
+        post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
+        
+        return post_conjugator * crush * conjugator
     
     def boundary_union(self, other):
         ''' Return \\partial N(self \\cup other). '''
@@ -334,5 +339,8 @@ class Curve(MultiCurve):
         matrix = np.array([[indices[j] if i == b.index else 1 if (i == e.index and j == b.index) else 1 if i == j else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
         
         crush = curver.kernel.create.crush(short.triangulation, new_triangulation, short, matrix).encode()
-        return crush * conjugator
+        
+        post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
+        
+        return post_conjugator * crush * conjugator
 
