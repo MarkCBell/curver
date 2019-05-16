@@ -315,12 +315,12 @@ class Curve(MultiCurve):
         #        /    |b    e/    |   ===>>   /    |  |b   ~b/  /    |
         #       /   ~b|     /~e   |          /    e|  |     /  /~e   |
         #      /      |    /      |         /      |  |    /  /      |
-        #     /       |   /       |        /       |  |   /  /       |
+        #     /=======|===/=======|        /       |  |   /  /       |
         #    /        |  /        |       /        |  |  /  /        |
         #   /         | /         |      /         |  | /  /         |
         #  /          V/          |     /          |  |/  /          |
         # #-----------#-----------#    #-----------#  #  #-----------#
-        # Where a is parallel to short.
+        # Where === is the short curve and a is its parallel edge.
         
         a = short.parallel()
         a, b, e = short.triangulation.corner_lookup[a]
