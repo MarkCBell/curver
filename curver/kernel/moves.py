@@ -181,3 +181,76 @@ class EdgeFlip(FlipGraphMove):
     def flip_mapping(self):
         return self.encode()
 
+class MultiEdgeFlip(FlipGraphMove):
+    ''' Represents the change to a curve caused by flipping an edge. '''
+    def __init__(self, source_triangulation, target_triangulation, edges):
+        super(MultiEdgeFlip, self).__init__(source_triangulation, target_triangulation)
+        
+        self.edges = set(curver.kernel.Edge(edge) if isinstance(edge, curver.IntegerType) else edge for edge in edges)  # If given any integers.
+        self.squares = dict((edge, self.source_triangulation.square(edge)) for edge in self.edges)
+        
+        support = set(self.source_triangulation.triangle_lookup[e] for edge in edges for e in [edge, ~edge])
+        assert len(support) == 2 * len(edges)  # Check disjoint support.
+        # Disjoint support implies flippable.
+    
+    def __str__(self):
+        return 'Flips %s' % self.edges
+    def package(self):
+        return set(edge.label for edge in self.edges)
+    def __eq__(self, other):
+        eq = super(MultiEdgeFlip, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.edges == other.edges
+    
+    def apply_lamination(self, lamination):
+        ''' See Lemma 5.1.3 of [Bell15]_ for details of the cases involved in performing a flip. '''
+        
+        # Most of the new information matches the old, so we'll take a copy and modify the places that have changed.
+        geometric = list(lamination.geometric)
+        
+        for edge in self.edges:
+            ei = lamination(edge)
+            ai0, bi0, ci0, di0, ei0 = [max(lamination(e), 0) for e in self.square(edge)]
+            if ei >= ai0 + bi0 and ai0 >= di0 and bi0 >= ci0:  # CASE: A(ab)
+                geometric[edge.index] = ai0 + bi0 - ei
+            elif ei >= ci0 + di0 and di0 >= ai0 and ci0 >= bi0:  # CASE: A(cd)
+                geometric[edge.index] = ci0 + di0 - ei
+            elif ei <= 0 and ai0 >= bi0 and di0 >= ci0:  # CASE: D(ad)
+                geometric[edge.index] = ai0 + di0 - ei
+            elif ei <= 0 and bi0 >= ai0 and ci0 >= di0:  # CASE: D(bc)
+                geometric[edge.index] = bi0 + ci0 - ei
+            elif ei >= 0 and ai0 >= bi0 + ei and di0 >= ci0 + ei:  # CASE: N(ad)
+                geometric[edge.index] = ai0 + di0 - 2*ei
+            elif ei >= 0 and bi0 >= ai0 + ei and ci0 >= di0 + ei:  # CASE: N(bc)
+                geometric[edge.index] = bi0 + ci0 - 2*ei
+            elif ai0 + bi0 >= ei and bi0 + ei >= 2*ci0 + ai0 and ai0 + ei >= 2*di0 + bi0:  # CASE: N(ab)
+                geometric[edge.index] = curver.kernel.utilities.half(ai0 + bi0 - ei)
+            elif ci0 + di0 >= ei and di0 + ei >= 2*ai0 + ci0 and ci0 + ei >= 2*bi0 + di0:  # CASE: N(cd)
+                geometric[edge.index] = curver.kernel.utilities.half(ci0 + di0 - ei)
+            else:
+                geometric[edge.index] = max(ai0 + ci0, bi0 + di0) - ei
+        
+        return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
+    
+    def apply_homology(self, homology_class):
+        algebraic = list(homology_class)
+        
+        for edge in self.edges:
+            a, b, c, d, e = self.square[edge]
+            
+            # Move the homology on e onto a & b.
+            algebraic[a.index] -= a.sign() * homology_class(e)
+            algebraic[b.index] -= b.sign() * homology_class(e)
+            algebraic[e.index] = 0
+        
+        return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
+    
+    def flip_mapping(self):
+        prod = self.source_triangulation.id_encoding()
+        for edge in self.edges:
+            prod = prod.target_triangulation.encode_flip(edge) * prod
+        
+        return prod
+

@@ -24,6 +24,13 @@ def edgeflip(source_triangulation, target_triangulation, edge):
         curver.kernel.EdgeFlip(target_triangulation, source_triangulation, ~edge)
         )
 
+def multiedgeflip(source_triangulation, target_triangulation, edges):
+    ''' Create a multiedgeflip. '''
+    return link(
+        curver.kernel.MultiEdgeFlip(source_triangulation, target_triangulation, edges),
+        curver.kernel.MultiEdgeFlip(target_triangulation, source_triangulation, [~edge for edge in edges])
+        )
+
 def twist(curve, power):
     ''' Create a twist. '''
     return link(

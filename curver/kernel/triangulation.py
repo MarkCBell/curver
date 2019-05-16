@@ -657,9 +657,19 @@ class Triangulation(object):
         
         The given edge must be flippable. '''
         
-        if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
+        move = self.encode_multiflip([edge])
+        return curver.kernel.create.edgeflip(move.source_triangulation, move.target_triangulation, edge).encode()
+    
+    def encode_multiflip(self, edges):
+        ''' Return an encoding of the effect of flipping the given edges.
         
-        assert self.is_flippable(edge)
+        The given edges must be flippable and have disjoint support. '''
+        
+        edges = set(curver.kernel.Edge(edge) if isinstance(edge, curver.IntegerType) else edge for edge in edges)  # If given any integers.
+        
+        support = set(self.triangle_lookup[e] for edge in edges for e in [edge, ~edge])
+        assert len(support) == 2 * len(edges)  # Check disjoint support.
+        # Disjoint support implies flippable.
         
         # Use the following for reference:
         # #<----------#     #-----------#
@@ -679,19 +689,21 @@ class Triangulation(object):
         edge_map = dict((edge, Edge(edge.label)) for edge in self.edges)
         
         # Most triangles don't change.
-        triangles = [Triangle([edge_map[edgy] for edgy in triangle]) for triangle in self if edge not in triangle and ~edge not in triangle]
+        triangles = [Triangle([edge_map[edgy] for edgy in triangle]) for triangle in self if triangle not in support]
         
-        a, b, c, d, e = self.square(edge)
+        for edge in edges:
+            a, b, c, d, e = self.square(edge)
+            
+            if edge.sign() == +1:
+                triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
+                triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
+            else:  # edge.sign() == -1:
+                triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
+                triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
+            triangles.extend([triangle_A2, triangle_B2])
         
-        if edge.sign() == +1:
-            triangle_A2 = Triangle([edge_map[e], edge_map[d], edge_map[a]])
-            triangle_B2 = Triangle([edge_map[~e], edge_map[b], edge_map[c]])
-        else:  # edge.sign() == -1:
-            triangle_A2 = Triangle([edge_map[~e], edge_map[d], edge_map[a]])
-            triangle_B2 = Triangle([edge_map[e], edge_map[b], edge_map[c]])
-        new_triangulation = Triangulation(triangles + [triangle_A2, triangle_B2])
-        
-        return curver.kernel.create.edgeflip(self, new_triangulation, edge).encode()
+        new_triangulation = Triangulation(triangles)
+        return curver.kernel.create.multiedgeflip(self, new_triangulation, edges).encode()
     
     def encode_relabel_edges(self, label_map):
         ''' Return an encoding of the effect of relabelling the edges according to label_map.
@@ -786,6 +798,8 @@ class Triangulation(object):
         for item in reversed(sequence):
             if isinstance(item, curver.IntegerType):  # Flip.
                 term = T.encode_flip(item)
+            elif isinstance(item, set):  # MultiFlip.
+                term = T.encode_multiflip(item)
             elif isinstance(item, dict):  # Isometry.
                 if all(i in item or ~i in item for i in self.indices):
                     term = T.encode_relabel_edges(item)
