@@ -94,11 +94,9 @@ class SplittingSequence(object):
             
             # Split all of the maximal branches
             max_weight = max(lamination)
-            max_edges = [edge for edge in lamination.triangulation.positive_edges if lamination(edge) == max_weight]
-            for edge in max_edges:
-                move = lamination.triangulation.encode_flip(edge)
-                encodings.append(move)
-                lamination = move(lamination)
+            move = lamination.triangulation.encode_multiflip([edge for edge in lamination.triangulation.positive_edges if lamination(edge) == max_weight])
+            encodings.append(move)
+            lamination = move(lamination)
             
             # Check if lamination now (projectively) matches a lamination we've already seen.
             for index in seen.get(projective_hash(lamination), []):
