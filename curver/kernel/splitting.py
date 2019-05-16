@@ -66,47 +66,8 @@ class SplittingSequence(object):
         assert all(weight >= 0 for weight in starting_lamination)
         assert all(starting_lamination.dual_weight(edge) >= 0 for edge in starting_lamination.triangulation.edges)
         
-        # Puncture all the triangles where the starting_lamination is a tripod.
-        geometric = list(starting_lamination)
-        triangulation = starting_lamination.triangulation
-        zeta = triangulation.zeta
-        
-        def E(x):
-            ''' Return the length zeta array with a 1 at position x. '''
-            return np.array([1 if i == x else 0 for i in range(triangulation.zeta)], dtype=object)
-        
-        triangles = []
-        matrix_rows = [2*E(i) for i in range(zeta)]
-        geometric = list(starting_lamination)
-        for triangle in triangulation:
-            a, b, c = triangle.edges
-            if all(starting_lamination.dual_weight(edge) > 0 for edge in triangle):  # Is tripod.
-                s, t, u = curver.kernel.Edge(zeta), curver.kernel.Edge(zeta+1), curver.kernel.Edge(zeta+2)  # New edges.
-                triangles.extend([curver.kernel.Triangle([a, ~u, t]), curver.kernel.Triangle([b, ~s, u]), curver.kernel.Triangle([c, ~t, s])])
-                matrix_rows.append(E(b.index) + E(c.index) - E(a.index))
-                matrix_rows.append(E(c.index) + E(a.index) - E(b.index))
-                matrix_rows.append(E(a.index) + E(b.index) - E(c.index))
-                geometric.extend([starting_lamination.dual_weight(a), starting_lamination.dual_weight(b), starting_lamination.dual_weight(c)])
-                
-                zeta += 3
-            else:
-                triangles.append(curver.kernel.Triangle([a, b, c]))
-        
-        punctured_triangulation = curver.kernel.Triangulation(triangles)
-        matrix = np.stack(matrix_rows)
-        inverse_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(triangulation.zeta)], dtype=object)
-        
-        half_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
-        inverse_half_matrix = np.array([[2 if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
-        
-        puncture = curver.kernel.Encoding([
-            curver.kernel.create.lineartransformation(punctured_triangulation, punctured_triangulation, half_matrix, inverse_half_matrix),
-            curver.kernel.create.lineartransformation(triangulation, punctured_triangulation, matrix, inverse_matrix)
-            ])
-        # Apply move.
+        puncture = starting_lamination.triangulation.encode_pachner_1_3()
         lamination = puncture(starting_lamination)
-        
-        assert lamination.geometric == geometric
         
         encodings = [lamination.triangulation.id_encoding()]
         laminations = dict()  # i |--> L_i.
