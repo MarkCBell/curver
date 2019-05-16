@@ -212,7 +212,7 @@ class MultiEdgeFlip(FlipGraphMove):
         
         for edge in self.edges:
             ei = lamination(edge)
-            ai0, bi0, ci0, di0, ei0 = [max(lamination(e), 0) for e in self.square(edge)]
+            ai0, bi0, ci0, di0, ei0 = [max(lamination(e), 0) for e in self.squares[edge]]
             if ei >= ai0 + bi0 and ai0 >= di0 and bi0 >= ci0:  # CASE: A(ab)
                 geometric[edge.index] = ai0 + bi0 - ei
             elif ei >= ci0 + di0 and di0 >= ai0 and ci0 >= bi0:  # CASE: A(cd)
