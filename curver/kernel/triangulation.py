@@ -720,6 +720,45 @@ class Triangulation(object):
         
         return curver.kernel.create.isometry(self, new_triangulation, label_map).encode()
     
+    def encode_pachner_1_3(self, triangles=None):
+        ''' Return an Encoding which corresponds to performing a 1 --> 3 Pachner move on the requested triangles.
+        
+        By default, this is performed on all triangles. '''
+        
+        if triangles is None: triangles = set(self)  # All triangles.
+        zeta = self.zeta
+        
+        def E(x):
+            ''' Return the length zeta array with a 1 at position x. '''
+            return np.array([1 if i == x else 0 for i in range(self.zeta)], dtype=object)
+        
+        new_triangles = []
+        matrix_rows = [2*E(i) for i in range(self.zeta)]
+        for triangle in self:
+            a, b, c = triangle.edges
+            if triangle in triangles:
+                s, t, u = curver.kernel.Edge(zeta), curver.kernel.Edge(zeta+1), curver.kernel.Edge(zeta+2)  # New edges.
+                new_triangles.extend([curver.kernel.Triangle([a, ~u, t]), curver.kernel.Triangle([b, ~s, u]), curver.kernel.Triangle([c, ~t, s])])
+                matrix_rows.append(E(b.index) + E(c.index) - E(a.index))
+                matrix_rows.append(E(c.index) + E(a.index) - E(b.index))
+                matrix_rows.append(E(a.index) + E(b.index) - E(c.index))
+                
+                zeta += 3
+            else:
+                new_triangles.append(curver.kernel.Triangle([a, b, c]))
+        
+        new_triangulation = curver.kernel.Triangulation(new_triangles)
+        matrix = np.stack(matrix_rows)
+        inverse_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(self.zeta)], dtype=object)
+        
+        half_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
+        inverse_half_matrix = np.array([[2 if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
+        
+        return curver.kernel.Encoding([
+            curver.kernel.create.lineartransformation(new_triangulation, new_triangulation, half_matrix, inverse_half_matrix),
+            curver.kernel.create.lineartransformation(self, new_triangulation, matrix, inverse_matrix)
+            ])
+    
     def encode(self, sequence):
         ''' Return the encoding given by a sequence of Moves.
         
