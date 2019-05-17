@@ -85,3 +85,24 @@ def alphanum_key(strn):
     
     return blocks
 
+class Half(object):
+    ''' A class for representing 1/2 in such a way that multiplication preserves types. '''
+    def __mul__(self, other):
+        if isinstance(other, curver.IntegerType):
+            result = other // 2
+        else:
+            result = other / 2
+        if 2*result != other:  # Sanity check.
+            raise ValueError('{} is not halvable in its field.'.format(other))
+        return result
+    def __str__(self):
+        return '1/2'
+    def __repr__(self):
+        return str(self)
+    def __rmul__(self, other):
+        return self * other
+    def __call__(self, other):
+        return self * other
+
+half = Half()
+
