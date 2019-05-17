@@ -238,7 +238,7 @@ class MultiEdgeFlip(FlipGraphMove):
         algebraic = list(homology_class)
         
         for edge in self.edges:
-            a, b, c, d, e = self.square[edge]
+            a, b, c, d, e = self.squares[edge]
             
             # Move the homology on e onto a & b.
             algebraic[a.index] -= a.sign() * homology_class(e)
