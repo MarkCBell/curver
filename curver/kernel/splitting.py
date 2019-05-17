@@ -2,7 +2,6 @@
 ''' A module for building and manipulating splitting sequences. '''
 
 from collections import Counter, defaultdict
-import numpy as np
 
 import curver
 
