@@ -811,7 +811,7 @@ class Triangulation(object):
                 
                 if power == 0:  # Crush:
                     curve = T.edge_curve(edge)
-                    term = curve.crush()[:-1]  # Remove the trailing identity isometry.
+                    term = curve.crush()[1:-1]  # Remove the leading and trailing identity isometries.
                 elif T.vertex_lookup[edge] == T.vertex_lookup[~edge]:  # Twist.
                     curve = T.edge_curve(edge)
                     term = curve.encode_twist(power)[1:-1]  # Remove the leading and trailing identity isometries.
