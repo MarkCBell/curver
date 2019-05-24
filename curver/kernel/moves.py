@@ -248,9 +248,5 @@ class MultiEdgeFlip(FlipGraphMove):
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
     
     def flip_mapping(self):
-        prod = self.source_triangulation.id_encoding()
-        for edge in self.edges:
-            prod = prod.target_triangulation.encode_flip(edge) * prod
-        
-        return prod
+        return self.source_triangulation.encode([edge.label for edge in self.edges])
 
