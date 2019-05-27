@@ -4,6 +4,8 @@ import unittest
 
 import strategies
 
+import curver
+
 class TestLoad(unittest.TestCase):
     @given(st.integers(min_value=0), st.integers(min_value=1))
     def test_pair(self, g, n):
