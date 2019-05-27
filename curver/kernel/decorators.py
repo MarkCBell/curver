@@ -6,10 +6,10 @@ from decorator import decorator
 
 @decorator
 def memoize(function, *args, **kwargs):
-    ''' A decorator that memoizes a method of a class. '''
+    ''' A decorator that memoizes a function. '''
     
     inputs = inspect.getcallargs(function, *args, **kwargs)  # pylint: disable=deprecated-method
-    self = inputs.pop('self')
+    self = inputs.pop('self', function)  # We test whether function is a method by looking for a `self` argument. If not we store the cache in the function itself.
     
     if not hasattr(self, '_cache'):
         self._cache = dict()
