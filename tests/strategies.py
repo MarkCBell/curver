@@ -5,8 +5,8 @@ import pytest
 import unittest
 
 import curver
+from curver.kernel.decorators import memoize  # Special import needed for decorating.
 
-# TRIANGULATIONS = {(g, p): curver.load(g, p).triangulation.sig() for g in range(10) for p in range(1, 10) if 6*g + 3*p - 6 >= 3}
 TRIANGULATIONS = {
     (0, 3): '3_p',
     (0, 4): '6_JDky1',
@@ -27,16 +27,25 @@ TRIANGULATIONS = {
 
 SIGNATURES = [TRIANGULATIONS[key] for key in sorted(TRIANGULATIONS)]
 
+@memoize
+def memoized_triangulation(signature):
+    return curver.triangulation_from_sig(signature)
+
 @st.composite
 def triangulations(draw):
     sig = draw(st.sampled_from(SIGNATURES))
     return curver.triangulation_from_sig(sig)
 
-MCGS = [curver.load(g, p) for g, p in [(0, 3), (0, 4), (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)]]
+MCGS = [(0, 3), (0, 4), (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)]
+
+@memoize
+def memoized_load(*args):
+    return curver.load(*args)
 
 @st.composite
 def mcgs(draw):
-    return draw(st.sampled_from(MCGS))
+    g, p = draw(st.sampled_from(MCGS))
+    return memoized_load(g, p)
 
 @st.composite
 def mapping_classes(draw, triangulation=None, power_range=10):
