@@ -1,4 +1,4 @@
-from hypothesis import given, settings, assume
+from hypothesis import given, assume
 import hypothesis.strategies as st
 import unittest
 
