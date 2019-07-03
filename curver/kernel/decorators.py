@@ -15,8 +15,18 @@ def memoize(function, *args, **kwargs):
         self._cache = dict()
     key = (function.__name__, frozenset(inputs.items()))
     if key not in self._cache:
-        self._cache[key] = function(*args, **kwargs)
-    return self._cache[key]
+        try:
+            self._cache[key] = function(*args, **kwargs)
+        except Exception as error:
+            if isinstance(error, KeyboardInterrupt):
+                raise
+            self._cache[key] = error
+    
+    result = self._cache[key]
+    if isinstance(result, Exception):
+        raise result
+    else:
+        return result
 
 def memoizable(cls):
     ''' A class decorator that add the 'set_cache' method to a class. '''
