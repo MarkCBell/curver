@@ -381,25 +381,34 @@ class MappingClass(Mapping):
         else:
             raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
     
+    @memoize
     def extract_twisting_multicurve(self):
         ''' Return a MultiCurve c such that c.encode_twist() == self.
         
         This raises a ValueError if no such MultiCurve exists.'''
         
-        lamination = self.source_triangulation.as_lamination()
+        triangulation = self.source_triangulation
+        lamination = triangulation.as_lamination()
         for _ in range(self.zeta):
             image = self(lamination)
             try:
-                multicurve = self.source_triangulation([x - y for x, y in zip(image, lamination)])
+                multicurve = triangulation([x - y for x, y in zip(image, lamination)])
                 if isinstance(multicurve, curver.kernel.MultiCurve):
-                    weighted_multicurve = self.source_triangulation.disjoint_sum([(multiplicity // lamination.intersection(component)) * component for component, multiplicity in multicurve.components().items()])
-                    if not weighted_multicurve.is_empty() and self == weighted_multicurve.encode_twist():
+                    weighted_multicurve = triangulation.disjoint_sum([(multiplicity // lamination.intersection(component)) * component for component, multiplicity in multicurve.components().items()])
+                    if not weighted_multicurve.is_empty() and h == weighted_multicurve.encode_twist():
                         return weighted_multicurve
             except ValueError:
                 pass
             lamination = image
         
-        raise ValueError('Mapping Class is not a twist about a MultiCurve.')
+        raise ValueError('Mapping Class is not a twist.')
+    
+    def is_multitwist(self):
+        try:
+            _ = self.extract_twisting_multicurves()
+            return True
+        except ValueError:
+            return False
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.
