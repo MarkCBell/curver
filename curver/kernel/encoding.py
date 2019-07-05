@@ -395,7 +395,7 @@ class MappingClass(Mapping):
                 multicurve = triangulation([x - y for x, y in zip(image, lamination)])
                 if isinstance(multicurve, curver.kernel.MultiCurve):
                     weighted_multicurve = triangulation.disjoint_sum([(multiplicity // lamination.intersection(component)) * component for component, multiplicity in multicurve.components().items()])
-                    if not weighted_multicurve.is_empty() and h == weighted_multicurve.encode_twist():
+                    if not weighted_multicurve.is_empty() and weighted_multicurve.encode_twist() == self:
                         return weighted_multicurve
             except ValueError:
                 pass
@@ -404,8 +404,9 @@ class MappingClass(Mapping):
         raise ValueError('Mapping Class is not a twist.')
     
     def is_multitwist(self):
+        ''' Return whether this mapping class is a Dehn twist about a multicurve. '''
         try:
-            _ = self.extract_twisting_multicurves()
+            _ = self.extract_twisting_multicurve()
             return True
         except ValueError:
             return False

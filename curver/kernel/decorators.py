@@ -17,7 +17,7 @@ def memoize(function, *args, **kwargs):
     if key not in self._cache:
         try:
             self._cache[key] = function(*args, **kwargs)
-        except Exception as error:
+        except Exception as error:  # pylint: disable=broad-except
             if isinstance(error, KeyboardInterrupt):
                 raise
             self._cache[key] = error
