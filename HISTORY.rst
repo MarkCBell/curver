@@ -2,6 +2,21 @@
 History
 =======
 
+0.3.5 (2019-XX-YY)
+------------------
+
+* Added Pachner 1 --> 3 move.
+* Added MultiEdgeFlip Move.
+* Crushing now respects the underlying triangulation.
+* Using custom Half class.
+* Now using create methods to build and link moves and their inverses simultaneously.
+* Using IntegralLamination intermediate class.
+* Testing curver.load.
+* Dynamically building triangulations during testing.
+* Memoize works even for methods that raise Exceptions.
+* Fixed appveyor build process.
+* Fixed py.test usage.
+
 0.3.4 (2019-03-29)
 ------------------
 
