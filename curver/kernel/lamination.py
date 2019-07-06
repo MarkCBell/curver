@@ -444,7 +444,9 @@ class IntegralLamination(Lamination):
     @memoize
     @ensure(lambda data: data.result[0].is_short())
     def shorten(self, drop=0.1):
-        ''' Return a mapping which maps this lamination to a short one.
+        ''' Return a pair (s, h) where:
+         * h is a mapping which maps this lamination to a short one, and
+         * s = h(self.non_peripheral()).
         
         In each round, we do not look for an accelerating Dehn twist if a flip can drop the weight by at least `drop`%.
         So if `drop` == 0.0 then acceleration is never done and this returns the Mosher flip sequence.
@@ -459,7 +461,8 @@ class IntegralLamination(Lamination):
         conjugator = self.triangulation.id_encoding()
         
         if self.is_short():  # If this lamination is already short:
-            return self, conjugator
+            short = lamination.triangulation.disjoint_sum([multiplicity * component for component, (multiplicity, edge) in lamination.parallel_components().items()])
+            return short, conjugator
         
         def shorten_strategy(self, edge):
             ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
@@ -580,9 +583,10 @@ class IntegralLamination(Lamination):
             lamination = Lamination(lamination.triangulation, geometric)  # FIXME: Does this need to be integral?
         
         # Rebuild the image of self under conjugator from its components.
-        final_components = [multiplicity * lamination.triangulation.edge_arc(edge) for multiplicity, edge in arc_components] + \
+        short = lamination.triangulation.disjoint_sum(
+            [multiplicity * lamination.triangulation.edge_arc(edge) for multiplicity, edge in arc_components] + \
             [multiplicity * lamination.triangulation.edge_curve(edge) for multiplicity, edge in curve_components]
-        short = lamination.triangulation.disjoint_sum(final_components)
+            )
         
         return short, conjugator
 
