@@ -289,10 +289,15 @@ class IntegralLamination(Lamination):
         assert all(isinstance(lamination, Lamination) for lamination in laminations)
         assert all(lamination.triangulation == self.triangulation for lamination in laminations)
         
+        intersection = 0
+        # Peripheral components.
+        for _, (multiplicity, vertex) in self.peripheral_components().items():
+            for lamination in laminations:
+                intersection += multiplicity * sum(max(-lamination(edge), 0) + max(-lamination.side_weight(edge), 0) for edge in vertex)
+        
         short, conjugator = self.shorten()
         short_laminations = [conjugator(lamination) for lamination in laminations]
         
-        intersection = 0
         # Parallel components.
         for component, (multiplicity, p) in short.parallel_components().items():
             if isinstance(component, curver.kernel.Arc):
@@ -307,11 +312,6 @@ class IntegralLamination(Lamination):
                     out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
                     # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
                     intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
-        
-        # Peripheral components.
-        for _, (multiplicity, vertex) in short.peripheral_components().items():
-            for short_lamination in short_laminations:
-                intersection += multiplicity * sum(max(-short_lamination(edge), 0) + max(-short_lamination.side_weight(edge), 0) for edge in vertex)
         
         return intersection
     
@@ -415,11 +415,12 @@ class IntegralLamination(Lamination):
         
         components = dict()
         
+        for component, (multiplicity, _) in self.peripheral_components().items():
+            components[component] = multiplicity
+        
         short, conjugator = self.shorten()
         conjugator_inv = conjugator.inverse()
         
-        for component, (multiplicity, _) in short.peripheral_components().items():
-            components[conjugator_inv(component)] = multiplicity
         for component, (multiplicity, _) in short.parallel_components().items():
             components[conjugator_inv(component)] = multiplicity
         
@@ -440,7 +441,7 @@ class IntegralLamination(Lamination):
         
         return lamination.is_empty()
     
-    # @memoize
+    @memoize
     @ensure(lambda data: data.result[0].is_short())
     def shorten(self, drop=0.1):
         ''' Return a mapping which maps this lamination to a short one.
@@ -582,8 +583,6 @@ class IntegralLamination(Lamination):
         final_components = [multiplicity * lamination.triangulation.edge_arc(edge) for multiplicity, edge in arc_components] + \
             [multiplicity * lamination.triangulation.edge_curve(edge) for multiplicity, edge in curve_components]
         short = lamination.triangulation.disjoint_sum(final_components)
-        
-        assert short == conjugator(self)
         
         return short, conjugator
 
