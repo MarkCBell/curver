@@ -574,20 +574,23 @@ class Triangulation(object):
             num_components = sum(lamination.num_components() for lamination in laminations)
             
             geometric = [sum(weights) for weights in zip(*laminations)]
-            if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):
-                if num_components == 1:
-                    new_class = curver.kernel.Arc
-                else:  # num_components > 1:
-                    new_class = curver.kernel.MultiArc
-            elif all(isinstance(lamination, curver.kernel.MultiCurve) for lamination in laminations):
-                if num_components == 1:
-                    new_class = curver.kernel.Curve
-                else:  # num_components > 1:
-                    new_class = curver.kernel.MultiCurve
-            else:  # Mixed.
-                new_class = curver.kernel.Lamination
-            
-            return new_class(self, geometric)
+            temp_class = curver.kernel.Lamination(self, geometric)
+            if temp_class.is_integral():
+                if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):
+                    if num_components == 1:
+                        new_class = curver.kernel.Arc
+                    else:  # num_components > 1:
+                        new_class = curver.kernel.MultiArc
+                elif all(isinstance(lamination, curver.kernel.MultiCurve) for lamination in laminations):
+                    if num_components == 1:
+                        new_class = curver.kernel.Curve
+                    else:  # num_components > 1:
+                        new_class = curver.kernel.MultiCurve
+                else:  # Mixed.
+                    new_class = curver.kernel.IntegralLamination
+                return new_class(self, geometric)
+            else:  # Non-integral.
+                return temp_class
         else:
             return NotImplemented
     
