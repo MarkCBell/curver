@@ -289,8 +289,7 @@ class IntegralLamination(Lamination):
         assert all(isinstance(lamination, Lamination) for lamination in laminations)
         assert all(lamination.triangulation == self.triangulation for lamination in laminations)
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         short_laminations = [conjugator(lamination) for lamination in laminations]
         
         intersection = 0
@@ -382,7 +381,7 @@ class IntegralLamination(Lamination):
         if any(isinstance(component, curver.kernel.Curve) for component in self.components()):
             return False
         
-        short = self.shorten()(self)
+        short, _ = self.shorten()
        
         avoid = set(index for index in short.triangulation.indices if short(index) < 0)  # All of the edges used.
         dual_tree = short.triangulation.dual_tree(avoid=avoid)
@@ -416,8 +415,7 @@ class IntegralLamination(Lamination):
         
         components = dict()
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         conjugator_inv = conjugator.inverse()
         
         for component, (multiplicity, _) in short.peripheral_components().items():
@@ -442,8 +440,8 @@ class IntegralLamination(Lamination):
         
         return lamination.is_empty()
     
-    @memoize
-    @ensure(lambda data: data.result(data.self).is_short())
+    # @memoize
+    @ensure(lambda data: data.result[0].is_short())
     def shorten(self, drop=0.1):
         ''' Return a mapping which maps this lamination to a short one.
         
@@ -460,7 +458,7 @@ class IntegralLamination(Lamination):
         conjugator = self.triangulation.id_encoding()
         
         if self.is_short():  # If this lamination is already short:
-            return conjugator
+            return self, conjugator
         
         def shorten_strategy(self, edge):
             ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
@@ -515,6 +513,7 @@ class IntegralLamination(Lamination):
             
             raise ValueError('No accelerating twist exists.')
         
+        arc_components, curve_components = [], []
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
         while not lamination.is_empty():
             has_arcs = any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)
@@ -570,8 +569,21 @@ class IntegralLamination(Lamination):
                     geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
                     active_edges.discard(edge)
                     active_edges.discard(~edge)
+                    if isinstance(component, curver.kernel.Arc):
+                        arc_components.append((multiplicity, edge))
+                        assert component == lamination.triangulation.edge_arc(edge)
+                    else:
+                        curve_components.append((multiplicity, edge))
+                        assert component == lamination.triangulation.edge_curve(edge)
             
             lamination = Lamination(lamination.triangulation, geometric)  # FIXME: Does this need to be integral?
         
-        return conjugator
+        # Rebuild the image of self under conjugator from its components.
+        final_components = [multiplicity * lamination.triangulation.edge_arc(edge) for multiplicity, edge in arc_components] + \
+            [multiplicity * lamination.triangulation.edge_curve(edge) for multiplicity, edge in curve_components]
+        short = lamination.triangulation.disjoint_sum(final_components)
+        
+        assert short == conjugator(self)
+        
+        return short, conjugator
 

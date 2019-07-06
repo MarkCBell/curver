@@ -25,8 +25,7 @@ class MultiArc(IntegralLamination):
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         # short is a subset of the edges of the triangulation it is defined on.
         # So its geometric vector is non-positive.
         
@@ -67,7 +66,7 @@ class MultiArc(IntegralLamination):
     @topological_invariant
     def is_triangulation(self):
         ''' Return if this MultiArc is a triangulation. '''
-        short = self.shorten()(self)
+        short, _ = self.shorten()
         
         return all(weight == -1 for weight in short)
     
@@ -84,7 +83,7 @@ class MultiArc(IntegralLamination):
     def minimise(self):
         ''' Return an encoding which maps this multiarc to a minimal one. '''
         
-        return self.shorten()
+        return self.shorten()  # RETURN TO.
     
     def explore_ball(self, radius):
         ''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
@@ -94,8 +93,7 @@ class MultiArc(IntegralLamination):
         
         assert self.is_filling()
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         
         triangulations = set()
         for encoding in short.triangulation.all_encodings(radius):
@@ -111,8 +109,7 @@ class MultiArc(IntegralLamination):
         
         assert self.is_filling()
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         conjugator_inv = conjugator.inverse()
         
         # All arcs that meet 0 edges.
@@ -212,8 +209,7 @@ class Arc(MultiArc):
         if power == 0:  # Boring case.
             return self.triangulation.id_encoding()
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         
         return conjugator.inverse() * curver.kernel.create.halftwist(short, power).encode() * conjugator
 

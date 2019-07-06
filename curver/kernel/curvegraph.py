@@ -46,12 +46,12 @@ class CurveGraph(object):
         if b.weight() < a.weight():
             a, b = b, a
         
-        conjugator_a = a.shorten()
+        _, conjugator_a = a.shorten()
         inv_conjugator_a = conjugator_a.inverse()
         
         short_b = conjugator_a(b)
         
-        conjugator_b = short_b.shorten()
+        _, conjugator_b = short_b.shorten()
         inv_conjugator_b = conjugator_b.inverse()
         
         train_track = short_b

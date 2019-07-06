@@ -59,15 +59,14 @@ class MultiCurve(IntegralLamination):
     def crush(self):
         ''' Return the crush map associated to this MultiCurve. '''
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         
         crush = short.triangulation.id_encoding()
         for curve in short.components():
             next_crush = crush(curve).crush()  # Map forward under crushes first.
             crush = next_crush * crush
         
-        post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
+        _, post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
         
         return post_conjugator * crush * conjugator
     
@@ -199,8 +198,7 @@ class Curve(MultiCurve):
             
             return 0
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         
         # Lemma: There path in the flip graph from a short representative to a minimal one in which the weight strictly decreases at each step.
         
@@ -213,7 +211,7 @@ class Curve(MultiCurve):
             conjugator = move * conjugator
             minimal = move(minimal)
         
-        return conjugator
+        return minimal, conjugator
     
     @topological_invariant
     def is_isolating(self):
@@ -222,7 +220,7 @@ class Curve(MultiCurve):
         if self.is_peripheral():
             return False
         
-        short = self.shorten()(self)
+        short, _ = self.shorten()
         return all(weight % 2 == 0 for weight in short)
     
     def encode_twist(self, power=1):
@@ -231,8 +229,7 @@ class Curve(MultiCurve):
         if self.is_peripheral() or power == 0:  # Boring case.
             return self.triangulation.id_encoding()
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         
         return conjugator.inverse() * curver.kernel.create.twist(short, power).encode() * conjugator
     
@@ -249,8 +246,7 @@ class Curve(MultiCurve):
         if self.is_peripheral():
             raise ValueError('Curve is peripheral.')
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
         
         # Get some edges.
@@ -303,8 +299,7 @@ class Curve(MultiCurve):
         if self.is_peripheral():  # Boring case.
             return self.triangulation.id_encoding()
         
-        conjugator = self.shorten()
-        short = conjugator(self)
+        short, conjugator = self.shorten()
         
         # Use the following for reference:
         #             #<----------#                #  #-----------#  #
@@ -340,7 +335,7 @@ class Curve(MultiCurve):
         
         crush = curver.kernel.create.crush(short.triangulation, new_triangulation, short, matrix).encode()
         
-        post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
+        _, post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
         
         return post_conjugator * crush * conjugator
 

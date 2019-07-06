@@ -161,9 +161,8 @@ class FiniteSubgroup(object):
                     raise RuntimeError('Unable to find invariant unicorn arc.')
             
             # Reshorten invariant_multiarc.
-            next_conjugator = invariant_multiarc.shorten()
+            invariant_multiarc, next_conjugator = invariant_multiarc.shorten()
             conjugator = next_conjugator * conjugator
-            invariant_multiarc = next_conjugator(invariant_multiarc)
             H = [next_conjugator * h * next_conjugator.inverse() for h in H]
             triangulation = conjugator.target_triangulation
         
@@ -177,8 +176,7 @@ class FiniteSubgroup(object):
         
         polygonalisation = self.invariant_polygonalisation()
         
-        conjugator = polygonalisation.shorten()
-        short = conjugator(polygonalisation)
+        short, conjugator = polygonalisation.shorten()
         
         H = dict((name, conjugator * self[name] * conjugator.inverse()) for name in self)
         

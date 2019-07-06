@@ -194,7 +194,7 @@ class Mapping(Encoding):
         
         This is obtained by combing the image of the source triangulation under self and so is (hopefully) simpler than self since it depends only on the endpoints. '''
         
-        conjugator = self(self.source_triangulation.as_lamination()).shorten()
+        _, conjugator = self(self.source_triangulation.as_lamination()).shorten()
         # conjugator.inverse() is almost self, however the edge labels might not agree.
         
         potential_closers = [isom.encode() for isom in self.source_triangulation.isometries_to(conjugator.target_triangulation)]
