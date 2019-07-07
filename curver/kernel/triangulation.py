@@ -571,20 +571,20 @@ class Triangulation(object):
             if any(lamination.triangulation != self for lamination in laminations):
                 raise ValueError('Laminations must all be defined on this triangulation to add them.')
             
-            num_components = sum(lamination.num_components() for lamination in laminations)
+            is_connected = len(laminations) == 1 and isinstance(laminations[0], (curver.kernel.Curve, curver.kernel.Arc))
             
             geometric = [sum(weights) for weights in zip(*laminations)]
             temp_class = curver.kernel.Lamination(self, geometric)
             if temp_class.is_integral():
                 if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):
-                    if num_components == 1:
+                    if is_connected:
                         new_class = curver.kernel.Arc
-                    else:  # num_components > 1:
+                    else:
                         new_class = curver.kernel.MultiArc
                 elif all(isinstance(lamination, curver.kernel.MultiCurve) for lamination in laminations):
-                    if num_components == 1:
+                    if is_connected:
                         new_class = curver.kernel.Curve
-                    else:  # num_components > 1:
+                    else:
                         new_class = curver.kernel.MultiCurve
                 else:  # Mixed.
                     new_class = curver.kernel.IntegralLamination
