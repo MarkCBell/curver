@@ -541,10 +541,11 @@ class IntegralLamination(Lamination):
                 if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
                 
                 a, b, c, d, e = lamination.triangulation.square(edge)
-                flip = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
-                
-                move = flip
-                if (1 - drop) * lamination.weight() < flip(lamination).weight():  # Flipping drops weight by less than drop%, so look for a twist to accelerate.
+                move = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
+                # Since looking for and applying a twist is expensive, we will not do it if:
+                #  * lamination has little weight, or
+                #  * flipping drops the weight by at least drop%.
+                if 4 * self.zeta < lamination.weight() < move(lamination).weight() / (1 - drop):
                     try:
                         move = find_twist(lamination, edge)
                     except ValueError:
