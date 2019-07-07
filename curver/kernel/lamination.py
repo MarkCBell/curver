@@ -513,7 +513,7 @@ class IntegralLamination(Lamination):
             
             raise ValueError('No accelerating twist exists.')
         
-        arc_components, curve_components = [], []
+        arc_components, curve_components = dict(), dict()
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
         has_arcs = True
         while True:
@@ -525,9 +525,9 @@ class IntegralLamination(Lamination):
                     active_edges.discard(edge)
                     active_edges.discard(~edge)
                     if isinstance(component, curver.kernel.Arc):
-                        arc_components.append((multiplicity, edge))
+                        arc_components[edge] = multiplicity
                     else:
-                        curve_components.append((multiplicity, edge))
+                        curve_components[edge] = multiplicity
             
             lamination = IntegralLamination(lamination.triangulation, geometric)
             
@@ -581,8 +581,8 @@ class IntegralLamination(Lamination):
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(
-            [multiplicity * lamination.triangulation.edge_arc(edge) for multiplicity, edge in arc_components] +
-            [multiplicity * lamination.triangulation.edge_curve(edge) for multiplicity, edge in curve_components]
+            [multiplicity * lamination.triangulation.edge_arc(edge) for edge, multiplicity in arc_components.items()] +
+            [multiplicity * lamination.triangulation.edge_curve(edge) for edge, multiplicity in curve_components.items()]
             )
         
         return short, conjugator
