@@ -460,10 +460,6 @@ class IntegralLamination(Lamination):
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
         
-        if self.is_short():  # If this lamination is already short:
-            short = lamination.triangulation.disjoint_sum([multiplicity * component for component, (multiplicity, edge) in lamination.parallel_components().items()])
-            return short, conjugator
-        
         def shorten_strategy(self, edge):
             ''' Return a float in [0, 1] describing how good flipping this edge is for making this lamination short. '''
             
@@ -519,8 +515,25 @@ class IntegralLamination(Lamination):
         
         arc_components, curve_components = [], []
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
-        while not lamination.is_empty():
-            has_arcs = any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)
+        has_arcs = True
+        while True:
+            # Subtract.
+            geometric = list(lamination)
+            for component, (multiplicity, edge) in lamination.parallel_components().items():
+                if lamination(edge) <= 0:
+                    geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
+                    active_edges.discard(edge)
+                    active_edges.discard(~edge)
+                    if isinstance(component, curver.kernel.Arc):
+                        arc_components.append((multiplicity, edge))
+                    else:
+                        curve_components.append((multiplicity, edge))
+            
+            lamination = IntegralLamination(lamination.triangulation, geometric)
+            
+            if not lamination: break
+            
+            has_arcs = has_arcs and any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)  # Once they are gone, they are gone.
             extra = []  # High priority edges to check.
             while active_edges:
                 # Note that if lamination does not have any arcs then the max value that shorten_strategy can return is 0.5.
@@ -565,22 +578,6 @@ class IntegralLamination(Lamination):
                         conjugator = move * conjugator
                         curve = move(curve)
                         lamination = move(lamination)
-            
-            # Subtract.
-            geometric = list(lamination)
-            for component, (multiplicity, edge) in lamination.parallel_components().items():
-                if lamination(edge) <= 0:
-                    geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
-                    active_edges.discard(edge)
-                    active_edges.discard(~edge)
-                    if isinstance(component, curver.kernel.Arc):
-                        arc_components.append((multiplicity, edge))
-                        assert component == lamination.triangulation.edge_arc(edge)
-                    else:
-                        curve_components.append((multiplicity, edge))
-                        assert component == lamination.triangulation.edge_curve(edge)
-            
-            lamination = Lamination(lamination.triangulation, geometric)  # FIXME: Does this need to be integral?
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(
