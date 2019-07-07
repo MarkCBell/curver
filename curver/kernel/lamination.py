@@ -581,8 +581,8 @@ class IntegralLamination(Lamination):
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(
-            [multiplicity * lamination.triangulation.edge_arc(edge) for edge, multiplicity in arc_components.items()] +
-            [multiplicity * lamination.triangulation.edge_curve(edge) for edge, multiplicity in curve_components.items()]
+            [multiplicity * lamination.triangulation.edge_arc(edge) for edge, multiplicity in arc_components.items()]
+            + [multiplicity * lamination.triangulation.edge_curve(edge) for edge, multiplicity in curve_components.items()]
             )
         
         return short, conjugator
