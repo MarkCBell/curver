@@ -123,7 +123,7 @@ class FiniteSubgroup(object):
                 for image in orbit(arc):  # Loops at most |H| times.
                     # Check the unicorn arcs that can be made from arc and image.
                     H_images = deepcopy(original_H_images)  # Get a fresh copy to work with.
-                    image_conjugator = image.shorten(drop=0)  # The Mosher sequence from image back to arc, this contains all the unicorn arcs.
+                    _, image_conjugator = image.shorten(drop=0)  # The Mosher sequence from image back to arc, this contains all the unicorn arcs.
                     # Theorem: Since arc is short, the set of arcs that appear in the Mosher flip sequence includes all unicorns made from arc and image.
                     for index, move in enumerate(reversed(image_conjugator)):  # Loops at most ||H|| times.
                         # Note that each of the following modifications runs in O(||H||).
