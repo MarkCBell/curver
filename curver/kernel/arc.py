@@ -70,21 +70,6 @@ class MultiArc(IntegralLamination):
         
         return all(weight == -1 for weight in short)
     
-    def is_minimal(self):
-        ''' Return whether this multiarc is minimal.
-        
-        A multiarc is minimal if its weight is as small as possible.
-        
-        Note that minimal ==> short. '''
-        
-        return all(weight <= 0 for weight in self)
-    
-    @ensure(lambda data: data.result(data.self).is_minimal())
-    def minimise(self):
-        ''' Return an encoding which maps this multiarc to a minimal one. '''
-        
-        return self.shorten()  # RETURN TO.
-    
     def explore_ball(self, radius):
         ''' Extend this MultiArc to a triangulation and return all triangulations within the ball of the given radius of that one.
         

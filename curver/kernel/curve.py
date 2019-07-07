@@ -165,54 +165,6 @@ class Curve(MultiCurve):
     def is_short(self):
         return self.is_peripheral() or len(self.parallel_components()) == 1
     
-    def is_minimal(self):
-        ''' Return whether this curve is minimal.
-        
-        A curve is minimal if its weight is as small as possible.
-        
-        Note that minimal ==> short. '''
-        
-        if self.is_peripheral():
-            return self.weight() == 1
-        elif self.is_isolating():
-            shapes = [len([edge for edge in triangle if self.dual_weight(edge) > 0]) for triangle in self.triangulation]
-            return all(weight in (0, 2) for weight in self) and shapes.count(1) == 1 and shapes.count(2) == 0  # Exactly one corridor and no bipods.
-        else:
-            return self.weight() == 2
-    
-    @ensure(lambda data: data.result(data.self).is_minimal())
-    def minimise(self):
-        ''' Return an encoding which maps this curve to a minimal one. '''
-        
-        def minimise_strategy(self, edge):
-            ''' Return a float in [0, 1] describing how good flipping this edge is for making this curve minimal. '''
-            
-            if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-            
-            if not self.triangulation.is_flippable(edge): return 0
-            
-            ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
-            
-            if max(ai + ci, bi + di) - ei < ei:  # This flip drops the total weight.
-                return 1
-            
-            return 0
-        
-        short, conjugator = self.shorten()
-        
-        # Lemma: There path in the flip graph from a short representative to a minimal one in which the weight strictly decreases at each step.
-        
-        minimal = short
-        while True:
-            edge = curver.kernel.utilities.maximum(minimal.triangulation.edges, key=lambda edge: minimise_strategy(minimal, edge), upper_bound=1)
-            if minimise_strategy(minimal, edge) == 0: break
-            
-            move = minimal.triangulation.encode_flip(edge)  # edge is always flippable.
-            conjugator = move * conjugator
-            minimal = move(minimal)
-        
-        return minimal, conjugator
-    
     @topological_invariant
     def is_isolating(self):
         ''' Return if this curve is isolating, that is, if it is non-peripheral and a component of S - self does not contain a puncture. '''
