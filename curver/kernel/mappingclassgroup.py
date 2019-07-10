@@ -3,6 +3,10 @@
 
 from random import choice
 import re
+try:
+    from Queue import Queue
+except ImportError:
+    from queue import Queue
 
 import curver
 
@@ -170,4 +174,37 @@ class MappingClassGroup(object):
         ''' Return a new lamination on this surface assigning the specified weight to each edge. '''
         
         return self.triangulation(geometric)
+    
+    def cayley(self, generators, length):
+        ''' Explore the Cayley graph for self with respect to the given generators.
+        Yield the canonical names for all elements with at most the given length as they are encountered. '''
+        
+        identity = tuple()
+        id_mapping_class = self('')
+        convert = lambda X: (X[0], tuple(X[1].flatten()))  # Since numpy.ndarrays are not hashable we need a converter.
+        elements = {convert((id_mapping_class.source_triangulation.as_lamination(), id_mapping_class.homology_matrix())): identity}
+        good = set([identity])
+        Q = Queue()
+        Q.put(((id_mapping_class.source_triangulation.as_lamination(), id_mapping_class.homology_matrix()), identity))
+        good = set([identity])
+        yield identity
+        while not Q.empty():
+            image, word = Q.get()
+            
+            for generator in generators:
+                next_word = (generator,) + word
+                # Check all prefixes are good.
+                if any(next_word[:i] not in good for i in range(1, len(next_word))):
+                    continue
+                
+                lam, mat = image
+                action = self.mapping_classes[generator]
+                next_image = (action(lam), action.homology_matrix().dot(mat))
+                key = convert(next_image)
+                if key not in elements:
+                    yield next_word
+                    good.add(next_word)
+                    elements[key] = next_word
+                    if len(next_word) < length:
+                        Q.put((next_image, next_word))
 
