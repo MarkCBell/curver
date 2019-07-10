@@ -116,8 +116,10 @@ class MappingClassGroup(object):
         
         Raises a TypeError if the word does not correspond to a mapping class. '''
         
-        if not isinstance(word, str):
+        if isinstance(word, curver.IntegerType):
             word = self.random_word(word)
+        if isinstance(word, (list, tuple)):
+            word = '.'.join(word)
         
         # Remove any whitespace.
         word = word.replace(' ', '')
