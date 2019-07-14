@@ -8,7 +8,7 @@ import numpy as np
 
 import curver
 from curver.kernel.lamination import IntegralLamination  # Special import needed for subclassing.
-from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
+from curver.kernel.decorators import memoize, topological_invariant  # Special import needed for decorating.
 
 class MultiCurve(IntegralLamination):
     ''' An IntegralLamination in which every component is a Curve. '''
