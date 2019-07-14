@@ -395,8 +395,9 @@ class IntegralLamination(Lamination):
         return NotImplemented  # TODO: 2) Implement! (And remove the PyLint disable when done.)
     
     # @topological_invariant
-    def topological_type(self):  # pylint: disable=no-self-use
+    def topological_type(self, closed=False):  # pylint: disable=no-self-use, unused-argument
         ''' Return the topological type of this lamination..
+        If the closed flag is set the the object returned records the topological type of the multicurve after applying the forgetful map.
         
         Two laminations are in the same mapping class group orbit if and only their topological types are equal.
         These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''

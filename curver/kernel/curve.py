@@ -103,7 +103,7 @@ class MultiCurve(IntegralLamination):
     @topological_invariant
     def topological_type(self, closed=False):
         ''' Return the topological type of this multicurve.
-        If closed is set the the object returned records the topological type of the multicurve after applying the forgetful map.
+        If the closed flag is set the the object returned records the topological type of the multicurve after applying the forgetful map.
         
         Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
         These are labelled graphs and so equal means 'label isomorphic', so we return a CurvePartitionGraph class that uses networkx.is_isomorphic to determine equality. '''
