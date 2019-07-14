@@ -101,8 +101,9 @@ class MultiCurve(IntegralLamination):
         return len(crush.target_triangulation.components()) > len(self.triangulation.components())
     
     @topological_invariant
-    def topological_type(self):
+    def topological_type(self, closed=False):
         ''' Return the topological type of this multicurve.
+        If closed is set the the object returned records the topological type of the multicurve after applying the forgetful map.
         
         Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
         These are labelled graphs and so equal means 'label isomorphic', so we return a CurvePartitionGraph class that uses networkx.is_isomorphic to determine equality. '''
@@ -132,12 +133,13 @@ class MultiCurve(IntegralLamination):
                     half_edges[lifted_curve].append(index)
         
         dummy_index = len(graph)
-        graph.add_node(dummy_index, genus=-1, vertices=-1)  # Dummy node for peripheral components.
+        if not closed:
+            graph.add_node(dummy_index, genus=-1, vertices=-1)  # Dummy node for peripheral components.
         
         for curve, nodes in half_edges.items():
             if len(nodes) == 2:
                 graph.add_edge(nodes[0], nodes[1], weight=components[curve])
-            else:  # len(nodes) == 1:
+            elif not closed:  # Not closed and len(nodes) == 1:
                 graph.add_edge(nodes[0], dummy_index, weight=components.get(curve, 0))
         
         return curver.kernel.CurvePartitionGraph(self, graph)
