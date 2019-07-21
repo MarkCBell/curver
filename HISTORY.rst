@@ -2,7 +2,7 @@
 History
 =======
 
-0.3.5 (2019-XX-YY)
+0.3.5 (2019-07-22)
 ------------------
 
 * Added Pachner 1 --> 3 move.
@@ -14,6 +14,7 @@ History
 * Testing curver.load.
 * Dynamically building triangulations during testing.
 * Memoize works even for methods that raise Exceptions.
+* Standardised error message style.
 * Fixed appveyor build process.
 * Fixed py.test usage.
 
