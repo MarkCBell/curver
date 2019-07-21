@@ -25,10 +25,6 @@ This algorithm runs in polynomial time but the constants involved currently make
 Curver officially supports Python 2.7 and 3.4 -- 3.7.
 It also runs on `PyPy`_ and `Sage`_.
 
-.. note:: The use of **Python 3** is *highly* preferred over Python 2.
-    Consider upgrading your applications and infrastructure if you find yourself *still* using Python 2 in production today.
-    If you are using Python 3, congratulations — you are indeed a person of excellent taste. — *Kenneth Reitz*
-
 A taste of curver::
 
     >>> S = curver.load(0, 5)
