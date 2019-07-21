@@ -27,7 +27,7 @@ class Permutation(object):
     def __eq__(self, other):
         if isinstance(other, Permutation):
             if len(self) != len(other):
-                raise ValueError('Cannot compare permutations defined over different number of elements.')
+                raise ValueError('Cannot compare permutations defined over different number of elements')
             
             return self.perm == other.perm
         else:
@@ -66,12 +66,12 @@ class Permutation(object):
             i += 1
             power = power * self
         
-        raise RuntimeError('Should not be able to reach here.')
+        raise RuntimeError('Should not be able to reach here')
     
     def __mul__(self, other):
         if isinstance(other, Permutation):
             if len(self) != len(other):
-                raise ValueError('Cannot compose permutations defined over different number of elements.')
+                raise ValueError('Cannot compose permutations defined over different number of elements')
             
             return Permutation([self(other(i)) for i in range(len(self))])
         else:

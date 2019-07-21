@@ -59,7 +59,7 @@ class StraightLineProgram(object):
             if not data or any(not isinstance(children, (list, tuple)) for children in data) or any(not isinstance(child, (Terminal, curver.IntegerType)) for children in data for child in children):
                 data = [[Terminal(child) for child in data]]
         else:
-            raise ValueError('Unknown data.')
+            raise ValueError('Unknown data')
         
         self.graph = [tuple(children) for children in data]
         self.sinks = [item.value for lst in self.graph for item in lst if isinstance(item, Terminal)]  # !?!
@@ -128,7 +128,7 @@ class StraightLineProgram(object):
                         else:
                             value -= self.num_children[image]
         
-        raise RuntimeError('Should not be able to reach here.')
+        raise RuntimeError('Should not be able to reach here')
     
     def __iter__(self):
         todo = [0]

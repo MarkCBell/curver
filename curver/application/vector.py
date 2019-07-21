@@ -18,7 +18,7 @@ class Vector2(object):
     def approx(self, other, epsilon=EPSILON):
         return (self - other).norm2() < epsilon
     def __eq__(self, other):
-        raise TypeError('Susceptible to FPE.')
+        raise TypeError('Susceptible to FPE')
         return self.x == other.x and self.y == other.y
     def __ne__(self, other):
         return not self == other

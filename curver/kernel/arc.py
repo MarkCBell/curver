@@ -189,7 +189,7 @@ class Arc(MultiArc):
         This arc must connects between distinct vertices. '''
         
         if not self.connects_distinct_vertices():  # Check where it connects.
-            raise ValueError('Arc connects a vertex to itself.')
+            raise ValueError('Arc connects a vertex to itself')
         
         if power == 0:  # Boring case.
             return self.triangulation.id_encoding()

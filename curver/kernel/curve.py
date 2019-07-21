@@ -198,7 +198,7 @@ class Curve(MultiCurve):
         assert isinstance(lamination, curver.kernel.Lamination)
         
         if self.is_peripheral():
-            raise ValueError('Curve is peripheral.')
+            raise ValueError('Curve is peripheral')
         
         short, conjugator = self.shorten()
         short_lamination = conjugator(lamination)
@@ -214,7 +214,7 @@ class Curve(MultiCurve):
         
         denominator = max(short_lamination(a), 0) - 2 * around_v + out_v  # = short.intersection(short_lamination)
         if denominator == 0:
-            raise ValueError('Slope is undefined when self is disjoint from lamination.')
+            raise ValueError('Slope is undefined when self is disjoint from lamination')
         
         twisting = min(max(short_lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
         
@@ -234,12 +234,12 @@ class Curve(MultiCurve):
         assert isinstance(b, curver.kernel.IntegralLamination)
         assert isinstance(c, curver.kernel.IntegralLamination)
         if self.is_peripheral():
-            raise ValueError('Curve is peripheral.')
+            raise ValueError('Curve is peripheral')
         
         ab = self.intersection(b)
-        if ab == 0: raise ValueError('Relative slope is undefined when self and b are disjoint.')
+        if ab == 0: raise ValueError('Relative slope is undefined when self and b are disjoint')
         ac = self.intersection(c)  # Faster than c.intersection(a) since we know a is a curve.
-        if ac == 0: raise ValueError('Relative slope is undefined when self and c are disjoint.')
+        if ac == 0: raise ValueError('Relative slope is undefined when self and c are disjoint')
         bc = b.intersection(c)
         
         f_lower = self.encode_twist(power=-2*bc)(b).intersection(c)  # f(-2*bc).

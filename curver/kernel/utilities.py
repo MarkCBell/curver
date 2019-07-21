@@ -93,7 +93,7 @@ class Half(object):
         else:
             result = other / 2
         if 2*result != other:  # Sanity check.
-            raise ValueError('{} is not halvable in its field.'.format(other))
+            raise ValueError('{} is not halvable in its field'.format(other))
         return result
     def __str__(self):
         return '1/2'

@@ -85,7 +85,7 @@ class MappingClassGroup(object):
             elif not positive and negative:
                 letters = neg_keys
             else:
-                raise TypeError('At least one of positive and negative must be allowed.')
+                raise TypeError('At least one of positive and negative must be allowed')
         
         return '.'.join(choice(letters) for _ in range(length))
     
@@ -108,7 +108,7 @@ class MappingClassGroup(object):
                         subword = subword[len(letter):]
                         break
                 else:
-                    raise TypeError('After extracting "%s", the remaining "%s" cannot be greedly decomposed as a concatination of self.mapping_classes.' % ('.'.join(decomposition), subword))
+                    raise TypeError('After extracting "%s", the remaining "%s" cannot be greedly decomposed as a concatination of self.mapping_classes' % ('.'.join(decomposition), subword))
         
         return decomposition
     
@@ -133,8 +133,8 @@ class MappingClassGroup(object):
         for letter in word:
             if letter == '(': counter += 1
             if letter == ')': counter -= 1
-            if counter < 0: raise TypeError('Unbalanced parentheses.')
-        if counter != 0: raise TypeError('Unbalanced parentheses.')
+            if counter < 0: raise TypeError('Unbalanced parentheses')
+        if counter != 0: raise TypeError('Unbalanced parentheses')
         
         # Expand out parenthesis powers.
         # This can fail with a TypeError.

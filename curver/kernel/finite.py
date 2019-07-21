@@ -69,7 +69,7 @@ class FiniteSubgroup(object):
                         seen.add(neighbour)
                         # Once we know the correct bound we can add:
                         # if len(seen) > 84 * (g-1):
-                        #   raise ValueError('Mapping classes do not generate a finite subgroup.')
+                        #   raise ValueError('Mapping classes do not generate a finite subgroup')
         
         return cls(mapping_classes, list(generators))
     
@@ -158,7 +158,7 @@ class FiniteSubgroup(object):
                         break
                     if done: break
                 else:
-                    raise RuntimeError('Unable to find invariant unicorn arc.')
+                    raise RuntimeError('Unable to find invariant unicorn arc')
             
             # Reshorten invariant_multiarc.
             invariant_multiarc, next_conjugator = invariant_multiarc.shorten()

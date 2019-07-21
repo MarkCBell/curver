@@ -21,7 +21,7 @@ except ImportError:  # Python 3.
         import tkinter.filedialog as tkFileDialog
         import tkinter.messagebox as tkMessageBox
     except ImportError:
-        raise ImportError('Tkinter not available.')
+        raise ImportError('Tkinter not available')
 
 try:
     import ttk as TTK
@@ -29,7 +29,7 @@ except ImportError:  # Python 3.
     try:
         from tkinter import ttk as TTK
     except ImportError:
-        raise ImportError('Ttk not available.')
+        raise ImportError('Ttk not available')
 
 # Some constants.
 if sys.platform in ['darwin']:

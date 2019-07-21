@@ -30,7 +30,7 @@ class Lamination(object):
                 self._dual[j] = self._side[i] = curver.kernel.utilities.half(cf + af - bf + correction)
                 self._dual[k] = self._side[j] = curver.kernel.utilities.half(af + bf - cf + correction)
             except ValueError:
-                raise ValueError('(%d, %d, %d) violates the extended triangle inequality.' % (a, b, c))
+                raise ValueError('(%d, %d, %d) violates the extended triangle inequality' % (a, b, c))
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
@@ -57,7 +57,7 @@ class Lamination(object):
         # Haken sum.
         if isinstance(other, Lamination):
             if other.triangulation != self.triangulation:
-                raise ValueError('Laminations must be on the same triangulation to add them.')
+                raise ValueError('Laminations must be on the same triangulation to add them')
             
             geometric = [x + y for x, y in zip(self.geometric, other.geometric)]
             return self.triangulation(geometric)  # Have to promote.
@@ -512,7 +512,7 @@ class IntegralLamination(Lamination):
                 if abs(slope) > 1:  # Can accelerate. We should probably also skip cases where slope is too close to small to be efficient.
                     return curve.encode_twist(power=-int(slope))  # Round towards zero.
             
-            raise ValueError('No accelerating twist exists.')
+            raise ValueError('No accelerating twist exists')
         
         arc_components, curve_components = dict(), dict()
         active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.

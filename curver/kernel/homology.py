@@ -33,7 +33,7 @@ class HomologyClass(object):
     def __add__(self, other):
         if isinstance(other, HomologyClass):
             if other.triangulation != self.triangulation:
-                raise ValueError('Homology classes must be on the same triangulation to add them.')
+                raise ValueError('Homology classes must be on the same triangulation to add them')
             
             algebraic = [x + y for x, y in zip(self, other)]
             return HomologyClass(self.triangulation, algebraic)

@@ -444,11 +444,11 @@ class Triangulation(object):
                 if new_from_label in label_map:
                     # Check that this map is still consistent.
                     if new_to_label != label_map[new_from_label]:
-                        raise ValueError('This label_map does not extend to an isometry.')
+                        raise ValueError('This label_map does not extend to an isometry')
                 else:
                     # Extend the map.
                     if source_orders[new_from_label] != target_orders[new_to_label]:
-                        raise ValueError('This label_map does not extend to an isometry.')
+                        raise ValueError('This label_map does not extend to an isometry')
                     label_map[new_from_label] = new_to_label
                     to_process.append((new_from_label, new_to_label))
         
@@ -458,16 +458,16 @@ class Triangulation(object):
         for edge in self.edges:
             if edge.label not in used_labels:
                 if self.corner_lookup[edge] != other.corner_lookup[edge]:
-                    raise ValueError('This label_map does not extend to an isometry.')
+                    raise ValueError('This label_map does not extend to an isometry')
                 label_map[edge.label] = edge.label
         
         # Check map is a bijection.
         if set(label_map.keys()) != set(self.labels):
-            raise ValueError('label_map is not defined everywhere.')
+            raise ValueError('label_map is not defined everywhere')
         if len(label_map.values()) != len(set(label_map.values())):
-            raise ValueError('label_map is not injective.')
+            raise ValueError('label_map is not injective')
         if set(label_map.values()) != set(other.labels):
-            raise ValueError('label_map is not surjective.')
+            raise ValueError('label_map is not surjective')
         
         return curver.kernel.create.isometry(self, other, label_map)
     
@@ -554,7 +554,7 @@ class Triangulation(object):
                 return self.empty_lamination()
             
             if any(lamination.triangulation != self for lamination in laminations):
-                raise ValueError('Laminations must all be defined on this triangulation to add them.')
+                raise ValueError('Laminations must all be defined on this triangulation to add them')
             
             geometric = [sum(weights) for weights in zip(*laminations)]
             return self(geometric)  # Have to promote.
@@ -569,7 +569,7 @@ class Triangulation(object):
             return self.empty_lamination()
         elif all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
             if any(lamination.triangulation != self for lamination in laminations):
-                raise ValueError('Laminations must all be defined on this triangulation to add them.')
+                raise ValueError('Laminations must all be defined on this triangulation to add them')
             
             is_connected = len(laminations) == 1 and isinstance(laminations[0], (curver.kernel.Curve, curver.kernel.Arc))
             
@@ -728,7 +728,7 @@ class Triangulation(object):
             elif i in label_map and ~i not in label_map:
                 label_map[~i] = ~label_map[i]
             else:
-                raise ValueError('Missing new label for %d.' % i)
+                raise ValueError('Missing new label for %d' % i)
         
         edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges)
         new_triangulation = Triangulation([Triangle([edge_map[edge] for edge in triangle]) for triangle in self])

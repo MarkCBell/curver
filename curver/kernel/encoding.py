@@ -84,7 +84,7 @@ class Encoding(object):
     
     def __call__(self, other):
         if self.source_triangulation != other.triangulation:
-            raise ValueError('Cannot apply an Encoding to something on a triangulation other than source_triangulation.')
+            raise ValueError('Cannot apply an Encoding to something on a triangulation other than source_triangulation')
         
         is_lamination = isinstance(other, curver.kernel.Lamination)
         is_homology = isinstance(other, curver.kernel.HomologyClass)
@@ -100,7 +100,7 @@ class Encoding(object):
     def __mul__(self, other):
         if isinstance(other, Encoding):
             if self.source_triangulation != other.target_triangulation:
-                raise ValueError('Cannot compose Encodings over different triangulations.')
+                raise ValueError('Cannot compose Encodings over different triangulations')
             
             # We could do
             #   return Encoding(self.sequence + other.sequence).promote()
@@ -349,7 +349,7 @@ class MappingClass(Mapping):
         
         order = self.order()
         if order == 0:  # self is not periodic.
-            raise ValueError('MappingClass is not periodic.')
+            raise ValueError('MappingClass is not periodic')
         
         return curver.kernel.FiniteSubgroup({i: self**i for i in range(order)}, [0 if order == 1 else 1])
 
@@ -379,13 +379,13 @@ class MappingClass(Mapping):
                 return False
             return self.subgroup().quotient_orbifold_signature() == other.subgroup().quotient_orbifold_signature()  # Total conjugacy invariant.
         else:
-            raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper.')
+            raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper')
     
     @memoize
     def extract_twisting_multicurve(self):
         ''' Return a MultiCurve c such that c.encode_twist() == self.
         
-        This raises a ValueError if no such MultiCurve exists.'''
+        This raises a ValueError if no such MultiCurve exists. '''
         
         triangulation = self.source_triangulation
         lamination = triangulation.as_lamination()
@@ -401,7 +401,7 @@ class MappingClass(Mapping):
                 pass
             lamination = image
         
-        raise ValueError('Mapping Class is not a twist.')
+        raise ValueError('Mapping Class is not a twist')
     
     def is_multitwist(self):
         ''' Return whether this mapping class is a Dehn twist about a multicurve. '''
