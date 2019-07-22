@@ -20,7 +20,8 @@ from . import create  # noqa: F401
 from . import utilities  # noqa: F401
 
 # Set up shorter names for all of the different classes.
-MCG = MappingClassGroup  # Alias.
+MCG = MappingClassGroup
+SLP = StraightLineProgram
 
 # Functions that help with construction.
 create_triangulation = Triangulation.from_tuple
