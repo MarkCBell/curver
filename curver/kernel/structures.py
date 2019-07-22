@@ -142,11 +142,13 @@ class StraightLineProgram(object):
     
     @classmethod
     def sum(cls, slps):
+        ''' An efficient way of summing multiple SLPs without computing intermediate values. '''
+        
         if len(slps) == 1:
             return slps[0]
         
         starts = list(np.cumsum([1] + [slp.size() for slp in slps]))
-        return StraightLineProgram([starts[:-1]] + [item for slp, start in zip(slps, starts) for item in (slp << start)])
+        return StraightLineProgram([starts[:-1]] + [item for slp, start in zip(slps, starts) for item in slp << start])
     
     def __lshift__(self, index):
         return [[item if isinstance(item, Terminal) else item + index for item in lst] for lst in self.graph]
