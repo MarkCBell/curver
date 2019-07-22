@@ -12,7 +12,7 @@ import curver
 
 IS_NAME = re.compile(r'[a-z]\w*$')
 IS_INT = re.compile(r'[+-]?\d+')
-BLOCKS = re.compile(r'[+-]?\d+|\^|\(|\)|[\w_\.]+')
+TOKENS = re.compile(r'[+-]?\d+|\^|\(|\)|[\w_\.]+')
 LEADING_DOTS = re.compile(r'^\.*')
 
 class MappingClassGroup(object):
@@ -100,7 +100,7 @@ class MappingClassGroup(object):
          * an integer specifying the word length of a random mapping class, or
          * a string specifying the generators to be composed together.
         
-        The string supports powers (via '^'), parentheses and optional '.' separators.
+        The string supports '^' powers, parentheses and optional '.' separators.
         Raises a ValueError if given a string that cannot be decomposed. '''
         
         if isinstance(data, curver.IntegerType):
@@ -127,14 +127,14 @@ class MappingClassGroup(object):
                 return iterable
             
             stack = [[]]
-            G = BLOCKS.findall(word)  # Break word into numbers, (, ) and other characters.
-            for i in range(len(G)):
-                x = G[i]
+            tokens = TOKENS.findall(word)  # Break word into numbers, (, ) and other characters.
+            for i in range(len(tokens)):
+                x = tokens[i]
                 if IS_INT.match(x):
                     continue
                 if x == '^':
                     try:
-                        power = int(G[i+1])
+                        power = int(tokens[i+1])
                     except (ValueError, IndexError):
                         raise ValueError('^ not followed by a power')
                     stack[-1][-1] = stack[-1][-1] * abs(power)
