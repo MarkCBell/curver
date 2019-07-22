@@ -10,7 +10,10 @@ except ImportError:
 
 import curver
 
-REGEX_IS_NAME = re.compile(r'[a-z]\w*$')
+IS_NAME = re.compile(r'[a-z]\w*$')
+IS_INT = re.compile(r'[+-]?\d+')
+BLOCKS = re.compile(r'[+-]?\d+|\^|\(|\)|[\w_\.]+')
+LEADING_DOTS = re.compile(r'^\.*')
 
 class MappingClassGroup(object):
     ''' This represents a triangulation along with a collection of named mapping classes on it.
@@ -42,7 +45,7 @@ class MappingClassGroup(object):
         assert all(isinstance(key, str) for key in pos_mapping_classes)
         assert all(isinstance(pos_mapping_class, curver.kernel.MappingClass) for pos_mapping_class in pos_mapping_classes.values())
         assert all(pos_mapping_class.source_triangulation == self.triangulation for pos_mapping_class in pos_mapping_classes.values())
-        assert all(REGEX_IS_NAME.match(name) for name in pos_mapping_classes)
+        assert all(IS_NAME.match(name) for name in pos_mapping_classes)
         
         self.pos_mapping_classes = dict(pos_mapping_classes)
         self.neg_mapping_classes = dict((name.swapcase(), pos_mapping_class.inverse()) for name, pos_mapping_class in self.pos_mapping_classes.items())
@@ -68,7 +71,7 @@ class MappingClassGroup(object):
         return iter(self.mapping_classes)
     
     def random_word(self, length, positive=True, negative=True, letters=None):
-        ''' Return a random word of the required length.
+        ''' Return a random sequence of generators of the required length.
         
         The letters to choose from can be specified or, alternatively, the set
         of positive, negative or all (default) mapping classes can be used by using the
@@ -87,83 +90,69 @@ class MappingClassGroup(object):
             else:
                 raise TypeError('At least one of positive and negative must be allowed')
         
-        return '.'.join(choice(letters) for _ in range(length))
+        return [choice(letters) for _ in range(length)]
     
-    def decompose_word(self, word):
-        ''' Return a list of mapping_classes keys whose concatenation is word and the keys are chosen greedly.
+    def mapping_class(self, data, **kwargs):
+        ''' Return a mapping class from data.
         
-        Raises a TypeError if the greedy decomposition fails. '''
+        Data can either be:
+         * an iterable of mapping_class names,
+         * an integer specifying the word length of a random mapping class, or
+         * a string specifying the generators to be composed together.
         
-        assert isinstance(word, str)
+        The string supports powers, parentheses and optional '.' separators.
+        Raises a ValueError if given a string that cannot be decomposed. '''
         
-        # By sorting the available keys, longest first, we ensure that any time we
-        # get a match it is as long as possible.
-        available_letters = sorted(self.mapping_classes, key=len, reverse=True)
-        decomposition = []
-        for subword in word.split('.'):
-            while subword:
-                for letter in available_letters:
-                    if subword.startswith(letter):
-                        decomposition.append(letter)
-                        subword = subword[len(letter):]
-                        break
+        if isinstance(data, curver.IntegerType):
+            iterable = self.random_word(data, **kwargs)
+        if isinstance(data, str):
+            SLP = curver.kernel.SLP  # Shorter alias.
+            word = data
+            word = re.sub(r'\s', '', word)  # Remove whitespace.
+            word = re.sub('|'.join(r'({})\^'.format(x) for x in sorted(self.mapping_classes, key=len, reverse=True)), r'(\1)^', word)  # Wrap lone '^'.
+            if re.search('[^\)]\^', word):
+                raise ValueError('Unable to wrap lone "^"')
+            
+            MATCH_MCs = re.compile('|'.join(sorted(self.mapping_classes, key=len, reverse=True)))
+            
+            def decompose(word):
+                iterable = [x for subword in word.split('.') for x in MATCH_MCs.findall(subword)]
+                if sum(len(x) for x in iterable) + word.count('.') < len(word):
+                    remaining = word
+                    for index, item in enumerate(iterable):
+                        remaining = LEADING_DOTS.sub('', remaining)  # Remove leading dots.
+                        if remaining.startswith(item):
+                            remaining = remaining[len(item):]
+                        else:
+                            raise ValueError('After extracting {}, the remaining {} of {} could not be decomposed'.format(iterable[:index], remaining, word))
+                    remaining = LEADING_DOTS.sub('', remaining)  # Remove leading dots.
+                    raise ValueError('After extracting {}, the remaining "{}" of "{}" could not be decomposed'.format(iterable, remaining, word))
+                return iterable
+            
+            stack = [[]]
+            G = BLOCKS.findall(word)  # Break word into numbers, (, ) and other characters.
+            for i in range(len(G)):
+                x = G[i]
+                if IS_INT.match(x) or x == '^':  # Skip the numbers and powers.
+                    continue
+                if x == '(':
+                    stack[-1].append([])
+                    stack.append(stack[-1][-1])
+                elif x == ')':
+                    stack.pop()
+                    if not stack:
+                        raise ValueError('Unbalanced parentheses')
+                    power = int(G[i+2]) if i+2 < len(G) and IS_INT.match(G[i+2]) else 1  # Find the power in the next block, if omitted then assume 1.
+                    stack[-1][-1] = SLP.sum([item if isinstance(item, SLP) else SLP(decompose(item)) for item in stack[-1][-1]]) * abs(power)
+                    if power < 0: stack[-1][-1] = stack[-1][-1].reverse().map(lambda x: x.swapcase())
                 else:
-                    raise TypeError('After extracting "%s", the remaining "%s" cannot be greedly decomposed as a concatination of self.mapping_classes' % ('.'.join(decomposition), subword))
+                    stack[-1].append(x)
+            if len(stack) > 1:
+                raise ValueError('Unbalanced parentheses')
+            
+            iterable = SLP.sum([item if isinstance(item, SLP) else SLP(decompose(item)) for item in stack[-1]])
         
-        return decomposition
-    
-    def mapping_class(self, word):
-        ''' Return the mapping class corresponding to the given word or a random one of given length if given an integer.
-        
-        The given word is decomposed using self.decompose_word and the composition
-        of the mapping classes involved is returned.
-        
-        Raises a TypeError if the word does not correspond to a mapping class. '''
-        
-        if isinstance(word, curver.IntegerType):
-            word = self.random_word(word)
-        if isinstance(word, (list, tuple)):
-            word = '.'.join(word)
-        
-        # Remove any whitespace.
-        word = word.replace(' ', '')
-        
-        # Check for balanced parentheses.
-        counter = 0
-        for letter in word:
-            if letter == '(': counter += 1
-            if letter == ')': counter -= 1
-            if counter < 0: raise TypeError('Unbalanced parentheses')
-        if counter != 0: raise TypeError('Unbalanced parentheses')
-        
-        # Expand out parenthesis powers.
-        # This can fail with a TypeError.
-        old_word = None
-        while word != old_word:  # While a change was made.
-            old_word = word
-            for subword, power in re.findall(r'(\([\w_\.]*\))\^(-?\d+)', word):
-                decompose = self.decompose_word(subword[1:-1])
-                int_power = int(power)
-                if int_power > 0:
-                    replacement = '.'.join(decompose) * int_power
-                else:
-                    replacement = '.'.join(letter.swapcase() for letter in decompose[::-1]) * abs(int_power)
-                word = word.replace(subword + '^' + power, replacement)
-        
-        # Remove any remaining parenthesis, these do not have a power and are treated as ^1
-        word = word.replace('(', '').replace(')', '')
-        
-        # Expand out powers without parenthesis. Here we use a greedy algorithm and take the
-        # longest mapping class occuring before the power. Note that we only do one pass and so
-        # only all pure powers to be expanded once, that is 'aBBB^2^3' is not recognised.
-        available_letters = sorted(self.mapping_classes, key=len, reverse=True)
-        for letter in available_letters:
-            for subword, power in re.findall(r'(%s)\^(-?\d+)' % letter, word):
-                int_power = int(power)
-                word = word.replace(subword + '^' + power, (letter if int_power > 0 else letter.swapcase()) * abs(int_power))
-        
-        # This can fail with a TypeError.
-        sequence = [item for letter in self.decompose_word(word) for item in self.mapping_classes[letter]]
+        sequence = [item for letter in iterable for item in self.mapping_classes[letter]]
         return curver.kernel.MappingClass(sequence) if sequence else self.triangulation.id_encoding()
     
     def __call__(self, word):
