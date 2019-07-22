@@ -100,7 +100,7 @@ class MappingClassGroup(object):
          * an integer specifying the word length of a random mapping class, or
          * a string specifying the generators to be composed together.
         
-        The string supports powers, parentheses and optional '.' separators.
+        The string supports powers (via '^'), parentheses and optional '.' separators.
         Raises a ValueError if given a string that cannot be decomposed. '''
         
         if isinstance(data, curver.IntegerType):
@@ -109,9 +109,6 @@ class MappingClassGroup(object):
             SLP = curver.kernel.SLP  # Shorter alias.
             word = data
             word = re.sub(r'\s', '', word)  # Remove whitespace.
-            word = re.sub('|'.join(r'({})\^'.format(x) for x in sorted(self.mapping_classes, key=len, reverse=True)), r'(\1)^', word)  # Wrap lone '^'.
-            if re.search('[^\)]\^', word):
-                raise ValueError('Unable to wrap lone "^"')
             
             MATCH_MCs = re.compile('|'.join(sorted(self.mapping_classes, key=len, reverse=True)))
             
@@ -133,20 +130,25 @@ class MappingClassGroup(object):
             G = BLOCKS.findall(word)  # Break word into numbers, (, ) and other characters.
             for i in range(len(G)):
                 x = G[i]
-                if IS_INT.match(x) or x == '^':  # Skip the numbers and powers.
+                if IS_INT.match(x):
                     continue
-                if x == '(':
+                if x == '^':
+                    try:
+                        power = int(G[i+1])
+                    except (ValueError, IndexError):
+                        raise ValueError('^ not followed by a power')
+                    stack[-1][-1] = stack[-1][-1] * abs(power)
+                    if power < 0: stack[-1][-1] = stack[-1][-1].reverse().map(lambda x: x.swapcase())
+                elif x == '(':
                     stack[-1].append([])
                     stack.append(stack[-1][-1])
                 elif x == ')':
                     stack.pop()
                     if not stack:
                         raise ValueError('Unbalanced parentheses')
-                    power = int(G[i+2]) if i+2 < len(G) and IS_INT.match(G[i+2]) else 1  # Find the power in the next block, if omitted then assume 1.
-                    stack[-1][-1] = SLP.sum([item if isinstance(item, SLP) else SLP(decompose(item)) for item in stack[-1][-1]]) * abs(power)
-                    if power < 0: stack[-1][-1] = stack[-1][-1].reverse().map(lambda x: x.swapcase())
+                    stack[-1][-1] = SLP.sum(stack[-1][-1])
                 else:
-                    stack[-1].append(x)
+                    stack[-1].append(SLP(decompose(x)))
             if len(stack) > 1:
                 raise ValueError('Unbalanced parentheses')
             
