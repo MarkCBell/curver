@@ -3,6 +3,7 @@
 
 from collections import defaultdict, namedtuple
 from itertools import chain, islice
+import numpy as np
 
 import curver
 
@@ -139,6 +140,14 @@ class StraightLineProgram(object):
             else:  # isinstance(v, curver.IntegerType):
                 todo.extend(reversed(self(v)))
     
+    @classmethod
+    def sum(cls, slps):
+        if len(slps) == 1:
+            return slps[0]
+        
+        starts = list(np.cumsum([1] + [slp.size() for slp in slps]))
+        return StraightLineProgram([starts[:-1]] + [item for slp, start in zip(slps, starts) for item in (slp << start)])
+    
     def __lshift__(self, index):
         return [[item if isinstance(item, Terminal) else item + index for item in lst] for lst in self.graph]
     def __rshift__(self, index):
@@ -150,7 +159,9 @@ class StraightLineProgram(object):
         return StraightLineProgram([[1, other.size()+1]] + (other << 1) + (self << other.size()+1))
     
     def __mul__(self, other):
+        assert other >= 0
         if other == 0: return StraightLineProgram([])
+        if other == 1: return self
         
         binary = [bool(int(x)) for x in bin(other)[2:]]
         binary_graph = [[i+2, i+2] for i in range(len(binary)-1)]
