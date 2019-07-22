@@ -128,27 +128,26 @@ class MappingClassGroup(object):
             
             stack = [[]]
             tokens = TOKENS.findall(word)  # Break word into numbers, (, ) and other characters.
-            for i in range(len(tokens)):
-                x = tokens[i]
-                if IS_INT.match(x):
+            for index, token in enumerate(tokens):
+                if IS_INT.match(token):
                     continue
-                if x == '^':
+                if token == '^':
                     try:
-                        power = int(tokens[i+1])
+                        power = int(tokens[index+1])
                     except (ValueError, IndexError):
                         raise ValueError('^ not followed by a power')
                     stack[-1][-1] = stack[-1][-1] * abs(power)
                     if power < 0: stack[-1][-1] = stack[-1][-1].reverse().map(lambda x: x.swapcase())
-                elif x == '(':
+                elif token == '(':
                     stack[-1].append([])
                     stack.append(stack[-1][-1])
-                elif x == ')':
+                elif token == ')':
                     stack.pop()
                     if not stack:
                         raise ValueError('Unbalanced parentheses')
                     stack[-1][-1] = SLP.sum(stack[-1][-1])
                 else:
-                    stack[-1].append(SLP(decompose(x)))
+                    stack[-1].append(SLP(decompose(token)))
             if len(stack) > 1:
                 raise ValueError('Unbalanced parentheses')
             
