@@ -25,16 +25,25 @@ This algorithm runs in polynomial time but the constants involved currently make
 Curver officially supports Python 2.7 and 3.4 -- 3.7.
 It also runs on `PyPy`_ and `Sage`_.
 
-A taste of curver::
+Quickstart
+----------
 
+Curver is available on `PyPI`_, so it can be installed via::
+
+    $ pip install curver --user --upgrade
+
+Once installed, try it inside of Python::
+
+    >>> import curver
     >>> S = curver.load(0, 5)
     >>> S('s_0.s_1.s_0') == S('s_1.s_0.s_1')
     True
-    >>> S('s_0.s_1.s_2.s_3').order(), S('s_0.s_1.s_3.s_2').order(), S('s_0.s_1.S_2.S_3').order()
+    >>> f, g, h = S('s_0.s_1.s_2.s_3'), S('s_0.s_1.s_3.s_2'), S('s_0.s_1.S_2.S_3')
+    >>> f.order(), g.order(), h.order()
     (5, 5, 5)
-    >>> S('s_0.s_1.s_2.s_3').is_conjugate_to(S('s_0.s_1.s_3.s_2'))
+    >>> f.is_conjugate_to(g)
     True
-    >>> S('s_0.s_1.s_2.s_3').is_conjugate_to(S('s_0.s_1.S_2.S_3'))
+    >>> f.is_conjugate_to(g)
     False
 
 Features
