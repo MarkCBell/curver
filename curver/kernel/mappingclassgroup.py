@@ -127,7 +127,7 @@ class MappingClassGroup(object):
                 return iterable
             
             stack = [[]]
-            tokens = TOKENS.findall(word)  # Break word into numbers, (, ) and other characters.
+            tokens = TOKENS.findall(word)  # Break word into tokens.
             for index, token in enumerate(tokens):
                 if IS_INT.match(token):
                     continue
