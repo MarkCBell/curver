@@ -107,14 +107,14 @@ class MappingClassGroup(object):
             iterable = self.random_word(data, **kwargs)
         if isinstance(data, str):
             SLP = curver.kernel.SLP  # Shorter alias.
-            word = data
+            word = '(' + data + ')'  # This ensures that the last token is a ')' and so avoids a special case.
             word = re.sub(r'\s', '', word)  # Remove whitespace.
             
             MATCH_MCs = re.compile('|'.join(sorted(self.mapping_classes, key=len, reverse=True)))
             
             def decompose(word):
                 iterable = [x for subword in word.split('.') for x in MATCH_MCs.findall(subword)]
-                if sum(len(x) for x in iterable) + word.count('.') < len(word):
+                if sum(len(x) for x in iterable) + word.count('.') < len(word):  # We were unable to decompose the entire word.
                     remaining = word
                     for index, item in enumerate(iterable):
                         remaining = LEADING_DOTS.sub('', remaining)  # Remove leading dots.
@@ -130,8 +130,8 @@ class MappingClassGroup(object):
             tokens = TOKENS.findall(word)  # Break word into tokens.
             for index, token in enumerate(tokens):
                 if IS_INT.match(token):
-                    continue
-                if token == '^':
+                    pass
+                elif token == '^':
                     try:
                         power = int(tokens[index+1])
                     except (ValueError, IndexError):
@@ -151,7 +151,7 @@ class MappingClassGroup(object):
             if len(stack) > 1:
                 raise ValueError('Unbalanced parentheses')
             
-            iterable = SLP.sum([item if isinstance(item, SLP) else SLP(decompose(item)) for item in stack[-1]])
+            iterable = stack[-1][-1]
         
         sequence = [item for letter in iterable for item in self.mapping_classes[letter]]
         return curver.kernel.MappingClass(sequence) if sequence else self.triangulation.id_encoding()
