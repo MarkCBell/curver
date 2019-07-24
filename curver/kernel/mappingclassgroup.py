@@ -1,6 +1,10 @@
 
 ''' A module for representing triangulations along with laminations and mapping classes on them. '''
 
+try:
+    from collections.abc import Sequence
+except ImportError:
+    from collections import Sequence
 from random import choice
 import re
 try:
@@ -104,8 +108,8 @@ class MappingClassGroup(object):
         Raises a ValueError if given a string that cannot be decomposed. '''
         
         if isinstance(data, curver.IntegerType):
-            iterable = self.random_word(data, **kwargs)
-        if isinstance(data, str):
+            sequence = self.random_word(data, **kwargs)
+        elif isinstance(data, str):
             SLP = curver.kernel.SLP  # Shorter alias.
             word = '(' + data + ')'  # This ensures that the last token is a ')' and so avoids a special case.
             word = re.sub(r'\s', '', word)  # Remove whitespace.
@@ -151,14 +155,18 @@ class MappingClassGroup(object):
             if len(stack) > 1:
                 raise ValueError('Unbalanced parentheses')
             
-            iterable = stack[-1][-1]
+            sequence = stack[-1][-1]
+        elif isinstance(data, Sequence):
+            sequence = data
+        else:
+            raise TypeError('No method for generating a Sequence from this type')
         
-        sequence = [item for letter in iterable for item in self.mapping_classes[letter]]
+        sequence = [item for letter in sequence for item in self.mapping_classes[letter]]
         return curver.kernel.MappingClass(sequence) if sequence else self.triangulation.id_encoding()
     
-    def __call__(self, word):
+    def __call__(self, word, **kwargs):
         ''' A shortcut for self.mapping_class(...). '''
-        return self.mapping_class(word)
+        return self.mapping_class(word, **kwargs)
     
     def lamination(self, geometric):
         ''' Return a new lamination on this surface assigning the specified weight to each edge. '''
