@@ -541,9 +541,10 @@ class IntegralLamination(Lamination):
                 a, b, c, d, e = lamination.triangulation.square(edge)
                 move = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
                 # Since looking for and applying a twist is expensive, we will not do it if:
+                #  * drop == 0,
                 #  * lamination has little weight, or
                 #  * flipping drops the weight by at least drop%.
-                if 4 * self.zeta < lamination.weight() < move(lamination).weight() / (1 - drop):
+                if drop > 0 and 4 * self.zeta < lamination.weight() < move(lamination).weight() / (1 - drop):
                     try:
                         move = find_twist(lamination, edge)
                     except ValueError:
