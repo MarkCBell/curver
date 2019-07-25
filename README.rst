@@ -38,7 +38,9 @@ Once installed, try it inside of Python::
     >>> S = curver.load(0, 5)
     >>> S('s_0.s_1.s_0') == S('s_1.s_0.s_1')
     True
-    >>> f, g, h = S('s_0.s_1.s_2.s_3'), S('s_0.s_1.s_3.s_2'), S('s_0.s_1.S_2.S_3')
+    >>> f = S('s_0.s_1.s_2.s_3')
+    >>> g = S('s_0.s_1.s_3.s_2')
+    >>> h = S('s_0.s_1.S_2.S_3')
     >>> f.order(), g.order(), h.order()
     (5, 5, 5)
     >>> f.is_conjugate_to(g)
