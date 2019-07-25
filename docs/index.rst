@@ -13,7 +13,7 @@ instructions for getting the most out of Curver.
 
    user/intro
    user/install
-   user/quickstart
+   user/walkthrough
    user/surfaces
    user/representations
    user/references

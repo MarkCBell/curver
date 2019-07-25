@@ -1,6 +1,6 @@
 
-Quickstart
-==========
+Walkthrough
+===========
 
 Eager to get started? This page gives a good introduction in how to get started with curver.
 
