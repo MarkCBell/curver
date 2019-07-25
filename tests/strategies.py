@@ -13,8 +13,6 @@ TRIANGULATIONS = {
     (0, 5): '9_ZFO4OuIV',
     (0, 6): 'c_ZlgeM906o-354',
     (0, 7): 'f_ZBhisze7ZhPen+Kdl1',
-    (0, 8): 'i_ZBCol3oodJti4fabgfrLdu1',
-    (0, 9): 'l_ZBmFdZ5TmXJTHbErcDHjdC12vbv4',
     (1, 1): '3_o',
     (1, 2): '6_WKSv',
     (1, 3): '9_q3AtQIBp',

@@ -151,33 +151,58 @@ class Lamination(object):
         
         return self.triangulation(geometric, promote)  # Have to promote.
     
-    def trace(self, edge, intersection_point, length):
-        ''' Return the sequence of edges encountered by following along this lamination.
+    def trace_curve(self, edge, intersection, max_length):
+        ''' Return the curve obtained by following along this lamination and closing up when you get back to this edge.
         
-        We start at the given edge and intersection point for the specified number of steps.
-        However we terminate early if the lamination closes up before this number of steps is completed. '''
+        We start at the given edge and intersection point and only go for at most max_length.
+        A ValueError is raised if:
+         * we do not get back to the starting edge within this number of steps,
+         * the lamination terminates into a vertex, or
+         * upon returning to start_edge we cannot close up without creating intersections. '''
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        start = (edge, intersection_point)
+        tilde_upper = self(edge) + 1
+        tilde_intersection = self(edge) - intersection
+        tilde_lower = -1
         
-        assert 0 <= intersection_point < self(edge)  # Sanity.
+        #   ~upper ~intersection ~lower
+        #       V       V          V
+        # *<----|||||---|----||-||-|----*
+        #               ^
+        #         intersection
+        
+        start_edge = edge
+        
+        assert 0 <= intersection < self(edge)  # Sanity.
         dual_weights = dict((edge, self.dual_weight(edge)) for edge in self.triangulation.edges)
-        edges = []
-        for _ in range(length):
+        trace = [edge]
+        for _ in range(max_length):
             x, y, z = self.triangulation.corner_lookup[~edge]
-            if intersection_point < dual_weights[z]:  # Turn right.
-                edge, intersection_point = y, intersection_point
-            elif dual_weights[x] < 0 and dual_weights[z] <= intersection_point < dual_weights[z] - dual_weights[x]:  # Terminate.
-                break
+            # Move onto next edge.
+            if intersection < dual_weights[z]:  # Turn right.
+                edge, intersection = y, intersection
+            elif dual_weights[x] < 0 and dual_weights[z] <= intersection < dual_weights[z] - dual_weights[x]:  # Terminate.
+                raise ValueError('Lamination does not trace to a curve')
             else:  # Turn left.
-                edge, intersection_point = z, self(z) - self(x) + intersection_point
-            if (edge, intersection_point) == start:  # Closes up.
-                break
-            edges.append(edge)
-            assert 0 <= intersection_point < self(edge)  # Sanity.
+                edge, intersection = z, self(z) - self(x) + intersection
+            
+            if edge == start_edge:
+                x = self(edge) - intersection
+                if tilde_lower < x < tilde_upper:
+                    return self.triangulation.curve_from_cut_sequence(trace)
+                else:
+                    raise ValueError('Curve does not close up without intersection')
+            if edge == ~start_edge:  # Move the bound in.
+                if intersection < tilde_intersection:
+                    tilde_lower = max(tilde_lower, intersection)
+                elif intersection > tilde_intersection:
+                    tilde_upper = min(tilde_upper, intersection)
+            
+            trace.append(edge)
+            assert 0 <= intersection < self(edge)  # Sanity.
         
-        return edges
+        raise ValueError('Curve does not close up in {} steps'.format(max_length))
     
     def peripheral_components(self):
         ''' Return a dictionary mapping component to (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
@@ -532,16 +557,12 @@ class IntegralLamination(Lamination):
                 #  * drop == 0,
                 #  * lamination has little weight, or
                 #  * flipping drops the weight by at least drop%.
-                if drop > 0 and 4 * self.zeta < lamination.weight() < move(lamination).weight() / (1 - drop):
+                if drop > 0 and 4 * self.zeta < lamination.weight() and (1 - drop) * lamination.weight() < move(lamination).weight() < lamination.weight():
                     try:
-                        trace = lamination.trace(edge, lamination.side_weight(edge), 2*self.zeta)
-                        trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
-                        
-                        curve = lamination.triangulation.lamination_from_cut_sequence(trace)
-                        if isinstance(curve, curver.kernel.Curve):
-                            slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
-                            if abs(slope) > 2:  # Can accelerate and slope is large enough to be efficient.
-                                move = curve.encode_twist(power=-int(slope))  # Round towards zero.
+                        curve = lamination.trace_curve(edge, lamination.side_weight(edge), 2*self.zeta)
+                        slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
+                        if abs(slope) > 2:  # Can accelerate and slope is large enough to be efficient.
+                            move = curve.encode_twist(power=-int(slope))  # Round towards zero.
                     except ValueError:
                         extra = [x for x in [c, d] if x not in frozen_edges]
                 else:
@@ -560,8 +581,7 @@ class IntegralLamination(Lamination):
             # This is pretty inefficient.
             for edge in lamination.triangulation.edges:
                 if lamination(edge) > 0 and lamination.side_weight(edge) == 0:  # First statement implies that edge is not in frozen_edges.
-                    trace = [edge] + lamination.trace(edge, 0, 2*self.zeta)
-                    curve = lamination.triangulation.curve_from_cut_sequence(trace)
+                    curve = lamination.trace_curve(edge, 0, 2*self.zeta)  # This cannot fail and so there is no need for a try / except block.
                     extra = []
                     while not curve.is_short():
                         edgey = curver.kernel.utilities.maximum(
@@ -576,6 +596,9 @@ class IntegralLamination(Lamination):
                         conjugator = move * conjugator
                         curve = move(curve)
                         lamination = move(lamination)
+                        if lamination(edgey) <= 0:
+                            frozen_edges.add(edgey)
+                            frozen_edges.add(~edgey)
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(
