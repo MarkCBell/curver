@@ -188,8 +188,8 @@ class Lamination(object):
                 edge, intersection = z, self(z) - self(x) + intersection
             
             if edge == start_edge:
-                x = self(edge) - intersection
-                if tilde_lower < x < tilde_upper:
+                tilde_return = self(edge) - intersection
+                if tilde_lower < tilde_return < tilde_upper:
                     return self.triangulation.curve_from_cut_sequence(trace)
                 else:
                     raise ValueError('Curve does not close up without intersection')
