@@ -117,6 +117,8 @@ class MappingClassGroup(object):
             MATCH_MCs = re.compile('|'.join(sorted(self.mapping_classes, key=len, reverse=True)))
             
             def decompose(word):
+                ''' Break a word into a list of words that match MATCH_MCs. '''
+                
                 iterable = [x for subword in word.split('.') for x in MATCH_MCs.findall(subword)]
                 if sum(len(x) for x in iterable) + word.count('.') < len(word):  # We were unable to decompose the entire word.
                     remaining = word
