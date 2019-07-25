@@ -494,25 +494,8 @@ class IntegralLamination(Lamination):
             
             return 0.5
         
-        def find_twist(lamination, edge):
-            ''' Return a twist based at the given edge that drops the weight of this lamination as much as possible.
-            
-            Raises a ValueError if no twist can be found. '''
-            
-            # Deps: edge, lamination, old_extra
-            trace = lamination.trace(edge, lamination.side_weight(edge), 2*self.zeta)
-            trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
-            
-            curve = lamination.triangulation.lamination_from_cut_sequence(trace)
-            if isinstance(curve, curver.kernel.Curve):
-                slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
-                if abs(slope) > 1:  # Can accelerate. We should probably also skip cases where slope is too close to small to be efficient.
-                    return curve.encode_twist(power=-int(slope))  # Round towards zero.
-            
-            raise ValueError('No accelerating twist exists')
-        
         arc_components, curve_components = dict(), dict()
-        active_edges = set(lamination.triangulation.edges)  # Edges that are not currently parallel to a component and so can be flipped.
+        frozen_edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) == 0])  # Edges that will never be changed again.
         has_arcs = True
         while True:
             # Subtract.
@@ -520,8 +503,8 @@ class IntegralLamination(Lamination):
             for component, (multiplicity, edge) in lamination.parallel_components().items():
                 if lamination(edge) <= 0:
                     geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
-                    active_edges.discard(edge)
-                    active_edges.discard(~edge)
+                    frozen_edges.add(edge)
+                    frozen_edges.add(~edge)
                     if isinstance(component, curver.kernel.Arc):
                         arc_components[edge] = multiplicity
                     else:
@@ -531,11 +514,16 @@ class IntegralLamination(Lamination):
             
             if not lamination: break
             
-            has_arcs = has_arcs and any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)  # Once they are gone, they are gone.
+            # The arcs will be dealt with in the first round and once they are gone, they are gone.
+            has_arcs = has_arcs and any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)
             extra = []  # High priority edges to check.
-            while active_edges:
+            while len(frozen_edges) < 2 * self.zeta:  # Not all edges are frozen.
                 # Note that if lamination does not have any arcs then the max value that shorten_strategy can return is 0.5.
-                edge = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: shorten_strategy(lamination, edge), upper_bound=1 if has_arcs else 0.5)
+                # Also triangulation.edges are listed in increasing order so this process is deterministic.
+                edge = curver.kernel.utilities.maximum(
+                    extra + [edgy for edgy in lamination.triangulation.edges if edgy not in frozen_edges],
+                    key=lambda edge: shorten_strategy(lamination, edge),
+                    upper_bound=1 if has_arcs else 0.5)
                 if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
                 
                 a, b, c, d, e = lamination.triangulation.square(edge)
@@ -546,35 +534,45 @@ class IntegralLamination(Lamination):
                 #  * flipping drops the weight by at least drop%.
                 if drop > 0 and 4 * self.zeta < lamination.weight() < move(lamination).weight() / (1 - drop):
                     try:
-                        move = find_twist(lamination, edge)
+                        trace = lamination.trace(edge, lamination.side_weight(edge), 2*self.zeta)
+                        trace = trace[:trace.index(edge)+1]  # Will raise a ValueError if edge is not in trace.
+                        
+                        curve = lamination.triangulation.lamination_from_cut_sequence(trace)
+                        if isinstance(curve, curver.kernel.Curve):
+                            slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
+                            if abs(slope) > 2:  # Can accelerate and slope is large enough to be efficient.
+                                move = curve.encode_twist(power=-int(slope))  # Round towards zero.
                     except ValueError:
-                        extra = [x for x in [c, d] if x in active_edges]
+                        extra = [x for x in [c, d] if x not in frozen_edges]
                 else:
-                    extra = [x for x in [c, d] if x in active_edges]
+                    extra = [x for x in [c, d] if x not in frozen_edges]
                 
                 conjugator = move * conjugator
                 lamination = move(lamination)
                 if lamination(edge) <= 0:
-                    active_edges.discard(edge)
-                    active_edges.discard(~edge)
+                    frozen_edges.add(edge)
+                    frozen_edges.add(~edge)
             
             # Now all arcs should be parallel to edges and there should now be no bipods.
             assert all(lamination.side_weight(edge) >= 0 for edge in lamination.triangulation.edges)
             assert all(sum(1 if lamination.side_weight(edge) > 0 else 0 for edge in triangle) != 2 for triangle in lamination.triangulation)
             
             # This is pretty inefficient.
-            for edge in active_edges:
-                if lamination(edge) > 0 and lamination.side_weight(edge) == 0:
+            for edge in lamination.triangulation.edges:
+                if lamination(edge) > 0 and lamination.side_weight(edge) == 0:  # First statement implies that edge is not in frozen_edges.
                     trace = [edge] + lamination.trace(edge, 0, 2*self.zeta)
                     curve = lamination.triangulation.curve_from_cut_sequence(trace)
                     extra = []
                     while not curve.is_short():
-                        edgey = curver.kernel.utilities.maximum(extra + list(active_edges), key=lambda edge: curve_shorten_strategy(curve, edge), upper_bound=1)  # pylint: disable=cell-var-from-loop
+                        edgey = curver.kernel.utilities.maximum(
+                            extra + [edgyy for edgyy in lamination.triangulation.edges if edgyy not in frozen_edges],
+                            key=lambda edge: curve_shorten_strategy(curve, edge),
+                            upper_bound=1)  # pylint: disable=cell-var-from-loop
                         # This edge is always flippable.
                         a, b, c, d, e = lamination.triangulation.square(edgey)
                         
                         move = lamination.triangulation.encode_flip(edgey)
-                        extra = [x for x in [c, d] if x in active_edges]
+                        extra = [x for x in [c, d] if x not in frozen_edges]
                         conjugator = move * conjugator
                         curve = move(curve)
                         lamination = move(lamination)
