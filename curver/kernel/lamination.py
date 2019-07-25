@@ -232,8 +232,8 @@ class Lamination(object):
                 v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
                 v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
                 if len(v_edges) > 2:
-                    around_v = min(max(self.side_weight(edge), 0) for edge in v_edges)
-                    twisting = min(max(self.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+                    around_v = min(max(self.side_weight(edgy), 0) for edgy in v_edges)
+                    twisting = min(max(self.side_weight(edgy) - around_v, 0) for edgy in v_edges[1:-1])
                     
                     if self.side_weight(v_edges[0]) == around_v and self.side_weight(v_edges[-1]) == around_v:
                         multiplicity = twisting
