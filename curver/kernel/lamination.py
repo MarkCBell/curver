@@ -156,9 +156,10 @@ class Lamination(object):
         
         We start at the given edge and intersection point and only go for at most max_length.
         A ValueError is raised if:
-         * we do not get back to the starting edge within this number of steps,
-         * the lamination terminates into a vertex, or
-         * upon returning to start_edge we cannot close up without creating intersections. '''
+        
+         - we do not get back to the starting edge within this number of steps,
+         - the lamination terminates into a vertex, or
+         - upon returning to start_edge we cannot close up without creating intersections. '''
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
@@ -520,7 +521,7 @@ class IntegralLamination(Lamination):
             return 0.5
         
         arc_components, curve_components = dict(), dict()
-        frozen_edges = set([edge for edge in lamination.triangulation.edges if lamination(edge) == 0])  # Edges that will never be changed again.
+        frozen_edges = set(edge for edge in lamination.triangulation.edges if lamination(edge) == 0)  # Edges that will never be changed again.
         has_arcs = True
         while True:
             # Subtract.
