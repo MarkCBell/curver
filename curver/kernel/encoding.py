@@ -21,6 +21,11 @@ class Encoding(object):
         assert sequence
         # assert all(isinstance(item, curver.kernel.Move) for item in sequence)  # Quadratic.
         
+        if len(sequence) > 1 and isinstance(sequence[-1], curver.kernel.Isometry) and sequence[-1].is_identity():
+            sequence = sequence[:-1]
+        if len(sequence) > 1 and isinstance(sequence[0], curver.kernel.Isometry) and sequence[0].is_identity():
+            sequence = sequence[1:]
+        
         self.sequence = sequence
         
         self.source_triangulation = self.sequence[-1].source_triangulation

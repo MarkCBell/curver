@@ -113,6 +113,9 @@ class Isometry(FlipGraphMove):
     
     def flip_mapping(self):
         return self.encode()
+    
+    def is_identity(self):
+        return all(key == value for key, value in self.label_map.items())
 
 class EdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
