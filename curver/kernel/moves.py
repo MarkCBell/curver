@@ -92,10 +92,7 @@ class Isometry(FlipGraphMove):
     def __str__(self):
         return 'Isometry ' + str([curver.kernel.Edge(self.label_map[index]) for index in self.source_triangulation.indices])
     def package(self):
-        if not all(self.label_map[i] == i for i in self.source_triangulation.indices):  # If self is not the identity isometry.
-            return {i: self.label_map[i] for i in self.source_triangulation.labels}
-        else:
-            return None
+        return None if self.is_identity() else self.label_map
     def __eq__(self, other):
         eq = super(Isometry, self).__eq__(other)
         if eq in [NotImplemented, False]:
@@ -115,6 +112,8 @@ class Isometry(FlipGraphMove):
         return self.encode()
     
     def is_identity(self):
+        ''' Return whether this isometry is the identity. '''
+        
         return all(key == value for key, value in self.label_map.items())
 
 class EdgeFlip(FlipGraphMove):
