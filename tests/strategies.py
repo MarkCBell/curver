@@ -73,8 +73,8 @@ def mappings(draw, triangulation=None, power_range=10):
 def encodings(draw, triangulation=None, power_range=10, distribution=None):
     if triangulation is None: triangulation = draw(triangulations())
     if distribution is None: distribution = [0, 0, 0, 0, 1, 2, 3, 4]
-    terms_reversed = []
-    move_types = draw(st.lists(elements=st.sampled_from(distribution), max_size=10))
+    h = triangulation.id_encoding()
+    move_types = draw(st.lists(elements=st.sampled_from(distribution), min_size=1, max_size=10))
     T = triangulation
     for move_type in move_types:
         if move_type == 0:  # EdgeFlip.
@@ -98,18 +98,10 @@ def encodings(draw, triangulation=None, power_range=10, distribution=None):
             curve = draw(st.sampled_from(curves))
             term = curve.crush()
         
-        terms_reversed.append(term)
         T = term.target_triangulation
+        h = term * h
     
-    if not terms_reversed: terms_reversed = [triangulation.id_encoding()]
-    moves = [move for item in reversed(terms_reversed) for move in item]
-    if all(isinstance(move, curver.kernel.FlipGraphMove) for move in moves):
-        if moves[0].target_triangulation == moves[-1].source_triangulation:
-            return curver.kernel.MappingClass(moves)
-        else:
-            return curver.kernel.Mapping(moves)
-    else:
-        return curver.kernel.Encoding(moves)
+    return h
 
 @st.composite
 def homology_classes(draw, triangulation=None):
@@ -232,8 +224,4 @@ class TestStrategiesHealth(unittest.TestCase):
     @given(permutations())
     def test_permutations(self, perm):
         self.assertIsInstance(perm, curver.kernel.Permutation)
-
-
-if __name__ == '__main__':
-    unittest.main()
 
