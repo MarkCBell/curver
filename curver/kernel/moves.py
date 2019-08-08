@@ -2,8 +2,12 @@
 ''' A module for representing basic ways of changing triangulations.
 These moves can also track how laminations and homology classes move through those changes. '''
 
+from abc import ABCMeta, abstractmethod
+import six
+
 import curver
 
+@six.add_metaclass(ABCMeta)
 class Move(object):
     ''' A basic move from one triangulation to another. '''
     def __init__(self, source_triangulation, target_triangulation):
@@ -48,10 +52,13 @@ class Move(object):
         
         return self._inverse
     
+    @abstractmethod
     def apply_lamination(self, lamination):  # pylint: disable=no-self-use,unused-argument
         ''' Return the lamination obtained by mapping the given lamination through this move. '''
         
         return NotImplemented
+    
+    @abstractmethod
     def apply_homology(self, homology_class):  # pylint: disable=no-self-use,unused-argument
         ''' Return the homology class obtained by mapping the given homology class through this move. '''
         
@@ -59,6 +66,7 @@ class Move(object):
 
 class FlipGraphMove(Move):
     ''' A Move between two triangulations in the same flip graph. '''
+    @abstractmethod
     def flip_mapping(self):  # pylint: disable=no-self-use
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
         
