@@ -56,13 +56,13 @@ class Move(object):
     def apply_lamination(self, lamination):  # pylint: disable=no-self-use,unused-argument
         ''' Return the lamination obtained by mapping the given lamination through this move. '''
         
-        return NotImplemented
+        pass
     
     @abstractmethod
     def apply_homology(self, homology_class):  # pylint: disable=no-self-use,unused-argument
         ''' Return the homology class obtained by mapping the given homology class through this move. '''
         
-        return NotImplemented
+        pass
 
 class FlipGraphMove(Move):
     ''' A Move between two triangulations in the same flip graph. '''
@@ -70,7 +70,7 @@ class FlipGraphMove(Move):
     def flip_mapping(self):  # pylint: disable=no-self-use
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
         
-        return NotImplemented
+        pass
 
 class Isometry(FlipGraphMove):
     ''' This represents an isometry from one Triangulation to another.
