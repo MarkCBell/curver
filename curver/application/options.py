@@ -1,10 +1,6 @@
 
-try:
-    import Tkinter as TK
-    import tkFont as TK_FONT
-except ImportError:  # Python 3.
-    import tkinter as TK
-    import tkinter.font as TK_FONT
+import six.moves.tkinter as TK
+import six.moves.tkinter_font as TK_FONT
 
 LABEL_EDGES_NONE = 'None'
 LABEL_EDGES_INDEX = 'Index'

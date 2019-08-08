@@ -11,17 +11,10 @@ from random import random
 from colorsys import hls_to_rgb
 from collections import namedtuple
 
-try:
-    import Tkinter as TK
-    import tkFileDialog
-    import tkMessageBox
-except ImportError:  # Python 3.
-    try:
-        import tkinter as TK
-        import tkinter.filedialog as tkFileDialog
-        import tkinter.messagebox as tkMessageBox
-    except ImportError:
-        raise ImportError('Tkinter not available')
+import six.moves.tkinter as TK
+import six.moves.tkinter_font as TK_FONT
+import six.moves.tkinter_filedialog as TK_FILE
+import six.moves.tkinter_messagebox as TK_MESSAGE
 
 try:
     import ttk as TTK
@@ -531,12 +524,12 @@ class CurverApplication(object):
             self.translate(-5, 0)
     
     def export_image(self):
-        path = tkFileDialog.asksaveasfilename(defaultextension='.ps', filetypes=[('postscript files', '.ps'), ('all files', '.*')], title='Export Image')
+        path = TK_FILE.asksaveasfilename(defaultextension='.ps', filetypes=[('postscript files', '.ps'), ('all files', '.*')], title='Export Image')
         if path:
             try:
                 self.current_drawing().canvas.postscript(file=path, colormode='color')
             except IOError:
-                tkMessageBox.showwarning('Export Error', 'Could not open: %s' % path)
+                TK_MESSAGE.showwarning('Export Error', 'Could not open: %s' % path)
     
     def quit(self):
         # Apparantly there are some problems with comboboxes, see:
@@ -550,7 +543,7 @@ class CurverApplication(object):
         # curver.doc.open_documentation()
     
     def show_about(self):
-        tkMessageBox.showinfo('About', 'curver (Version %s).\nCopyright (c) Mark Bell 2017.' % curver.__version__)
+        TK_MESSAGE.showinfo('About', 'curver (Version %s).\nCopyright (c) Mark Bell 2017.' % curver.__version__)
 
 def start(*items):
     root = TK.Tk()

@@ -5,10 +5,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from fractions import Fraction
 from itertools import groupby
-try:
-    from Queue import Queue
-except ImportError:  # Python3.
-    from queue import Queue
+from six.moves.queue import Queue
 
 import curver
 from curver.kernel.decorators import memoize, ensure
