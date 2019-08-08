@@ -15,14 +15,7 @@ import six.moves.tkinter as TK
 import six.moves.tkinter_font as TK_FONT
 import six.moves.tkinter_filedialog as TK_FILE
 import six.moves.tkinter_messagebox as TK_MESSAGE
-
-try:
-    import ttk as TTK
-except ImportError:  # Python 3.
-    try:
-        from tkinter import ttk as TTK
-    except ImportError:
-        raise ImportError('Ttk not available')
+import six.moves.tkinter_ttk as TTK
 
 # Some constants.
 if sys.platform in ['darwin']:
