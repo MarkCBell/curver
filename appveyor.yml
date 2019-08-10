@@ -6,11 +6,8 @@ environment:
     - PYTHON: "C:\\Python37"
       TOX_ENV: "docs"
 
-    - PYTHON: "C:\\Python27"
-      TOX_ENV: "lint2"
-
     - PYTHON: "C:\\Python36"
-      TOX_ENV: "lint3"
+      TOX_ENV: "lint"
 
     - PYTHON: "C:\\Python27"
       TOX_ENV: "py27"

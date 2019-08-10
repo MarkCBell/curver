@@ -16,12 +16,9 @@ jobs:
       Docs:
         python.version: '3.7'
         TOX_ENV: 'docs'
-      Lint2:
-        python.version: '2.7'
-        TOX_ENV: 'lint2'
-      Lint3:
+      Lint:
         python.version: '3.6'
-        TOX_ENV: 'lint3'
+        TOX_ENV: 'lint'
       Python27:
         python.version: '2.7'
         TOX_ENV: 'py27'

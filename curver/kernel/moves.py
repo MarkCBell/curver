@@ -44,8 +44,6 @@ class Move(object):
     
     def package(self):
         ''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
-        
-        return self
     
     def inverse(self):  # pylint: disable=no-self-use
         ''' Return the inverse of this move. '''
@@ -55,22 +53,16 @@ class Move(object):
     @abstractmethod
     def apply_lamination(self, lamination):  # pylint: disable=no-self-use,unused-argument
         ''' Return the lamination obtained by mapping the given lamination through this move. '''
-        
-        pass
     
     @abstractmethod
     def apply_homology(self, homology_class):  # pylint: disable=no-self-use,unused-argument
         ''' Return the homology class obtained by mapping the given homology class through this move. '''
-        
-        pass
 
 class FlipGraphMove(Move):
     ''' A Move between two triangulations in the same flip graph. '''
     @abstractmethod
     def flip_mapping(self):  # pylint: disable=no-self-use
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
-        
-        pass
 
 class Isometry(FlipGraphMove):
     ''' This represents an isometry from one Triangulation to another.
