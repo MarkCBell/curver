@@ -12,7 +12,6 @@ from colorsys import hls_to_rgb
 from collections import namedtuple
 
 import six.moves.tkinter as TK
-import six.moves.tkinter_font as TK_FONT
 import six.moves.tkinter_filedialog as TK_FILE
 import six.moves.tkinter_messagebox as TK_MESSAGE
 import six.moves.tkinter_ttk as TTK
