@@ -156,6 +156,9 @@ class LinearTransformation(Move):
     
     def apply_lamination(self, lamination):
         return self.target_triangulation(self.matrix.dot(lamination.geometric).tolist())
+    
+    def apply_homology(self, homology_class):
+        return NotImplemented  # I don't think we ever need this.
 
 class Lift(LinearTransformation):
     ''' This represents the inverse of crushing along a curve. '''
