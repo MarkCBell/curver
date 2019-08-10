@@ -144,6 +144,12 @@ class Lamination(object):
         
         return self.triangulation(geometric, promote)  # Have to promote.
     
+    @topological_invariant
+    def is_non_peripheral(self):
+        ''' Return whether this lamination does not have any peripheral components. '''
+        
+        return not self.periperal_components()
+    
     def non_peripheral(self, promote=True):
         ''' Return the lamination consisting of the non-peripheral components of this Lamination. '''
         
