@@ -131,7 +131,7 @@ class Lamination(object):
     
     @topological_invariant
     def is_peripheral(self):
-        ''' Return whether this lamination consists entirely of parallel components. '''
+        ''' Return whether this lamination consists entirely of peripheral components. '''
         
         return self.peripheral() == self
     
