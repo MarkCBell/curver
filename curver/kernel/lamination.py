@@ -539,7 +539,7 @@ class IntegralLamination(Lamination):
                     frozen_edges.add(~edge)
                     if isinstance(component, curver.kernel.Arc):
                         arc_components[edge] = multiplicity
-                    else:
+                    else:  # isinstance(component, curver.kernel.Curve):
                         curve_components[edge] = multiplicity
             
             lamination = IntegralLamination(lamination.triangulation, geometric)
