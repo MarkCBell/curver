@@ -517,25 +517,6 @@ class IntegralLamination(Lamination):
             
             return 0
         
-        def curve_shorten_strategy(self, edge):
-            ''' Return a float in [0, 1] describing how good flipping this edge is for making this curve short. '''
-            
-            if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
-            
-            if not self.triangulation.is_flippable(edge): return 0
-            
-            ai, bi, ci, di, ei = [self(edgy) for edgy in self.triangulation.square(edge)]
-            ad, bd, cd, dd, ed = [self.dual_weight(edgy) for edgy in self.triangulation.square(edge)]
-            
-            if ei == 0:
-                return 0
-            if max(ai + ci, bi + di) - ei < ei:
-                return 1  # Hmmm. We do need this but can we avoid not having 1 as the generic case?
-            if bd > 0 and ad == 0:
-                return 0.75
-            
-            return 0.5
-        
         arc_components, curve_components = dict(), dict()
         has_arcs = True
         while True:
@@ -590,23 +571,45 @@ class IntegralLamination(Lamination):
             assert all(sum(1 if lamination.left_weight(edge) > 0 else 0 for edge in triangle) != 2 for triangle in lamination.triangulation)
             
             # This is pretty inefficient.
-            for edge in lamination.triangulation.edges:
-                if lamination(edge) > 0 and lamination.left_weight(edge) == 0:
-                    curve = lamination.trace_curve(edge, 0, 2*self.zeta)  # This cannot fail and so there is no need for a try / except block.
-                    extra = []
-                    while not curve.is_short():
-                        edgey = curver.kernel.utilities.maximum(
-                            extra + lamination.triangulation.edges,
-                            key=lambda edge: curve_shorten_strategy(curve, edge),
-                            upper_bound=1)  # pylint: disable=cell-var-from-loop
-                        # This edge is always flippable.
-                        a, b, c, d, e = lamination.triangulation.square(edgey)
-                        
-                        move = lamination.triangulation.encode_flip(edgey)
-                        extra = [c, d]
-                        conjugator = move * conjugator
-                        curve = move(curve)
-                        lamination = move(lamination)
+            sequence = []  # This contains each (oriented) edge at most once and so can never contain more than 2*self.zeta elements.
+            used_edges = set()
+            for starting_edge in lamination.triangulation.edges:
+                # Found a good new starting place where lamination(starting_edge) > 0 and lamination.left_weight(starting_edge) == 0.
+                if starting_edge in used_edges:
+                    continue
+                
+                if lamination(starting_edge) <= 0:
+                    used_edges.add(starting_edge)
+                    used_edges.add(~starting_edge)
+                    continue
+                
+                if lamination.left_weight(starting_edge) <= 0:
+                    continue
+                
+                if lamination.right_weight(starting_edge) > 0:
+                    continue
+                
+                edge = starting_edge
+                add_sequence = False
+                while True:
+                    used_edges.add(edge)
+                    if add_sequence:  # Only record the edge in the sequence once we have made a right turn away from the vertex.
+                        sequence.append(edge)
+                    
+                    # Move around to the next edge following the lamination.
+                    edge = lamination.triangulation.corner_lookup[~edge].edges[2 if lamination.left_weight(~edge) > 0 else 1]
+                    
+                    add_sequence = add_sequence or lamination.right_weight(edge) <= 0
+                    if edge == starting_edge:  # We have gotten back to the starting point.
+                        break
+            
+            if sequence:
+                multiarc = curver.kernel.IntegralLamination(lamination.triangulation, lamination.triangulation.cut_sequence_intersections(sequence))
+                # Since multiarc only intersects edges that lamination does, its shorten will never affect an edge that has been frozen.
+                _, sub_conjugator = multiarc.shorten()
+                conjugator = sub_conjugator * conjugator
+                lamination = sub_conjugator(lamination)
+>>>>>>> Rewritten shorten to just build the boundary arcs.
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(
