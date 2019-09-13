@@ -521,19 +521,23 @@ class Triangulation(object):
         if promote: lamination = lamination.promote()
         return lamination
     
+    def cut_sequence_intersections(self, sequence):
+        ''' Return the list of intersections with edges of this triangulation given by a cut sequence. '''
+        
+        count = Counter(sequence)
+        return [count[i] + count[~i] for i in range(self.zeta)]
+    
     def lamination_from_cut_sequence(self, sequence):
         ''' Return a new lamination on this surface based on the sequence of edges that this Curve / Arc crosses. '''
         
-        count = Counter(sequence)
-        return self([count[i] + count[~i] for i in range(self.zeta)])
+        return self(self.cut_sequence_intersections(sequence))
     
     def curve_from_cut_sequence(self, sequence):
         ''' Return a new curve on this surface based on the sequence of edges that this Curve crosses.
         
         WARNING: Be extremely careful with this method since it does NOT check that this produces a curve. '''
         
-        count = Counter(sequence)
-        return curver.kernel.Curve(self, [count[i] + count[~i] for i in range(self.zeta)])
+        return curver.kernel.Curve(self, self.cut_sequence_intersections(sequence))
     
     def empty_lamination(self):
         ''' Return the empty lamination defined on this triangulation. '''
