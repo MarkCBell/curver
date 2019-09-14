@@ -574,24 +574,13 @@ class IntegralLamination(Lamination):
             sequence = []  # This contains each (oriented) edge at most once and so can never contain more than 2*self.zeta elements.
             used_edges = set()
             for starting_edge in lamination.triangulation.edges:
-                # Found a good new starting place where lamination(starting_edge) > 0 and lamination.left_weight(starting_edge) == 0.
-                if starting_edge in used_edges:
-                    continue
-                
-                if lamination(starting_edge) <= 0:
-                    used_edges.add(starting_edge)
-                    used_edges.add(~starting_edge)
-                    continue
-                
-                if lamination.left_weight(starting_edge) <= 0:
-                    continue
-                
-                if lamination.right_weight(starting_edge) > 0:
+                # Found a good (unused) starting place.
+                if starting_edge in used_edges or lamination.left_weight(starting_edge) <= 0 or lamination.right_weight(starting_edge) > 0:
                     continue
                 
                 edge = starting_edge
                 add_sequence = False
-                while True:
+                while True:  # Until we get back to the starting point.
                     used_edges.add(edge)
                     if add_sequence:  # Only record the edge in the sequence once we have made a right turn away from the vertex.
                         sequence.append(edge)
@@ -600,7 +589,7 @@ class IntegralLamination(Lamination):
                     edge = lamination.triangulation.corner_lookup[~edge].edges[2 if lamination.left_weight(~edge) > 0 else 1]
                     
                     add_sequence = add_sequence or lamination.right_weight(edge) <= 0
-                    if edge == starting_edge:  # We have gotten back to the starting point.
+                    if edge == starting_edge:
                         break
             
             if sequence:
