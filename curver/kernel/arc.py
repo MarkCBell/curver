@@ -20,7 +20,7 @@ class MultiArc(IntegralLamination):
     def vertices(self):
         ''' Return set of vertices that the components of this MultiArc connects to. '''
         
-        return set(vertex for vertex in self.triangulation.vertices if any(self(edge) < 0 or self.side_weight(edge) < 0 for edge in vertex))
+        return set(vertex for vertex in self.triangulation.vertices if any(self(edge) < 0 or self.left_weight(edge) < 0 for edge in vertex))
     
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''

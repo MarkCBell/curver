@@ -35,10 +35,10 @@ class Crush(Move):
         
         v = self.curve.triangulation.vertex_lookup[a]  # = self.triangulation.vertex_lookup[~a].
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
-        around_v = min(max(lamination.side_weight(edge), 0) for edge in v_edges)
-        out_v = sum(max(-lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
+        around_v = min(max(lamination.left_weight(edge), 0) for edge in v_edges)
+        out_v = sum(max(-lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
         # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
-        twisting = min(max(lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+        twisting = min(max(lamination.left_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
         
         # We could have initially removed the twisting via the fact that:
         # twisting == abs(self.curve.slope(lamination) * lamination(a))
@@ -46,7 +46,7 @@ class Crush(Move):
         # Computing around_v and twisting can be done more efficiently.
         
         # We work by manipulating the side weights around v.
-        sides = dict((edge, lamination.side_weight(edge) - (self.curve.side_weight(edge)*twisting + around_v if edge in v_edges and lamination.side_weight(edge) >= 0 else 0)) for edge in self.source_triangulation.edges)
+        sides = dict((edge, lamination.left_weight(edge) - (self.curve.left_weight(edge)*twisting + around_v if edge in v_edges and lamination.left_weight(edge) >= 0 else 0)) for edge in self.source_triangulation.edges)
         parallels = dict((edge.index, max(-lamination(edge), 0)) for edge in v_edges)
         
         # TODO: 4) Add comments explaining what is going on in the next two blocks and how the different tightening cases work.
@@ -173,7 +173,7 @@ class Lift(LinearTransformation):
         return 'Lift to %s' % self.target_triangulation
     
     def apply_lamination(self, lamination):
-        assert all(lamination(edge) >= 0 and lamination.side_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
+        assert all(lamination(edge) >= 0 and lamination.left_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
         
         return super(Lift, self).apply_lamination(lamination)
 

@@ -102,7 +102,7 @@ class Lamination(object):
         
         return self._dual[edge]
     
-    def side_weight(self, edge):
+    def left_weight(self, edge):
         ''' Return the number of component of this lamination dual to the left of the given edge.
         
         Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
@@ -226,7 +226,7 @@ class Lamination(object):
         
         components = dict()
         for vertex in self.triangulation.vertices:
-            multiplicity = min(max(self.side_weight(edge), 0) for edge in vertex)
+            multiplicity = min(max(self.left_weight(edge), 0) for edge in vertex)
             if multiplicity > 0:
                 component = self.triangulation.curve_from_cut_sequence(vertex)
                 components[component] = (multiplicity, vertex)
@@ -249,10 +249,10 @@ class Lamination(object):
                 v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
                 v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
                 if len(v_edges) > 2:
-                    around_v = min(max(self.side_weight(edgy), 0) for edgy in v_edges)
-                    twisting = min(max(self.side_weight(edgy) - around_v, 0) for edgy in v_edges[1:-1])
+                    around_v = min(max(self.left_weight(edgy), 0) for edgy in v_edges)
+                    twisting = min(max(self.left_weight(edgy) - around_v, 0) for edgy in v_edges[1:-1])
                     
-                    if self.side_weight(v_edges[0]) == around_v and self.side_weight(v_edges[-1]) == around_v:
+                    if self.left_weight(v_edges[0]) == around_v and self.left_weight(v_edges[-1]) == around_v:
                         multiplicity = twisting
                         
                         if multiplicity > 0:
@@ -332,7 +332,7 @@ class IntegralLamination(Lamination):
         # Peripheral components.
         for _, (multiplicity, vertex) in self.peripheral_components().items():
             for lamination in laminations:
-                intersection += multiplicity * sum(max(-lamination(edge), 0) + max(-lamination.side_weight(edge), 0) for edge in vertex)
+                intersection += multiplicity * sum(max(-lamination(edge), 0) + max(-lamination.left_weight(edge), 0) for edge in vertex)
         
         short, conjugator = self.shorten()
         short_laminations = [conjugator(lamination) for lamination in laminations]
@@ -347,8 +347,8 @@ class IntegralLamination(Lamination):
                 v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
                 
                 for short_lamination in short_laminations:
-                    around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
-                    out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
+                    around_v = min(max(short_lamination.left_weight(edge), 0) for edge in v_edges)
+                    out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
                     # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
                     intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
         
@@ -573,7 +573,7 @@ class IntegralLamination(Lamination):
                 #  * flipping drops the weight by at least drop%.
                 if drop > 0 and 4 * self.zeta < lamination.weight() and (1 - drop) * lamination.weight() < move(lamination).weight() < lamination.weight():
                     try:
-                        curve = lamination.trace_curve(edge, lamination.side_weight(edge), 2*self.zeta)
+                        curve = lamination.trace_curve(edge, lamination.left_weight(edge), 2*self.zeta)
                         slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
                         if abs(slope) > 2:  # Can accelerate and slope is large enough to be efficient.
                             move = curve.encode_twist(power=-int(slope))  # Round towards zero.
@@ -586,12 +586,12 @@ class IntegralLamination(Lamination):
                 lamination = move(lamination)
             
             # Now all arcs should be parallel to edges and there should now be no bipods.
-            assert all(lamination.side_weight(edge) >= 0 for edge in lamination.triangulation.edges)
-            assert all(sum(1 if lamination.side_weight(edge) > 0 else 0 for edge in triangle) != 2 for triangle in lamination.triangulation)
+            assert all(lamination.left_weight(edge) >= 0 for edge in lamination.triangulation.edges)
+            assert all(sum(1 if lamination.left_weight(edge) > 0 else 0 for edge in triangle) != 2 for triangle in lamination.triangulation)
             
             # This is pretty inefficient.
             for edge in lamination.triangulation.edges:
-                if lamination(edge) > 0 and lamination.side_weight(edge) == 0:
+                if lamination(edge) > 0 and lamination.left_weight(edge) == 0:
                     curve = lamination.trace_curve(edge, 0, 2*self.zeta)  # This cannot fail and so there is no need for a try / except block.
                     extra = []
                     while not curve.is_short():

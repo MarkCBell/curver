@@ -209,18 +209,18 @@ class Curve(MultiCurve):
         _, b, e = short.triangulation.corner_lookup[a]
         
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
-        around_v = min(max(short_lamination.side_weight(edge), 0) for edge in v_edges)
-        out_v = sum(max(-short_lamination.side_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
+        around_v = min(max(short_lamination.left_weight(edge), 0) for edge in v_edges)
+        out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
         
         denominator = max(short_lamination(a), 0) - 2 * around_v + out_v  # = short.intersection(short_lamination)
         if denominator == 0:
             raise ValueError('Slope is undefined when self is disjoint from lamination')
         
-        twisting = min(max(short_lamination.side_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
+        twisting = min(max(short_lamination.left_weight(edge) - around_v, 0) for edge in v_edges[1:-1])
         
         numerator = twisting
         
-        sign = -1 if short_lamination.side_weight(a) > around_v or short_lamination.dual_weight(e) < 0 else +1
+        sign = -1 if short_lamination.left_weight(a) > around_v or short_lamination.dual_weight(e) < 0 else +1
         
         return Fraction(sign * numerator, denominator) + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
     
