@@ -598,7 +598,6 @@ class IntegralLamination(Lamination):
                 _, sub_conjugator = multiarc.shorten()
                 conjugator = sub_conjugator * conjugator
                 lamination = sub_conjugator(lamination)
->>>>>>> Rewritten shorten to just build the boundary arcs.
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(
