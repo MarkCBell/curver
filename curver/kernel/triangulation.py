@@ -568,7 +568,7 @@ class Triangulation(object):
     def disjoint_sum(self, laminations):
         ''' An efficient way of summing multiple disjoint laminations without computing intermediate values.
         
-        laminations can either be a dictionary mapping lamination |--> multiplictiy or an iterable of laminations. '''
+        laminations can either be a dictionary mapping lamination --> multiplictiy or an iterable of laminations. '''
         
         if not isinstance(laminations, dict):
             laminations = dict((lamination, 1) for lamination in laminations)
