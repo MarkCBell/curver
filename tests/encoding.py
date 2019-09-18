@@ -12,6 +12,8 @@ class TestEncoding(unittest.TestCase):
     
     def assertEqualArray(self, M, N):
         self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
+    def assertImplies(self, A, B):
+        self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
     
     @given(st.data())
     def test_pickle(self, data):
@@ -23,7 +25,7 @@ class TestEncoding(unittest.TestCase):
     def test_hash(self, data):
         g = data.draw(self._strategy())
         h = data.draw(self._strategy(g.source_triangulation))
-        self.assertTrue(g != h or hash(g) == hash(h))
+        self.assertImplies(g == h, hash(g) == hash(h))
     
     @given(st.data())
     def test_slice(self, data):

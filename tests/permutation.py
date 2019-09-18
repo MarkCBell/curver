@@ -11,6 +11,8 @@ import strategies
 class TestPermutation(unittest.TestCase):
     def assertEqualArray(self, M, N):
         self.assertTrue(np.array_equal(M, N), msg='AssertionError: %s != %s' % (M, N))
+    def assertImplies(self, A, B):
+        self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
     
     @given(strategies.permutations())
     def test_pickle(self, perm):
@@ -20,7 +22,7 @@ class TestPermutation(unittest.TestCase):
     def test_hash(self, data):
         perm1 = data.draw(strategies.permutations())
         perm2 = data.draw(strategies.permutations(len(perm1)))
-        self.assertTrue(perm1 != perm2 or hash(perm1) == hash(perm2))
+        self.assertImplies(perm1 == perm2, hash(perm1) == hash(perm2))
     
     @given(strategies.permutations())
     def test_from_index(self, perm):
@@ -50,7 +52,7 @@ class TestPermutation(unittest.TestCase):
     
     @given(strategies.permutations())
     def test_involution(self, perm):
-        self.assertTrue(perm.order() <= 2 or perm != ~perm)
+        self.assertImplies(perm.order() > 2, perm != ~perm)
     
     @given(st.data())
     def test_even(self, data):
