@@ -268,7 +268,7 @@ class IntegralLamination(Lamination):
     def is_multicurve(self):
         ''' Return if this lamination is actually a multicurve. '''
         
-        return not self.is_empty() and all(isinstance(component, curver.kernel.Curve) for component in self.components())
+        return not self.is_empty() and all(component.is_curve() for component in self.components())
     
     @topological_invariant
     def is_curve(self):
@@ -280,7 +280,7 @@ class IntegralLamination(Lamination):
     def is_multiarc(self):
         ''' Return if this lamination is actually a multiarc. '''
         
-        return not self.is_empty() and all(isinstance(component, curver.kernel.Arc) for component in self.components())
+        return not self.is_empty() and all(component.is_arc() for component in self.components())
     
     @topological_invariant
     def is_arc(self):
