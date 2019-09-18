@@ -530,7 +530,7 @@ class Triangulation(object):
     def lamination_from_cut_sequence(self, sequence):
         ''' Return a new lamination on this surface based on the sequence of edges that this Curve / Arc crosses. '''
         
-        return self(self.cut_sequence_intersections(sequence))
+        return self(self.cut_sequence_intersections(sequence))  # Have to promote.
     
     def curve_from_cut_sequence(self, sequence):
         ''' Return a new curve on this surface based on the sequence of edges that this Curve crosses.
@@ -542,12 +542,12 @@ class Triangulation(object):
     def empty_lamination(self):
         ''' Return the empty lamination defined on this triangulation. '''
         
-        return self([0] * self.zeta)
+        return curver.kernel.IntegralLamination(self, [0] * self.zeta)  # Avoids promote.
     
     def as_lamination(self):
         ''' Return this triangulation as a lamination. '''
         
-        return self([-1] * self.zeta)  # Will always be a MultiArc.
+        return curver.kernel.Multiarc(self, [-1] * self.zeta)  # Avoids promote.
     
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''
