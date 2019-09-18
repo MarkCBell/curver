@@ -149,6 +149,8 @@ class Curve(MultiCurve):
     @memoize
     def components(self):
         return {self: 1}
+    def is_curve(self):
+        return True
     
     def parallel(self):
         ''' Return an edge that this curve is parallel to.

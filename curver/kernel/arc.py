@@ -163,6 +163,8 @@ class Arc(MultiArc):
     @memoize
     def components(self):
         return {self: 1}
+    def is_arc(self):
+        return True
     
     def parallel(self):
         ''' Return an edge that this arc is parallel to.
