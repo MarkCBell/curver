@@ -547,7 +547,7 @@ class Triangulation(object):
     def as_lamination(self):
         ''' Return this triangulation as a lamination. '''
         
-        return curver.kernel.Multiarc(self, [-1] * self.zeta)  # Avoids promote.
+        return curver.kernel.MultiArc(self, [-1] * self.zeta)  # Avoids promote.
     
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values. '''
