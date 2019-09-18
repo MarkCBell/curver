@@ -46,11 +46,12 @@ class TestMCG(unittest.TestCase):
         curve1 = mcg.curves[name1]
         curve2 = mcg.curves[name2]
         intersection = curve1.intersection(curve2)
-        self.assertTrue(
-            (intersection == 0 and mcg(name1 + name2) == mcg(name2 + name1))
-            or (intersection == 1 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2))
-            or intersection >= 2
-            )
+        if intersection == 0:  # Commute.
+            self.assertEqual(mcg(name1 + name2), mcg(name2 + name1))
+        elif intersection == 1:  # Braid.
+            self.assertEqual(mcg(name1 + name2 + name1), mcg(name2 + name1 + name2))
+        else:
+            pass
 
     @given(st.data())
     @settings(max_examples=50)
@@ -64,11 +65,12 @@ class TestMCG(unittest.TestCase):
         arc2 = mcg.arcs[name2]
         num_distinct_vertices = len(arc1.vertices().union(arc2.vertices()))
         
-        self.assertTrue(
-            (num_distinct_vertices == 4 and mcg(name1 + name2) == mcg(name2 + name1))
-            or (num_distinct_vertices == 3 and mcg(name1 + name2 + name1) == mcg(name2 + name1 + name2))
-            or (num_distinct_vertices == 2)
-            )
+        if num_distinct_vertices == 4:  # Commute.
+            self.assertEqual(mcg(name1 + name2), mcg(name2 + name1))
+        elif num_distinct_vertices == 3:  # Braid.
+            self.assertEqual(mcg(name1 + name2 + name1), mcg(name2 + name1 + name2))
+        else:
+            pass
     
     @given(st.data())
     @settings(max_examples=2)
