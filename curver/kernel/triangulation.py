@@ -550,17 +550,22 @@ class Triangulation(object):
         return curver.kernel.MultiArc(self, [-1] * self.zeta)  # Avoids promote.
     
     def sum(self, laminations):
-        ''' An efficient way of summing multiple laminations without computing intermediate values. '''
+        ''' An efficient way of summing multiple laminations without computing intermediate values.
         
-        laminations = list(laminations)
-        if all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
-            if not laminations:
-                return self.empty_lamination()
-            
+        laminations can either be a dictionary mapping lamination --> multiplictiy or an iterable of laminations. '''
+        
+        if not isinstance(laminations, dict):
+            laminations = dict((lamination, 1) for lamination in laminations)
+        
+        laminations = dict((lamination, multiplicity) for lamination, multiplicity in laminations.items() if lamination and multiplicity > 0)
+        if not laminations:
+            return self.empty_lamination()
+        elif all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
             if any(lamination.triangulation != self for lamination in laminations):
                 raise ValueError('Laminations must all be defined on this triangulation to add them')
             
-            geometric = [sum(weights) for weights in zip(*laminations)]
+            keys, values = zip(*laminations.items())  # Get list of keys (laminations) and values (multiplicities) in a paired order.
+            geometric = [sum(weight * multiplicity for weight, multiplicity in zip(weights, values)) for weights in zip(*keys)]
             return self(geometric)  # Have to promote.
         else:
             return NotImplemented
