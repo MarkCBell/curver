@@ -10,6 +10,9 @@ import strategies
 class TestLamination(TopologicalInvariant, unittest.TestCase):
     _strategy = staticmethod(strategies.laminations)
     
+    def assertImplies(self, A, B):
+        self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
+    
     @given(strategies.laminations())
     def test_pickle(self, lamination):
         self.assertEqual(lamination, pickle.loads(pickle.dumps(lamination)))
@@ -18,7 +21,7 @@ class TestLamination(TopologicalInvariant, unittest.TestCase):
     def test_hash(self, data):
         lamination1 = data.draw(strategies.laminations())
         lamination2 = data.draw(strategies.laminations(lamination1.triangulation))
-        self.assertTrue(lamination1 != lamination2 or hash(lamination1) == hash(lamination2))
+        self.assertImplies(lamination1 == lamination2, hash(lamination1) == hash(lamination2))
     
     @given(st.data())
     def test_orientation(self, data):

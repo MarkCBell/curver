@@ -7,6 +7,9 @@ import unittest
 import strategies
 
 class TestHomologyClass(unittest.TestCase):
+    def assertImplies(self, A, B):
+        self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
+    
     @given(strategies.homology_classes())
     def test_pickle(self, hc):
         self.assertEqual(hc, pickle.loads(pickle.dumps(hc)))
@@ -15,7 +18,7 @@ class TestHomologyClass(unittest.TestCase):
     def test_hash(self, data):
         hc1 = data.draw(strategies.homology_classes())
         hc2 = data.draw(strategies.homology_classes(hc1.triangulation))
-        self.assertTrue(hc1 != hc2 or hash(hc1) == hash(hc2))
+        self.assertImplies(hc1 == hc2, hash(hc1) == hash(hc2))
     
     @given(st.data())
     def test_canonical(self, data):

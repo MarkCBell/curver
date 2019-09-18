@@ -8,6 +8,9 @@ import curver
 import strategies
 
 class TestTriangulation(unittest.TestCase):
+    def assertImplies(self, A, B):
+        self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
+    
     @given(strategies.triangulations())
     def test_pickle(self, triangulation):
         self.assertEqual(triangulation, pickle.loads(pickle.dumps(triangulation)))
@@ -16,7 +19,7 @@ class TestTriangulation(unittest.TestCase):
     def test_hash(self, data):
         triangulation1 = data.draw(strategies.triangulations())
         triangulation2 = data.draw(strategies.triangulations())
-        self.assertTrue(triangulation1 != triangulation2 or hash(triangulation1) == hash(triangulation2))
+        self.assertImplies(triangulation1 == triangulation2, hash(triangulation1) == hash(triangulation2))
     
     @given(strategies.triangulations())
     def test_isometry(self, triangulation):

@@ -61,6 +61,8 @@ class TestCurve(TestMultiCurve):
     
     def assertWithinOne(self, x, y):
         self.assertTrue(abs(x - y) <= 1, msg='AssertionError: |%s - %s| > 1' % (x, y))
+    def assertImplies(self, A, B):
+        self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
     
     @given(strategies.curves())
     @settings(max_examples=50)
@@ -75,7 +77,7 @@ class TestCurve(TestMultiCurve):
         lamination = data.draw(strategies.laminations(curve.triangulation).filter(lambda l: curve.intersection(l) > 0))  # Assume intersect.
         slope = curve.slope(lamination)
         twist = curve.encode_twist()
-        self.assertTrue(-1 <= slope <= 1 or curve.slope(twist(lamination)) == slope - 1)
+        self.assertImplies(abs(slope) > 1, curve.slope(twist(lamination)) == slope - 1)
     
     @given(st.data())
     @settings(max_examples=1)
