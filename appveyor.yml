@@ -25,6 +25,7 @@ init:
   - set "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - echo "%PYTHON%"
   - python -c "import sys; print(sys.version)"
+  - pip --version
 
 install:
   - pip install pip --upgrade --user
