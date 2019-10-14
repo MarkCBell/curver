@@ -243,7 +243,7 @@ class MappingClass(Mapping):
         ''' Return whether this mapping class is in the Torelli subgroup. '''
         
         homology_matrix = self.homology_matrix()
-        return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0], dtype=object))
+        return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0], dtype=object))  # pylint: disable=unsubscriptable-object
     
     @memoize
     def order(self):
@@ -259,7 +259,7 @@ class MappingClass(Mapping):
         # But in terms of raw speed there doesn't appear to be anything faster than:
         
         homology_matrix = self.homology_matrix()
-        originals = [np.identity(homology_matrix.shape[0], dtype=object), self.source_triangulation.as_lamination()]
+        originals = [np.identity(homology_matrix.shape[0], dtype=object), self.source_triangulation.as_lamination()]  # pylint: disable=unsubscriptable-object
         images = list(originals)
         cmps = [np.array_equal, operator.eq]
         applies = [homology_matrix.dot, self]

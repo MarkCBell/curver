@@ -126,8 +126,7 @@ class StraightLineProgram(object):
                         if self.num_children[image] > value:
                             index = image
                             break
-                        else:
-                            value -= self.num_children[image]
+                        value -= self.num_children[image]
         
         raise RuntimeError('Should not be able to reach here')
     

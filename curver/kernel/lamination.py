@@ -198,7 +198,7 @@ class Lamination(object):
             x, y, z = self.triangulation.corner_lookup[~edge]
             # Move onto next edge.
             if intersection < dual_weights[z]:  # Turn right.
-                edge, intersection = y, intersection
+                edge, intersection = y, intersection  # pylint: disable=self-assigning-variable
             elif dual_weights[x] < 0 and dual_weights[z] <= intersection < dual_weights[z] - dual_weights[x]:  # Terminate.
                 raise ValueError('Lamination does not trace to a curve')
             else:  # Turn left.
