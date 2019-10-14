@@ -28,8 +28,6 @@ init:
   - pip --version
 
 install:
-  - pip install pip --upgrade --user
-  - pip install setuptools virtualenv --upgrade
   - pip install tox
 
 test_script:
