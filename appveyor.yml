@@ -24,13 +24,13 @@ environment:
 init:
   - set "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
   - echo "%PYTHON%"
-  - python.exe -c "import sys; print(sys.version)"
+  - python -c "import sys; print(sys.version)"
 
 install:
-  - pip.exe install pip --upgrade --user
-  - pip.exe install setuptools virtualenv --upgrade
-  - pip.exe install tox
+  - pip install pip --upgrade --user
+  - pip install setuptools virtualenv --upgrade
+  - pip install tox
 
 test_script:
-  - tox.exe -e %TOX_ENV% -- --hypothesis-profile=ci --durations=20
+  - tox -e %TOX_ENV% -- --hypothesis-profile=ci --durations=20
 
