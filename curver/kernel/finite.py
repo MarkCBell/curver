@@ -247,7 +247,7 @@ class FiniteSubgroup(object):
         # 3) at the centres of polygons (note that these are not once-punctured polygons since we started with an invariant polygonalisation).
         candidates = [(True, [edge for edge in vertex if short(edge) < 0]) for vertex in triangulation.vertices] + \
             [(False, [edge, ~edge]) for edge in triangulation.positive_edges if short(edge) < 0] + \
-            [(False, [edge for edge in polygon]) for polygon in polygons]
+            [(False, [edge for edge in polygon]) for polygon in polygons]  # pylint: disable=unnecessary-comprehension
         
         cone_points = defaultdict(list)
         for punctured, edges in candidates:

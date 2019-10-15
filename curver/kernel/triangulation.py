@@ -132,8 +132,8 @@ class Triangulation(object):
         self.triangles = sorted(triangles, key=lambda t: t.labels)
         self.num_triangles = len(self.triangles)
         self.zeta = self.num_triangles * 3 // 2  # = self.num_edges.
-        self.indices = [index for index in range(self.zeta)]
-        self.labels = [label for label in range(-self.zeta, self.zeta)]
+        self.indices = [index for index in range(self.zeta)]  # pylint: disable=unnecessary-comprehension
+        self.labels = [label for label in range(-self.zeta, self.zeta)]  # pylint: disable=unnecessary-comprehension
         self.edges = [Edge(label) for label in self.labels]
         self.positive_edges = [Edge(index) for index in self.indices]
         
