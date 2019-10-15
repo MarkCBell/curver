@@ -28,6 +28,7 @@ init:
   - pip --version
 
 install:
+  - pip install virtualenv --upgrade
   - pip install tox
 
 test_script:
