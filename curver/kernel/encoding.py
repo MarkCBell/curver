@@ -305,7 +305,7 @@ class MappingClass(Mapping):
             c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
             
             # Set some constants.
-            D = max(C.BOUNDED_GEODESIC_IMAGE, 2*C.QUASICONVEX + 3) + 1  # Universal
+            D = max(C.BOUNDED_GEODESIC_IMAGE, 2*C.QUASICONVEXITY + 3) + 1  # Universal
             k = D * C.R  # Universal
             
             # If self is not reducible then d(x, self(x, power=k)) >= k / R == D for every x.
