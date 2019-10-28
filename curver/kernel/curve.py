@@ -24,9 +24,15 @@ class MultiCurve(IntegralLamination):
     def encode_twist(self, power=1):
         ''' Return an Encoding of a right Dehn (multi)twist about the components of this multicurve, raised to the given power. '''
         
-        h = self.triangulation.id_encoding()
-        for curve, multiplicity in self.components().items():
-            h = curve.encode_twist(power * multiplicity) * h
+        if self.is_peripheral() or power == 0:  # Boring case.
+            return self.triangulation.id_encoding()
+        
+        short, conjugator = self.shorten()
+        
+        h = conjugator.inverse()
+        for curve, multiplicity in short.components().items():
+            h = curver.kernel.create.twist(curve, power * multiplicity) * h
+        h = h * conjugator
         
         return h
     
