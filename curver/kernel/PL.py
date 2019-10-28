@@ -11,8 +11,8 @@ class PartialLinearFunction(object):
     def __init__(self, action, condition):
         assert isinstance(action, np.ndarray)
         assert isinstance(condition, np.ndarray)
-        self.action = action
-        self.condition = condition
+        self.action = np.array([row for index, row in enumerate(action) if index == 0 or row.any()])
+        self.condition = np.array([row for index, row in enumerate(condition) if index == 0 or row.any()])
     
     def __str__(self):
         return 'Action: {}\nCondition: {}'.format(self.action, self.condition)
@@ -56,6 +56,8 @@ class PartialLinearFunction(object):
         
         for polynomial in M.charpoly().factor()[0]:
             degree = int(polynomial.poldegree())
+            # TODO: Make this also check for eigenvectors of eigenvalue 1.
+            # This is necessary to make projective_invariant_lamination be able to find invariant multicurves.
             if degree > 1:  # It must be irrational to be interesting.
                 try:
                     K = curver.kernel.RealNumberField([int(polynomial.polcoeff(i)) for i in range(degree+1)])  # It must be real to be interesting.
