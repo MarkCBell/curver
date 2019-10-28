@@ -148,11 +148,7 @@ class Lamination(object):
     def peripheral(self, promote=True):
         ''' Return the lamination consisting of the peripheral components of this Lamination. '''
         
-        geometric = [0] * self.zeta
-        for component, (multiplicity, _) in self.peripheral_components().items():
-            geometric = [x + multiplicity * y for x, y in zip(geometric, component)]
-        
-        return self.triangulation(geometric, promote)  # Have to promote.
+        return self.triangulation.disjoint_sum(dict((component, multiplicity) for component, (multiplicity, _) in self.peripheral_components().items()))  # Promotes are free!
     
     @topological_invariant
     def is_non_peripheral(self):
