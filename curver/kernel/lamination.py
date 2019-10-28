@@ -143,7 +143,7 @@ class Lamination(object):
     def is_peripheral(self):
         ''' Return whether this lamination consists entirely of peripheral components. '''
         
-        return self.peripheral() == self
+        return self.peripheral(promote=False) == self
     
     def peripheral(self, promote=True):
         ''' Return the lamination consisting of the peripheral components of this Lamination. '''
@@ -158,7 +158,7 @@ class Lamination(object):
     def is_non_peripheral(self):
         ''' Return whether this lamination does not have any peripheral components. '''
         
-        return not self.peripheral_components()
+        return not self.peripheral(promote=False)
     
     def non_peripheral(self, promote=True):
         ''' Return the lamination consisting of the non-peripheral components of this Lamination. '''
