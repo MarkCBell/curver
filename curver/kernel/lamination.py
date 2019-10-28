@@ -33,7 +33,7 @@ class Lamination(object):
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
     def __str__(self):
-        return '%s %s on %s' % (self.__class__.__name__, self.geometric, self.triangulation)
+        return '%s %s on %s' % (self.__class__.__name__, '[' + ', '.join(str(weight) for weight in self.geometric) + ']', self.triangulation)
     def __iter__(self):
         return iter(self.geometric)
     def __call__(self, edge):
