@@ -29,10 +29,10 @@ class MultiCurve(IntegralLamination):
         
         short, conjugator = self.shorten()
         
-        h = conjugator.inverse()
+        h = conjugator
         for curve, multiplicity in short.components().items():
-            h = curver.kernel.create.twist(curve, power * multiplicity) * h
-        h = h * conjugator
+            h = curver.kernel.create.twist(curve, power * multiplicity).encode() * h
+        h = conjugator.inverse() * h
         
         return h
     
