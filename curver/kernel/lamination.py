@@ -145,7 +145,7 @@ class Lamination(object):
         
         return self.peripheral(promote=False) == self
     
-    def peripheral(self, promote=True):
+    def peripheral(self, promote=True):  # pylint: disable=unused-argument
         ''' Return the lamination consisting of the peripheral components of this Lamination. '''
         
         return self.triangulation.disjoint_sum(dict((component, multiplicity) for component, (multiplicity, _) in self.peripheral_components().items()))  # Promotes are free!

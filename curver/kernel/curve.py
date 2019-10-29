@@ -31,7 +31,8 @@ class MultiCurve(IntegralLamination):
         
         h = conjugator
         for curve, multiplicity in short.components().items():
-            h = curver.kernel.create.twist(curve, power * multiplicity).encode() * h
+            if not curve.is_peripheral():
+                h = curver.kernel.create.twist(curve, power * multiplicity).encode() * h
         h = conjugator.inverse() * h
         
         return h
@@ -69,8 +70,9 @@ class MultiCurve(IntegralLamination):
         
         crush = short.triangulation.id_encoding()
         for curve in short.components():
-            next_crush = crush(curve).crush()  # Map forward under crushes first.
-            crush = next_crush * crush
+            if not curve.is_peripheral():
+                next_crush = crush(curve).crush()  # Map forward under crushes first.
+                crush = next_crush * crush
         
         _, post_conjugator = crush(conjugator(self.triangulation.as_lamination())).shorten()
         
