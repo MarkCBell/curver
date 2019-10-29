@@ -19,16 +19,16 @@ class Lamination(object):
         
         # Store some additional weights that are often used.
         self._dual = dict()
-        self._side = dict()
+        self._left = dict()
         self._right = dict()
         for triangle in self.triangulation:
             i, j, k = triangle  # Edges.
             a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
             af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
             correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
-            self._dual[i] = self._right[j] = self._side[k] = curver.kernel.utilities.half(bf + cf - af + correction)
-            self._dual[j] = self._right[k] = self._side[i] = curver.kernel.utilities.half(cf + af - bf + correction)
-            self._dual[k] = self._right[i] = self._side[j] = curver.kernel.utilities.half(af + bf - cf + correction)
+            self._dual[i] = self._right[j] = self._left[k] = curver.kernel.utilities.half(bf + cf - af + correction)
+            self._dual[j] = self._right[k] = self._left[i] = curver.kernel.utilities.half(cf + af - bf + correction)
+            self._dual[k] = self._right[i] = self._left[j] = curver.kernel.utilities.half(af + bf - cf + correction)
     
     def __repr__(self):
         return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
@@ -109,7 +109,7 @@ class Lamination(object):
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self._side[edge]
+        return self._left[edge]
     
     def right_weight(self, edge):
         ''' Return the number of component of this lamination dual to the right the given edge.
