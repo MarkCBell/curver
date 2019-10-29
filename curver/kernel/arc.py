@@ -12,6 +12,8 @@ class MultiArc(IntegralLamination):
     ''' An IntegralLamination in which every component is an Arc. '''
     def is_multicurve(self):
         return False
+    def is_arc(self):
+        return False
     def is_multiarc(self):
         return True
     def is_short(self):

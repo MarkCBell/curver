@@ -324,14 +324,15 @@ class IntegralLamination(Lamination):
         assert all(isinstance(lamination, Lamination) for lamination in laminations)
         assert all(lamination.triangulation == self.triangulation for lamination in laminations)
         
-        intersection = 0
-        # Peripheral components.
-        for _, (multiplicity, vertex) in self.peripheral_components().items():
-            for lamination in laminations:
-                intersection += multiplicity * sum(max(-lamination(edge), 0) + max(-lamination.left_weight(edge), 0) for edge in vertex)
-        
         short, conjugator = self.shorten()
         short_laminations = [conjugator(lamination) for lamination in laminations]
+        
+        intersection = 0
+        
+        # Peripheral components.
+        for _, (multiplicity, vertex) in short.peripheral_components().items():
+            for lamination in laminations:
+                intersection += multiplicity * sum(max(-lamination(edge), 0) + max(-lamination.left_weight(edge), 0) for edge in vertex)
         
         # Parallel components.
         for component, (multiplicity, p) in short.parallel_components().items():
@@ -451,11 +452,11 @@ class IntegralLamination(Lamination):
         
         components = dict()
         
-        for component, (multiplicity, _) in self.peripheral_components().items():
-            components[component] = multiplicity
-        
         short, conjugator = self.shorten()
         conjugator_inv = conjugator.inverse()
+        
+        for component, (multiplicity, _) in short.peripheral_components().items():
+            components[conjugator_inv(component)] = multiplicity
         
         for component, (multiplicity, _) in short.parallel_components().items():
             components[conjugator_inv(component)] = multiplicity
@@ -493,6 +494,7 @@ class IntegralLamination(Lamination):
         
         assert 0.0 <= drop <= 1.0
         
+        peripheral = self.peripheral()
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
         
@@ -561,6 +563,7 @@ class IntegralLamination(Lamination):
                 
                 conjugator = move * conjugator
                 lamination = move(lamination)
+                peripheral = move(peripheral)
             
             # Now all arcs should be parallel to edges and there should now be no bipods.
             assert all(lamination.left_weight(edge) >= 0 for edge in lamination.triangulation.edges)
@@ -594,10 +597,12 @@ class IntegralLamination(Lamination):
                 _, sub_conjugator = multiarc.shorten()
                 conjugator = sub_conjugator * conjugator
                 lamination = sub_conjugator(lamination)
+                peripheral = sub_conjugator(peripheral)
         
         # Rebuild the image of self under conjugator from its components.
         short = lamination.triangulation.disjoint_sum(dict(
-            [(lamination.triangulation.edge_arc(edge), multiplicity) for edge, multiplicity in arc_components.items()]
+            [(peripheral, 1)]
+            + [(lamination.triangulation.edge_arc(edge), multiplicity) for edge, multiplicity in arc_components.items()]
             + [(lamination.triangulation.edge_curve(edge), multiplicity) for edge, multiplicity in curve_components.items()]
             ))
         

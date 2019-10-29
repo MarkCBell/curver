@@ -14,6 +14,8 @@ class MultiCurve(IntegralLamination):
     ''' An IntegralLamination in which every component is a Curve. '''
     def is_multicurve(self):
         return True
+    def is_curve(self):
+        return False
     def is_multiarc(self):
         return False
     def boundary(self):
