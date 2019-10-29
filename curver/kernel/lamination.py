@@ -309,7 +309,7 @@ class IntegralLamination(Lamination):
     def skeleton(self):
         ''' Return the lamination obtained by collapsing parallel components. '''
         
-        return self.triangulation.sum(self.components())
+        return self.triangulation.disjoint_sum(list(self.components()))
     
     def peek_component(self):
         ''' Return one component of this Lamination. '''
@@ -368,17 +368,17 @@ class IntegralLamination(Lamination):
         ''' Return all sublaminations that appear within self. '''
         
         components = self.components()
-        return [self.triangulation.sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]  # Powerset.
+        return [self.triangulation.disjoint_sum(sub) for i in range(len(components)) for sub in permutations(components, i+1)]  # Powerset.
     
     def multiarc(self):
         ''' Return the maximal MultiArc contained within this lamination. '''
         
-        return self.triangulation.sum([multiplicity * component for component, multiplicity in self.components().items() if isinstance(component, curver.kernel.Arc)])
+        return self.triangulation.disjoint_sum(dict((component, multiplicity) for component, multiplicity in self.components().items() if isinstance(component, curver.kernel.Arc)))
     
     def multicurve(self):
         ''' Return the maximal MultiCurve contained within this lamination. '''
         
-        return self.triangulation.sum([multiplicity * component for component, multiplicity in self.components().items() if isinstance(component, curver.kernel.Curve)])
+        return self.triangulation.disjoint_sum(dict((component, multiplicity) for component, multiplicity in self.components().items() if isinstance(component, curver.kernel.Curve)))
     
     def boundary(self):
         ''' Return the boundary of a regular neighbourhood of this lamination. '''
@@ -386,7 +386,7 @@ class IntegralLamination(Lamination):
         if self.is_empty():
             return self
         
-        return self.multiarc().boundary() + self.multicurve().boundary()
+        return self.triangulation.disjoint_sum([self.multiarc().boundary(), self.multicurve().boundary()])
     
     @topological_invariant
     def is_filling(self):
