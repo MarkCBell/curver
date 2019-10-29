@@ -554,66 +554,74 @@ class Triangulation(object):
         
         laminations can either be a dictionary mapping lamination --> multiplictiy or an iterable of laminations. '''
         
-        if not isinstance(laminations, dict):
-            laminations = dict((lamination, 1) for lamination in laminations)
-        
-        laminations = dict((lamination, multiplicity) for lamination, multiplicity in laminations.items() if lamination and multiplicity > 0)
-        if not laminations:
-            return self.empty_lamination()
-        elif all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
-            if any(lamination.triangulation != self for lamination in laminations):
-                raise ValueError('Laminations must all be defined on this triangulation to add them')
-            
-            keys, values = zip(*laminations.items())  # Get list of keys (laminations) and values (multiplicities) in a paired order.
-            geometric = [sum(weight * multiplicity for weight, multiplicity in zip(weights, values)) for weights in zip(*keys)]
-            return self(geometric)  # Have to promote.
-        else:
+        if not all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
             return NotImplemented
-    
-    def disjoint_sum(self, laminations):
-        ''' An efficient way of summing multiple disjoint laminations without computing intermediate values.
         
-        laminations can either be a dictionary mapping lamination --> multiplictiy or an iterable of laminations. '''
+        if any(lamination.triangulation != self for lamination in laminations):
+            raise ValueError('Laminations must all be defined on this triangulation to add them')
         
+        # Convert iterable to dictionary of multiplicities.
         if not isinstance(laminations, dict):
             laminations = dict((lamination, 1) for lamination in laminations)
+        
+        if any(multiplicity < 0 for multiplicity in laminations.values()):
+            raise ValueError('Laminations must occur with non-negative multiplicity')
         
         # Discard empty laminations and laminations of multiplicity 0.
         laminations = dict((lamination, multiplicity) for lamination, multiplicity in laminations.items() if lamination and multiplicity > 0)
         
         if not laminations:
             return self.empty_lamination()
-        elif all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
-            if any(lamination.triangulation != self for lamination in laminations):
-                raise ValueError('Laminations must all be defined on this triangulation to add them')
-            
-            if len(laminations) == 1:
-                lamination = list(laminations)[0]
-                is_connected = laminations[lamination] == 1 and (lamination.is_curve() or lamination.is_arc())
-            else:
-                is_connected = False
-            
-            keys, values = zip(*laminations.items())  # Get list of keys (laminations) and values (multiplicities) in a paired order.
-            geometric = [sum(weight * multiplicity for weight, multiplicity in zip(weights, values)) for weights in zip(*keys)]
-            temp_class = curver.kernel.Lamination(self, geometric)
-            if temp_class.is_integral():
-                if all(lamination.is_multiarc() for lamination in laminations):
-                    if is_connected:
-                        new_class = curver.kernel.Arc
-                    else:
-                        new_class = curver.kernel.MultiArc
-                elif all(lamination.is_multicurve() for lamination in laminations):
-                    if is_connected:
-                        new_class = curver.kernel.Curve
-                    else:
-                        new_class = curver.kernel.MultiCurve
-                else:  # Mixed.
-                    new_class = curver.kernel.IntegralLamination
-                return new_class(self, geometric)
-            else:  # Non-integral.
-                return temp_class
-        else:
+        
+        keys, values = zip(*laminations.items())  # Get list of keys (laminations) and values (multiplicities) in a paired order.
+        geometric = [sum(weight * multiplicity for weight, multiplicity in zip(weights, values)) for weights in zip(*keys)]
+        return self(geometric)  # Have to promote.
+    
+    def disjoint_sum(self, laminations):
+        ''' An efficient way of summing multiple disjoint laminations without computing intermediate values.
+        
+        laminations can either be a dictionary mapping lamination --> multiplictiy or an iterable of laminations. '''
+        
+        if not all(isinstance(lamination, curver.kernel.Lamination) for lamination in laminations):
             return NotImplemented
+        
+        if any(lamination.triangulation != self for lamination in laminations):
+            raise ValueError('Laminations must all be defined on this triangulation to add them')
+        
+        # Convert iterable to dictionary of multiplicities.
+        if not isinstance(laminations, dict):
+            laminations = dict((lamination, 1) for lamination in laminations)
+        
+        if any(multiplicity < 0 for multiplicity in laminations.values()):
+            raise ValueError('Laminations must occur with non-negative multiplicity')
+        
+        # Discard empty laminations and laminations of multiplicity 0.
+        laminations = dict((lamination, multiplicity) for lamination, multiplicity in laminations.items() if lamination and multiplicity > 0)
+        
+        if not laminations:
+            return self.empty_lamination()
+        
+        if any(not lamination.is_integral() for lamination in laminations):
+            return self.sum(laminations)
+        
+        keys, values = zip(*laminations.items())  # Get list of keys (laminations) and values (multiplicities) in a paired order.
+        geometric = [sum(weight * multiplicity for weight, multiplicity in zip(weights, values)) for weights in zip(*keys)]
+        
+        # Determine whether the disjoint sum is connected.
+        is_connected = sum(laminations.values()) == 1 and all(isinstance(lamination, (curver.kernel.Curve, curver.kernel.Arc)) for lamination in laminations)
+        
+        if all(isinstance(lamination, curver.kernel.MultiArc) for lamination in laminations):
+            if is_connected:
+                return curver.kernel.Arc(self, geometric)
+            else:
+                return curver.kernel.MultiArc(self, geometric)
+        elif all(isinstance(lamination, curver.kernel.MultiCurve) for lamination in laminations):
+            if is_connected:
+                return curver.kernel.Curve(self, geometric)
+            else:
+                return curver.kernel.MultiCurve(self, geometric)
+        else:  # Mixed.
+            return curver.kernel.IntegralLamination(self, geometric)
     
     def edge_curve(self, edge):
         ''' Return the curve \\partial N(edge).

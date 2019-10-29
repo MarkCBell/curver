@@ -10,12 +10,6 @@ from curver.kernel.decorators import memoize, topological_invariant  # Special i
 
 class MultiArc(IntegralLamination):
     ''' An IntegralLamination in which every component is an Arc. '''
-    def is_multicurve(self):
-        return False
-    def is_arc(self):
-        return False
-    def is_multiarc(self):
-        return True
     def is_short(self):
         return all(weight <= 0 for weight in self)
     
@@ -165,8 +159,6 @@ class Arc(MultiArc):
     @memoize
     def components(self):
         return {self: 1}
-    def is_arc(self):
-        return True
     
     def parallel(self):
         ''' Return an edge that this arc is parallel to.

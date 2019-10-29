@@ -12,12 +12,6 @@ from curver.kernel.decorators import memoize, topological_invariant  # Special i
 
 class MultiCurve(IntegralLamination):
     ''' An IntegralLamination in which every component is a Curve. '''
-    def is_multicurve(self):
-        return True
-    def is_curve(self):
-        return False
-    def is_multiarc(self):
-        return False
     def boundary(self):
         return 2*self
     def is_filling(self):
@@ -159,8 +153,6 @@ class Curve(MultiCurve):
     @memoize
     def components(self):
         return {self: 1}
-    def is_curve(self):
-        return True
     
     def parallel(self):
         ''' Return an edge that this curve is parallel to.

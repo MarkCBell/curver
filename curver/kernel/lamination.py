@@ -128,10 +128,34 @@ class Lamination(object):
     def promote(self):
         ''' Return this lamination in its finest form. '''
         
-        if self.is_integral():
-            return IntegralLamination(self.triangulation, self.geometric).promote()
-        else:
+        if not self.is_integral():
             return self
+        
+        temp = IntegralLamination(self.triangulation, self.geometric)
+        
+        if not temp:  # if temp.num_components() == 0:
+            return temp  # self.triangulation.empty_lamination()
+        
+        if temp.num_components() == 1:  # is connected:
+            if all(isinstance(component, curver.kernel.Arc) for component in temp.components()):  # Only component is an Arc.
+                promoted = curver.kernel.Arc(self.triangulation, self.geometric)
+            else:  # Only component is a Curve.
+                promoted = curver.kernel.Curve(self.triangulation, self.geometric)
+        else:  # if temp.num_components() > 1:  # is disconnected:
+            if all(isinstance(component, curver.kernel.Arc) for component in temp.components()):
+                promoted = curver.kernel.MultiArc(self.triangulation, self.geometric)
+            elif all(isinstance(component, curver.kernel.Curve) for component in temp.components()):
+                promoted = curver.kernel.MultiCurve(self.triangulation, self.geometric)
+            else:  # Is a mixture of Arcs and Curves.
+                promoted = temp
+        
+        # Move cache across.
+        try:
+            promoted._cache = temp._cache  # pylint: disable=attribute-defined-outside-init
+        except AttributeError:
+            pass  # No cache.
+        
+        return promoted
     
     @topological_invariant
     def is_empty(self):
@@ -259,52 +283,6 @@ class Lamination(object):
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
-    
-    @topological_invariant
-    def is_multicurve(self):
-        ''' Return if this lamination is actually a multicurve. '''
-        
-        return not self.is_empty() and all(component.is_curve() for component in self.components())
-    
-    @topological_invariant
-    def is_curve(self):
-        ''' Return if this lamination is actually a curve. '''
-        
-        return self.is_multicurve() and self.num_components() == 1
-    
-    @topological_invariant
-    def is_multiarc(self):
-        ''' Return if this lamination is actually a multiarc. '''
-        
-        return not self.is_empty() and all(component.is_arc() for component in self.components())
-    
-    @topological_invariant
-    def is_arc(self):
-        ''' Return if this lamination is actually a multiarc. '''
-        
-        return self.is_multiarc() and self.num_components() == 1
-    
-    def promote(self):
-        if self.is_multicurve():
-            if self.is_curve():
-                other = curver.kernel.Curve(self.triangulation, self.geometric)
-            else:
-                other = curver.kernel.MultiCurve(self.triangulation, self.geometric)
-        elif self.is_multiarc():
-            if self.is_arc():
-                other = curver.kernel.Arc(self.triangulation, self.geometric)
-            else:
-                other = curver.kernel.MultiArc(self.triangulation, self.geometric)
-        else:
-            other = self
-        
-        # Move cache across.
-        try:
-            other._cache = self._cache  # pylint: disable=attribute-defined-outside-init
-        except AttributeError:
-            pass  # No cache.
-        
-        return other
     
     def skeleton(self):
         ''' Return the lamination obtained by collapsing parallel components. '''
@@ -483,7 +461,7 @@ class IntegralLamination(Lamination):
     def shorten(self, drop=0.1):
         ''' Return a pair (s, h) where:
          * h is a mapping which maps this lamination to a short one, and
-         * s = h(self.non_peripheral()).
+         * s = h(self)
         
         In each round, we do not look for an accelerating Dehn twist if a flip can drop the weight by at least `drop`%.
         So if `drop` == 0.0 then acceleration is never done and this returns the Mosher flip sequence.
