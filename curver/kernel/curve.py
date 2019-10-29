@@ -177,16 +177,6 @@ class Curve(MultiCurve):
     def is_short(self):
         return self.is_peripheral() or len(self.parallel_components()) == 1
     
-    @topological_invariant
-    def is_isolating(self):
-        ''' Return if this curve is isolating, that is, if it is non-peripheral and a component of S - self does not contain a puncture. '''
-        
-        if self.is_peripheral():
-            return False
-        
-        short, _ = self.shorten()
-        return all(weight % 2 == 0 for weight in short)
-    
     def encode_twist(self, power=1):
         ''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
         
@@ -216,7 +206,6 @@ class Curve(MultiCurve):
         # Get some edges.
         a = short.parallel()
         v = short.triangulation.vertex_lookup[a]  # = short.triangulation.vertex_lookup[~a].
-        _, b, e = short.triangulation.corner_lookup[a]
         
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
         around_v = min(max(short_lamination.left_weight(edge), 0) for edge in v_edges)
@@ -230,9 +219,9 @@ class Curve(MultiCurve):
         
         numerator = twisting
         
-        sign = -1 if short_lamination.left_weight(a) > around_v or short_lamination.dual_weight(e) < 0 else +1
+        sign = -1 if short_lamination.left_weight(a) - around_v > 0 or short_lamination.right_weight(a) < 0 else +1
         
-        return Fraction(sign * numerator, denominator) + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
+        return Fraction(sign * numerator, denominator)  # + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
     
     def relative_twisting(self, b, c):
         ''' Return the relative twisting number of b about self relative to c.
