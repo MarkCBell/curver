@@ -46,8 +46,8 @@ class MultiCurve(IntegralLamination):
         def connected_to(edge):
             ''' Yield the edges you can reach by travelling out of the given edge. '''
             corner = self.triangulation.corner_lookup[edge]
-            if self.dual_weight(corner[1]): yield ~corner[2]
-            if self.dual_weight(corner[2]): yield ~corner[1]
+            if self.left_weight(edge): yield ~corner[2]  # Can turn left.
+            if self.right_weight(edge): yield ~corner[1]  # Can turn right.
         
         # Build graph.
         edges = [(edge, edgy) for edge in self.triangulation.edges for edgy in connected_to(edge)]
