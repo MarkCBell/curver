@@ -132,22 +132,8 @@ class Lamination(object):
             return self
         
         temp = IntegralLamination(self.triangulation, self.geometric)
-        
-        if not temp:  # if temp.num_components() == 0:
-            return temp  # self.triangulation.empty_lamination()
-        
-        if temp.num_components() == 1:  # is connected:
-            if all(isinstance(component, curver.kernel.Arc) for component in temp.components()):  # Only component is an Arc.
-                promoted = curver.kernel.Arc(self.triangulation, self.geometric)
-            else:  # Only component is a Curve.
-                promoted = curver.kernel.Curve(self.triangulation, self.geometric)
-        else:  # if temp.num_components() > 1:  # is disconnected:
-            if all(isinstance(component, curver.kernel.Arc) for component in temp.components()):
-                promoted = curver.kernel.MultiArc(self.triangulation, self.geometric)
-            elif all(isinstance(component, curver.kernel.Curve) for component in temp.components()):
-                promoted = curver.kernel.MultiCurve(self.triangulation, self.geometric)
-            else:  # Is a mixture of Arcs and Curves.
-                promoted = temp
+        short, _ = temp.shorten()  # Shorten returns a short lamination of the correct class.
+        promoted = short.__class__(self.triangulation, self.geometric)
         
         # Move cache across.
         try:
@@ -460,7 +446,7 @@ class IntegralLamination(Lamination):
     @ensure(lambda data: data.result[0].is_short())
     def shorten(self, drop=0.1):
         ''' Return a pair (s, h) where:
-         * h is a mapping which maps this lamination to a short one, and
+         * s is a short lamination of the correct class, and
          * s = h(self)
         
         In each round, we do not look for an accelerating Dehn twist if a flip can drop the weight by at least `drop`%.
@@ -472,7 +458,7 @@ class IntegralLamination(Lamination):
         
         assert 0.0 <= drop <= 1.0
         
-        peripheral = self.peripheral()
+        peripheral = self.peripheral()  # This is more efficient than moving every peripheral component individually.
         lamination = self.non_peripheral(promote=False)
         conjugator = self.triangulation.id_encoding()
         
