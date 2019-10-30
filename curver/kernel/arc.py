@@ -61,7 +61,7 @@ class MultiArc(IntegralLamination):
     
     @topological_invariant
     def is_triangulation(self):
-        ''' Return if this MultiArc is a triangulation. '''
+        ''' Return whether this MultiArc is a triangulation. '''
         short, _ = self.shorten()
         
         return all(weight == -1 for weight in short)

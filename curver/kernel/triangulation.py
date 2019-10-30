@@ -304,7 +304,7 @@ class Triangulation(object):
         return [tuple(sorted(cls)) for cls in classes]
     
     def is_connected(self):
-        ''' Return if this triangulation has a single component. '''
+        ''' Return whether this triangulation has a single component. '''
         
         return len(self.components()) == 1
     
@@ -361,7 +361,7 @@ class Triangulation(object):
         return [hc for hc in self.edge_homologies() if hc.is_canonical()]
     
     def is_flippable(self, edge):
-        ''' Return if the given edge is flippable.
+        ''' Return whether the given edge is flippable.
         
         An edge is flippable if and only if it lies in two distinct triangles. '''
         
@@ -504,7 +504,7 @@ class Triangulation(object):
         return self.isometries_to(self)
     
     def is_isometric_to(self, other):
-        ''' Return if there are any orientation preserving isometries from this triangulation to other. '''
+        ''' Return whether there are any orientation preserving isometries from this triangulation to other. '''
         
         assert isinstance(other, Triangulation)
         

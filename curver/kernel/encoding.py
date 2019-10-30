@@ -283,7 +283,7 @@ class MappingClass(Mapping):
         return curver.kernel.Permutation.from_dict(vertex_map, ordering=sorted(vertex_map))
     
     def is_identity(self):
-        ''' Return if this mapping class is the identity. '''
+        ''' Return whether this mapping class is the identity. '''
         
         return self.order() == 1
     

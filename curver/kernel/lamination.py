@@ -145,7 +145,7 @@ class Lamination(object):
     
     @topological_invariant
     def is_empty(self):
-        ''' Return if this lamination has no components. '''
+        ''' Return whether this lamination has no components. '''
         
         return not any(self)  # self.num_components() == 0
     
@@ -355,7 +355,7 @@ class IntegralLamination(Lamination):
     
     @topological_invariant
     def is_filling(self):
-        ''' Return if this IntegralLamination fills the surface, that is, if it intersects all curves on the surface.
+        ''' Return whether this IntegralLamination fills the surface, that is, if it intersects all curves on the surface.
         
         Note that this is equivalent to:
             - it meets every non S_{0,3} component of the surface, and
@@ -376,7 +376,7 @@ class IntegralLamination(Lamination):
     
     @topological_invariant
     def is_polygonalisation(self):
-        ''' Return if this IntegralLamination is a polygonalisation, that is, if it cuts the surface into polygons. '''
+        ''' Return whether this IntegralLamination is a polygonalisation, that is, if it cuts the surface into polygons. '''
         
         if any(isinstance(component, curver.kernel.Curve) for component in self.components()):
             return False
