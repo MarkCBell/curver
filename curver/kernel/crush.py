@@ -35,10 +35,10 @@ class Crush(Move):
         
         v = self.curve.triangulation.vertex_lookup[a]  # = self.triangulation.vertex_lookup[~a].
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
-        around_v = curver.kernel.utilities.minimal((self.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+        around_v = curver.kernel.utilities.minimal((lamination.left_weight(edgy) for edgy in v_edges), lower_bound=0)
         out_v = sum(max(-lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-lamination(edge), 0) for edge in v_edges[1:])
         # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
-        twisting = curver.kernel.utilities.minimal((self.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
+        twisting = curver.kernel.utilities.minimal((lamination.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
         
         # We could have initially removed the twisting via the fact that:
         # twisting == abs(self.curve.slope(lamination) * lamination(a))

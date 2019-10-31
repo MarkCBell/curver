@@ -309,7 +309,7 @@ class IntegralLamination(Lamination):
                 v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
                 
                 for short_lamination in short_laminations:
-                    around_v = curver.kernel.utilities.minimal((self.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+                    around_v = curver.kernel.utilities.minimal((short_lamination.left_weight(edgy) for edgy in v_edges), lower_bound=0)
                     out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
                     # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
                     intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
