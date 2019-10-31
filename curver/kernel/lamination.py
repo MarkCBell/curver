@@ -227,6 +227,7 @@ class Lamination(object):
         
         raise ValueError('Curve does not close up in {} steps'.format(max_length))
     
+    @memoize
     def peripheral_components(self):
         ''' Return a dictionary mapping component to (multiplicity, vertex) for each component of self that is peripheral around a vertex. '''
         
