@@ -66,7 +66,7 @@ def maximum(iterable, key=lambda x: x, upper_bound=None):
     ''' Return the maximum of iterable but terminate early when given an upper_bound. '''
 
     def helper():
-        ''' A generator that yeilds elements from iterable up to and including one such that key(item) >= upper_bound. '''
+        ''' A generator that yields elements from iterable up to and including one such that key(item) >= upper_bound. '''
         for item in iterable:
             yield item
             if upper_bound is not None and key(item) >= upper_bound: return
