@@ -73,7 +73,7 @@ def minimal(iterable, lower_bound):
                 return
             yield item
 
-    return min(helper(), key=key)
+    return min(helper())
 
 def maximum(iterable, key=lambda x: x, upper_bound=None):
     ''' Return the maximum of iterable but terminate early when given an upper_bound. '''
