@@ -233,7 +233,7 @@ class Lamination(object):
         
         components = dict()
         for vertex in self.triangulation.vertices:
-            multiplicity = min(max(self.left_weight(edge), 0) for edge in vertex)
+            multiplicity = curver.kernel.utilities.minimal((self.left_weight(edge) for edge in vertex), lower_bound=0)
             if multiplicity > 0:
                 component = self.triangulation.curve_from_cut_sequence(vertex)
                 components[component] = (multiplicity, vertex)
@@ -256,8 +256,8 @@ class Lamination(object):
                 v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
                 v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
                 if len(v_edges) > 2:
-                    around_v = min(max(self.left_weight(edgy), 0) for edgy in v_edges)
-                    twisting = min(max(self.left_weight(edgy) - around_v, 0) for edgy in v_edges[1:-1])
+                    around_v = curver.kernel.utilities.minimal((self.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+                    twisting = curver.kernel.utilities.minimal((self.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
                     
                     if self.left_weight(v_edges[0]) == around_v and self.left_weight(v_edges[-1]) == around_v:
                         multiplicity = twisting
@@ -309,7 +309,7 @@ class IntegralLamination(Lamination):
                 v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
                 
                 for short_lamination in short_laminations:
-                    around_v = min(max(short_lamination.left_weight(edge), 0) for edge in v_edges)
+                    around_v = curver.kernel.utilities.minimal((self.left_weight(edgy) for edgy in v_edges), lower_bound=0)
                     out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
                     # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
                     intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)

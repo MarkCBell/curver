@@ -62,6 +62,19 @@ def cyclic_slice(L, x, y=None):
     j = None if y is None else L.index(y)
     return L[:j]
 
+def minimal(iterable, lower_bound):
+    ''' Return the minimal item of iterable but terminate early when given a lower_bound. '''
+
+    def helper():
+        ''' A generator that yields elements from iterable up to and including one such that key(item) <= lower_bound. '''
+        for item in iterable:
+            if item <= lower_bound:
+                yield lower_bound
+                return
+            yield item
+
+    return min(helper(), key=key)
+
 def maximum(iterable, key=lambda x: x, upper_bound=None):
     ''' Return the maximum of iterable but terminate early when given an upper_bound. '''
 
