@@ -230,16 +230,6 @@ class Mapping(Encoding):
             multicurve = item(multicurve)
         
         return current
-    
-    def pl_actions(self):
-        ''' Return the PartialLinearFunctions that this Mapping applies to multicurves. '''
-        
-        for sequence in product(*[item.pl_actions() for item in self.flip_mapping()]):  # TODO: Remove flip_mapping().
-            current = None
-            for item in reversed(sequence):
-                current = item * current
-            
-            yield current
 
 class MappingClass(Mapping):
     ''' A Mapping from a Triangulation to itself.
@@ -473,10 +463,6 @@ class MappingClass(Mapping):
             raise ValueError('Mapping class is periodic.')
         
         @memoize
-        def test_curve(curve):
-            return test_cell(self.pl_action(curve))
-        
-        @memoize
         def test_cell(cell):
             ''' Return an eigenvector of this action matrix inside the cone defined by condtion matrix.
             
@@ -495,17 +481,14 @@ class MappingClass(Mapping):
         # The result of Margalit--Strenner--Yurtas say that this is a sufficient number of iterations to find a fixed point.
         # See https://www.youtube.com/watch?v=-GO0AvUGjH4
         for curve in curves:
-            for _ in range(36 * self.source_triangulation.euler_characteristic**2):
-                curve = self(curve)
-                try:
-                    return test_curve(curve)
-                except ValueError:
-                    pass
+            curve = self(curve, power=36 * self.source_triangulation.euler_characteristic**2)
+            cell = self.pl_action(curve)
+            try:
+                return test_cell(cell)
+            except ValueError:
+                pass
         
         # Self has no pA pieces. Since it is not periodic it must therefore be the root of a multitwist.
-        
-        
-        # Currently, we can never reach this line. But it is here in case we ever replace the count() with range().
         raise ValueError('Mapping class is reducible.')
 
 def create_encoding(source_triangulation, sequence):
