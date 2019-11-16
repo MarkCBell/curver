@@ -67,11 +67,6 @@ class FlipGraphMove(Move):
         ''' Return the PartialLinearFunction that this FlipGraphMove applies to the given multicurve. '''
         
         return NotImplemented
-    
-    def pl_actions(self):  # pylint: disable=no-self-use
-        ''' Return the PartialLinearFunctions that this FlipGraphMoves applies to multicurves. '''
-        
-        return NotImplemented
 
 class Isometry(FlipGraphMove):
     ''' This represents an isometry from one Triangulation to another.
@@ -129,11 +124,6 @@ class Isometry(FlipGraphMove):
         action = np.array([[1 if j == self.index_map[i] else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
         condition = np.array([[0] * self.zeta], dtype=object)
         return curver.kernel.PartialLinearFunction(action, condition)
-    
-    def pl_actions(self):
-        action = np.array([[1 if j == self.index_map[i] else 0 for i in range(self.zeta)] for j in range(self.zeta)], dtype=object)
-        condition = np.array([[0] * self.zeta], dtype=object)
-        return [curver.kernel.PartialLinearFunction(action, condition)]
 
 class EdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
@@ -219,25 +209,6 @@ class EdgeFlip(FlipGraphMove):
             condition = E(bi, ei, 1) + E(di, ei, 1) - E(ai, ei, 1) - E(ci, ei, 1)
         
         return curver.kernel.PartialLinearFunction(action, condition)
-    
-    def pl_actions(self):
-        identity = np.identity(self.zeta)
-        
-        def E(x, y, h=self.zeta):
-            ''' Return the h x self.zeta matrix that has a 1 at (x, y). '''
-            return np.array([[1 if i == x and j == y else 0 for i in range(self.zeta)] for j in range(h)], dtype=object)
-        
-        ai, bi, ci, di, ei = [edge.index for edge in self.square]
-        actions = [
-            identity + E(ai, ei) + E(ci, ei) - 2*E(ei, ei),
-            identity + E(bi, ei) + E(di, ei) - 2*E(ei, ei),
-            ]
-        conditions = [
-            E(ai, ei, 1) + E(ci, ei, 1) - E(bi, ei, 1) - E(di, ei, 1),
-            E(bi, ei, 1) + E(di, ei, 1) - E(ai, ei, 1) - E(ci, ei, 1),
-            ]
-        
-        return [curver.kernel.PartialLinearFunction(action, condition) for action, condition in zip(actions, conditions)]
 
 class MultiEdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
