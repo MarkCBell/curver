@@ -55,43 +55,44 @@ class Twist(FlipGraphMove):
             return lamination
         
         # Naive way would be to do:
+        # return self.encoding(lamination, power=self.power)
+        # which is roughly equivalent to:
         # for i in range(self.power):
         #     lamination = self.encoding(lamination)
         # return lamination
         # But we can be cleverer and perform this calculation in O(log(self.power)) instead.
         
         power = self.power
-        while power:  # This loop will run at most four times.
-            slope = self.curve.slope(lamination)
-            if power > 0:  # Right twist (increases slope).
-                if 1 < slope:  # pylint: disable=misplaced-comparison-constant
-                    geometric = [w + power * intersection * c for w, c in zip(lamination, self.curve)]
-                    power_applied = power
-                elif -1 <= slope <= 1:  # Dangerous region.
-                    geometric = self.encoding(lamination).geometric
-                    power_applied = 1
-                else:  # if slope < -1:
-                    steps = min(power, -(slope.numerator // slope.denominator) - 1)  # ceil(-slope) - 1.
-                    assert steps >= 0  # Sanity.
-                    geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
-                    power_applied = steps
-            else:  # power < 0:  # Left twist (decreases slope).
-                if slope < -1:
-                    geometric = [w + -power * intersection * c for w, c in zip(lamination, self.curve)]
-                    power_applied = power
-                elif -1 <= slope <= 1:  # Dangerous region.
-                    geometric = self.encoding.inverse()(lamination).geometric
-                    power_applied = -1
-                else:  # 1 < slope:
-                    steps = min(-power, -(-slope.numerator // slope.denominator) - 1)  # ceil(slope) - 1.
-                    assert steps >= 0  # Sanity.
-                    geometric = [w - steps * intersection * c for w, c in zip(lamination, self.curve)]
-                    power_applied = -steps
-            new_lamination = lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
-            # assert new_lamination == (self.encoding**power_applied)(lamination)
-            # assert -1 <= slope <= 1 or self.curve.slope(new_lamination) == slope + power_applied
-            lamination = new_lamination
-            power = power - power_applied
+        slope = self.curve.slope(lamination)
+        # Only one of the following two blocks will run:
+        
+        # power > 0:  # Right twist (increases slope).
+        if power > 0 and slope <= -1:
+            steps = min(power, -slope.numerator // slope.denominator)  # floor(-slope).
+            lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
+            power = power - steps
+            slope = slope + steps  # We know how slope changes out here.
+        for _ in range(3):
+            if power > 0 and -1 < slope <= 0:  # Dangerous region.
+                lamination = self.encoding(lamination)
+                power = power - 1
+                slope = self.curve.slope(lamination)  # We don't know how slope changes in the dangerous region, so we have to compute it.
+        if power > 0 and 0 < slope:  # pylint: disable=misplaced-comparison-constant
+            lamination = lamination.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
+        
+        # power < 0:  # Left twist (decreases slope).
+        if power < 0 and 1 <= slope:
+            steps = min(-power, slope.numerator // slope.denominator)  # floor(slope).
+            lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
+            power = power + steps
+            slope = slope - steps  # We know how slope changes out here.
+        for _ in range(3):
+            if power < 0 and 0 <= slope < 1:  # Dangerous region.
+                lamination = self.encoding.inverse()(lamination)
+                power = power + 1
+                slope = self.curve.slope(lamination)  # We don't know how slope changes in the dangerous region, so we have to compute it.
+        if power < 0 and slope < 0:
+            lamination = lamination.__class__(self.target_triangulation, [w + -power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
         
         return lamination
     
