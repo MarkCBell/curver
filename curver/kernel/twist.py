@@ -82,7 +82,7 @@ class Twist(FlipGraphMove):
             lamination = lamination.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
         
         # Left twist block (decreases slope).
-        if power < 0 and 1 <= slope:
+        if power < 0 and slope >= 1:
             steps = min(-power, slope.numerator // slope.denominator)  # floor(slope).
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
             power = power + steps
