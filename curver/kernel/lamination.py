@@ -4,6 +4,7 @@
 from collections import namedtuple
 from itertools import permutations, groupby, product, chain
 from queue import Queue
+import numpy as np
 
 import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
@@ -283,6 +284,25 @@ class Lamination:
         ''' Return the set of components of the underlying triangulation that this lamination lives in. '''
         
         return set(component for component in self.triangulation.components() if any(self(edge) for edge in component))
+    
+    def normal_arcs_PL(self):
+        ''' Return the PartialLinearFunction which is defined on Laminations that use the same normal arcs as self. '''
+        
+        action = np.identity(self.zeta, dtype=object)
+        condition = np.array([  # Edge conditions.
+            [sign if i == edge.index else 0 for i in range(self.zeta)]
+            for edge in self.triangulation.positive_edges
+            for sign in [+1, -1]
+            if self(edge) * sign >= 0
+            ] + [  # Dual edge conditions.
+            [sign if i in (triangle[rotate+1].index, triangle[rotate+2].index) else -sign if i == triangle[rotate].index else 0 for i in range(self.zeta)]
+            for triangle in self.triangulation
+            for rotate in range(3)
+            for sign in [+1, -1]
+            if self.dual_weight(triangle[rotate]) * sign >= 0
+            ])
+        
+        return curver.kernel.PartialLinearFunction(action, condition)
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
