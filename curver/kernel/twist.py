@@ -66,32 +66,34 @@ class Twist(FlipGraphMove):
         slope = self.curve.slope(lamination)
         # Only one of the following two blocks will run:
         
-        # power > 0:  # Right twist (increases slope).
+        # Right twist block (increases slope).
         if power > 0 and slope <= -1:
             steps = min(power, -slope.numerator // slope.denominator)  # floor(-slope).
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
             power = power - steps
-            slope = slope + steps  # We know how slope changes out here.
-        for _ in range(3):
-            if power > 0 and -1 < slope <= 0:  # Dangerous region.
-                lamination = self.encoding(lamination)
-                power = power - 1
-                slope = self.curve.slope(lamination)  # We don't know how slope changes in the dangerous region, so we have to compute it.
-        if power > 0 and 0 < slope:  # pylint: disable=misplaced-comparison-constant
+        
+        # We have to go slowly through the dangerous region.
+        # But it involves at most three twists.
+        if power > 0:
+            lamination = self.encoding(lamination, power=min(power, 3))
+            power = power - min(power, 3)
+        
+        if power > 0:  # Since we now have self.curve.slope(lamination) > 0 we can accelerate.
             lamination = lamination.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
         
-        # power < 0:  # Left twist (decreases slope).
+        # Left twist block (decreases slope).
         if power < 0 and 1 <= slope:
             steps = min(-power, slope.numerator // slope.denominator)  # floor(slope).
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
             power = power + steps
-            slope = slope - steps  # We know how slope changes out here.
-        for _ in range(3):
-            if power < 0 and 0 <= slope < 1:  # Dangerous region.
-                lamination = self.encoding.inverse()(lamination)
-                power = power + 1
-                slope = self.curve.slope(lamination)  # We don't know how slope changes in the dangerous region, so we have to compute it.
-        if power < 0 and slope < 0:
+        
+        # We have to go slowly through the dangerous region.
+        # But it involves at most three twists.
+        if power < 0:
+            lamination = self.encoding(lamination, power=max(power, -3))
+            power = power - max(power, -3)
+        
+        if power < 0:  # Since we now have self.curve.slope(lamination) < 0 we can accelerate.
             lamination = lamination.__class__(self.target_triangulation, [w + -power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
         
         return lamination
