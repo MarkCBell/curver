@@ -73,7 +73,7 @@ class Twist(FlipGraphMove):
             power = power - steps
         
         # We have to go slowly through the dangerous region.
-        # But it involves at most three twists.
+        # But we cross it in at most three twists.
         if power > 0:
             lamination = self.encoding(lamination, power=min(power, 3))
             power = power - min(power, 3)
@@ -88,7 +88,7 @@ class Twist(FlipGraphMove):
             power = power + steps
         
         # We have to go slowly through the dangerous region.
-        # But it involves at most three twists.
+        # But we cross it in at most three twists.
         if power < 0:
             lamination = self.encoding(lamination, power=max(power, -3))
             power = power - max(power, -3)
