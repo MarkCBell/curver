@@ -400,7 +400,7 @@ class MappingClass(Mapping):
         if self.is_periodic():
             if self.order() != other.order():  # Conjugacy invariant.
                 return False
-            return self.subgroup().quotient_orbifold_signature() == other.subgroup().quotient_orbifold_signature()  # Total conjugacy invariant.
+            return self.subgroup().is_conjugate_to(other.subgroup())  # Compares self.quotient_orbifold_signature() to others.
         else:
             raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper')
     
