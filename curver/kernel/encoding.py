@@ -2,7 +2,6 @@
 ''' A module for representing and manipulating maps between Triangulations. '''
 
 from fractions import Fraction
-from itertools import product, count
 import operator
 import numpy as np
 import cypari
