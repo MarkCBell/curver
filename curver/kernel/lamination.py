@@ -295,11 +295,11 @@ class Lamination:
             for sign in [+1, -1]
             if self(edge) * sign >= 0
             ] + [  # Dual edge conditions.
-            [sign if i in (triangle[rotate+1].index, triangle[rotate+2].index) else -sign if i == triangle[rotate].index else 0 for i in range(self.zeta)]
-            for triangle in self.triangulation
-            for rotate in range(3)
-            for sign in [+1, -1]
-            if self.dual_weight(triangle[rotate]) * sign >= 0
+                [sign if i in (triangle[rotate+1].index, triangle[rotate+2].index) else -sign if i == triangle[rotate].index else 0 for i in range(self.zeta)]
+                for triangle in self.triangulation
+                for rotate in range(3)
+                for sign in [+1, -1]
+                if self.dual_weight(triangle[rotate]) * sign >= 0
             ])
         
         return curver.kernel.PartialLinearFunction(action, condition)
