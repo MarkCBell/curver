@@ -52,7 +52,7 @@ class PartialLinearFunction(object):
         
         x = cypari.pari('x')
         
-        M = cypari.pari.matrix(*self.action.shape, self.action.flatten())
+        M = cypari.pari.matrix(*self.action.shape, entries=self.action.flatten())
         
         for polynomial in M.charpoly().factor()[0]:
             degree = int(polynomial.poldegree())
