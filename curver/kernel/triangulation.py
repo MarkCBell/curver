@@ -237,6 +237,7 @@ class Triangulation:
         return curver.kernel.utilities.b64encode(self.zeta) + '_' + \
             curver.kernel.utilities.b64encode(curver.kernel.Permutation([x + self.zeta for x in self.signature]).index())
     
+    @memoize
     def surface(self):
         ''' This return a dictionary mapping component to (genus, #punctures) for each component of self. '''
         
@@ -467,15 +468,15 @@ class Triangulation:
         return curver.kernel.create.isometry(self, other, label_map)
     
     def isometries_to(self, other):
-        ''' Return a list of all isometries from this triangulation to other. '''
+        ''' Yield all isometries from this triangulation to other. '''
         
         assert isinstance(other, Triangulation)
         
         if self.zeta != other.zeta:
-            return []
+            return
         
         if sorted(self.surface().values()) != sorted(other.surface().values()):
-            return []
+            return
         
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
@@ -487,23 +488,22 @@ class Triangulation:
         isometries = []
         for chosen_targets in product(*targets):
             try:
-                isometries.append(self.find_isometry(other, dict(zip(sources, chosen_targets))))
+                yield self.find_isometry(other, dict(zip(sources, chosen_targets)))
             except ValueError:  # Map does not extend uniquely.
                 pass
-        
-        return isometries
     
     def self_isometries(self):
-        ''' Return a list of isometries taking this triangulation to itself. '''
+        ''' Yield the isometries taking this triangulation to itself. '''
         
-        return self.isometries_to(self)
+        for isometry in self.isometries_to(self):
+            yield isometry
     
     def is_isometric_to(self, other):
         ''' Return whether there are any orientation preserving isometries from this triangulation to other. '''
         
         assert isinstance(other, Triangulation)
         
-        return len(self.isometries_to(other)) > 0
+        return next(self.isometries_to(other), None) is not None
     
     # Laminations we can build on this triangulation.
     def lamination(self, weights, promote=True):
