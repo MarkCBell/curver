@@ -10,19 +10,19 @@ class SplittingSequence(object):
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
-    def __init__(self, lamination, puncture, preperiodic, periodic):
+    def __init__(self, puncture, preperiodic, periodic, lamination, punctured_lamination=None, periodic_lamination=None):
         self.puncture = puncture
         self.preperiodic = preperiodic
         self.periodic = periodic
         
         self.lamination = lamination
-        self.punctured_lamination = self.puncture(self.lamination)
-        self.periodic_lamination = self.preperiodic(self.punctured_lamination)
+        self.punctured_lamination = punctured_lamination if punctured_lamination is not None else self.puncture(self.lamination)
+        self.periodic_lamination = periodic_lamination if periodic_lamination is not None else self.preperiodic(self.punctured_lamination)
         
         # Save some useful triangulations.
-        self.triangulation = self.puncture.source_triangulation
-        self.punctured_triangulation = self.preperiodic.source_triangulation  # = self.puncture.target_triangulation.
-        self.periodic_triangulation = self.periodic.source_triangulation  # = self.preperiodic.target_triangulation.
+        self.triangulation = self.lamination.triangulation
+        self.punctured_triangulation = self.punctured_lamination.triangulation
+        self.periodic_triangulation = self.periodic_lamination.triangulation
         
         # The boundary of lamination.
         self.periodic_boundary = self.periodic_triangulation([2 if weight > 0 else 0 for weight in self.periodic_lamination])
@@ -62,7 +62,7 @@ class SplittingSequence(object):
         assert all(starting_lamination.dual_weight(edge) >= 0 for edge in starting_lamination.triangulation.edges)
         
         puncture = starting_lamination.triangulation.encode_pachner_1_3()
-        lamination = puncture(starting_lamination)
+        lamination = punctured_lamination = puncture(starting_lamination)
         
         encodings = [lamination.triangulation.id_encoding()]
         laminations = dict()  # i |--> L_i.
@@ -92,27 +92,26 @@ class SplittingSequence(object):
             assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 2) for triangle in lamination.triangulation)
             
             # Split all of the maximal branches
-            max_weight = max(lamination)
-            move = lamination.triangulation.encode_multiflip([edge for edge in lamination.triangulation.positive_edges if lamination(edge) == max_weight])
+            move = lamination.triangulation.encode_multiflip(curver.kernel.utilities.maxes(lamination.triangulation.positive_edges, key=lamination))
             encodings.append(move)
             lamination = move(lamination)
             
             # Check if lamination now (projectively) matches a lamination we've already seen.
             for index in seen.get(projective_hash(lamination), []):
-                weight = lamination.weight()
                 old_lamination = laminations[index]
-                old_weight = old_lamination.weight()
                 
-                for isometry in lamination.triangulation.isometries_to(old_lamination.triangulation):
+                scaled_old_lamination = old_lamination * lamination.weight()
+                scaled_lamination = lamination * old_lamination.weight()
+                
+                for isometry in scaled_lamination.isometries_to(scaled_old_lamination):
                     isom_e = isometry.encode()
-                    if isom_e(lamination) * old_weight == weight * old_lamination:  # A projective isometry.
-                        preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item]).promote()
-                        open_periodic = curver.kernel.Encoding([move for item in reversed(encodings[index:]) for move in item]).promote()
-                        periodic = isom_e * open_periodic
-                        # We really should only return for the correct isometry.
-                        # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
-                        # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                        return cls(starting_lamination, puncture, preperiodic, periodic)
+                    preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item]).promote()
+                    open_periodic = curver.kernel.Encoding([move for item in reversed(encodings[index:]) for move in item]).promote()
+                    periodic = isom_e * open_periodic
+                    # We really should only return for the correct isometry.
+                    # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
+                    # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
+                    return cls(puncture, preperiodic, periodic, starting_lamination, punctured_lamination, old_lamination)
         
         raise RuntimeError('Unreachable code.')
     
