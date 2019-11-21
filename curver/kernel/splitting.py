@@ -10,7 +10,7 @@ class SplittingSequence(object):
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
-    def __init__(self, puncture, preperiodic, periodic, lamination, punctured_lamination=None, periodic_lamination=None):
+    def __init__(self, puncture, preperiodic, periodic, lamination, punctured_lamination=None, periodic_lamination=None):  # pylint: disable=too-many-arguments
         self.puncture = puncture
         self.preperiodic = preperiodic
         self.periodic = periodic

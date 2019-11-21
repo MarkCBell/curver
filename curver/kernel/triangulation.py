@@ -486,7 +486,6 @@ class Triangulation:
         values = [k(self)(edge) for edge in sources]
         targets = [[edge for edge in other.triangulation.edges if k(other)(edge) == value] for value in values]
         
-        isometries = []
         for chosen_targets in product(*targets):
             try:
                 yield self.find_isometry(other, dict(zip(sources, chosen_targets)))
