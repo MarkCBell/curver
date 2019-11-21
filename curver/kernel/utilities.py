@@ -90,16 +90,16 @@ def maxes(iterable, key=lambda x: x):
     ''' Return the list of items in iterable whose value is maximal. '''
     
     best = None
-    maxes = []
+    ans = []
     for item in iterable:
         value = key(item)
         if best is None or value > best:
-            maxes = [item]
+            ans = [item]
             best = value
         elif best is not None and value == best:
-            maxes.append(item)
+            ans.append(item)
     
-    return maxes
+    return ans
 
 def alphanum_key(strn):
     ''' Return a list of string and number chunks from a string. '''

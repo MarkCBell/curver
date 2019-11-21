@@ -317,7 +317,6 @@ class Lamination:
         values = [k(self)(edge) for edge in sources]
         targets = [[edge for edge in other.triangulation.edges if k(other)(edge) == value] for value in values]
         
-        isometries = []
         for chosen_targets in product(*targets):
             try:
                 isom = self.triangulation.find_isometry(other.triangulation, dict(zip(sources, chosen_targets)))
