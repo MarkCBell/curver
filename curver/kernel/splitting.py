@@ -43,14 +43,10 @@ class SplittingSequence(object):
         the same RealNumberField). '''
         
         # In this method we use Lamination.projective_hash to store the laminations
-        # we encounter efficiently and so avoid a quadratic algorithm. This currently
-        # only ever uses the default precision HASH_DENOMINATOR. At some point this
-        # should change dynamically depending on the algebraic numbers involved in
-        # this lamination.
+        # we encounter efficiently and so avoid a quadratic algorithm.
         
-        def projective_hash(L, precision=30):
-            w = L.weight()
-            PL = [x * 10**precision // w for x in L]
+        def projective_hash(L):
+            PL = projectivise(L)
             
             # We'll try to preserve as much of the structure as possible to try to reduce hash collisions.
             # In this version we'll store the sorted, cyclically ordered, triangles.
@@ -58,8 +54,8 @@ class SplittingSequence(object):
             return tuple(sorted([min(triple[i:] + triple[:i] for i in range(len(triple))) for triple in triples]))
         
         def projectivise(L):
-            w = L.weight()
-            return L * (1 / w)
+            weight = L.weight()
+            return [entry / weight for entry in L]
         
         assert projectivise(mapping_class(starting_lamination)) == projectivise(starting_lamination)
         assert all(weight >= 0 for weight in starting_lamination)
