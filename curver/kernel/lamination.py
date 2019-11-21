@@ -303,6 +303,27 @@ class Lamination:
             ])
         
         return curver.kernel.PartialLinearFunction(action, condition)
+    
+    def isometries_to(self, other):
+        ''' Yield all isometries that send this lamination to other. '''
+        
+        assert isinstance(other, Lamination)
+        
+        # TODO: 3) Make this more efficient by avoiding trying all mappings.
+        
+        # Isometries are determined by where a single triangle is sent.
+        sources = [max(component, key=lambda edge: (self(edge), len(self.triangulation.vertex_lookup[edge]))) for component in self.triangulation.components()]
+        values = [(self(edge), len(self.triangulation.vertex_lookup[edge])) for edge in sources]
+        targets = [[edge for edge in other.triangulation.edges if (other(edge), len(other.triangulation.vertex_lookup[edge])) == value] for value in values]
+        
+        isometries = []
+        for chosen_targets in product(*targets):
+            try:
+                isom = self.triangulation.find_isometry(other.triangulation, dict(zip(sources, chosen_targets)))
+                if isom(self) == other:
+                    yield isom
+            except ValueError:  # Map does not extend uniquely.
+                pass
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
