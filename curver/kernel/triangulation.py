@@ -481,9 +481,10 @@ class Triangulation:
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
-        sources = [min(component, key=lambda edge: len(self.vertex_lookup[edge])) for component in self.components()]
-        degrees = [len(self.vertex_lookup[edge]) for edge in sources]
-        targets = [[edge for edge in other.edges if len(other.vertex_lookup[edge]) == degree] for degree in degrees]
+        k = lambda T: lambda e: (len(T.vertex_lookup[e]),)
+        sources = [max(component, key=k(self)) for component in self.components()]
+        values = [k(self)(edge) for edge in sources]
+        targets = [[edge for edge in other.triangulation.edges if k(other)(edge) == value] for value in values]
         
         isometries = []
         for chosen_targets in product(*targets):

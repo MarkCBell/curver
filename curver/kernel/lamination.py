@@ -312,9 +312,10 @@ class Lamination:
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
-        sources = [max(component, key=lambda edge: (self(edge), len(self.triangulation.vertex_lookup[edge]))) for component in self.triangulation.components()]
-        values = [(self(edge), len(self.triangulation.vertex_lookup[edge])) for edge in sources]
-        targets = [[edge for edge in other.triangulation.edges if (other(edge), len(other.triangulation.vertex_lookup[edge])) == value] for value in values]
+        k = lambda L: lambda e: (L(e), len(L.triangulation.vertex_lookup[e]))
+        sources = [max(component, key=k(self)) for component in self.triangulation.components()]
+        values = [k(self)(edge) for edge in sources]
+        targets = [[edge for edge in other.triangulation.edges if k(other)(edge) == value] for value in values]
         
         isometries = []
         for chosen_targets in product(*targets):
