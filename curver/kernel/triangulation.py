@@ -484,7 +484,7 @@ class Triangulation:
         k = lambda T: lambda e: (len(T.vertex_lookup[e]),)
         sources = [max(component, key=k(self)) for component in self.components()]
         values = [k(self)(edge) for edge in sources]
-        targets = [[edge for edge in other.triangulation.edges if k(other)(edge) == value] for value in values]
+        targets = [[edge for edge in other.edges if k(other)(edge) == value] for value in values]
         
         for chosen_targets in product(*targets):
             try:
