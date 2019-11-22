@@ -324,6 +324,19 @@ class Lamination:
                     yield isom
             except ValueError:  # Map does not extend uniquely.
                 pass
+    
+    def self_isometries(self):
+        ''' Yield the isometries taking this triangulation to itself. '''
+        
+        for isometry in self.isometries_to(self):
+            yield isometry
+    
+    def is_isometric_to(self, other):
+        ''' Return whether there are any orientation preserving isometries from this lamination to other. '''
+        
+        assert isinstance(other, Lamination)
+        
+        return next(self.isometries_to(other), None) is not None
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
