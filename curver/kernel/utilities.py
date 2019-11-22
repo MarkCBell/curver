@@ -55,11 +55,14 @@ def cyclic_slice(L, x, y=None):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
     
     L may be cyclically permuted if needed.
-    y may be omitted in which case the entire list (cyclically permuted so x is first) is returned. '''
+    If y is omitted or not present then the entire list (cyclically permuted so x is first) is returned. '''
     
     i = L.index(x)
     L = L[i:] + L[:i]  # x is now L[0].
-    j = None if y is None else L.index(y)
+    try:
+        j = None if y is None else L.index(y)
+    except ValueError:  # y is not present.
+        j = None
     return L[:j]
 
 def minimal(iterable, lower_bound):
