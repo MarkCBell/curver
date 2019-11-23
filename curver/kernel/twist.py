@@ -181,10 +181,10 @@ class Twist(FlipGraphMove):
             around_condition = np.array([C2(edge) - C2(around_edge) for edge in v_edges])
             
             F = curver.kernel.PartialLinearFunction(
-                np.array([V(edge) + power * (V(a) - C2(around_edge)) * self.curve(edge) for edge in self.source_triangulation.positive_edges]),
+                np.array([V(edge) + abs(power) * (V(a) - C2(around_edge)) * self.curve(edge) for edge in self.source_triangulation.positive_edges]),
                 around_condition,
                 ) * F
-            multicurve = multicurve.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+            multicurve = multicurve.__class__(self.target_triangulation, [w + abs(power) * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
         
         return F
 
