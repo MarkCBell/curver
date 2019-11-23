@@ -134,19 +134,9 @@ class Twist(FlipGraphMove):
         intersection = multicurve(a) - 2 * around  # = self.curve.intersection(multicurve)
         
         # Condition matrices which restricts to multicurves with the same around_edge, twisting_edge and sign respectively.
-        around_condition = np.array([
-            C2(edge) - C2(around_edge)
-            for edge in v_edges
-            ])
-        
-        twisting_condition = np.array([
-            C2(edge) - C2(twisting_edge)  # (C2(edge) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge)).
-            for edge in v_edges[1:-1]
-            ])
-        
-        sign_condition = np.array([
-            sign * (C2(around_edge) - C2(a))
-            ])
+        around_condition = np.array([C2(edge) - C2(around_edge) for edge in v_edges])
+        twisting_condition = np.array([C2(edge) - C2(twisting_edge) for edge in v_edges[1:-1]])
+        sign_condition = np.array([sign * (C2(around_edge) - C2(a))])
         
         numerator, denominator = twisting, intersection
         if denominator == 0:  # Disjoint twists have no effect.
@@ -172,10 +162,7 @@ class Twist(FlipGraphMove):
         
         if power * sign < 0:
             F = curver.kernel.PartialLinearFunction(
-                np.array([
-                    V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
-                    for edge in self.source_triangulation.positive_edges
-                    ]),
+                np.array([V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge) for edge in self.source_triangulation.positive_edges]),
                 np.array([[0] * self.zeta], dtype=object)
                 ) * F
             multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
@@ -191,16 +178,10 @@ class Twist(FlipGraphMove):
             # We now have to recalculate around.
             around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
             around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around)  # The edge that realises around.
-            around_condition = np.array([
-                C2(edge) - C2(around_edge)
-                for edge in v_edges
-                ])
+            around_condition = np.array([C2(edge) - C2(around_edge) for edge in v_edges])
             
             F = curver.kernel.PartialLinearFunction(
-                np.array([
-                    V(edge) + power * (V(a) - C2(around_edge)) * self.curve(edge)
-                    for edge in self.source_triangulation.positive_edges
-                    ]),
+                np.array([V(edge) + power * (V(a) - C2(around_edge)) * self.curve(edge) for edge in self.source_triangulation.positive_edges]),
                 around_condition,
                 ) * F
             multicurve = multicurve.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
