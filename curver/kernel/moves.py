@@ -63,6 +63,7 @@ class FlipGraphMove(Move):
         
         return NotImplemented
     
+    @abstractmethod
     def pl_action(self, multicurve):  # pylint: disable=no-self-use, unused-argument
         ''' Return the PartialLinearFunction that this FlipGraphMove applies to the given multicurve. '''
         
