@@ -151,8 +151,8 @@ class Twist(FlipGraphMove):
         # A condition matrix which restricts to multicurves with the same floor_slope.
         # Note we use an extra factor of two to avoid fractions.
         floor_slope_condition = np.array([
-            (C2(twisting_edge) - C2(around_edge)) - 2 * floor_slope * (V(a) - C2(around_edge)),  # 2 * twisting - 2*steps * intersection.
-            2 * (floor_slope+1) * (V(a) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge))  # 2 * (steps+1) * intersection - 2 * twisting.
+            (C2(twisting_edge) - C2(around_edge)) - 2 * floor_slope * (V(a) - C2(around_edge)),  # 2 * twisting - 2*floor_slope * intersection.
+            2 * (floor_slope+1) * (V(a) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge))  # 2 * (floor_slope+1) * intersection - 2 * twisting.
             ])
         
         F = curver.kernel.PartialLinearFunction(
