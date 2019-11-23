@@ -154,6 +154,9 @@ class LinearTransformation(Move):
         
         return np.array_equal(self.matrix, other.matrix)
     
+    def package(self):
+        return (self.target_triangulation.sig(), self.matrix.tolist())
+    
     def apply_lamination(self, lamination):
         return self.target_triangulation(self.matrix.dot(lamination.geometric).tolist())
     
