@@ -5,6 +5,7 @@ import numpy as np
 
 import curver
 from curver.kernel.moves import FlipGraphMove  # Special import needed for subclassing.
+from curver.kernel.decorators import ensure
 
 class Twist(FlipGraphMove):
     ''' This represents the effect of twisting a short curve.
@@ -101,6 +102,7 @@ class Twist(FlipGraphMove):
     def flip_mapping(self):
         return self.encoding**self.power
     
+    @ensure(lambda data: data.result(data.multicurve.geometric) == data.self(data.multicurve).geometric)
     def pl_action(self, multicurve):
         # Take care of an easy case for speed.
         if abs(self.power) == 1:
