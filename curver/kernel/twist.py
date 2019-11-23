@@ -68,7 +68,7 @@ class Twist(FlipGraphMove):
         power = self.power
         slope = self.curve.slope(lamination)
         sign = +1 if slope > 0 else -1
-        steps = min(abs(power), abs(slope.numerator) // slope.denominator)  # How far we can move.
+        steps = min(abs(power), abs(slope.numerator) // slope.denominator)  # This is how far we can definitely move without reaching the dangerous region.
         
         if power * sign < 0:  # We are heading towards the dangerous region.
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
@@ -155,6 +155,7 @@ class Twist(FlipGraphMove):
             2 * (floor_slope+1) * (V(a) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge))  # 2 * (floor_slope+1) * intersection - 2 * twisting.
             ])
         
+        # Start with all of these constraints in the PL function.
         F = curver.kernel.PartialLinearFunction(
             np.identity(self.zeta, dtype=object),
             np.concatenate([around_condition, twisting_condition, sign_condition, floor_slope_condition])
