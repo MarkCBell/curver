@@ -34,7 +34,7 @@ class Encoding:
         self.zeta = self.source_triangulation.zeta
     
     def __repr__(self):
-        return str(self)
+        return '{}: {}'.format(self.source_triangulation, self.package())
     def __str__(self):
         return 'Encoding %s' % self.sequence
     def __iter__(self):
