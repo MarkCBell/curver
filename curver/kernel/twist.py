@@ -1,6 +1,9 @@
 
 ''' A module for representing more advanced ways of changing triangulations. '''
 
+from fractions import Fraction
+import numpy as np
+
 import curver
 from curver.kernel.moves import FlipGraphMove  # Special import needed for subclassing.
 
@@ -114,6 +117,147 @@ class Twist(FlipGraphMove):
     
     def flip_mapping(self):
         return self.encoding**self.power
+    
+    def pl_action(self, multicurve):
+        # Take care of some easy cases for speed.
+        if self.power == 1:
+            return self.encoding.pl_action(multicurve)
+        if self.power == -1:
+            return self.encoding.inverse().pl_action(multicurve)
+        
+        # Helper functions for building matrices.
+        def V(edge):
+            return np.array([1 if i == edge.index else 0 for i in range(self.zeta)], dtype=object)
+        def C2(edge):
+            C = self.source_triangulation.corner_lookup[edge]
+            return V(C.edges[0]) + V(C.edges[2]) - V(C.edges[1])
+        
+        power = self.power
+        
+        # Slope calculation:
+        # Get some edges.
+        a = self.curve.parallel()
+        v = self.curve.triangulation.vertex_lookup[a]
+        
+        v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)
+        around_v = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+        around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around_v) # The edge that realises around.
+        
+        twisting = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
+        twisting_edge = next(edge for edge in v_edges[1:-1] if multicurve.left_weight(edge) - around_v == twisting)  # The edge that realises twisting.
+        
+        sign = -1 if multicurve.left_weight(a) - around_v > 0 else +1
+        intersection = multicurve(a) - 2 * around_v  # = self.curve.intersection(multicurve)
+        
+        # Condition matrices which restricts to multicurves with the same around_edge, twisting_edge and sign respectively.
+        around_condition = np.array([
+            C2(edge) - C2(around_edge)
+            for edge in v_edges
+            ])
+        
+        twisting_condition = np.array([
+            C2(edge) - C2(twisting_edge)  # (C2(edge) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge)).
+            for edge in v_edges[1:-1]
+            ])
+        
+        sign_condition = np.array([
+            sign * (C2(around_edge) - C2(a))
+            ])
+        
+        numerator, denominator = twisting, intersection
+        if denominator == 0:  # Disjoint twists have no effect.
+            return curver.kernel.PartialLinearFunction(
+                np.identity(self.zeta, dtype=object),
+                np.concatenate([around_condition, np.array([C2(around_edge) - V(a), V(a) - C2(around_edge)])])
+                )
+        
+        floor_slope = numerator // denominator
+        steps = min(abs(power), floor_slope)
+        
+        # A condition matrix which restricts to multicurves with the same floor_slope.
+        # Note we use an extra factor of two to avoid fractions.
+        floor_slope_condition = np.array([
+            (C2(twisting_edge) - C2(around_edge)) - 2 * steps * (V(a) - C2(around_edge)),  # 2 * twisting - 2*steps * intersection.
+            2 * (steps+1) * (V(a) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge))  # 2 * (steps+1) * intersection - 2 * twisting.
+            ])
+        
+        F = curver.kernel.PartialLinearFunction(
+            np.identity(self.zeta, dtype=object),
+            np.concatenate([around_condition, twisting_condition, sign_condition, floor_slope_condition])
+            )
+        
+        if power > 0:  # Right twist block (increases slope).
+            if sign == -1 and steps > 0:
+                F = curver.kernel.PartialLinearFunction(
+                    np.array([
+                        V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
+                        for edge in self.source_triangulation.positive_edges
+                        ]),
+                    np.array([[0] * self.zeta], dtype=object)
+                    ) * F
+                multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+                power = power - steps
+            
+            for _ in range(3):
+                if power > 0:
+                    F = self.encoding.pl_action(multicurve) * F
+                    multicurve = self.encoding(multicurve)
+                    power = power - 1
+            
+            if power > 0:
+                # We now have to recalculate around
+                around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+                around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around) # The edge that realises around.
+                around_condition = np.array([
+                    C2(edge) - C2(around_edge)
+                    for edge in v_edges
+                    ])
+                
+                F = curver.kernel.PartialLinearFunction(
+                    np.array([
+                        V(edge) + power * (V(a) - C2(around_edge)) * self.curve(edge)
+                        for edge in self.source_triangulation.positive_edges
+                        ]),
+                    around_condition,
+                    ) * F
+                multicurve = multicurve.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+        else:  # power < 0  # Left twist block (decreases slope).
+            if sign == +1 and steps > 0:
+                F = curver.kernel.PartialLinearFunction(
+                    np.array([
+                        V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
+                        for edge in self.source_triangulation.positive_edges
+                        ]),
+                    np.array([[0] * self.zeta], dtype=object)
+                    ) * F
+                multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+                power = power + steps
+            
+            for _ in range(3):
+                if power < 0:
+                    F = self.encoding.inverse().pl_action(multicurve) * F
+                    multicurve = self.encoding.inverse()(multicurve)
+                    power = power + 1
+        
+            if power < 0:
+                # We now have to recalculate around.
+                around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+                around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around) # The edge that realises around.
+                around_condition = np.array([
+                    C2(edge) - C2(around_edge)
+                    for edge in v_edges
+                    ])
+                
+                F = curver.kernel.PartialLinearFunction(
+                    np.array([
+                        V(edge) + -power * (V(a) - C2(around_edge)) * self.curve(edge)
+                        for edge in self.source_triangulation.positive_edges
+                        ]),
+                    around_condition
+                    ) * F
+                multicurve = multicurve.__class__(self.target_triangulation, [w + -power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+        
+        return F
 
 class HalfTwist(FlipGraphMove):
     ''' This represents the effect of half-twisting a short arc.
@@ -190,3 +334,6 @@ class HalfTwist(FlipGraphMove):
     
     def flip_mapping(self):
         return self.encoding**self.power
+    
+    def pl_action(self, multicurve):
+        return self.encoding_power.pl_action(multicurve)
