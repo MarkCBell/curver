@@ -195,18 +195,21 @@ class EdgeFlip(FlipGraphMove):
     def pl_action(self, multicurve):
         identity = np.identity(self.zeta, dtype=object)
         
-        def E(x, y, h=self.zeta):
-            ''' Return the h x self.zeta matrix that has a 1 at (x, y). '''
-            return np.array([[1 if i == x and j == y else 0 for i in range(self.zeta)] for j in range(h)], dtype=object)
+        def V(x):
+            ''' Return the vector of length self.zeta which has a 1 at x. '''
+            return np.array([1 if i == x else 0 for i in range(self.zeta)], dtype=object)
+        def E(x, y):
+            ''' Return the self.zeta x self.zeta matrix that has a 1 at (x, y). '''
+            return np.array([V(x) if j == y else [0] * self.zeta for j in range(self.zeta)], dtype=object)
         
         ai, bi, ci, di, ei = [edge.index for edge in self.square]
         ai0, bi0, ci0, di0, ei0 = [max(multicurve(edge), 0) for edge in self.square]
         if ai0 + ci0 - bi0 - di0 >= 0:
             action = identity + E(ai, ei) + E(ci, ei) - 2*E(ei, ei)
-            condition = E(ai, ei, 1) + E(ci, ei, 1) - E(bi, ei, 1) - E(di, ei, 1)
+            condition = np.array([V(ai) + V(ci) - V(bi) - V(di)])
         else:
             action = identity + E(bi, ei) + E(di, ei) - 2*E(ei, ei)
-            condition = E(bi, ei, 1) + E(di, ei, 1) - E(ai, ei, 1) - E(ci, ei, 1)
+            condition = np.array([V(bi) + V(di) - V(ai) - V(ci)])
         
         return curver.kernel.PartialLinearFunction(action, condition)
 
