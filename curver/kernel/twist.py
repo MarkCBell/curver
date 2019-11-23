@@ -34,6 +34,8 @@ class Twist(FlipGraphMove):
         twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
         
         self.encoding = twist
+        self.power_sign = +1 if self.power > 0 else -1
+        self.signed_encoding = self.encoding if self.power > 0 else self.encoding.inverse()
     
     def __str__(self):
         return 'Twist^%d_%s ' % (self.power, self.curve)
@@ -47,11 +49,9 @@ class Twist(FlipGraphMove):
         return self.curve == other.curve and self.power == other.power
     
     def apply_lamination(self, lamination):
-        # Take care of some easy cases for speed.
-        if self.power == 1:
-            return self.encoding(lamination)
-        if self.power == -1:
-            return self.encoding.inverse()(lamination)
+        # Take care of an easy case for speed.
+        if abs(self.power) == 1:
+            return self.signed_encoding(lamination)
         
         intersection = self.curve.intersection(lamination)
         if intersection == 0:  # Disjoint twists have no effect.
@@ -67,37 +67,21 @@ class Twist(FlipGraphMove):
         
         power = self.power
         slope = self.curve.slope(lamination)
-        # Only one of the following two blocks will run:
+        sign = +1 if slope > 0 else -1
+        steps = min(abs(power), abs(slope.numerator) // slope.denominator)  # How far we can move.
         
-        # Right twist block (increases slope).
-        if power > 0 and slope <= -1:
-            steps = min(power, -slope.numerator // slope.denominator)  # floor(-slope).
+        if power * sign < 0:  # We are heading towards the dangerous region.
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
-            power = power - steps
+            power = power + sign * steps
         
-        # We have to go slowly through the dangerous region.
-        # But we cross it in at most three twists.
-        if power > 0:
-            lamination = self.encoding(lamination, power=min(power, 3))
-            power = power - min(power, 3)
+        # We have to go slowly through the dangerous region, but we cross it in at most three twists.
+        for _ in range(3):
+            if power:
+                lamination = self.signed_encoding(lamination)
+                power = power - self.power_sign
         
-        if power > 0:  # Since we now have self.curve.slope(lamination) > 0 we can accelerate.
-            lamination = lamination.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
-        
-        # Left twist block (decreases slope).
-        if power < 0 and slope >= 1:
-            steps = min(-power, slope.numerator // slope.denominator)  # floor(slope).
-            lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
-            power = power + steps
-        
-        # We have to go slowly through the dangerous region.
-        # But we cross it in at most three twists.
-        if power < 0:
-            lamination = self.encoding(lamination, power=max(power, -3))
-            power = power - max(power, -3)
-        
-        if power < 0:  # Since we now have self.curve.slope(lamination) < 0 we can accelerate.
-            lamination = lamination.__class__(self.target_triangulation, [w + -power * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
+        if power:  # Since we are now moving away from the dangerous region, we can accelerate.
+            lamination = lamination.__class__(self.target_triangulation, [w + abs(power) * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
         
         return lamination
     
@@ -119,11 +103,9 @@ class Twist(FlipGraphMove):
         return self.encoding**self.power
     
     def pl_action(self, multicurve):
-        # Take care of some easy cases for speed.
-        if self.power == 1:
-            return self.encoding.pl_action(multicurve)
-        if self.power == -1:
-            return self.encoding.inverse().pl_action(multicurve)
+        # Take care of an easy case for speed.
+        if abs(self.power) == 1:
+            return self.signed_encoding.pl_action(multicurve)
         
         # Helper functions for building matrices.
         def V(edge):
@@ -186,76 +168,40 @@ class Twist(FlipGraphMove):
             np.concatenate([around_condition, twisting_condition, sign_condition, floor_slope_condition])
             )
         
-        if power > 0:  # Right twist block (increases slope).
-            if sign == -1 and steps > 0:
-                F = curver.kernel.PartialLinearFunction(
-                    np.array([
-                        V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
-                        for edge in self.source_triangulation.positive_edges
-                        ]),
-                    np.array([[0] * self.zeta], dtype=object)
-                    ) * F
-                multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
-                power = power - steps
-            
-            for _ in range(3):
-                if power > 0:
-                    F = self.encoding.pl_action(multicurve) * F
-                    multicurve = self.encoding(multicurve)
-                    power = power - 1
-            
-            if power > 0:
-                # We now have to recalculate around
-                around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
-                around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around) # The edge that realises around.
-                around_condition = np.array([
-                    C2(edge) - C2(around_edge)
-                    for edge in v_edges
-                    ])
-                
-                F = curver.kernel.PartialLinearFunction(
-                    np.array([
-                        V(edge) + power * (V(a) - C2(around_edge)) * self.curve(edge)
-                        for edge in self.source_triangulation.positive_edges
-                        ]),
-                    around_condition,
-                    ) * F
-                multicurve = multicurve.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
-        else:  # power < 0  # Left twist block (decreases slope).
-            if sign == +1 and steps > 0:
-                F = curver.kernel.PartialLinearFunction(
-                    np.array([
-                        V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
-                        for edge in self.source_triangulation.positive_edges
-                        ]),
-                    np.array([[0] * self.zeta], dtype=object)
-                    ) * F
-                multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
-                power = power + steps
-            
-            for _ in range(3):
-                if power < 0:
-                    F = self.encoding.inverse().pl_action(multicurve) * F
-                    multicurve = self.encoding.inverse()(multicurve)
-                    power = power + 1
+        if power * sign < 0 and steps > 0:
+            F = curver.kernel.PartialLinearFunction(
+                np.array([
+                    V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
+                    for edge in self.source_triangulation.positive_edges
+                    ]),
+                np.array([[0] * self.zeta], dtype=object)
+                ) * F
+            multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+            power = power + sign * steps
         
-            if power < 0:
-                # We now have to recalculate around.
-                around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
-                around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around) # The edge that realises around.
-                around_condition = np.array([
-                    C2(edge) - C2(around_edge)
-                    for edge in v_edges
-                    ])
-                
-                F = curver.kernel.PartialLinearFunction(
-                    np.array([
-                        V(edge) + -power * (V(a) - C2(around_edge)) * self.curve(edge)
-                        for edge in self.source_triangulation.positive_edges
-                        ]),
-                    around_condition
-                    ) * F
-                multicurve = multicurve.__class__(self.target_triangulation, [w + -power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
+        for _ in range(3):
+            if power:
+                F = self.signed_encoding.pl_action(multicurve) * F
+                multicurve = self.encoding(multicurve)
+                power = power - self.power_sign
+        
+        if power:
+            # We now have to recalculate around
+            around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+            around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around) # The edge that realises around.
+            around_condition = np.array([
+                C2(edge) - C2(around_edge)
+                for edge in v_edges
+                ])
+            
+            F = curver.kernel.PartialLinearFunction(
+                np.array([
+                    V(edge) + power * (V(a) - C2(around_edge)) * self.curve(edge)
+                    for edge in self.source_triangulation.positive_edges
+                    ]),
+                around_condition,
+                ) * F
+            multicurve = multicurve.__class__(self.target_triangulation, [w + power * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
         
         return F
 
