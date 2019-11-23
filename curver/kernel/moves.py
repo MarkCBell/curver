@@ -281,4 +281,33 @@ class MultiEdgeFlip(FlipGraphMove):
     
     def flip_mapping(self):
         return self.source_triangulation.encode([edge.label for edge in self.edges])
+    
+    def pl_action(self, multicurve):
+        action = np.identity(self.zeta, dtype=object)
+        conditions = []
+        
+        def V(x):
+            ''' Return the vector of length self.zeta which has a 1 at x. '''
+            return np.array([1 if i == x else 0 for i in range(self.zeta)], dtype=object)
+        def E(x, y):
+            ''' Return the self.zeta x self.zeta matrix that has a 1 at (x, y). '''
+            return np.array([V(x) if j == y else [0] * self.zeta for j in range(self.zeta)], dtype=object)
+        
+        for edge in self.edges:
+            ei = lamination(edge)
+            ai, bi, ci, di, ei = [edge.index for edge in self.square]
+            ai0, bi0, ci0, di0, ei0 = [max(lamination(e), 0) for e in self.squares[edge]]
+        
+        for edge in self.edges:
+            ai, bi, ci, di, ei = [edge.index for edge in self.square]
+            ai0, bi0, ci0, di0, ei0 = [max(lamination(e), 0) for e in self.squares[edge]]
+            if ai0 + ci0 - bi0 - di0 >= 0:
+                action = action + E(ai, ei) + E(ci, ei) - 2*E(ei, ei)
+                conditions.append(V(ai) + V(ci) - V(bi) - V(di))
+                condition = np.array([
+            else:
+                action = action + E(bi, ei) + E(di, ei) - 2*E(ei, ei)
+                conditions.append(V(bi) + V(di) - V(ai) - V(ci))
+        
+        return curver.kernel.PartialLinearFunction(action, np.array(conditions))
 
