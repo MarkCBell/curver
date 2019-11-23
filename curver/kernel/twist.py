@@ -182,11 +182,11 @@ class Twist(FlipGraphMove):
         for _ in range(3):
             if power:
                 F = self.signed_encoding.pl_action(multicurve) * F
-                multicurve = self.encoding(multicurve)
+                multicurve = self.signed_encoding(multicurve)
                 power = power - self.power_sign
         
         if power:
-            # We now have to recalculate around
+            # We now have to recalculate around.
             around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
             around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around)  # The edge that realises around.
             around_condition = np.array([
