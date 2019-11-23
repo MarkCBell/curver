@@ -114,7 +114,7 @@ class Twist(FlipGraphMove):
         
         def C2(edge):
             C = self.source_triangulation.corner_lookup[edge]
-            return V(C.edges[0]) + V(C.edges[2]) - V(C.edges[1])
+            return V(C[0]) + V(C[2]) - V(C[1])
         
         power = self.power
         

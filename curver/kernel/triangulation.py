@@ -339,7 +339,7 @@ class Triangulation:
                 edge = Edge(index)
                 while True:
                     corner = self.corner_lookup[edge]
-                    edge = corner.edges[2]
+                    edge = corner[2]
                     if edge.index not in dual_tree:
                         row[edge.index] -= edge.sign()
                     else:
@@ -391,7 +391,7 @@ class Triangulation:
         # #---------->#
         
         corner_A, corner_B = self.corner_lookup[edge], self.corner_lookup[~edge]
-        return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], edge]
+        return [corner_A[1], corner_A[2], corner_B[1], corner_B[2], edge]
     
     def all_encodings(self, num_flips):
         ''' Yield all encodings that can be made using at most the given number of flips.
