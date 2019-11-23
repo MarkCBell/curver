@@ -113,8 +113,8 @@ class Twist(FlipGraphMove):
             return np.array([1 if i == edge.index else 0 for i in range(self.zeta)], dtype=object)
         
         def C2(edge):
-            C = self.source_triangulation.corner_lookup[edge]
-            return V(C[0]) + V(C[2]) - V(C[1])
+            corner = self.source_triangulation.corner_lookup[edge]
+            return V(corner[0]) + V(corner[2]) - V(corner[1])
         
         power = self.power
         
