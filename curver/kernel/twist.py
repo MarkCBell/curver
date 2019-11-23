@@ -1,7 +1,6 @@
 
 ''' A module for representing more advanced ways of changing triangulations. '''
 
-from fractions import Fraction
 import numpy as np
 
 import curver
@@ -110,6 +109,7 @@ class Twist(FlipGraphMove):
         # Helper functions for building matrices.
         def V(edge):
             return np.array([1 if i == edge.index else 0 for i in range(self.zeta)], dtype=object)
+        
         def C2(edge):
             C = self.source_triangulation.corner_lookup[edge]
             return V(C.edges[0]) + V(C.edges[2]) - V(C.edges[1])
@@ -122,14 +122,14 @@ class Twist(FlipGraphMove):
         v = self.curve.triangulation.vertex_lookup[a]
         
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)
-        around_v = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
-        around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around_v) # The edge that realises around.
+        around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+        around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around)  # The edge that realises around.
         
-        twisting = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
-        twisting_edge = next(edge for edge in v_edges[1:-1] if multicurve.left_weight(edge) - around_v == twisting)  # The edge that realises twisting.
+        twisting = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) - around for edgy in v_edges[1:-1]), lower_bound=0)
+        twisting_edge = next(edge for edge in v_edges[1:-1] if multicurve.left_weight(edge) - around == twisting)  # The edge that realises twisting.
         
-        sign = -1 if multicurve.left_weight(a) - around_v > 0 else +1
-        intersection = multicurve(a) - 2 * around_v  # = self.curve.intersection(multicurve)
+        sign = -1 if multicurve.left_weight(a) - around > 0 else +1
+        intersection = multicurve(a) - 2 * around  # = self.curve.intersection(multicurve)
         
         # Condition matrices which restricts to multicurves with the same around_edge, twisting_edge and sign respectively.
         around_condition = np.array([
@@ -168,7 +168,7 @@ class Twist(FlipGraphMove):
             np.concatenate([around_condition, twisting_condition, sign_condition, floor_slope_condition])
             )
         
-        if power * sign < 0 and steps > 0:
+        if power * sign < 0:
             F = curver.kernel.PartialLinearFunction(
                 np.array([
                     V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge)
@@ -188,7 +188,7 @@ class Twist(FlipGraphMove):
         if power:
             # We now have to recalculate around
             around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
-            around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around) # The edge that realises around.
+            around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around)  # The edge that realises around.
             around_condition = np.array([
                 C2(edge) - C2(around_edge)
                 for edge in v_edges
