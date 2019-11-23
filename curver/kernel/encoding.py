@@ -224,7 +224,7 @@ class Mapping(Encoding):
         assert isinstance(multicurve, curver.kernel.MultiCurve)
         
         current = None
-        for item in reversed(self.flip_mapping()):  # TODO: Remove flip_mapping().
+        for item in reversed(self):
             current = item.pl_action(multicurve) * current
             multicurve = item(multicurve)
         
