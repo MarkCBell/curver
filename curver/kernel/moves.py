@@ -211,7 +211,7 @@ class EdgeFlip(FlipGraphMove):
         return curver.kernel.PartialLinearFunction(action, condition)
 
 class MultiEdgeFlip(FlipGraphMove):
-    ''' Represents the change to a curve caused by flipping an edge. '''
+    ''' Represents the change to a curve caused by flipping multiple edges. '''
     def __init__(self, source_triangulation, target_triangulation, edges):
         super().__init__(source_triangulation, target_triangulation)
         
