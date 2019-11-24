@@ -67,12 +67,12 @@ class Twist(FlipGraphMove):
         
         power = self.power
         slope = self.curve.slope(lamination)
-        sign = +1 if slope > 0 else -1
+        slope_sign = +1 if slope > 0 else -1
         steps = min(abs(power), abs(slope.numerator) // slope.denominator)  # This is how far we can definitely move without reaching the dangerous region.
         
-        if power * sign < 0:  # We are heading towards the dangerous region.
+        if power * slope_sign < 0:  # We are heading towards the dangerous region.
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.
-            power = power + sign * steps
+            power = power + slope_sign * steps
         
         # We have to go slowly through the dangerous region, but we cross it in at most three twists.
         for _ in range(3):
@@ -130,13 +130,13 @@ class Twist(FlipGraphMove):
         twisting = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) - around for edgy in v_edges[1:-1]), lower_bound=0)
         twisting_edge = next(edge for edge in v_edges[1:-1] if multicurve.left_weight(edge) - around == twisting)  # The edge that realises twisting.
         
-        sign = -1 if multicurve.left_weight(a) - around > 0 else +1
+        slope_sign = -1 if multicurve.left_weight(a) - around > 0 else +1
         intersection = multicurve(a) - 2 * around  # = self.curve.intersection(multicurve)
         
-        # Condition matrices which restricts to multicurves with the same around_edge, twisting_edge and sign respectively.
+        # Condition matrices which restricts to multicurves with the same around_edge, twisting_edge and slope sign respectively.
         around_condition = np.array([C2(edge) - C2(around_edge) for edge in v_edges])
         twisting_condition = np.array([C2(edge) - C2(twisting_edge) for edge in v_edges[1:-1]])
-        sign_condition = np.array([sign * (C2(around_edge) - C2(a))])
+        slope_sign_condition = np.array([slope_sign * (C2(around_edge) - C2(a))])
         
         numerator, denominator = twisting, intersection
         if denominator == 0:  # Disjoint twists have no effect.
@@ -145,29 +145,29 @@ class Twist(FlipGraphMove):
                 np.concatenate([around_condition, np.array([C2(around_edge) - V(a), V(a) - C2(around_edge)])])
                 )
         
-        floor_slope = numerator // denominator
-        steps = min(abs(power), floor_slope)
+        floor_abs_slope = numerator // denominator
+        steps = min(abs(power), floor_abs_slope)
         
-        # A condition matrix which restricts to multicurves with the same floor_slope.
+        # A condition matrix which restricts to multicurves with the same floor_abs_slope.
         # Note we use an extra factor of two to avoid fractions.
-        floor_slope_condition = np.array([
-            (C2(twisting_edge) - C2(around_edge)) - 2 * floor_slope * (V(a) - C2(around_edge)),  # 2 * twisting - 2*floor_slope * intersection.
-            2 * (floor_slope+1) * (V(a) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge))  # 2 * (floor_slope+1) * intersection - 2 * twisting.
+        floor_abs_slope_condition = np.array([
+            (C2(twisting_edge) - C2(around_edge)) - 2 * floor_abs_slope * (V(a) - C2(around_edge)),  # 2 * twisting - 2*floor_abs_slope * intersection.
+            2 * (floor_abs_slope+1) * (V(a) - C2(around_edge)) - (C2(twisting_edge) - C2(around_edge))  # 2 * (floor_abs_slope+1) * intersection - 2 * twisting.
             ])
         
         # Start with all of these constraints in the PL function.
         F = curver.kernel.PartialLinearFunction(
             np.identity(self.zeta, dtype=object),
-            np.concatenate([around_condition, twisting_condition, sign_condition, floor_slope_condition])
+            np.concatenate([around_condition, twisting_condition, slope_sign_condition, floor_abs_slope_condition])
             )
         
-        if power * sign < 0:
+        if power * slope_sign < 0:
             F = curver.kernel.PartialLinearFunction(
                 np.array([V(edge) - steps * (V(a) - C2(around_edge)) * self.curve(edge) for edge in self.source_triangulation.positive_edges]),
                 np.array([[0] * self.zeta], dtype=object)
                 ) * F
             multicurve = multicurve.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(multicurve, self.curve)])  # Avoids promote.
-            power = power + sign * steps
+            power = power + slope_sign * steps
         
         for _ in range(3):
             if power:
