@@ -2,7 +2,7 @@
 ''' A module for representing (multi)curves on triangulations. '''
 
 from fractions import Fraction
-from collections import Counter, defaultdict
+from collections import Counter
 import networkx
 import numpy as np
 
@@ -103,50 +103,6 @@ class MultiCurve(IntegralLamination):
         
         crush = self.crush()
         return len(crush.target_triangulation.components()) > len(self.triangulation.components())
-    
-    @topological_invariant
-    def topological_type(self, closed=False):
-        ''' Return the topological type of this multicurve.
-        If the closed flag is set the the object returned records the topological type of the multicurve after applying the forgetful map.
-        
-        Two multicurves are in the same mapping class group orbit if and only their topological types are equal.
-        These are labelled graphs and so equal means 'label isomorphic', so we return a CurvePartitionGraph class that uses networkx.is_isomorphic to determine equality. '''
-        
-        # We build the CurvePartitionGraph as follows:
-        #  1) Crush along all curve components to obtain S'.
-        #  2) Create a graph with a vertex for each component of S'.
-        #  3) Label each vertex with the topological type of its component.
-        #  4) Connect two vertices with an edge for each curve that you crushed along.
-        #  5) Label each edge with the multiplicity of the corresponding curve.
-        # Then two multicurves are in the same mapping class group orbit iff there is a label-preserving isomorphism between their graphs.
-        
-        components = self.components()  # The components of this multicurves.
-        crush = self.crush()
-        lift = crush.inverse()
-        triangulation = crush.target_triangulation
-        
-        graph = networkx.MultiGraph()
-        half_edges = defaultdict(list)
-        for index, (component, S) in enumerate(triangulation.surface().items()):
-            graph.add_node(index, genus=S.g, vertices=S.p)
-            
-            for vertex in triangulation.vertices:
-                if vertex[0] in component:
-                    curve = triangulation.curve_from_cut_sequence(vertex)
-                    lifted_curve = lift(curve)
-                    half_edges[lifted_curve].append(index)
-        
-        if not closed:
-            dummy_index = len(graph)
-            graph.add_node(dummy_index, genus=-1, vertices=-1)  # Dummy node for peripheral components.
-        
-        for curve, nodes in half_edges.items():
-            if len(nodes) == 2:
-                graph.add_edge(nodes[0], nodes[1], weight=components[curve])
-            elif not closed:  # Not closed and len(nodes) == 1:
-                graph.add_edge(nodes[0], dummy_index, weight=components.get(curve, 0))
-        
-        return curver.kernel.CurvePartitionGraph(self, graph)
 
 class Curve(MultiCurve):
     ''' A MultiCurve with a single component. '''

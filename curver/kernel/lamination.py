@@ -1,7 +1,9 @@
 
 ''' A module for representing laminations on Triangulations. '''
 
-from itertools import permutations
+from collections import defaultdict
+from itertools import permutations, groupby, product, chain
+from six.moves.queue import Queue
 
 import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
@@ -398,18 +400,144 @@ class IntegralLamination(Lamination):
     # @topological_invariant
     def topological_type(self, closed=False):  # pylint: disable=no-self-use, unused-argument
         ''' Return the topological type of this lamination..
-        If the closed flag is set the the object returned records the topological type of the multicurve after applying the forgetful map.
+        If the closed flag is set the the object returned records the topological type of the lamination after applying the forgetful map.
         
-        Two laminations are in the same mapping class group orbit if and only their topological types are equal.
-        These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
+        Two laminations are in the same mapping class group orbit if and only their topological types are equal. '''
         
-        # This should generalise MultiCurve.topological_type().
-        # The final code should be very similar but with some additional steps:
-        #  6) Let a := crush(self.multiarc()).
-        #  7) Label each vertex with the topological type of a restricted to the corresponding component.
-        # Note that in order for this to work the topological type MUST be compatible with the permutation of the punctures.
+        # We build the topological type as follows:
+        #  1) Add boundary(multiarcs) to self.
+        #  2) Crush along all curve components to obtain S'.
+        #  3) Create a graph with a vertex for each component of S'.
+        #  4) Label each vertex with the genus of its component.
+        #  5) Connect two vertices with an edge for each curve that you crushed along.
+        #  6) Label each edge with the multiplicity of the corresponding curve.
+        #  7) Let a := crush(self.multiarc()).
+        #  8) Label each vertex with the topological type of a restricted to the corresponding component.
         
-        return NotImplemented  # TODO: 2) Implement. (And remove the PyLint disable when done.)
+        # Then two laminations are in the same mapping class group orbit iff there is a label-preserving isomorphism between their graphs.
+        
+        if closed and self.multiarc():
+            raise ValueError('Cannot apply the forgetful map to a lamination with an Arc component')
+        
+        short, _ = self.shorten()
+        
+        boundary = short.multiarc().boundary().non_peripheral()
+        lamination = short.triangulation.disjoint_sum([short, boundary])
+        crush = lamination.multicurve().crush() if lamination.multicurve() else lamination.triangulation.id_encoding()  # Crush along the curve components.
+        lift = crush.inverse()
+        triangulation = crush.target_triangulation
+        image = crush(short.multiarc())
+        
+        # Build nodes.
+        nodes = list(triangulation.components())
+        genus = dict((component, S.g) for component, S in triangulation.surface().items())
+        
+        if not closed:  # Add dummy node, represented by an empty tuple whose genus is -1.
+            dummy = tuple()
+            nodes.append(dummy)
+            genus[dummy] = -1
+        
+        # Sort nodes by genus.
+        nodes.sort(key=genus.get)
+        # Determine their labels.
+        best_node_labels = [genus[node] for node in nodes]  # We know the best node labels right away.
+        
+        # Useful lookup maps.
+        node_lookup = dict((node, index) for index, node in enumerate(nodes))
+        edge_node_map = dict((edge, node) for node in nodes for edge in node)
+        vertex_node_map = dict((vertex, edge_node_map[vertex[0]]) for vertex in triangulation.vertices)
+        curve_vertices_map = defaultdict(list)
+        for vertex in triangulation.vertices:
+            curve_vertices_map[lift(triangulation.curve_from_cut_sequence(vertex))].append(vertex)
+        vertex_paired_node_map = dict()  # We will build this in a minute.
+        # Build the edge -> edge ordering map.
+        ordering = dict()
+        for vertex in triangulation.vertices:
+            edges = [edge for edge in vertex if image(edge)]
+            for e1, e2 in zip(edges, edges[1:] + edges[:1]):
+                ordering[e1] = ~e2
+        # Build the image -> vertex map.
+        classes = curver.kernel.UnionFind(triangulation.edges)
+        for edge in triangulation.edges:
+            if not image(edge):
+                classes.union(edge, ~edge)
+        for triangle in triangulation:
+            classes.union(*triangle)
+        classes_lookup = dict((edge, cls) for cls in classes for edge in cls)
+        disjoint_vertices = [vertex for vertex in triangulation.vertices if all(not image(e) for e in vertex)]
+        image_vertex_map = dict((edge, vertex) for vertex in disjoint_vertices for edge in classes_lookup[vertex[0]])
+        
+        # Build links.
+        short_components = short.components()  # The components of this lamination.
+        link_labels = [[list() for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
+        for curve, values in curve_vertices_map.items():
+            assert len(values) in {1, 2}
+            w = short_components.get(curve, 0)
+            if len(values) == 2:
+                link_labels[node_lookup[vertex_node_map[values[0]]]][node_lookup[vertex_node_map[values[1]]]].append(w)
+                link_labels[node_lookup[vertex_node_map[values[1]]]][node_lookup[vertex_node_map[values[0]]]].append(w)
+                vertex_paired_node_map[values[0]] = vertex_node_map[values[1]]
+                vertex_paired_node_map[values[1]] = vertex_node_map[values[0]]
+            elif not closed:  # and len(nodes) == 1.
+                link_labels[node_lookup[dummy]][node_lookup[vertex_node_map[values[0]]]].append(w)
+                link_labels[node_lookup[vertex_node_map[values[0]]]][node_lookup[dummy]].append(w)
+                vertex_paired_node_map[values[0]] = dummy
+        # Sort all entries of the matrix.
+        for row in link_labels:
+            for entry in row:
+                entry.sort()
+        
+        best_link_labels = None
+        best_node_markings = None
+        for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: genus[nodes[i]]))):
+            perm = list(chain(*X))
+            
+            permuted_link_labels = [link_labels[i][j] for i, index in enumerate(perm) for j in perm[:index+1]]
+            
+            if best_link_labels is not None and permuted_link_labels >= best_link_labels:
+                continue
+            best_link_labels = list(permuted_link_labels)
+            
+            permuted_nodes = [nodes[i] for i in perm]
+            permuted_node_lookup = dict((node, index) for index, node in enumerate(permuted_nodes))
+            
+            # Build marking.
+            node_markings = []
+            for node in permuted_nodes:
+                starting_edges = [edge for edge in node if image(edge)]
+                if starting_edges:  # Skip nodes that do not have any markings.
+                    best_node_marking = None
+                    for starting_edge in starting_edges:
+                        node_marking = []
+                        edge_marking = {starting_edge: 0, ~starting_edge: 0}
+                        to_do = Queue()
+                        to_do.put(starting_edge)
+                        to_do.put(~starting_edge)
+                        done = set()
+                        while not to_do.empty():
+                            current = to_do.get()
+                            while current not in done:  # Wall around this polygon.
+                                if current not in edge_marking:
+                                    edge_marking[current] = edge_marking[~current] = len(edge_marking) // 2
+                                    to_do.put(~current)
+                                node_marking.append((edge_marking[current], image(current)))
+                                done.add(current)
+                                current = ordering[current]
+                            
+                            # Mark the break between one cycle and the next.
+                            node_marking.append((-1, permuted_node_lookup[vertex_paired_node_map[image_vertex_map[current]]] if current in image_vertex_map else -1))
+                        
+                        if best_node_marking is not None and node_marking >= best_node_marking:
+                            continue
+                        best_node_marking = node_marking
+                    
+                    node_markings.append(best_node_marking)
+            
+            if best_node_markings is not None and node_markings >= best_node_markings:
+                continue
+            best_node_markings = node_markings
+        
+        return best_node_labels, best_link_labels, best_node_markings
     
     @memoize
     def components(self):

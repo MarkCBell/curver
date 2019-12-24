@@ -292,6 +292,7 @@ class Triangulation(object):
         
         return prod
     
+    @memoize
     def components(self):
         ''' Return a list of tuples of the edges in each component of self. '''
         

@@ -144,15 +144,6 @@ class MultiArc(IntegralLamination):
         
         for clique in networkx.find_cliques(G):
             yield self.triangulation.disjoint_sum(clique)
-    
-    # @topological_invariant
-    def topological_type(self, closed=False):
-        ''' Return the topological type of this multiarc.
-        
-        Two multiarcs are in the same mapping class group orbit if and only their topological types are equal.
-        These are labelled graphs and so equal means 'label isomorphic', so we return a custom class that uses networkx.is_isomorphic to determine equality. '''
-        
-        return NotImplemented  # TODO: 2) Implement.
 
 class Arc(MultiArc):
     ''' A MultiArc with a single component. '''
