@@ -32,7 +32,6 @@ curver.kernel
     ~moves.FlipGraphMove
     ~moves.Isometry
     ~moves.Move
-    ~partition.CurvePartitionGraph
     ~permutation.Permutation
     ~triangulation.Edge
     ~triangulation.Triangle
