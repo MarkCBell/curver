@@ -490,7 +490,7 @@ class IntegralLamination(Lamination):
         
         best_link_labels = None
         best_node_markings = None
-        for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: genus[nodes[i]]))):
+        for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: genus[nodes[i]]))):  # pylint: disable=too-many-nested-blocks
             perm = list(chain(*X))
             
             permuted_link_labels = [link_labels[i][j] for i, index in enumerate(perm) for j in perm[:index+1]]
