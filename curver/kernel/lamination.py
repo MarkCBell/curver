@@ -475,7 +475,8 @@ class IntegralLamination(Lamination):
             w = short_components.get(curve, 0)
             if len(values) == 2:
                 link_labels[node_lookup[vertex_node_map[values[0]]]][node_lookup[vertex_node_map[values[1]]]].append(w)
-                link_labels[node_lookup[vertex_node_map[values[1]]]][node_lookup[vertex_node_map[values[0]]]].append(w)
+                if vertex_node_map[values[0]] != vertex_node_map[values[1]]:  # Don't add self loops twice.
+                    link_labels[node_lookup[vertex_node_map[values[1]]]][node_lookup[vertex_node_map[values[0]]]].append(w)
                 vertex_paired_node_map[values[0]] = vertex_node_map[values[1]]
                 vertex_paired_node_map[values[1]] = vertex_node_map[values[0]]
             elif not closed:  # and len(nodes) == 1.
