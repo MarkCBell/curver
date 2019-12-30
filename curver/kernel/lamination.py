@@ -48,6 +48,7 @@ class Lamination(object):
     def __nonzero__(self):  # For Python2.
         return self.__bool__()
     def __eq__(self, other):
+        if not isinstance(other, Lamination): return False
         return self.triangulation == other.triangulation and self.geometric == other.geometric
     def __ne__(self, other):
         return not self == other
@@ -430,26 +431,66 @@ class IntegralLamination(Lamination):
         
         # Build nodes.
         nodes = list(triangulation.components())
-        genus = dict((component, S.g) for component, S in triangulation.surface().items())
+        node_labels = dict((component, S.g) for component, S in triangulation.surface().items())
         
-        if not closed:  # Add dummy node, represented by an empty tuple whose genus is -1.
+        if not closed:  # Add dummy node, represented by an empty tuple whose node_labels is -1.
             dummy = tuple()
             nodes.append(dummy)
-            genus[dummy] = -1
+            node_labels[dummy] = -1
         
-        # Sort nodes by genus.
-        nodes.sort(key=genus.get)
+        duplicated_boundary = set(component for component, multiplicity in boundary.components().items() if multiplicity == 2)
+        
+        for component in duplicated_boundary:
+            nodes.append(component)
+            node_labels[component] = -2
+        
+        real_node = [node for node in nodes if node not in duplicated_boundary]
+        
+        # Sort nodes by node_labels.
+        nodes.sort(key=node_labels.get)
         # Determine their labels.
-        best_node_labels = [genus[node] for node in nodes]  # We know the best node labels right away.
+        best_node_labels = [node_labels[node] for node in nodes]  # We know the best node labels right away.
         
         # Useful lookup maps.
         node_lookup = dict((node, index) for index, node in enumerate(nodes))
         edge_node_map = dict((edge, node) for node in nodes for edge in node)
         vertex_node_map = dict((vertex, edge_node_map[vertex[0]]) for vertex in triangulation.vertices)
-        curve_vertices_map = defaultdict(list)
-        for vertex in triangulation.vertices:
-            curve_vertices_map[lift(triangulation.curve_from_cut_sequence(vertex))].append(vertex)
+        
+        # Write down all the links.
+        links = []  # List of (vertex1, vertex2, label).
         vertex_paired_node_map = dict()  # We will build this in a minute.
+        short_components = short.components()  # The components of this lamination.
+        half_links = dict()
+        for vertex in triangulation.vertices:
+            curve = lift(triangulation.curve_from_cut_sequence(vertex))
+            if curve in duplicated_boundary:
+                links.append((vertex_node_map[vertex], curve, short_components.get(curve, 0)))
+                vertex_paired_node_map[vertex] = curve
+            elif curve not in half_links:
+                half_links[curve] = vertex
+            else:  # Found the other half.
+                vertex2 = half_links[curve]
+                links.append((vertex_node_map[vertex], vertex_node_map[vertex2], short_components.get(curve, 0)))
+                del half_links[curve]
+                vertex_paired_node_map[vertex] = vertex_node_map[vertex2]
+                vertex_paired_node_map[vertex2] = vertex_node_map[vertex]
+        if not closed:
+            for curve, vertex in half_links.items():  # Add hanging edges to dummy.
+                links.append((vertex_node_map[vertex], dummy, short_components.get(curve, 0)))
+                vertex_paired_node_map[vertex] = dummy
+        
+        # Build link label matrix.
+        link_labels = [[list() for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
+        for node1, node2, label in links:
+            print(node1, node2, label)
+            link_labels[node_lookup[node1]][node_lookup[node2]].append(label)
+            if node1 != node2:  # Don't add self loops twice.
+                link_labels[node_lookup[node2]][node_lookup[node1]].append(label)
+        # Sort all entries of the matrix.
+        for row in link_labels:
+            for entry in row:
+                entry.sort()
+        
         # Build the edge -> edge ordering map.
         ordering = dict()
         for vertex in triangulation.vertices:
@@ -467,30 +508,10 @@ class IntegralLamination(Lamination):
         disjoint_vertices = [vertex for vertex in triangulation.vertices if all(not image(e) for e in vertex)]
         image_vertex_map = dict((edge, vertex) for vertex in disjoint_vertices for edge in classes_lookup[vertex[0]])
         
-        # Build links.
-        short_components = short.components()  # The components of this lamination.
-        link_labels = [[list() for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
-        for curve, values in curve_vertices_map.items():
-            assert len(values) in {1, 2}
-            w = short_components.get(curve, 0)
-            if len(values) == 2:
-                link_labels[node_lookup[vertex_node_map[values[0]]]][node_lookup[vertex_node_map[values[1]]]].append(w)
-                if vertex_node_map[values[0]] != vertex_node_map[values[1]]:  # Don't add self loops twice.
-                    link_labels[node_lookup[vertex_node_map[values[1]]]][node_lookup[vertex_node_map[values[0]]]].append(w)
-                vertex_paired_node_map[values[0]] = vertex_node_map[values[1]]
-                vertex_paired_node_map[values[1]] = vertex_node_map[values[0]]
-            elif not closed:  # and len(nodes) == 1.
-                link_labels[node_lookup[dummy]][node_lookup[vertex_node_map[values[0]]]].append(w)
-                link_labels[node_lookup[vertex_node_map[values[0]]]][node_lookup[dummy]].append(w)
-                vertex_paired_node_map[values[0]] = dummy
-        # Sort all entries of the matrix.
-        for row in link_labels:
-            for entry in row:
-                entry.sort()
         
         best_link_labels = None
         best_node_markings = None
-        for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: genus[nodes[i]]))):  # pylint: disable=too-many-nested-blocks
+        for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: node_labels[nodes[i]]))):  # pylint: disable=too-many-nested-blocks
             perm = list(chain(*X))
             
             permuted_link_labels = [link_labels[i][j] for i, index in enumerate(perm) for j in perm[:index+1]]
