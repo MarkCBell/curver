@@ -439,12 +439,11 @@ class IntegralLamination(Lamination):
             node_labels[dummy] = -1
         
         duplicated_boundary = set(component for component, multiplicity in boundary.components().items() if multiplicity == 2)
+        real_nodes = [node for node in nodes if node not in duplicated_boundary]
         
         for component in duplicated_boundary:
             nodes.append(component)
             node_labels[component] = -2
-        
-        real_node = [node for node in nodes if node not in duplicated_boundary]
         
         # Sort nodes by node_labels.
         nodes.sort(key=node_labels.get)
@@ -453,7 +452,7 @@ class IntegralLamination(Lamination):
         
         # Useful lookup maps.
         node_lookup = dict((node, index) for index, node in enumerate(nodes))
-        edge_node_map = dict((edge, node) for node in nodes for edge in node)
+        edge_node_map = dict((edge, node) for node in real_nodes for edge in node)
         vertex_node_map = dict((vertex, edge_node_map[vertex[0]]) for vertex in triangulation.vertices)
         
         # Write down all the links.
@@ -482,7 +481,6 @@ class IntegralLamination(Lamination):
         # Build link label matrix.
         link_labels = [[list() for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
         for node1, node2, label in links:
-            print(node1, node2, label)
             link_labels[node_lookup[node1]][node_lookup[node2]].append(label)
             if node1 != node2:  # Don't add self loops twice.
                 link_labels[node_lookup[node2]][node_lookup[node1]].append(label)
@@ -508,13 +506,15 @@ class IntegralLamination(Lamination):
         disjoint_vertices = [vertex for vertex in triangulation.vertices if all(not image(e) for e in vertex)]
         image_vertex_map = dict((edge, vertex) for vertex in disjoint_vertices for edge in classes_lookup[vertex[0]])
         
-        
         best_link_labels = None
         best_node_markings = None
         for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: node_labels[nodes[i]]))):  # pylint: disable=too-many-nested-blocks
             perm = list(chain(*X))
             
-            permuted_link_labels = [link_labels[i][j] for i, index in enumerate(perm) for j in perm[:index+1]]
+            inverse_perm = [None] * len(perm)
+            for index, i in enumerate(perm):
+                inverse_perm[i] = index
+            permuted_link_labels = [link_labels[i][j] for index, i in enumerate(inverse_perm) for j in inverse_perm[index:]]
             
             if best_link_labels is not None and permuted_link_labels >= best_link_labels:
                 continue
@@ -554,6 +554,8 @@ class IntegralLamination(Lamination):
                         best_node_marking = node_marking
                     
                     node_markings.append(best_node_marking)
+                else:
+                    node_markings.append([])
             
             if best_node_markings is not None and node_markings >= best_node_markings:
                 continue

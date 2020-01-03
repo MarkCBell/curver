@@ -4,6 +4,7 @@ import hypothesis.strategies as st
 import pickle
 import unittest
 
+import curver
 from base_classes import TopologicalInvariant
 import strategies
 
@@ -54,4 +55,10 @@ class TestLamination(TopologicalInvariant, unittest.TestCase):
         self.assertGreaterEqual(lamination1.intersection(lamination2), 0)
         self.assertEqual(lamination1.intersection(lamination2), lamination2.intersection(lamination1))
         self.assertEqual(lamination1.intersection(lamination2), h(lamination1).intersection(h(lamination2)))
+    
+    def test_topological_type(self):
+        S = curver.load(2, 8)
+        c = S.curves['p_1'] + S.curves['p_3'] + S.curves['p_5'] + S.curves['p_7'] + S.arcs['s_2'].boundary() + S.arcs['s_4'].boundary() + S.arcs['s_6'].boundary() + S.arcs['s_2']
+        d = S.curves['p_1'] + S.curves['p_3'] + S.curves['p_5'] + S.curves['p_7'] + S.arcs['s_2'].boundary() + S.arcs['s_4'].boundary() + S.arcs['s_6'].boundary() + S.arcs['s_4']
+        self.assertNotEqual(c.topological_type(), d.topological_type())
 
