@@ -1,7 +1,6 @@
 
 ''' A module for representing laminations on Triangulations. '''
 
-from collections import defaultdict
 from itertools import permutations, groupby, product, chain
 from six.moves.queue import Queue
 
