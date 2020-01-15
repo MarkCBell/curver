@@ -14,16 +14,12 @@ Curver
     :target: https://travis-ci.com/MarkCBell/curver
     :alt: Travis build status
 
-.. image:: https://img.shields.io/coveralls/github/MarkCBell/curver.svg?branch=master
-    :target: https://coveralls.io/github/MarkCBell/curver?branch=master
-    :alt: Coveralls status
-
 Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm to determine the Nielsen--Thurston type of a mapping class.
 This algorithm runs in polynomial time but the constants involved currently make this implementation impractical.
 
-Curver officially supports Python 2.7 and 3.4 -- 3.8.
-It also runs on `PyPy`_ and `Sage`_.
+Curver officially supports Python 3.6 -- 3.8.
+Unoffically, it also runs on `PyPy`_ and `Sage`_ with some care.
 
 Quickstart
 ----------
@@ -69,7 +65,6 @@ External Links
 * `Travis`_
 * `AppVeyor`_
 * `Azure`_
-* `Coveralls`_
 
 .. _AppVeyor: https://ci.appveyor.com/project/MarkCBell/curver
 .. _Azure: https://dev.azure.com/MarkCBell/curver
