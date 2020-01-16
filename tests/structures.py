@@ -19,8 +19,8 @@ class UnionFindRules(RuleBasedStateMachine):
         a = data.draw(st.sampled_from(self.__items))
         self.__union_find(a)
     
-    @rule(data=st.data())
-    def iterate(self, data):
+    @rule()
+    def iterate(self):
         assert set(self.__items) == set(sum(self.__union_find, []))
     
     @rule(data=st.data())

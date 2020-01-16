@@ -1,6 +1,8 @@
+
+import unittest
+
 from hypothesis import given, assume
 import hypothesis.strategies as st
-import unittest
 
 import curver
 

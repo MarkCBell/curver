@@ -7,7 +7,7 @@ import strategies
 class TopologicalInvariant(object):
     @given(st.data())
     def test_topological_invariants(self, data):
-        item = data.draw(self._strategy())
+        item = data.draw(self._strategy())  # pylint: disable=no-member
         h = data.draw(strategies.mappings(item.triangulation))
         image = h(item)
         for method_name in dir(item):
@@ -16,5 +16,5 @@ class TopologicalInvariant(object):
                 image_method = getattr(image, method_name)
                 item_property = method()
                 image_property = image_method()
-                self.assertEqual(item_property, image_property, msg='In %s: %s != %s' % (method_name, item_property, image_property))
+                self.assertEqual(item_property, image_property, msg='In %s: %s != %s' % (method_name, item_property, image_property))  # pylint: disable=no-member
 

@@ -1,8 +1,9 @@
 
-from hypothesis import given
-import hypothesis.strategies as st
 from string import ascii_lowercase
 import unittest
+
+from hypothesis import given
+import hypothesis.strategies as st
 
 import curver
 

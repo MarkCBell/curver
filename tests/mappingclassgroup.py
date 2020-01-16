@@ -1,9 +1,10 @@
 
+import pickle
+import unittest
+
 from hypothesis import given, settings, assume
 import hypothesis.strategies as st
-import pickle
 import pytest
-import unittest
 
 import strategies
 

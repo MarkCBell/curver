@@ -1,13 +1,13 @@
 
+import pickle
+import unittest
+from collections import Counter
+
 from hypothesis import given, settings
 import hypothesis.strategies as st
-import pickle
 import pytest
-import unittest
 
 import strategies
-
-from collections import Counter
 
 class TestCrush(unittest.TestCase):
     @pytest.mark.skip('Crush / Lift are not pickleable since they do not implement .package().')

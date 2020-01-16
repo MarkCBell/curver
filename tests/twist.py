@@ -1,8 +1,9 @@
 
-from hypothesis import given, settings
-import hypothesis.strategies as st
 import pickle
 import unittest
+
+from hypothesis import given, settings
+import hypothesis.strategies as st
 
 import strategies
 

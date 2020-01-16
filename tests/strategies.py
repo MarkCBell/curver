@@ -1,8 +1,10 @@
 
+import unittest
+
 from hypothesis import given
 import hypothesis.strategies as st
+
 import pytest
-import unittest
 
 import curver
 from curver.kernel.decorators import memoize  # Special import needed for decorating.
@@ -83,19 +85,19 @@ def encodings(draw, triangulation=None, power_range=10, distribution=None):
         elif move_type == 1:  # Isometry.
             term = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
         elif move_type == 2:  # Twist.
-            curves = [T.edge_curve(edge) for edge in T.edges]
-            curve = draw(st.sampled_from(curves))
+            edge_curves = [T.edge_curve(edge) for edge in T.edges]
+            curve = draw(st.sampled_from(edge_curves))
             term = curve.encode_twist(power=draw(st.integers(min_value=-power_range, max_value=power_range).filter(lambda p: p)))
         elif move_type == 3:  # HalfTwist.
-            arcs = [T.edge_arc(edge) for edge in T.edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
-            if arcs:
-                arc = draw(st.sampled_from(arcs))
+            edge_arcs = [T.edge_arc(edge) for edge in T.edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
+            if edge_arcs:
+                arc = draw(st.sampled_from(edge_arcs))
                 term = arc.encode_halftwist(power=draw(st.integers(min_value=-power_range, max_value=power_range).filter(lambda p: p)))
             else:
                 term = T.id_encoding()
         else:  # move_type == 4:  # Crush.
-            curves = [T.edge_curve(edge) for edge in T.edges]
-            curve = draw(st.sampled_from(curves))
+            edge_curves = [T.edge_curve(edge) for edge in T.edges]
+            curve = draw(st.sampled_from(edge_curves))
             term = curve.crush()
         
         T = term.target_triangulation
@@ -110,16 +112,14 @@ def homology_classes(draw, triangulation=None):
     return curver.kernel.HomologyClass(triangulation, algebraic)
 
 @st.composite
-def multiarcs(draw, triangulation=None, require_non_empty_boundary=False):
+def multiarcs(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     
     geometric = [0] * triangulation.zeta
     
-    available_indices = set(triangulation.indices)
-    num_arcs = draw(st.integers(min_value=1, max_value=len(available_indices)))
-    for _ in range(num_arcs):
-        index = draw(st.sampled_from(sorted(available_indices)))
-        available_indices.remove(index)
+    permuted_indices = draw(st.permutations(triangulation.indices))
+    num_arcs = draw(st.integers(min_value=1, max_value=len(permuted_indices)))
+    for index in permuted_indices[:num_arcs]:
         geometric[index] = draw(st.integers(max_value=-1))
     
     return triangulation.lamination(geometric)
@@ -139,7 +139,7 @@ def multicurves(draw, triangulation=None):
     
     classes = curver.kernel.UnionFind(triangulation.vertices)
     for component, S in triangulation.surface().items():
-        available_component_indices = set([index for index in available_indices if index in component])
+        available_component_indices = set(index for index in available_indices if index in component)
         if S.g != 0 and draw(st.booleans()):  # merge vertices:
             for index in sorted(available_component_indices):
                 a, b = triangulation.vertex_lookup[index], triangulation.vertex_lookup[~index]
@@ -156,7 +156,7 @@ def multicurves(draw, triangulation=None):
     
     multiarc = triangulation.lamination(geometric)
     boundary = multiarc.boundary()
-    assert(not boundary.is_empty())
+    assert not boundary.is_empty()
     return boundary
 
 @st.composite

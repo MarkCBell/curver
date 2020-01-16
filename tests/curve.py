@@ -1,44 +1,42 @@
 
-from hypothesis import given, assume, settings
-import hypothesis.strategies as st
 import unittest
 
-from base_classes import TopologicalInvariant
+from hypothesis import given, assume, settings
+import hypothesis.strategies as st
+
+from lamination import TestLamination
 import strategies
 import curver
 
-class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
+class TestMultiCurve(TestLamination):
     _strategy = staticmethod(strategies.multicurves)
-    
-    @given(strategies.multicurves())
-    @settings(max_examples=20)
-    def test_boundary_intersection(self, multicurve):
-        boundary = multicurve.boundary()
-        self.assertEqual(multicurve.intersection(boundary), 0)
     
     @given(st.data())
     @settings(max_examples=5)
     def test_boundary_union(self, data):
-        multicurve = data.draw(strategies.multicurves().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
+        multicurve = data.draw(self._strategy().filter(lambda c: not c.is_peripheral()))  # Assume not peripheral.
         lamination = data.draw(strategies.laminations(multicurve.triangulation))
         boundary = multicurve.boundary_union(lamination)
         self.assertEqual(multicurve.intersection(boundary), 0)
         self.assertEqual(lamination.intersection(boundary), 0)
     
-    @given(strategies.multicurves())
+    @given(st.data())
     @settings(max_examples=20)
-    def test_crush(self, multicurve):
+    def test_crush(self, data):
+        multicurve = data.draw(self._strategy())
         crush = multicurve.crush()
         self.assertEqual(crush.source_triangulation.euler_characteristic, crush.target_triangulation.euler_characteristic)
     
-    @given(strategies.multicurves())
+    @given(st.data())
     @settings(max_examples=20)
-    def test_fills(self, multicurve):
+    def test_fills(self, data):
+        multicurve = data.draw(self._strategy())
         self.assertEqual(multicurve.is_filling(), multicurve.fills_with(multicurve))
     
-    @given(strategies.multicurves())
+    @given(st.data())
     @settings(max_examples=20)
-    def test_vertex_cycle(self, multicurve):
+    def test_vertex_cycle(self, data):
+        multicurve = data.draw(self._strategy())
         vertex_cycle = multicurve.vertex_cycle()
         self.assertTrue(all(0 <= vertex_cycle.dual_weight(edge) <= max(multicurve.dual_weight(edge), 2) for edge in multicurve.triangulation.edges))
     
@@ -46,7 +44,7 @@ class TestMultiCurve(TopologicalInvariant, unittest.TestCase):
     @settings(max_examples=2)
     def test_sum(self, data):
         triangulation = data.draw(strategies.triangulations())
-        multicurves = data.draw(st.lists(elements=strategies.multicurves(triangulation), min_size=2, max_size=3))
+        multicurves = data.draw(st.lists(elements=self._strategy(triangulation), min_size=2, max_size=3))
         self.assertIsInstance(multicurves[0] + multicurves[1], curver.kernel.MultiCurve)
         self.assertIsInstance(triangulation.sum(multicurves), curver.kernel.MultiCurve)
     
@@ -63,12 +61,6 @@ class TestCurve(TestMultiCurve):
         self.assertTrue(abs(x - y) <= 1, msg='AssertionError: |%s - %s| > 1' % (x, y))
     def assertImplies(self, A, B):
         self.assertTrue(not A or B, msg='AssertionError: %s =/=> %s' % (A, B))
-    
-    @given(strategies.curves())
-    @settings(max_examples=50)
-    def test_boundary_intersection(self, curve):
-        boundary = curve.boundary()
-        self.assertEqual(curve.intersection(boundary), 0)
     
     @given(st.data())
     @settings(max_examples=10)
@@ -91,4 +83,8 @@ class TestCurve(TestMultiCurve):
         
         h = data.draw(strategies.mappings(curve.triangulation))
         self.assertWithinOne(h(curve).relative_twisting(h(lamination1), h(lamination2)), power)
+
+# Remove the TestLamination class from this namespace to prevent py.test from
+# running all of its tests again here.
+del TestLamination
 

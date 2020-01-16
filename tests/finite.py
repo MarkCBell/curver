@@ -1,10 +1,11 @@
 
+import unittest
+from fractions import Fraction
+
 from hypothesis import given, settings
 import hypothesis.strategies as st
 import pytest
-import unittest
 
-from fractions import Fraction
 import strategies
 import curver
 

@@ -1,11 +1,12 @@
 
-from hypothesis import given, settings
-import hypothesis.strategies as st
 import pickle
 import unittest
 
-import strategies
+from hypothesis import given, settings
+import hypothesis.strategies as st
 import numpy as np
+
+import strategies
 
 class TestEncoding(unittest.TestCase):
     _strategy = staticmethod(strategies.encodings)

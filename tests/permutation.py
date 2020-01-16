@@ -1,9 +1,10 @@
 
+import pickle
+import unittest
+
 from hypothesis import given
 import hypothesis.strategies as st
 import numpy as np
-import pickle
-import unittest
 
 import curver
 import strategies
