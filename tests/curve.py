@@ -1,6 +1,4 @@
 
-import unittest
-
 from hypothesis import given, assume, settings
 import hypothesis.strategies as st
 
