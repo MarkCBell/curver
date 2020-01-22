@@ -285,6 +285,16 @@ class Lamination:
         
         return set(component for component in self.triangulation.components() if any(self(edge) for edge in component))
     
+    def encode_restrict(self):
+        ''' Return an encoding that resricts to the connected components of self.triangulation that contain self.
+        
+        Raises a ValueError if self is empty. '''
+        
+        if not self:
+            raise ValueError('Lamination is empty')
+        
+        return self.triangulation.encode_restrict(self.containing_components())
+    
     def normal_arcs_PL(self):
         ''' Return the PartialLinearFunction which is defined on Laminations that use the same normal arcs as self. '''
         
