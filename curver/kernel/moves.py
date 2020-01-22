@@ -312,3 +312,48 @@ class MultiEdgeFlip(FlipGraphMove):
         
         return curver.kernel.PartialLinearFunction(action, np.array(conditions))
 
+class PartialIsometry(Move):
+    ''' This represents an isometry from one Triangulation to another.
+    
+    Triangulations can create the isometries between themselves and this
+    is the standard way users are expected to create these. '''
+    def __init__(self, source_triangulation, target_triangulation, label_map):
+        ''' This represents a partial isometry from source_triangulation to target_triangulation.
+        
+        It is given by a map taking each edge label of source_triangulation to a label of target_triangulation.
+        
+        This map must be defined on all labels. '''
+        
+        super(PartialIsometry, self).__init__(source_triangulation, target_triangulation)
+        
+        assert isinstance(label_map, dict)
+        self.label_map = dict(label_map)
+        
+        self.index_map = dict((curver.kernel.norm(key), curver.kernel.norm(value)) for key, value in self.label_map.items())
+        self.inverse_label_map = dict((value, key) for key, value in self.label_map.items())
+        self.inverse_index_map = dict((curver.kernel.norm(value), curver.kernel.norm(key)) for key, value in self.label_map.items())
+    
+    def __str__(self):
+        return 'PartialIsometry ' + str([curver.kernel.Edge(self.label_map[index]) if index in self.label_map else '-' for index in self.source_triangulation.indices])
+    def package(self):
+        return sorted(self.label_map)
+    def __eq__(self, other):
+        eq = super(PartialIsometry, self).__eq__(other)
+        if eq in [NotImplemented, False]:
+            return eq
+        
+        return self.label_map == other.label_map
+    
+    def apply_lamination(self, lamination):
+        geometric = [lamination(self.inverse_index_map[index]) if index in self.inverse_index_map else 0 for index in self.target_triangulation.indices]
+        return self.target_triangulation(geometric)  # Have to promote.
+    
+    def apply_homology(self, homology_class):
+        algebraic = [homology_class(self.inverse_label_map[index]) if index in self.inverse_label_map else 0 for index in self.target_triangulation.indices]
+        return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
+    
+    def pl_action(self, multicurve):
+        action = np.array([[1 if i in self.index_map and j == self.index_map[i] else 0 for i in range(self.source_triangulation.zeta)] for j in range(self.target_triangulation.zeta)], dtype=object)
+        condition = np.array([[0] * self.zeta], dtype=object)
+        return curver.kernel.PartialLinearFunction(action, condition)
+
