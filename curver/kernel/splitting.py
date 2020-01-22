@@ -82,6 +82,10 @@ class SplittingSequence(object):
                 encodings.append(move)
                 lamination = move(lamination)
                 
+                move = lamination.encode_restrict()
+                encodings.append(move)
+                lamination = move(lamination)
+                
                 # Reset dictionaries ...
                 laminations = dict()
                 seen = defaultdict(list)
