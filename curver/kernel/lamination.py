@@ -295,25 +295,6 @@ class Lamination:
         
         return self.triangulation.encode_restrict(self.containing_components())
     
-    def normal_arcs_PL(self):
-        ''' Return the PartialLinearFunction which is defined on Laminations that use the same normal arcs as self. '''
-        
-        action = np.identity(self.zeta, dtype=object)
-        condition = np.array([  # Edge conditions.
-            [sign if i == edge.index else 0 for i in range(self.zeta)]
-            for edge in self.triangulation.positive_edges
-            for sign in [+1, -1]
-            if self(edge) * sign >= 0
-            ] + [  # Dual edge conditions.
-                [sign if i in (triangle[rotate+1].index, triangle[rotate+2].index) else -sign if i == triangle[rotate].index else 0 for i in range(self.zeta)]
-                for triangle in self.triangulation
-                for rotate in range(3)
-                for sign in [+1, -1]
-                if self.dual_weight(triangle[rotate]) * sign >= 0
-            ])
-        
-        return curver.kernel.PartialLinearFunction(action, condition)
-    
     def isometries_to(self, other):
         ''' Yield all isometries that send this lamination to other. '''
         
