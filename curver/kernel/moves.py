@@ -110,11 +110,11 @@ class Isometry(FlipGraphMove):
         return self.label_map == other.label_map
     
     def apply_lamination(self, lamination):
-        geometric = [lamination(self.inverse_index_map[index]) for index in self.source_triangulation.indices]
+        geometric = [lamination(self.inverse_index_map[index]) for index in self.target_triangulation.indices]
         return lamination.__class__(self.target_triangulation, geometric)  # Avoids promote.
     
     def apply_homology(self, homology_class):
-        algebraic = [homology_class(self.inverse_label_map[index]) for index in self.source_triangulation.indices]
+        algebraic = [homology_class(self.inverse_label_map[index]) for index in self.target_triangulation.indices]
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
     
     def flip_mapping(self):
