@@ -351,9 +351,4 @@ class PartialIsometry(Move):
     def apply_homology(self, homology_class):
         algebraic = [homology_class(self.inverse_label_map[index]) if index in self.inverse_label_map else 0 for index in self.target_triangulation.indices]
         return curver.kernel.HomologyClass(self.target_triangulation, algebraic)
-    
-    def pl_action(self, multicurve):
-        action = np.array([[1 if i in self.index_map and j == self.index_map[i] else 0 for i in range(self.source_triangulation.zeta)] for j in range(self.target_triangulation.zeta)], dtype=object)
-        condition = np.array([[0] * self.zeta], dtype=object)
-        return curver.kernel.PartialLinearFunction(action, condition)
 
