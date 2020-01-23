@@ -313,16 +313,14 @@ class MultiEdgeFlip(FlipGraphMove):
         return curver.kernel.PartialLinearFunction(action, np.array(conditions))
 
 class PartialIsometry(Move):
-    ''' This represents an isometry from one Triangulation to another.
+    ''' This represents a partial isometry from one Triangulation to another.
     
-    Triangulations can create the isometries between themselves and this
+    Triangulations can create partial isometries between themselves and this
     is the standard way users are expected to create these. '''
     def __init__(self, source_triangulation, target_triangulation, label_map):
         ''' This represents a partial isometry from source_triangulation to target_triangulation.
         
-        It is given by a map taking each edge label of source_triangulation to a label of target_triangulation.
-        
-        This map must be defined on all labels. '''
+        It is given by a map taking edge labels of source_triangulation to labels of target_triangulation. '''
         
         super(PartialIsometry, self).__init__(source_triangulation, target_triangulation)
         
