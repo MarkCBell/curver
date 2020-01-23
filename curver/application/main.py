@@ -242,11 +242,11 @@ class Drawing(object):
         vb = self.options.vertex_buffer  # We are going to use this a lot.
         master = float(max(abs(weight) for weight in lamination))
         
-        if master > MAX_DRAWABLE:
+        if master > MAX_DRAWABLE or not isinstance(lamination, curver.kernel.IntegralLamination):
             for triangle in self.triangles:
-                weights = [max(lamination(edge.label), 0) for edge in triangle.edges]
-                dual_weights = [lamination.dual_weight(edge.label) for edge in triangle.edges]
-                parallel_arcs = [max(-lamination(edge.label), 0) for edge in triangle.edges]
+                weights = [float(max(lamination(edge.label), 0)) for edge in triangle.edges]
+                dual_weights = [float(lamination.dual_weight(edge.label)) for edge in triangle.edges]
+                parallel_arcs = [float(max(-lamination(edge.label), 0)) for edge in triangle.edges]
                 parallel_weights = [weight // 2 + (weight % 2 if edge.label >= 0 else 0) for edge, weight in zip(triangle.edges, parallel_arcs)]
                 for i in range(3):
                     # Dual arcs.
