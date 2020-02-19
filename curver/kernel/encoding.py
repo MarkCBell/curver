@@ -4,7 +4,6 @@
 from fractions import Fraction
 import operator
 import numpy as np
-import cypari
 
 import curver
 from curver.kernel.decorators import memoize, ensure
@@ -468,13 +467,7 @@ class MappingClass(Mapping):
             Raise a ValueError if no such vector exists. '''
             
             eigenvalue, eigenvector = cell.eigenvector()
-            # Rescale to clear denominators for performance.
-            scale = cypari.pari.one()
-            for entry in eigenvector:
-                for coefficient in entry.coefficients:
-                    scale = scale.lcm(coefficient.denominator)
-            scaled_eigenvector = eigenvector * int(scale)
-            invariant_lamination = curver.kernel.Lamination(triangulation, scaled_eigenvector.tolist())
+            invariant_lamination = triangulation(eigenvector.tolist())
             return eigenvalue, invariant_lamination
         
         # The result of Margalit--Strenner--Yurtas say that this is a sufficient number of iterations to find a fixed point.
