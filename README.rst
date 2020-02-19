@@ -69,7 +69,7 @@ External Links
 .. _AppVeyor: https://ci.appveyor.com/project/MarkCBell/curver
 .. _Azure: https://dev.azure.com/MarkCBell/curver
 .. _GitHub: https://github.com/MarkCBell/curver
-.. _PyPI: https://pypi.python.org/pypi/curver
+.. _PyPI: https://pypi.org/project/curver
 .. _ReadTheDocs: http://curver.readthedocs.io
 .. _Sage: http://www.sagemath.org
 .. _Travis: https://travis-ci.com/MarkCBell/curver
