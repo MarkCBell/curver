@@ -73,6 +73,5 @@ External Links
 .. _ReadTheDocs: http://curver.readthedocs.io
 .. _Sage: http://www.sagemath.org
 .. _Travis: https://travis-ci.com/MarkCBell/curver
-.. _Coveralls: https://coveralls.io/github/MarkCBell/curver
 .. _PyPy: https://pypy.org/
 
