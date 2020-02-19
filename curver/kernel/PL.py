@@ -4,8 +4,6 @@
 import numpy as np
 import realalg
 
-import curver
-
 class PartialLinearFunction(object):
     ''' A Linear function defined on a linear subset of Euclidean space. '''
     def __init__(self, action, condition):
