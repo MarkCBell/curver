@@ -1,0 +1,318 @@
+\documentclass[convert={outfile=\jobname.svg}]{standalone}
+\usepackage[dvipsnames]{xcolor}
+\usepackage{tikz}
+\tikzset{dot/.style={draw,shape=circle,fill=black,scale=0.4}}
+\usepackage[outline]{contour}
+\contourlength{0.05em}
+\newcommand{\outline}[1]{\contour*{white}{#1}}
+
+\begin{document}
+\begin{tikzpicture}[scale=4, thick]
+    \begin{scope}[shift={(-3, 0)}]
+
+    \begin{scope}[shift={(-1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.north west) to [out=-45,in=90] (rect.south);
+        \draw [red] (rect.north east) to [out=225,in=90] (rect.south);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {V(- +)};
+    \end{scope}
+    \begin{scope}[shift={(0, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.north east) to [out=225,in=90] (rect.south);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {V(0 +)};
+    \end{scope}
+    \begin{scope}[shift={(1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.north east) to [out=225,in=90] (rect.south);
+        \draw [red] (rect.south west) to [out=45,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {V(+ +)};
+    \end{scope}
+    \begin{scope}[shift={(-1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.north west) to [out=-45,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {V(- 0)};
+    \end{scope}
+    \begin{scope}[shift={(0, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {V(0 0)};
+    \end{scope}
+    \begin{scope}[shift={(1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.south west) to [out=45,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {V(+ 0)};
+    \end{scope}
+    \begin{scope}[shift={(-1, -1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.north west) to [out=-45,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \draw [red] (rect.south east) to [out=135,in=270] (rect.north);
+        \node [below] at (rect.south) {V(- -)};
+    \end{scope}
+    \begin{scope}[shift={(0, -1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \draw [red] (rect.south east) to [out=135,in=270] (rect.north);
+        \node [below] at (rect.south) {V(0 -)};
+    \end{scope}
+    \begin{scope}[shift={(1, -1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) -- (rect.south);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.south west) to [out=45,in=270] (rect.north);
+        \draw [red] (rect.south east) to [out=135,in=270] (rect.north);
+        \node [below] at (rect.south) {V(+ -)};
+    \end{scope}
+
+    \end{scope}
+    \begin{scope}[shift={(0, 0)}]
+
+    \begin{scope}[shift={(-1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.west) to [out=0,in=225] (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.west) to [out=0,in=135] (rect.south east);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {H(- +)};
+    \end{scope}
+    \begin{scope}[shift={(0, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.west) to [out=0,in=135] (rect.south east);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {H(0 +)};
+    \end{scope}
+    \begin{scope}[shift={(1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.north west) to [out=-45,in=180] (rect.east);
+        \draw [red] (rect.west) to [out=0,in=135] (rect.south east);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {H(+ +)};
+    \end{scope}
+    \begin{scope}[shift={(-1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.west) to [out=0,in=225] (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {H(- 0)};
+    \end{scope}
+    \begin{scope}[shift={(0, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {H(0 0)};
+    \end{scope}
+    \begin{scope}[shift={(1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.north west) to [out=-45,in=180] (rect.east);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {H(+ 0)};
+    \end{scope}
+    \begin{scope}[shift={(-1, -1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.west) to [out=0,in=225] (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=45] (rect.south west);
+        \node [below] at (rect.south) {H(- -)};
+    \end{scope}
+    \begin{scope}[shift={(0, -1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=45] (rect.south west);
+        \node [below] at (rect.south) {H(0 -)};
+    \end{scope}
+    \begin{scope}[shift={(1, -1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) -- (rect.east);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.north west) to [out=-45,in=180] (rect.east);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \draw [red] (rect.east) to [out=180,in=45] (rect.south west);
+        \node [below] at (rect.south) {H(+ -)};
+    \end{scope}
+
+    \end{scope}
+    \begin{scope}[shift={(-4, -3)}]
+
+    \begin{scope}[shift={(0, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.south west) -- (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=225] (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.south) to [out=90,in=225] (rect.north east);
+        \draw [red] (rect.south) to [out=90,in=180] (rect.east);
+        \node [below] at (rect.south) {D(bc)};
+        \node [above] at (rect.north) {$b + c - e$};
+    \end{scope}
+    \begin{scope}[shift={(1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.south west) -- (rect.north east);
+        \draw [red] (rect.north) to [out=270,in=45] (rect.south west);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.south) to [out=90,in=225] (rect.north east);
+        \draw [red] (rect.south) to [out=90,in=180] (rect.east);
+        \node [below] at (rect.south) {D(ac)};
+    \end{scope}
+    \begin{scope}[shift={(0, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.south west) -- (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=225] (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=45] (rect.south west);
+        \draw [red] (rect.south) to [out=90,in=180] (rect.east);
+        \node [below] at (rect.south) {D(bd)};
+    \end{scope}
+    \begin{scope}[shift={(1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.south west) -- (rect.north east);
+        \draw [red] (rect.north) to [out=270,in=45] (rect.south west);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=45] (rect.south west);
+        \draw [red] (rect.south) to [out=90,in=180] (rect.east);
+        \node [below] at (rect.south) {D(ad)};
+        \node [above] at (rect.north) {$a + d - e$};
+    \end{scope}
+
+    \end{scope}
+    \begin{scope}[shift={(-2, -3)}]
+
+    \begin{scope}[shift={(0, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north west) -- (rect.south east);
+        \draw [red] (rect.south) to [out=90,in=-45] (rect.north west);
+        \draw [red] (rect.south) to [out=90,in=0] (rect.west);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=-45] (rect.north west);
+        \node [below] at (rect.south) {A(cd)};
+        \node [above] at (rect.north) {$c + d - e$};
+    \end{scope}
+    \begin{scope}[shift={(1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north west) -- (rect.south east);
+        \draw [red] (rect.west) to [out=0,in=135] (rect.south east);
+        \draw [red] (rect.south) to [out=90,in=0] (rect.west);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.east) to [out=180,in=-45] (rect.north west);
+        \node [below] at (rect.south) {A(bd)};
+    \end{scope}
+    \begin{scope}[shift={(0, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north west) -- (rect.south east);
+        \draw [red] (rect.south) to [out=90,in=-45] (rect.north west);
+        \draw [red] (rect.south) to [out=90,in=0] (rect.west);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.north) to [out=270,in=135] (rect.south east);
+        \node [below] at (rect.south) {A(ac)};
+    \end{scope}
+    \begin{scope}[shift={(1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north west) -- (rect.south east);
+        \draw [red] (rect.west) to [out=0,in=135] (rect.south east);
+        \draw [red] (rect.south) to [out=90,in=0] (rect.west);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \draw [red] (rect.north) to [out=270,in=135] (rect.south east);
+        \node [below] at (rect.south) {A(ab)};
+        \node [above] at (rect.north) {$a + b - e$};
+\end{scope}
+
+    \end{scope}
+    \begin{scope}[shift={(0, -3)}]
+
+    \begin{scope}[shift={(0, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.south) to [out=90,in=-45] (rect.north west);
+        \draw [red] (rect.south) to [out=90,in=0] (rect.west);
+        \draw [red] (rect.south) to [out=90,in=180] (rect.east);
+        \draw [red] (rect.east) to [out=180,in=-45] (rect.north west);
+        \draw [red] (rect.east) to [out=180,in=270] (rect.north);
+        \node [below] at (rect.south) {N(cd)};
+        \node [above] at (rect.north) {$\frac{1}{2}(c + d - e)$};
+    \end{scope}
+    \begin{scope}[shift={(1, 1)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) to [out=0,in=225] (rect.north east);
+        \draw [red] (rect.south) to [out=90,in=0] (rect.west);
+        \draw [red] (rect.south) to [out=90,in=180] (rect.east);
+        \draw [red] (rect.south) to [out=90,in=225] (rect.north east);
+        \draw [red] (rect.west) to [out=0,in=270] (rect.north);
+        \node [below] at (rect.south) {N(bc)};
+        \node [above] at (rect.north) {$\frac{1}{2}(a + b - e)$};
+    \end{scope}
+    \begin{scope}[shift={(0, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.north) to [out=270,in=45] (rect.south west);
+        \draw [red] (rect.north) to [out=270,in=0] (rect.west);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.east) to [out=180,in=45] (rect.south west);
+        \draw [red] (rect.east) to [out=180,in=90] (rect.south);
+        \node [below] at (rect.south) {N(ad)};
+        \node [above] at (rect.north) {$a + d - 2e$};
+    \end{scope}
+    \begin{scope}[shift={(1, 0)}]
+        \node (rect) at (0, 0) [draw,minimum width=2cm,minimum height=2cm] {};
+        \draw [red] (rect.west) to [out=0,in=135] (rect.south east);
+        \draw [red] (rect.north) to [out=270,in=0] (rect.west);
+        \draw [red] (rect.north) to [out=270,in=180] (rect.east);
+        \draw [red] (rect.north) to [out=270,in=135] (rect.south east);
+        \draw [red] (rect.west) to [out=0,in=90] (rect.south);
+        \node [below] at (rect.south) {N(ab)};
+        \node [above] at (rect.north) {$b + c - 2e$};
+    \end{scope}
+    \end{scope}
+
+    \draw [lightgray, line width=1mm] (-1.5, -1) -- (-1.5, 1);
+    \draw [lightgray, line width=1mm] (-4, -1.5) -- (1, -1.5);
+    \draw [lightgray, line width=1mm] (-2.5, -3) -- (-2.5, -2);
+    \draw [lightgray, line width=1mm] (-0.5, -3) -- (-0.5, -2);
+
+\end{tikzpicture}
+
+
+\end{document}
+

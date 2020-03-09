@@ -19,6 +19,20 @@ However, if the lamination is a :class:`~curver.kernel.curve.MultiCurve` then on
     :target: ../_images/types.svg
     :align: center
 
+Flips
+-----
+
+Curver also implements update rules for computing the effect of flipping the diagonal of a square for all 30 cases of laminations in a square [Bell15]_.
+There are eight exceptional cases (D(bc), D(ad), A(cd), A(ab), N(cd), N(bc), N(ad) and N(ab)) where a non-standard update rule is required.
+These are documented in the figure below.
+All others follow the standard update rule :math:`\max(a + c, b + d) - e`.
+
+.. image:: ../figures/flip.svg
+    :height: 400
+    :alt: MCG generators
+    :target: ../_images/flip.svg
+    :align: center
+
 Mapping Classes
 ---------------
 
