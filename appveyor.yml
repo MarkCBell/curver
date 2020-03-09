@@ -4,9 +4,6 @@ build: false
 environment:
   matrix:
     - PYTHON: "C:\\Python38"
-      TOX_ENV: "docs"
-
-    - PYTHON: "C:\\Python38"
       TOX_ENV: "lint"
 
     - PYTHON: "C:\\Python36"
