@@ -2,6 +2,20 @@
 History
 =======
 
+0.4.0 (2020-04-13)
+------------------
+
+* Officially removed Python 2 support.
+* Disjoint sum supports a dictionay specifying multiplicities.
+* Stripping leading and trailing identity isometries for performance.
+* Rewritten to assume that laminations are the correct subclass.
+* Switched to left_weight and right_weight.
+* Removed Coveralls support.
+* More figures for documention.
+* Using six.
+* MCG now use SLP to parse creation strings.
+* Fixed bug where twists could occur even when drop=0.
+
 0.3.5 (2019-07-22)
 ------------------
 
