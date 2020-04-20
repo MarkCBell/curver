@@ -9,6 +9,8 @@ import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 def render_topological_type(self):
+    ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
+    
     braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
     if any(self.arcs):
         return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
