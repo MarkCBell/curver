@@ -2,6 +2,12 @@
 History
 =======
 
+0.4.1 (2020-XX-YY)
+------------------
+
+* Laminations can now be specified via a dictionary of weights.
+* Custom print method for topological types to match paper.
+
 0.4.0 (2020-04-13)
 ------------------
 
