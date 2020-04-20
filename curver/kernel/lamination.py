@@ -1,11 +1,22 @@
 
 ''' A module for representing laminations on Triangulations. '''
 
+from collections import namedtuple
 from itertools import permutations, groupby, product, chain
 from six.moves.queue import Queue
 
 import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
+
+def render_topological_type(self):
+    braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
+    if any(self.arcs):
+        return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
+    else:
+        return '({}, [{}])'.format(self.genuses, braced)
+
+TopologicalType = namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])
+TopologicalType.__str__ = render_topological_type
 
 class Lamination(object):
     ''' This represents a lamination on a triangulation.
@@ -560,7 +571,7 @@ class IntegralLamination(Lamination):
                 continue
             best_node_markings = node_markings
         
-        return best_node_labels, best_link_labels, best_node_markings
+        return TopologicalType(best_node_labels, best_link_labels, best_node_markings)
     
     @memoize
     def components(self):
