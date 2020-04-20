@@ -515,6 +515,9 @@ class Triangulation(object):
     def lamination(self, weights, promote=True):
         ''' Return a new lamination on this surface assigning the specified weight to each edge. '''
         
+        if isinstance(weights, dict):
+            weights = [weights.get(i, 0) for i in range(self.zeta)]
+        
         assert len(weights) == self.zeta, 'Expected %d weights but got %d' % (self.zeta, len(weights))
         # Should check all dual weights.
         
