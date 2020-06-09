@@ -33,7 +33,7 @@ For example, compare ``S`` with ``curver.load('S_1_2')``.
 
 We can build a :class:`mapping class <curver.kernel.encoding.MappingClass>` using these generators::
 
-    >>> h = S('a_0.b_1')
+    >>> h = S('a_0.b_0')
 
 Now at this point we would like to compute the Nielsen--Thurston type of this mapping class.
 Curver does this by using its solution to the word problem and algorithm to compute the asymptotic translation length of a mapping class on the curve complex.
