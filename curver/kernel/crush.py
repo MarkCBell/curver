@@ -166,8 +166,7 @@ class Lift(LinearTransformation):
         super().__init__(source_triangulation, target_triangulation, matrix)
         
         # We need to use super again since we have not found the vertices needed so that we can call self yet.
-        is_crush_vertex = lambda vertex: not super(Lift, self).apply_lamination(self.source_triangulation.curve_from_cut_sequence(vertex)).is_peripheral()  # pylint: disable=super-with-arguments
-        self.vertices = [vertex for vertex in self.source_triangulation.vertices if is_crush_vertex(vertex)]
+        self.vertices = [vertex for vertex in self.source_triangulation.vertices if super(Lift, self).apply_lamination(self.source_triangulation.curve_from_cut_sequence(vertex)).is_peripheral()]
     
     def __str__(self):
         return 'Lift to %s' % self.target_triangulation
