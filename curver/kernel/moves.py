@@ -76,7 +76,7 @@ class Isometry(FlipGraphMove):
         
         This map must be defined on all labels. '''
         
-        super(Isometry, self).__init__(source_triangulation, target_triangulation)
+        super().__init__(source_triangulation, target_triangulation)
         
         assert isinstance(label_map, dict)
         self.label_map = dict(label_map)
@@ -94,7 +94,7 @@ class Isometry(FlipGraphMove):
     def package(self):
         return None if self.is_identity() else self.label_map
     def __eq__(self, other):
-        eq = super(Isometry, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
@@ -119,7 +119,7 @@ class Isometry(FlipGraphMove):
 class EdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
     def __init__(self, source_triangulation, target_triangulation, edge):
-        super(EdgeFlip, self).__init__(source_triangulation, target_triangulation)
+        super().__init__(source_triangulation, target_triangulation)
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
@@ -133,7 +133,7 @@ class EdgeFlip(FlipGraphMove):
     def package(self):
         return self.edge.label
     def __eq__(self, other):
-        eq = super(EdgeFlip, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
@@ -186,7 +186,7 @@ class EdgeFlip(FlipGraphMove):
 class MultiEdgeFlip(FlipGraphMove):
     ''' Represents the change to a curve caused by flipping an edge. '''
     def __init__(self, source_triangulation, target_triangulation, edges):
-        super(MultiEdgeFlip, self).__init__(source_triangulation, target_triangulation)
+        super().__init__(source_triangulation, target_triangulation)
         
         self.edges = set(curver.kernel.Edge(edge) if isinstance(edge, curver.IntegerType) else edge for edge in edges)  # If given any integers.
         self.squares = dict((edge, self.source_triangulation.square(edge)) for edge in self.edges)
@@ -200,7 +200,7 @@ class MultiEdgeFlip(FlipGraphMove):
     def package(self):
         return set(edge.label for edge in self.edges)
     def __eq__(self, other):
-        eq = super(MultiEdgeFlip, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         

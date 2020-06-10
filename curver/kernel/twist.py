@@ -9,7 +9,7 @@ class Twist(FlipGraphMove):
     
     This format allows us to efficiently perform powers of twists. '''
     def __init__(self, curve, power):
-        super(Twist, self).__init__(curve.triangulation, curve.triangulation)
+        super().__init__(curve.triangulation, curve.triangulation)
         
         assert isinstance(curve, curver.kernel.Curve)
         assert curve.is_short() and not curve.is_peripheral()
@@ -37,7 +37,7 @@ class Twist(FlipGraphMove):
     def package(self):
         return (self.curve.parallel().label, self.power)
     def __eq__(self, other):
-        eq = super(Twist, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
@@ -120,7 +120,7 @@ class HalfTwist(FlipGraphMove):
     
     This format allows us to efficiently perform powers of twists. '''
     def __init__(self, arc, power):
-        super(HalfTwist, self).__init__(arc.triangulation, arc.triangulation)
+        super().__init__(arc.triangulation, arc.triangulation)
         
         assert isinstance(arc, curver.kernel.Arc)
         assert arc.is_short()
@@ -173,7 +173,7 @@ class HalfTwist(FlipGraphMove):
     def package(self):
         return (self.arc.parallel().label, self.power)
     def __eq__(self, other):
-        eq = super(HalfTwist, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         

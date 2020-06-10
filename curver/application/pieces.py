@@ -88,7 +88,7 @@ class DrawableObject(object):
 
 class CanvasVertex(DrawableObject):
     def __init__(self, canvas, vector, options):
-        super(CanvasVertex, self).__init__(canvas, [self], options)
+        super().__init__(canvas, [self], options)
         self.colour = DEFAULT_VERTEX_COLOUR
         self.vector = vector
         self.drawn = self.canvas.create_oval(
@@ -114,7 +114,7 @@ class CanvasVertex(DrawableObject):
 
 class CanvasEdge(DrawableObject):
     def __init__(self, canvas, vertices, label, colour, options):
-        super(CanvasEdge, self).__init__(canvas, vertices, options)
+        super().__init__(canvas, vertices, options)
         self.label = label
         self.colour = DEFAULT_EDGE_COLOUR if colour is None else colour
         m = (1-ARROW_FRAC)*self.vertices[0].vector + ARROW_FRAC*self.vertices[1].vector
@@ -151,7 +151,7 @@ class CanvasEdge(DrawableObject):
 
 class CanvasTriangle(DrawableObject):
     def __init__(self, canvas, edges, options):
-        super(CanvasTriangle, self).__init__(canvas, list(set(v for e in edges for v in e)), options)
+        super().__init__(canvas, list(set(v for e in edges for v in e)), options)
         self.colour = DEFAULT_TRIANGLE_COLOUR
         self.edges = edges
         
@@ -175,7 +175,7 @@ class CanvasTriangle(DrawableObject):
 
 class CurveComponent(DrawableObject):
     def __init__(self, canvas, vertices, options, thin=True, smooth=False):
-        super(CurveComponent, self).__init__(canvas, vertices, options)
+        super().__init__(canvas, vertices, options)
         self.colour = DEFAULT_CURVE_COLOUR
         if thin:
             self.drawn = self.canvas.create_line(

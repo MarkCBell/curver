@@ -224,10 +224,11 @@ class MappingClass(Mapping):
     
     That is, one where self.source_triangulation == self.target_triangulation. '''
     def __call__(self, other, power=1):
-        h = self if power >= 0 else self.inverse()
-        power = abs(power)
+        if power < 0:
+            return self.inverse()(other, power=-power)
+        
         for _ in range(power):
-            other = super(MappingClass, h).__call__(other)
+            other = super().__call__(other)
         return other
     def __str__(self):
         return 'MappingClass %s' % self.sequence

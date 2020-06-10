@@ -9,7 +9,7 @@ from curver.kernel.moves import Move  # Special import needed for subclassing.
 class Crush(Move):
     ''' This represents the effect of crushing along a curve. '''
     def __init__(self, source_triangulation, target_triangulation, curve):
-        super(Crush, self).__init__(source_triangulation, target_triangulation)
+        super().__init__(source_triangulation, target_triangulation)
         
         assert isinstance(curve, curver.kernel.Curve)
         assert not curve.is_peripheral() and curve.is_short()
@@ -20,7 +20,7 @@ class Crush(Move):
     def __str__(self):
         return 'Crush ' + str(self.curve)
     def __eq__(self, other):
-        eq = super(Crush, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
@@ -140,7 +140,7 @@ class Crush(Move):
 class LinearTransformation(Move):
     ''' This represents a linear transformation between two triangulations. '''
     def __init__(self, source_triangulation, target_triangulation, matrix):
-        super(LinearTransformation, self).__init__(source_triangulation, target_triangulation)
+        super().__init__(source_triangulation, target_triangulation)
         assert matrix.shape == (target_triangulation.zeta, source_triangulation.zeta)
         
         self.matrix = matrix
@@ -148,7 +148,7 @@ class LinearTransformation(Move):
     def __str__(self):
         return 'LT to %s' % self.target_triangulation
     def __eq__(self, other):
-        eq = super(LinearTransformation, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
@@ -163,10 +163,10 @@ class LinearTransformation(Move):
 class Lift(LinearTransformation):
     ''' This represents the inverse of crushing along a curve. '''
     def __init__(self, source_triangulation, target_triangulation, matrix):
-        super(Lift, self).__init__(source_triangulation, target_triangulation, matrix)
+        super().__init__(source_triangulation, target_triangulation, matrix)
         
         # We need to use super again since we have not found the vertices needed so that we can call self yet.
-        is_crush_vertex = lambda vertex: not super(Lift, self).apply_lamination(self.source_triangulation.curve_from_cut_sequence(vertex)).is_peripheral()
+        is_crush_vertex = lambda vertex: not super().apply_lamination(self.source_triangulation.curve_from_cut_sequence(vertex)).is_peripheral()
         self.vertices = [vertex for vertex in self.source_triangulation.vertices if is_crush_vertex(vertex)]
     
     def __str__(self):
@@ -175,5 +175,5 @@ class Lift(LinearTransformation):
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.left_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)
         
-        return super(Lift, self).apply_lamination(lamination)
+        return super().apply_lamination(lamination)
 
