@@ -5,7 +5,7 @@ from collections import defaultdict, namedtuple
 from copy import deepcopy
 from fractions import Fraction
 from itertools import groupby
-from six.moves.queue import Queue
+from queue import Queue
 
 import curver
 from curver.kernel.decorators import memoize, ensure

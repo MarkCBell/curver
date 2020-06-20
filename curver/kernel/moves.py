@@ -2,13 +2,11 @@
 ''' A module for representing basic ways of changing triangulations.
 These moves can also track how laminations and homology classes move through those changes. '''
 
-from abc import ABCMeta, abstractmethod
-import six
+from abc import ABC, abstractmethod
 
 import curver
 
-@six.add_metaclass(ABCMeta)
-class Move(object):
+class Move(ABC):
     ''' A basic move from one triangulation to another. '''
     def __init__(self, source_triangulation, target_triangulation):
         assert isinstance(source_triangulation, curver.kernel.Triangulation)

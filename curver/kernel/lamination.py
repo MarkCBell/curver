@@ -3,7 +3,7 @@
 
 from collections import namedtuple
 from itertools import permutations, groupby, product, chain
-from six.moves.queue import Queue
+from queue import Queue
 
 import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.

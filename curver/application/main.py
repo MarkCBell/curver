@@ -11,10 +11,10 @@ from random import random
 from colorsys import hls_to_rgb
 from collections import namedtuple
 
-import six.moves.tkinter as TK
-import six.moves.tkinter_filedialog as TK_FILE
-import six.moves.tkinter_messagebox as TK_MESSAGE
-import six.moves.tkinter_ttk as TTK
+import tkinter as TK
+import tkinter.filedialog as TK_FILE
+import tkinter.messagebox as TK_MESSAGE
+import tkinter.ttk as TTK
 
 # Some constants.
 if sys.platform in ['darwin']:

@@ -7,7 +7,7 @@ except ImportError:
     from collections import Sequence
 from random import choice
 import re
-from six.moves.queue import Queue
+from queue import Queue
 
 import curver
 
