@@ -7,7 +7,7 @@ import numpy as np
 
 import curver
 
-class UnionFind(object):
+class UnionFind:
     ''' A fast union--find data structure. Given items must be hashable. '''
     def __init__(self, items):
         self.parent = dict((item, item) for item in items)
@@ -51,7 +51,7 @@ class UnionFind(object):
 
 Terminal = namedtuple('Terminal', ['value'])
 
-class StraightLineProgram(object):
+class StraightLineProgram:
     ''' This represents a straight line program. '''
     def __init__(self, data):
         if isinstance(data, StraightLineProgram):  # Copy.

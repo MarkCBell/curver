@@ -3,7 +3,7 @@
 
 import curver
 
-class HomologyClass(object):
+class HomologyClass:
     ''' This represents a homology class of a triangulation (relative to its vertices). '''
     def __init__(self, triangulation, algebraic):
         assert isinstance(triangulation, curver.kernel.Triangulation)
@@ -26,8 +26,6 @@ class HomologyClass(object):
         return self.algebraic[edge.index] * edge.sign()
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.canonical().algebraic == other.canonical().algebraic
-    def __ne__(self, other):
-        return not self == other
     def __hash__(self):
         return hash(tuple(self.canonical().algebraic))
     def __add__(self, other):

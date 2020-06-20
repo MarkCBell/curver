@@ -98,7 +98,7 @@ def alphanum_key(strn):
     
     return blocks
 
-class Half(object):
+class Half:
     ''' A class for representing 1/2 in such a way that multiplication preserves types. '''
     def __mul__(self, other):
         if isinstance(other, curver.IntegerType):

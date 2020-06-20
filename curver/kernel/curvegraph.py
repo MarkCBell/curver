@@ -7,7 +7,7 @@ import networkx
 
 import curver
 
-class CurveGraph(object):
+class CurveGraph:
     ''' This represents the curve complex of a surface.
     
     See [Bowditch08]_ and [Webb15]_ for many of the constants set during initialisation. '''

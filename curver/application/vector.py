@@ -3,7 +3,7 @@ import math
 
 EPSILON = 10**-8
 
-class Vector2(object):
+class Vector2:
     # Warning: This needs to be updated if the interals of this class ever change.
     __slots__ = ['x', 'y']
     def __init__(self, x, y):
@@ -20,8 +20,6 @@ class Vector2(object):
     def __eq__(self, other):
         raise TypeError('Susceptible to FPE')
         return self.x == other.x and self.y == other.y
-    def __ne__(self, other):
-        return not self == other
     def __iter__(self):
         return iter([self.x, self.y])
     def __getitem__(self, item):

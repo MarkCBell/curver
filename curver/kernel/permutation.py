@@ -6,7 +6,7 @@ from itertools import combinations
 from math import factorial
 import numpy as np
 
-class Permutation(object):
+class Permutation:
     ''' This represents a permutation on 0, 1, ..., N-1. '''
     def __init__(self, perm):
         self.perm = perm
@@ -32,8 +32,6 @@ class Permutation(object):
             return self.perm == other.perm
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     def __hash__(self):
         return hash(tuple(self.perm))
     

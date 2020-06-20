@@ -17,7 +17,7 @@ def norm(number):
     return max(number, ~number)
 
 @total_ordering
-class Edge(object):
+class Edge:
     ''' This represents an oriented edge, labelled with an integer.
     
     It is specified by its label and its inverse edge is labelled with ~its label.
@@ -45,8 +45,6 @@ class Edge(object):
             return self.label == other
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     def __lt__(self, other):
         if isinstance(other, Edge):
             return self.label < other.label
@@ -67,7 +65,7 @@ class Edge(object):
         
         return +1 if self.label == self.index else -1
 
-class Triangle(object):
+class Triangle:
     ''' This represents a triangle.
     
     It is specified by a list of three edges, ordered anticlockwise.
@@ -102,8 +100,6 @@ class Triangle(object):
             return self.edges == other.edges
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     def __hash__(self):
         return hash(tuple(self.edges))
     def __len__(self):
@@ -122,7 +118,7 @@ class Triangle(object):
 # Remark: In other places in the code you will often see L(triangulation). This is the space
 # of laminations on triangulation with the coordinate system induced by the triangulation.
 
-class Triangulation(object):
+class Triangulation:
     ''' This represents a triangulation of a punctured surface.
     
     It is specified by a list of Triangles. Its edges must be numbered 0, 1, ... '''
@@ -230,8 +226,6 @@ class Triangulation(object):
         return (create_triangulation, (self.__class__,) + self.package())
     def __eq__(self, other):
         return self.signature == other.signature
-    def __ne__(self, other):
-        return not self == other
     def __hash__(self):
         return hash(tuple(self.signature))
     def __call__(self, geometric, promote=True):

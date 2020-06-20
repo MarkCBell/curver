@@ -57,7 +57,7 @@ def get_colours(num_colours):
     
     return [colour(i) for i in range(num_colours)]
 
-class Drawing(object):
+class Drawing:
     def __init__(self, note, canvas, item, options):
         self.note = note
         self.canvas = canvas
@@ -395,7 +395,7 @@ class Drawing(object):
                     )
 
 
-class CurverApplication(object):
+class CurverApplication:
     def __init__(self, parent, items):
         self.parent = parent
         self.options = curver.application.Options(self)

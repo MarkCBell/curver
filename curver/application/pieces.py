@@ -55,7 +55,7 @@ def interpolate(A, B, C, r, s):
     
     return X, P, Q, Y
 
-class DrawableObject(object):
+class DrawableObject:
     def __init__(self, canvas, vertices, options):
         self.options = options
         self.canvas = canvas

@@ -16,7 +16,7 @@ IS_INT = re.compile(r'[+-]?\d+')
 TOKENS = re.compile(r'[+-]?\d+|\^|\(|\)|[\w_\.]+')
 LEADING_DOTS = re.compile(r'^\.*')
 
-class MappingClassGroup(object):
+class MappingClassGroup:
     ''' This represents a triangulation along with a collection of named mapping classes on it.
     
     It can also be given a list of curves and arcs, in which case the twists and half-twists about
@@ -63,8 +63,6 @@ class MappingClassGroup(object):
     
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.mapping_classes == other.mapping_classes
-    def __ne__(self, other):
-        return not self == other
     
     def __getitem__(self, item):
         return self.mapping_classes[item]

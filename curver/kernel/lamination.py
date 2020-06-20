@@ -20,7 +20,7 @@ def render_topological_type(self):
 TopologicalType = namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])
 TopologicalType.__str__ = render_topological_type
 
-class Lamination(object):
+class Lamination:
     ''' This represents a lamination on a triangulation.
     
     Users should create these via Triangulation(...) or Triangulation.lamination(...). '''
@@ -62,8 +62,6 @@ class Lamination(object):
     def __eq__(self, other):
         if not isinstance(other, Lamination): return False
         return self.triangulation == other.triangulation and self.geometric == other.geometric
-    def __ne__(self, other):
-        return not self == other
     def __hash__(self):
         return hash(tuple(self.geometric))
     def __add__(self, other):

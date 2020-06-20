@@ -12,7 +12,7 @@ NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
 NT_TYPE_PSEUDO_ANOSOV = 'Pseudo-Anosov'
 
-class Encoding(object):
+class Encoding:
     ''' This represents a map between two Triangulations.
     
     The map is given by a sequence of Moves which act from right to left. '''
@@ -81,8 +81,6 @@ class Encoding(object):
             return all(self(arc.boundary()) == other(arc.boundary()) for arc in self.source_triangulation.edge_arcs())
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     def __hash__(self):
         # In fact this hash is perfect unless the surface is S_{1,1}.
         return hash(tuple(entry for arc in self.source_triangulation.edge_arcs() for entry in self(arc.boundary())))

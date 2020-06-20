@@ -32,8 +32,6 @@ class Move(ABC):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation
         else:
             return NotImplemented
-    def __ne__(self, other):
-        return not self == other
     
     def encode(self):
         ''' Return the Encoding induced by this move. '''
