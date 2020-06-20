@@ -6,10 +6,9 @@
 from setuptools import setup, find_packages
 
 requirements = [
-    'decorator',
+    'decorator>=4.3.0',
     'networkx>=2.0',
-    'numpy!=1.15.0',
-    'six',
+    'numpy>=1.15.1',
 ]
 
 def readme():
