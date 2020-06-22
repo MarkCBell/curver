@@ -7,6 +7,8 @@ History
 
 * Laminations can now be specified via a dictionary of weights.
 * Custom print method for topological types to match paper.
+* Fixed closed case topological type bug where parallel curves separated by a puncture would appear different.
+* Added minimum dependency versions.
 
 0.4.0 (2020-04-13)
 ------------------
