@@ -5,7 +5,7 @@ from collections import Counter, defaultdict
 
 import curver
 
-class SplittingSequence(object):
+class SplittingSequence:
     ''' This represents a splitting sequence.
     
     This is an encoding which splits a lamination open along its large branches,

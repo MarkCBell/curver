@@ -4,7 +4,7 @@
 import numpy as np
 import realalg
 
-class PartialLinearFunction(object):
+class PartialLinearFunction:
     ''' A Linear function defined on a linear subset of Euclidean space. '''
     def __init__(self, action, condition):
         assert isinstance(action, np.ndarray)
