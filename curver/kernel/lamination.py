@@ -427,8 +427,11 @@ class IntegralLamination(Lamination):
         
         # Then two laminations are in the same mapping class group orbit iff there is a label-preserving isomorphism between their graphs.
         
-        if closed and self.multiarc():
-            raise ValueError('Cannot apply the forgetful map to a lamination with an Arc component')
+        if closed:
+            if self.multiarc():
+                raise ValueError('Cannot apply the forgetful map to a lamination with an Arc component')
+            if any(S.p > 1 for S in self.triangulation.surface().values()):
+                raise ValueError('Cannot apply the forgetful map when a component of the surface has more than one puncture until the push map is implemented.')
         
         short, _ = self.shorten()
         
@@ -448,20 +451,17 @@ class IntegralLamination(Lamination):
             nodes.append(dummy)
             node_labels[dummy] = -1
         
-        duplicated_boundary = set(component for component, multiplicity in boundary.components().items() if multiplicity == 2)
-        real_nodes = [node for node in nodes if node not in duplicated_boundary]
+        real_nodes = list(nodes)  # Take a copy before we add some fake nodes.
         
+        duplicated_boundary = set(component for component, multiplicity in boundary.components().items() if multiplicity == 2)
         for component in duplicated_boundary:
             nodes.append(component)
             node_labels[component] = -2
         
         # Sort nodes by node_labels.
         nodes.sort(key=node_labels.get)
-        # Determine their labels.
-        best_node_labels = [node_labels[node] for node in nodes]  # We know the best node labels right away.
         
         # Useful lookup maps.
-        node_lookup = dict((node, index) for index, node in enumerate(nodes))
         edge_node_map = dict((edge, node) for node in real_nodes for edge in node)
         vertex_node_map = dict((vertex, edge_node_map[vertex[0]]) for vertex in triangulation.vertices)
         
@@ -488,12 +488,35 @@ class IntegralLamination(Lamination):
                 links.append((vertex_node_map[vertex], dummy, short_components.get(curve, 0)))
                 vertex_paired_node_map[vertex] = dummy
         
+        # Another useful lookup.
+        node_lookup = dict((node, index) for index, node in enumerate(nodes))
+        
         # Build link label matrix.
         link_labels = [[list() for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
         for node1, node2, label in links:
             link_labels[node_lookup[node1]][node_lookup[node2]].append(label)
             if node1 != node2:  # Don't add self loops twice.
                 link_labels[node_lookup[node2]][node_lookup[node1]].append(label)
+        
+        if closed:
+            # Smooth out any degree two vertices whose label is 0.
+            good = [node_labels[node] != 0 or sum(len(link_labels[i][j]) for j in range(len(nodes))) + len(link_labels[i][i]) != 2 for i, node in enumerate(nodes)]
+            for i, keep in enumerate(good):
+                if not keep:
+                    adjacent = [j for j in range(len(nodes)) if link_labels[i][j]]
+                    w = sum(sum(link_labels[i][a]) for a in adjacent)
+                    if len(adjacent) == 2:
+                        a, b = adjacent  # Unpack.
+                        link_labels[a][b].append(w)
+                        link_labels[b][a].append(w)
+                    else:  # len(adjacent) == 1:
+                        a, = adjacent  # Unpack.
+                        link_labels[a][a].append(w)
+            
+            # Filter down to just the good nodes and labels.
+            nodes = [node for node, keep in zip(nodes, good) if keep]
+            link_labels = [[label for label, keep2 in zip(row, good) if keep2] for row, keep in zip(link_labels, good) if keep]
+        
         # Sort all entries of the matrix.
         for row in link_labels:
             for entry in row:
@@ -516,6 +539,7 @@ class IntegralLamination(Lamination):
         disjoint_vertices = [vertex for vertex in triangulation.vertices if all(not image(e) for e in vertex)]
         image_vertex_map = dict((edge, vertex) for vertex in disjoint_vertices for edge in classes_lookup[vertex[0]])
         
+        best_node_labels = [node_labels[node] for node in nodes]  # We know the best node labels right away.
         best_link_labels = None
         best_node_markings = None
         for X in product(*(permutations(g) for k, g in groupby(range(len(nodes)), key=lambda i: node_labels[nodes[i]]))):  # pylint: disable=too-many-nested-blocks
