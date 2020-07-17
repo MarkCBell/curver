@@ -17,7 +17,7 @@ def readme():
 
 setup(
     name='curver',
-    version='0.4.0',
+    version='0.4.1',
     description='For calculations in the curve complex',
     long_description=readme(),
     author='Mark Bell',

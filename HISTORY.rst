@@ -2,7 +2,7 @@
 History
 =======
 
-0.4.1 (2020-XX-YY)
+0.4.1 (2020-07-17)
 ------------------
 
 * Laminations can now be specified via a dictionary of weights.
