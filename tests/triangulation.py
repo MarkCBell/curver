@@ -43,6 +43,6 @@ class TestTriangulation(unittest.TestCase):
             self.assertEqual(triangulation.is_connected(), encoding.target_triangulation.is_connected())
 
     @given(st.integers())
-    def test_norm(self,x):
-        '''tests that the norm function is always at least 0 for many integers'''
-        self.assertTrue(curver.kernel.triangulation.norm(x)>=0)
+    def test_norm(self, x):
+        """tests that the norm function is always at least 0 for many integers"""
+        self.assertTrue(curver.kernel.triangulation.norm(x) >= 0)
