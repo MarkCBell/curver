@@ -135,8 +135,8 @@ class MappingClassGroup:
                 elif token == '^':
                     try:
                         power = int(tokens[index+1])
-                    except (ValueError, IndexError):
-                        raise ValueError('^ not followed by a power')
+                    except (ValueError, IndexError) as err:
+                        raise ValueError('^ not followed by a power') from err
                     stack[-1][-1] = stack[-1][-1] * abs(power)
                     if power < 0: stack[-1][-1] = stack[-1][-1].reverse().map(lambda x: x.swapcase())
                 elif token == '(':
