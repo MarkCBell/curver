@@ -18,7 +18,7 @@ Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm to determine the Nielsen--Thurston type of a mapping class.
 This algorithm runs in polynomial time but the constants involved currently make this implementation impractical.
 
-Curver officially supports Python 3.6 -- 3.8.
+Curver officially supports Python 3.6 -- 3.9.
 Unoffically, it also runs on `PyPy`_ and `Sage`_ with some care.
 
 Quickstart
