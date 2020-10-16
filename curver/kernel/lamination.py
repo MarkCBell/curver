@@ -150,7 +150,7 @@ class Lamination:
         
         # Move cache across.
         try:
-            promoted._cache = temp._cache  # pylint: disable=attribute-defined-outside-init
+            promoted._cache = temp._cache
         except AttributeError:
             pass  # No cache.
         
@@ -409,7 +409,7 @@ class IntegralLamination(Lamination):
         return NotImplemented  # TODO: 2) Implement! (And remove the PyLint disable when done.)
     
     # @topological_invariant
-    def topological_type(self, closed=False):  # pylint: disable=no-self-use, unused-argument
+    def topological_type(self, closed=False):
         ''' Return the topological type of this lamination..
         If the closed flag is set the the object returned records the topological type of the lamination after applying the forgetful map.
         
