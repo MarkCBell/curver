@@ -64,14 +64,10 @@ class FlipGraphMove(Move):
     @abstractmethod
     def flip_mapping(self):
         ''' Return a Mapping equal to self.encoding() but that only uses EdgeFlips and Isometries. '''
-        
-        return NotImplemented
     
     @abstractmethod
     def pl_action(self, multicurve):
         ''' Return the PartialLinearFunction that this FlipGraphMove applies to the given multicurve. '''
-        
-        return NotImplemented
 
 class Isometry(FlipGraphMove):
     ''' This represents an isometry from one Triangulation to another.
