@@ -81,7 +81,7 @@ Ready to contribute? Here's how to set up `curver` for local development.
   tox will install and run flake8, pylint and curvers unittests in several versions of Python.
   Since this can take a long time, you may wish to run just a single environment during development, for example::
 
-    $ tox -e py27
+    $ tox -e py37
 
   Alternatively, you may wish to run just the tests associated to the code you are developing, for example::
 
@@ -104,7 +104,7 @@ Before you submit a pull request, check that it meets these guidelines:
 2. If the pull request adds functionality, the docs should be updated. Put
    your new functionality into a function with a docstring, and add the
    feature to the list in README.rst.
-3. The pull request should work for Python 3.6 -- 3.8. Check
+3. The pull request should work for Python 3.6 -- 3.9. Check
    https://travis-ci.com/MarkCBell/curver/pull_requests
    and make sure that the tests pass for all supported Python versions.
 
