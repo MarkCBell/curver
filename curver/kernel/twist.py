@@ -157,7 +157,7 @@ class HalfTwist(FlipGraphMove):
         # No close up to complete the half twist. Use the isometry that inverts this edge.
         half_twist = half_twist.target_triangulation.find_isometry(half_twist.source_triangulation, {edge.label: ~edge.label}).encode() * half_twist
         
-        self.encoding = conjugator.inverse() * half_twist * conjugator
+        self.encoding = half_twist.conjugate_by(conjugator)
         
         # We handle large powers by replacing (T^1/2_self)^2 with T_boundary, which includes acceleration.
         # We handle small powers separately to increase performance.

@@ -374,6 +374,11 @@ class MappingClass(Mapping):
             raise ValueError('MappingClass is not periodic')
         
         return curver.kernel.FiniteSubgroup({i: self**i for i in range(order)}, [0 if order == 1 else 1])
+    
+    def conjugate_by(self, other):
+        ''' Return this mapping class conjugated by other. '''
+        
+        return other.inverse() * self * other
 
     def is_conjugate_to(self, other):
         ''' Return whether this mapping class is conjugate to other.

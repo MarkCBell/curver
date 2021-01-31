@@ -24,6 +24,26 @@ class MultiArc(IntegralLamination):
         
         return len(self.vertices()) == 2 * self.num_components()
     
+    def encode_halftwist(self, power=1):
+        ''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
+        
+        This arc must have distinct endpoints. '''
+        
+        if not self.has_distinct_endpoints():  # Check where it connects.
+            raise ValueError('Arc connects a vertex to itself')
+        
+        if power == 0:  # Boring case.
+            return self.triangulation.id_encoding()
+        
+        short, conjugator = self.shorten()
+        
+        h = short.triangulation.id_encoding()
+        for arc, multiplicity in short.components().items():
+            assert multiplicity == 1
+            h = curver.kernel.create.halftwist(arc, power * multiplicity).encode() * h
+        
+        return h.conjugate_by(conjugator)
+    
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
         
@@ -169,19 +189,4 @@ class Arc(MultiArc):
         assert multiplicity == 1  # Sanity.
         
         return edge
-    
-    def encode_halftwist(self, power=1):
-        ''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
-        
-        This arc must connects between distinct vertices. '''
-        
-        if not self.has_distinct_endpoints():  # Check where it connects.
-            raise ValueError('Arc connects a vertex to itself')
-        
-        if power == 0:  # Boring case.
-            return self.triangulation.id_encoding()
-        
-        short, conjugator = self.shorten()
-        
-        return conjugator.inverse() * curver.kernel.create.halftwist(short, power).encode() * conjugator
 
