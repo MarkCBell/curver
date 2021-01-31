@@ -10,8 +10,8 @@ from curver.kernel.decorators import memoize, topological_invariant  # Special i
 
 class MultiArc(IntegralLamination):
     ''' An IntegralLamination in which every component is an Arc. '''
-    # def is_short(self):
-        # return all(weight <= 0 for weight in self)
+    def is_short(self):
+        return all(weight <= 0 for weight in self)
     
     def vertices(self):
         ''' Return set of vertices that the components of this MultiArc connects to. '''
