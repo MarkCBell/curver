@@ -262,8 +262,7 @@ class Lamination:
             if edge.sign() == +1:  # Don't double count.
                 multiplicity = -self(edge)
                 if multiplicity > 0:
-                    component = self.triangulation.edge_arc(edge)
-                    components[component] = (multiplicity, edge)
+                    components[self.triangulation.edge_arc(edge)] = (multiplicity, edge)
             
             if self.triangulation.vertex_lookup[edge] == self.triangulation.vertex_lookup[~edge]:
                 v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
@@ -276,8 +275,7 @@ class Lamination:
                         multiplicity = twisting
                         
                         if multiplicity > 0:
-                            component = self.triangulation.curve_from_cut_sequence(v_edges[1:])
-                            components[component] = (multiplicity, edge)
+                            components[self.triangulation.edge_curve(edge)] = (multiplicity, edge)
         
         return components
 
