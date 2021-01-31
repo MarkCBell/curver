@@ -14,7 +14,7 @@ class TestArc(TestMultiArc):
     @given(st.data())
     @settings(max_examples=10)
     def test_halftwist(self, data):
-        arc = data.draw(self._strategy().filter(lambda a: a.connects_distinct_vertices()))
+        arc = data.draw(self._strategy().filter(lambda a: a.has_distinct_endpoints()))
         self.assertEqual(arc.boundary().encode_twist(), arc.encode_halftwist()**2)
 
 # Remove the TestLamination class from this namespace to prevent py.test from

@@ -10,13 +10,19 @@ from curver.kernel.decorators import memoize, topological_invariant  # Special i
 
 class MultiArc(IntegralLamination):
     ''' An IntegralLamination in which every component is an Arc. '''
-    def is_short(self):
-        return all(weight <= 0 for weight in self)
+    # def is_short(self):
+        # return all(weight <= 0 for weight in self)
     
     def vertices(self):
         ''' Return set of vertices that the components of this MultiArc connects to. '''
         
         return set(vertex for vertex in self.triangulation.vertices if any(self(edge) < 0 or self.left_weight(edge) < 0 for edge in vertex))
+    
+    @topological_invariant
+    def has_distinct_endpoints(self):
+        ''' Return whether this multiarc connects between distict vertices of its underlying triangulation. '''
+        
+        return len(self.vertices()) == 2 * self.num_components()
     
     def boundary(self):
         ''' Return the multicurve which is the boundary of a regular neighbourhood of this multiarc. '''
@@ -164,18 +170,12 @@ class Arc(MultiArc):
         
         return edge
     
-    @topological_invariant
-    def connects_distinct_vertices(self):
-        ''' Return whether this arc connects between distict vertices of its underlying triangulation. '''
-        
-        return len(self.vertices()) == 2
-    
     def encode_halftwist(self, power=1):
         ''' Return an Encoding of a right half twist about a regular neighbourhood of this arc, raised to the given power.
         
         This arc must connects between distinct vertices. '''
         
-        if not self.connects_distinct_vertices():  # Check where it connects.
+        if not self.has_distinct_endpoints():  # Check where it connects.
             raise ValueError('Arc connects a vertex to itself')
         
         if power == 0:  # Boring case.

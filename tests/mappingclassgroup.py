@@ -58,7 +58,7 @@ class TestMCG(unittest.TestCase):
     @settings(max_examples=50)
     def test_arc_relation(self, data):
         mcg = data.draw(strategies.mcgs())
-        distinct_end_arcs = sorted(name for name, arc in mcg.arcs.items() if arc.connects_distinct_vertices)
+        distinct_end_arcs = sorted(name for name, arc in mcg.arcs.items() if arc.has_distinct_endpoints())
         assume(distinct_end_arcs)
         name1 = data.draw(st.sampled_from(distinct_end_arcs))
         name2 = data.draw(st.sampled_from(distinct_end_arcs))  # Hmm, should we check arc1.intersection(arc2) == 0?

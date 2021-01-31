@@ -45,7 +45,7 @@ class TestTwist(unittest.TestCase):
         self.assertEqual(f(a).encode_twist(), f * a.encode_twist() * f.inverse())
 
 class TestHalfTwist(unittest.TestCase):
-    @given(strategies.arcs().filter(lambda a: a.connects_distinct_vertices()), st.integers(), st.integers())
+    @given(strategies.arcs().filter(lambda a: a.has_distinct_endpoints()), st.integers(), st.integers())
     @settings(max_examples=2)
     def test_powers(self, arc, power1, power2):
         htwist_i = arc.encode_halftwist(power1)
