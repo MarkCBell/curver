@@ -315,7 +315,7 @@ class PartialIsometry(Move):
         
         It is given by a map taking edge labels of source_triangulation to labels of target_triangulation. '''
         
-        super(PartialIsometry, self).__init__(source_triangulation, target_triangulation)
+        super().__init__(source_triangulation, target_triangulation)
         
         assert isinstance(label_map, dict)
         self.label_map = dict(label_map)
@@ -329,7 +329,7 @@ class PartialIsometry(Move):
     def package(self):
         return sorted(self.label_map)
     def __eq__(self, other):
-        eq = super(PartialIsometry, self).__eq__(other)
+        eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
             return eq
         
