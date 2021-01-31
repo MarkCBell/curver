@@ -127,16 +127,6 @@ class Curve(MultiCurve):
     def is_short(self):
         return self.is_peripheral() or len(self.parallel_components()) == 1
     
-    def encode_twist(self, power=1):
-        ''' Return an Encoding of a right Dehn twist about this curve, raised to the given power. '''
-        
-        if self.is_peripheral() or power == 0:  # Boring case.
-            return self.triangulation.id_encoding()
-        
-        short, conjugator = self.shorten()
-        
-        return conjugator.inverse() * curver.kernel.create.twist(short, power).encode() * conjugator
-    
     def slope(self, lamination):
         ''' Return the slope of the given lamination about this curve.
         
