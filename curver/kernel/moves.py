@@ -39,9 +39,6 @@ class Move(ABC):
         
         return curver.kernel.Encoding([self]).promote()
     
-    def package(self):
-        ''' Return a small amount of data such that self.source_triangulation.encode([data]) == self.encode(). '''
-    
     def inverse(self):
         ''' Return the inverse of this move. '''
         
