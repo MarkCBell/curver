@@ -623,9 +623,8 @@ class IntegralLamination(Lamination):
         geometric = list(lamination)
         for component, (multiplicity, _) in lamination.parallel_components().items():
             geometric = [x - y * multiplicity for x, y in zip(geometric, component)]
-        lamination = Lamination(lamination.triangulation, geometric)
         
-        return lamination.is_empty()
+        return not any(geometric)
     
     @memoize
     @ensure(lambda data: data.result[0].is_short())
