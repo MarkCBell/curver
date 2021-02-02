@@ -1,11 +1,11 @@
 
 ''' A module for building and manipulating splitting sequences. '''
 
-from collections import Counter, defaultdict
+from collections import defaultdict
 
 import curver
 
-class SplittingSequence:
+class SplittingSequence:  # pylint: disable=too-few-public-methods
     ''' This represents a splitting sequence.
     
     This is an encoding which splits a lamination open along its large branches,
@@ -82,7 +82,7 @@ class SplittingSequence:
                 disjoint_multiarc = lamination.triangulation([-1 if lamination(index) == 0 else 0 for index in lamination.triangulation.indices])
                 if disjoint_multiarc:
                     preperiodic = curver.kernel.Encoding([move for item in reversed(encodings) for move in item]).promote()
-                    original_multiarc = preperiodic.inverse()(disjoint_arcs)  # The disjoint arcs back on punctured_lamination.
+                    original_multiarc = preperiodic.inverse()(disjoint_multiarc)  # The disjoint arcs back on punctured_lamination.
                     
                     punctured_edges = [edge for edge in punctured_lamination.triangulation.edges if original_multiarc.dual_weight(edge) < 0]
                     assert all(edge.index < starting_lamination.zeta for edge in punctured_edges)
@@ -97,12 +97,12 @@ class SplittingSequence:
                         move = starting_lamination.triangulation.encode_flip(edge)
                         starting_lamination = move(starting_lamination)
                         
-                        if left == right:
-                            break
-                        elif left < right:
+                        if left < right:
                             edge = corner[1]
-                        else:  # left > right:
+                        elif left > right:
                             edge = corner[2]
+                        else:  # if left == right:
+                            break
                     
                     break
                 

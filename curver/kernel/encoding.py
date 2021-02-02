@@ -318,7 +318,6 @@ class MappingClass(Mapping):
                 return False
             except ValueError:
                 return True
-            
     
     def is_pseudo_anosov(self):
         ''' Return whether this mapping class is pseudo-Anosov. '''
