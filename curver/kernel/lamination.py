@@ -322,8 +322,7 @@ class Lamination:
     def self_isometries(self):
         ''' Yield the isometries taking this triangulation to itself. '''
         
-        for isometry in self.isometries_to(self):
-            yield isometry
+        yield from self.isometries_to(self)
     
     def is_isometric_to(self, other):
         ''' Return whether there are any orientation preserving isometries from this lamination to other. '''
@@ -331,6 +330,12 @@ class Lamination:
         assert isinstance(other, Lamination)
         
         return next(self.isometries_to(other), None) is not None
+    
+    def encode_puncture_to_train_track(self):
+        ''' Return an encoding which punctures all triangles where this lamination forms a tripod. '''
+        
+        tripods = [triangle for triangle in self.triangulation if all(self.dual_weight(edge) > 0 for edge in triangle)]
+        return self.triangulation.encode_pachner_1_3(tripods)
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
