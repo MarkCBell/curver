@@ -58,91 +58,77 @@ class SplittingSequence:
             return [entry / weight for entry in L]
         
         assert projectivise(mapping_class(starting_lamination)) == projectivise(starting_lamination)
-        assert all(weight >= 0 for weight in starting_lamination)
         assert all(starting_lamination.dual_weight(edge) >= 0 for edge in starting_lamination.triangulation.edges)
         
-        puncture = starting_lamination.triangulation.encode_pachner_1_3()
-        lamination = punctured_lamination = puncture(starting_lamination)
-        
-        encodings = [lamination.triangulation.id_encoding()]
-        laminations = dict()  # i |--> L_i.
-        seen = defaultdict(list)  # hash |--> [i]  # This is a dict taking the hash of each lamination to the index where we saw it.
-        
         while True:
-            # Save lamination.
-            laminations[len(encodings)] = lamination
-            seen[projective_hash(lamination)].append(len(encodings))
+            if any(weight == 0 for weight in starting_lamination):
+                raise ValueError('Lamination is not filling.')
             
-            assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 1, 2) for triangle in lamination.triangulation)
+            puncture = starting_lamination.encode_puncture_to_train_track()
+            lamination = punctured_lamination = puncture(starting_lamination)
             
-            # Remove all of the obvious boundary.
-            non_peripheral_boundary = lamination.triangulation([2 if lamination(index) > 0 else 0 for index in lamination.triangulation.indices]).non_peripheral()
-            if non_peripheral_boundary:  # is not empty.
-                move = non_peripheral_boundary.crush()
-                encodings.append(move)
-                lamination = move(lamination)
-                
-                move = lamination.encode_restrict()
-                encodings.append(move)
-                lamination = move(lamination)
-                
-                # Reset dictionaries ...
-                laminations = dict()
-                seen = defaultdict(list)
-                # ... and re-save lamination.
+            encodings = [lamination.triangulation.id_encoding()]
+            laminations = dict()  # i |--> L_i.
+            seen = defaultdict(list)  # hash |--> [i]  # This is a dict taking the hash of each lamination to the index where we saw it.
+            
+            while True:
+                # Save lamination.
                 laminations[len(encodings)] = lamination
                 seen[projective_hash(lamination)].append(len(encodings))
-            
-            assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 2) for triangle in lamination.triangulation)
-            
-            # Split all of the maximal branches
-            move = lamination.triangulation.encode_multiflip(curver.kernel.utilities.maxes(lamination.triangulation.positive_edges, key=lamination))
-            encodings.append(move)
-            lamination = move(lamination)
-            
-            # Check if lamination now (projectively) matches a lamination we've already seen.
-            for index in seen.get(projective_hash(lamination), []):
-                old_lamination = laminations[index]
                 
-                scaled_old_lamination = old_lamination * lamination.weight()
-                scaled_lamination = lamination * old_lamination.weight()
+                assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 1, 2) for triangle in lamination.triangulation)
                 
-                for isometry in scaled_lamination.isometries_to(scaled_old_lamination):
-                    isom_e = isometry.encode()
-                    preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item]).promote()
-                    open_periodic = curver.kernel.Encoding([move for item in reversed(encodings[index:]) for move in item]).promote()
-                    periodic = isom_e * open_periodic
-                    # We really should only return for the correct isometry.
-                    # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
-                    # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                    return cls(puncture, preperiodic, periodic, starting_lamination, punctured_lamination, old_lamination)
+                # Write down the multiarc which is obviously disjoint from lamination.
+                disjoint_multiarc = lamination.triangulation([-1 if lamination(index) == 0 else 0 for index in lamination.triangulation.indices])
+                if disjoint_multiarc:
+                    preperiodic = curver.kernel.Encoding([move for item in reversed(encodings) for move in item]).promote()
+                    original_multiarc = preperiodic.inverse()(disjoint_arcs)  # The disjoint arcs back on punctured_lamination.
+                    
+                    punctured_edges = [edge for edge in punctured_lamination.triangulation.edges if original_multiarc.dual_weight(edge) < 0]
+                    assert all(edge.index < starting_lamination.zeta for edge in punctured_edges)
+                    
+                    edge = punctured_edges[0]
+                    while True:
+                        corner = starting_lamination.triangulation.corner_lookup[~edge]
+                        right = starting_lamination.right_weight(edge)
+                        left = starting_lamination.left_weight(~edge)
+                        
+                        # We could remember all of the moves that we have applied to the starting_lamination.
+                        move = starting_lamination.triangulation.encode_flip(edge)
+                        starting_lamination = move(starting_lamination)
+                        
+                        if left == right:
+                            break
+                        elif left < right:
+                            edge = corner[1]
+                        else:  # left > right:
+                            edge = corner[2]
+                    
+                    break
+                
+                assert all(sum(1 if lamination.dual_weight(edge) > 0 else 0 for edge in triangle) in (0, 2) for triangle in lamination.triangulation)
+                
+                # Split all of the maximal branches
+                move = lamination.triangulation.encode_multiflip(curver.kernel.utilities.maxes(lamination.triangulation.positive_edges, key=lamination))
+                encodings.append(move)
+                lamination = move(lamination)
+                
+                # Check if lamination now (projectively) matches a lamination we've already seen.
+                for index in seen.get(projective_hash(lamination), []):
+                    old_lamination = laminations[index]
+                    
+                    scaled_old_lamination = old_lamination * lamination.weight()
+                    scaled_lamination = lamination * old_lamination.weight()
+                    
+                    for isometry in scaled_lamination.isometries_to(scaled_old_lamination):
+                        isom_e = isometry.encode()
+                        preperiodic = curver.kernel.Encoding([move for item in reversed(encodings[:index]) for move in item]).promote()
+                        open_periodic = curver.kernel.Encoding([move for item in reversed(encodings[index:]) for move in item]).promote()
+                        periodic = isom_e * open_periodic
+                        # We really should only return for the correct isometry.
+                        # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
+                        # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
+                        return cls(puncture, preperiodic, periodic, starting_lamination, punctured_lamination, old_lamination)
         
         raise RuntimeError('Unreachable code.')
-    
-    def essential_punctured_boundary(self):
-        ''' Return the MultiCurve consisiting of the components of punctured_boundary that are essential in self.triangulation.
-        
-        We do this by looking for components of self.punctured_boundary that do not bound a disk or punctured disk.
-        We test for this by crushing along a candidate curve and checking whether all the components that correspond to it either:
-        have genus or have more than one real vertex. '''
-        
-        def is_essential(curve):
-            ''' Return whether the given curve is essential in the original surface. '''
-            
-            if curve.is_peripheral():  # x is obviously peripheral or null-homotopic in the original surface.
-                return False
-            
-            crush = curve.crush()
-            lift = crush.inverse()
-            T = crush.target_triangulation
-            T_components = set(c.containing_components().pop() for c in T([2] * T.zeta).components() if lift(c) == curve)  # The components of T that contain the curve vertices.
-            assert len(T_components) <= 2
-            
-            S = T.surface()
-            real_punctures = crush(self.puncture(self.triangulation([2] * self.triangulation.zeta)))  # Find the punctures of T that are real.
-            num_real_punctures = Counter(component.containing_components().pop() for component in real_punctures.components())
-            
-            return not any(S[component].g == 0 and num_real_punctures[component] <= 1 for component in T_components)
-        
-        return self.punctured_triangulation.disjoint_sum([curve for curve in self.punctured_boundary.components() if is_essential(curve)])
 

@@ -314,10 +314,11 @@ class MappingClass(Mapping):
         else:
             try:
                 d, L = self.projective_invariant_lamination()
+                curver.kernel.SplittingSequence.from_lamination(L, self)
+                return False
             except ValueError:
                 return True
             
-            return curver.kernel.SplittingSequence.from_lamination(L, self).essential_punctured_boundary()
     
     def is_pseudo_anosov(self):
         ''' Return whether this mapping class is pseudo-Anosov. '''
