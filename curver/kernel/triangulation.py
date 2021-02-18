@@ -765,18 +765,6 @@ class Triangulation:
         
         return curver.kernel.create.isometry(self, new_triangulation, label_map).encode()
     
-    def encode_restrict(self, components):
-        ''' Return a PartialIsometry from self to the specified components of self. '''
-        
-        surviving_edges = set(edge for component in components for edge in component)
-        surviving_positive_edges = set(edge for edge in surviving_edges if edge.sign() == +1)
-        label_map = dict((label, new_label) for index, edge in enumerate(sorted(surviving_positive_edges)) for label, new_label in ((edge.label, index), (~edge.label, ~index)))
-        
-        edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges if edge.label in label_map)
-        new_triangulation = Triangulation([Triangle([edge_map[edge] for edge in triangle]) for triangle in self if triangle[0] in surviving_edges])
-        
-        return curver.kernel.create.partial_isometry(self, new_triangulation, label_map).encode()
-    
     def encode_pachner_1_3(self, triangles=None):
         ''' Return an Encoding which corresponds to performing a 1 --> 3 Pachner move on the requested triangles.
         

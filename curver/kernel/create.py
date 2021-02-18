@@ -59,11 +59,3 @@ def lineartransformation(source_triangulation, target_triangulation, matrix, inv
         curver.kernel.LinearTransformation(target_triangulation, source_triangulation, inverse_matrix)
         )
 
-def partial_isometry(source_triangulation, target_triangulation, label_map):
-    ''' Create a partial isometry. '''
-    inverse_label_map = dict((value, key) for key, value in label_map.items())
-    return link(
-        curver.kernel.PartialIsometry(source_triangulation, target_triangulation, label_map),
-        curver.kernel.PartialIsometry(target_triangulation, source_triangulation, inverse_label_map)
-        )
-
