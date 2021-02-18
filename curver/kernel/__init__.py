@@ -1,8 +1,6 @@
 
 ''' The curver kernel. '''
 
-from realalg import RealNumberField, RealAlgebraic  # noqa: F401
-
 from .arc import Arc, MultiArc  # noqa: F401
 from .crush import Crush, LinearTransformation, Lift  # noqa: F401
 from .curve import Curve, MultiCurve  # noqa: F401
