@@ -6,7 +6,7 @@ import operator
 import numpy as np
 
 import curver
-from curver.kernel.decorators import memoize
+from curver.kernel.decorators import memoize, ensure
 
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
@@ -33,7 +33,7 @@ class Encoding:
         self.zeta = self.source_triangulation.zeta
     
     def __repr__(self):
-        return str(self)
+        return '{}: {}'.format(self.source_triangulation, self.package())
     def __str__(self):
         return 'Encoding %s' % self.sequence
     def __iter__(self):
@@ -216,6 +216,18 @@ class Mapping(Encoding):
         ''' Return a Mapping equal to self that only uses EdgeFlips and Isometries. '''
         
         return self.__class__([item for move in self for item in move.flip_mapping()])
+    
+    def pl_action(self, multicurve):
+        ''' Return the PartialLinearFunction that this Mapping applies to the given multicurve. '''
+        
+        assert isinstance(multicurve, curver.kernel.MultiCurve)
+        
+        current = None
+        for item in reversed(self):
+            current = item.pl_action(multicurve) * current
+            multicurve = item(multicurve)
+        
+        return current
 
 class MappingClass(Mapping):
     ''' A Mapping from a Triangulation to itself.
@@ -439,6 +451,50 @@ class MappingClass(Mapping):
             return True
         except ValueError:
             return False
+    
+    @memoize
+    @ensure(
+        lambda data: data.result[0] > 0,
+        lambda data: data.result[1],  # Non-empty.
+        lambda data: data.self(data.result[1]) == data.result[0] * data.result[1],
+        )
+    def projective_invariant_lamination(self, curves=None):
+        ''' Return (d, L) such that self(L) == d * L.
+        
+        May raise a ValueError if self is not pseudo-Anosov. '''
+        
+        triangulation = self.source_triangulation
+        if curves is None: curves = triangulation.edge_curves()
+        assert all(isinstance(curve, curver.kernel.Curve) for curve in curves)
+        
+        # We start with a fast test for periodicity.
+        # This isn't needed but it means that if we ever discover that
+        # self is not pA then it must be reducible.
+        if self.is_periodic():
+            raise ValueError('Mapping class is periodic.')
+        
+        @memoize
+        def test_cell(cell):
+            ''' Return an eigenvector of this action matrix inside the cone defined by condtion matrix.
+            
+            Raise a ValueError if no such vector exists. '''
+            
+            eigenvalue, eigenvector = cell.eigenvector()
+            invariant_lamination = triangulation(eigenvector.tolist())
+            return eigenvalue, invariant_lamination
+        
+        # The result of Margalit--Strenner--Yurtas say that this is a sufficient number of iterations to find a fixed point.
+        # See https://www.youtube.com/watch?v=-GO0AvUGjH4
+        for curve in curves:
+            curve = self(curve, power=36 * self.source_triangulation.euler_characteristic**2)
+            cell = self.pl_action(curve)
+            try:
+                return test_cell(cell)
+            except ValueError:
+                pass
+        
+        # Self has no pA pieces. Since it is not periodic it must therefore be the root of a multitwist.
+        raise ValueError('Mapping class is reducible.')
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.

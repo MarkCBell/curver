@@ -111,7 +111,7 @@ class Triangle:
         return iter(self.edges)
     
     def __getitem__(self, index):
-        return self.edges[index]
+        return self.edges[index % 3]
     def __contains__(self, other):
         return other in self.edges
 
@@ -237,6 +237,7 @@ class Triangulation:
         return curver.kernel.utilities.b64encode(self.zeta) + '_' + \
             curver.kernel.utilities.b64encode(curver.kernel.Permutation([x + self.zeta for x in self.signature]).index())
     
+    @memoize
     def surface(self):
         ''' This return a dictionary mapping component to (genus, #punctures) for each component of self. '''
         
@@ -338,7 +339,7 @@ class Triangulation:
                 edge = Edge(index)
                 while True:
                     corner = self.corner_lookup[edge]
-                    edge = corner.edges[2]
+                    edge = corner[2]
                     if edge.index not in dual_tree:
                         row[edge.index] -= edge.sign()
                     else:
@@ -390,7 +391,7 @@ class Triangulation:
         # #---------->#
         
         corner_A, corner_B = self.corner_lookup[edge], self.corner_lookup[~edge]
-        return [corner_A.edges[1], corner_A.edges[2], corner_B.edges[1], corner_B.edges[2], edge]
+        return [corner_A[1], corner_A[2], corner_B[1], corner_B[2], edge]
     
     def all_encodings(self, num_flips):
         ''' Yield all encodings that can be made using at most the given number of flips.
@@ -467,43 +468,45 @@ class Triangulation:
         return curver.kernel.create.isometry(self, other, label_map)
     
     def isometries_to(self, other):
-        ''' Return a list of all isometries from this triangulation to other. '''
+        ''' Yield all isometries from this triangulation to other. '''
         
         assert isinstance(other, Triangulation)
         
         if self.zeta != other.zeta:
-            return []
+            return
         
         if sorted(self.surface().values()) != sorted(other.surface().values()):
-            return []
+            return
         
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
-        sources = [min(component, key=lambda edge: len(self.vertex_lookup[edge])) for component in self.components()]
-        degrees = [len(self.vertex_lookup[edge]) for edge in sources]
-        targets = [[edge for edge in other.edges if len(other.vertex_lookup[edge]) == degree] for degree in degrees]
+        k = lambda T: lambda e: (
+            len(T.vertex_lookup[e]),
+            len(curver.kernel.utilities.cyclic_slice(T.vertex_lookup[~e], ~e, e))
+            )
+        sources = [max(component, key=k(self)) for component in self.components()]
+        values = [k(self)(edge) for edge in sources]
+        targets = [[edge for edge in other.edges if k(other)(edge) == value] for value in values]
         
-        isometries = []
         for chosen_targets in product(*targets):
             try:
-                isometries.append(self.find_isometry(other, dict(zip(sources, chosen_targets))))
+                yield self.find_isometry(other, dict(zip(sources, chosen_targets)))
             except ValueError:  # Map does not extend uniquely.
                 pass
-        
-        return isometries
     
     def self_isometries(self):
-        ''' Return a list of isometries taking this triangulation to itself. '''
+        ''' Yield the isometries taking this triangulation to itself. '''
         
-        return self.isometries_to(self)
+        for isometry in self.isometries_to(self):
+            yield isometry
     
     def is_isometric_to(self, other):
         ''' Return whether there are any orientation preserving isometries from this triangulation to other. '''
         
         assert isinstance(other, Triangulation)
         
-        return len(self.isometries_to(other)) > 0
+        return next(self.isometries_to(other), None) is not None
     
     # Laminations we can build on this triangulation.
     def lamination(self, weights, promote=True):

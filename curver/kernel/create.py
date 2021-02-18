@@ -11,7 +11,7 @@ def link(move, inverse_move):
 
 def isometry(source_triangulation, target_triangulation, label_map):
     ''' Create an isometry. '''
-    inverse_label_map = dict((label_map[label], label) for label in label_map)
+    inverse_label_map = dict((value, key) for key, value in label_map.items())
     return link(
         curver.kernel.Isometry(source_triangulation, target_triangulation, label_map),
         curver.kernel.Isometry(target_triangulation, source_triangulation, inverse_label_map)

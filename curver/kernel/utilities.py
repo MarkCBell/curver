@@ -55,11 +55,14 @@ def cyclic_slice(L, x, y=None):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
     
     L may be cyclically permuted if needed.
-    y may be omitted in which case the entire list (cyclically permuted so x is first) is returned. '''
+    If y is omitted or not present then the entire list (cyclically permuted so x is first) is returned. '''
     
     i = L.index(x)
     L = L[i:] + L[:i]  # x is now L[0].
-    j = None if y is None else L.index(y)
+    try:
+        j = None if y is None else L.index(y)
+    except ValueError:  # y is not present.
+        j = None
     return L[:j]
 
 def minimal(iterable, lower_bound):
@@ -85,6 +88,21 @@ def maximum(iterable, key=lambda x: x, upper_bound=None):
             if upper_bound is not None and key(item) >= upper_bound: return
 
     return max(helper(), key=key)
+
+def maxes(iterable, key=lambda x: x):
+    ''' Return the list of items in iterable whose value is maximal. '''
+    
+    best = None
+    ans = []
+    for item in iterable:
+        value = key(item)
+        if best is None or value > best:
+            ans = [item]
+            best = value
+        elif best is not None and value == best:
+            ans.append(item)
+    
+    return ans
 
 def alphanum_key(strn):
     ''' Return a list of string and number chunks from a string. '''
