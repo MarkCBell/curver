@@ -498,8 +498,7 @@ class Triangulation:
     def self_isometries(self):
         ''' Yield the isometries taking this triangulation to itself. '''
         
-        for isometry in self.isometries_to(self):
-            yield isometry
+        yield from self.isometries_to(self):
     
     def is_isometric_to(self, other):
         ''' Return whether there are any orientation preserving isometries from this triangulation to other. '''
