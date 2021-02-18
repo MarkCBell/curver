@@ -10,7 +10,7 @@ from .finite import FiniteSubgroup  # noqa: F401
 from .homology import HomologyClass  # noqa: F401
 from .lamination import Lamination, IntegralLamination  # noqa: F401
 from .mappingclassgroup import MappingClassGroup  # noqa: F401
-from .moves import Move, FlipGraphMove, Isometry, EdgeFlip, MultiEdgeFlip  # noqa: F401
+from .moves import Move, FlipGraphMove, Isometry, EdgeFlip, MultiEdgeFlip, PartialIsometry  # noqa: F401
 from .permutation import Permutation  # noqa: F401
 from .PL import PartialLinearFunction  # noqa: F401
 from .splitting import SplittingSequence  # noqa: F401

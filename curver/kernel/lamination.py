@@ -287,6 +287,16 @@ class Lamination:
         
         return set(component for component in self.triangulation.components() if any(self(edge) for edge in component))
     
+    def encode_restrict(self):
+        ''' Return an encoding that resricts to the connected components of self.triangulation that contain self.
+        
+        Raises a ValueError if self is empty. '''
+        
+        if not self:
+            raise ValueError('Lamination is empty')
+        
+        return self.triangulation.encode_restrict(self.containing_components())
+    
     def isometries_to(self, other):
         ''' Yield all isometries that send this lamination to other. '''
         
