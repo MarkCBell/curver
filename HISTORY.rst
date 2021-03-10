@@ -2,6 +2,16 @@
 History
 =======
 
+0.5.0 (2021-XX-YY)
+------------------
+
+* Added PartialLinear functions and the ability to find invariant laminations using realalg.
+* Added Python 3.9 support.
+* Changed CI/CD pipeline to Github actions.
+* Encode_halftwist generalised to multiarcs.
+* Isometries_to and self_isometries now return generators
+* Simplified twising algorithm.
+
 0.4.1 (2020-07-17)
 ------------------
 
