@@ -81,7 +81,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 # Write down the multiarc which is obviously disjoint from lamination.
                 disjoint_multiarc = lamination.triangulation([-1 if lamination(index) == 0 else 0 for index in lamination.triangulation.indices])
                 if disjoint_multiarc:
-                    preperiodic = curver.kernel.Encoding([move for item in reversed(encodings) for move in item]).promote()
+                    preperiodic = curver.kernel.Encoding([move for item in reversed(encodings) for move in item])  # Don't bother promoting.
                     original_multiarc = preperiodic.inverse()(disjoint_multiarc)  # The disjoint arcs back on punctured_lamination.
                     
                     punctured_edges = [edge for edge in punctured_lamination.triangulation.edges if original_multiarc.dual_weight(edge) < 0]
