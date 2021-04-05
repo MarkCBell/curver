@@ -1,7 +1,5 @@
 
-from fractions import Fraction
 from math import prod
-from string import ascii_lowercase
 import unittest
 
 from hypothesis import given, assume, settings
@@ -14,13 +12,6 @@ class TestMisc(unittest.TestCase):
     def test_b64(self, integer):
         strn = curver.kernel.utilities.b64encode(integer)
         self.assertEqual(curver.kernel.utilities.b64decode(strn), integer)
-    
-    @given(st.data())
-    def test_maximum(self, data):
-        bound = data.draw(st.integers())
-        integers = data.draw(st.lists(elements=st.integers(max_value=bound), min_size=1))
-        value = curver.kernel.utilities.maximum(integers, upper_bound=bound)
-        self.assertEqual(value, min(max(integers), bound))
     
     @given(st.data())
     def test_cyclic_slice(self, data):
@@ -41,9 +32,12 @@ class TestMisc(unittest.TestCase):
         result = curver.kernel.utilities.maximin(*iterables)
         self.assertEqual(result, max(min(iterable) for iterable in iterables))
     
-    @given(st.lists(elements=st.integers(), min_size=1))
-    def test_maximum(self, iterable):
-        self.assertEqual(curver.kernel.utilities.maximum(iterable), max(iterable))
+    @given(st.data())
+    def test_maximum(self, data):
+        bound = data.draw(st.integers())
+        integers = data.draw(st.lists(elements=st.integers(max_value=bound), min_size=1))
+        value = curver.kernel.utilities.maximum(integers, upper_bound=bound)
+        self.assertEqual(value, min(max(integers), bound))
     
     @given(st.lists(elements=st.integers(), min_size=1))
     def test_maxes(self, iterable):
