@@ -47,7 +47,7 @@ class MappingClassGroup:
         
         self.pos_mapping_classes = pos_mapping_classes
         self.neg_mapping_classes = dict((name.swapcase(), pos_mapping_class.inverse()) for name, pos_mapping_class in self.pos_mapping_classes.items())
-        self.mapping_classes = {**self.pos_mapping_classes.items(), **self.neg_mapping_classes.items()}
+        self.mapping_classes = {**self.pos_mapping_classes, **self.neg_mapping_classes}
         
         self.arcs = arcs
         self.curves = curves
