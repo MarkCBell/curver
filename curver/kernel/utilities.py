@@ -40,7 +40,7 @@ def maximin(*iterables):
     ''' Return the maximum of the minimum, terminating early.
     
     This is equivalent to: max(min(iterable) for iterable in iterables) '''
-
+    
     iterables = iter(iterables)
     try:
         result = min(next(iterables))  # Get the first one through a full evaluation.
@@ -54,12 +54,14 @@ def maximin(*iterables):
         except StopIteration:
             raise ValueError('min() arg is an empty sequence') from None
         
+        if best <= result: continue
+        
         for item in iterable:
-            if item < result:
+            if item <= result:
                 break
             if item < best:
                 best = item
-        else:  # We never broke out, so best >= result
+        else:  # We never broke out, so best > result
             result = best
     
     return result

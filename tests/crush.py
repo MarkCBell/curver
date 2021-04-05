@@ -5,12 +5,10 @@ from collections import Counter
 
 from hypothesis import given, settings
 import hypothesis.strategies as st
-import pytest
 
 import strategies
 
 class TestCrush(unittest.TestCase):
-    @pytest.mark.skip('Crush / Lift are not pickleable since they do not implement .package().')
     @given(strategies.curves())
     def test_pickle(self, curve):
         crush = curve.crush()
