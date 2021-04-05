@@ -37,10 +37,13 @@ class MultiArc(IntegralLamination):
         
         short, conjugator = self.shorten()
         
-        h = short.triangulation.id_encoding()
-        for arc, multiplicity in short.components().items():
-            assert multiplicity == 1
-            h = curver.kernel.create.halftwist(arc, power * multiplicity).encode() * h
+        h = curver.kernel.utilities.product(
+            [
+                curver.kernel.create.halftwist(arc, power).encode()
+                for arc, _ in short.components().items()  # multiplicity must be 1.
+            ],
+            start=short.triangulation.id_encoding()
+            )
         
         return h.conjugate_by(conjugator)
     

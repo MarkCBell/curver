@@ -25,10 +25,14 @@ class MultiCurve(IntegralLamination):
         
         short, conjugator = self.shorten()
         
-        h = short.triangulation.id_encoding()
-        for curve, multiplicity in short.components().items():
-            if not curve.is_peripheral():
-                h = curver.kernel.create.twist(curve, power * multiplicity).encode() * h
+        h = curver.kernel.utilities.product(
+            [
+                curver.kernel.create.twist(curve, power * multiplicity).encode()
+                for curve, multiplicity in short.components().items()
+                if not curve.is_peripheral()
+            ],
+            start=short.triangulation.id_encoding()
+            )
         
         return h.conjugate_by(conjugator)
     
