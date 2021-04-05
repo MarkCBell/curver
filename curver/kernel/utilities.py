@@ -1,7 +1,6 @@
 
 ''' A module of useful, generic functions; including input and output formatting. '''
 
-from itertools import product
 from string import ascii_lowercase, ascii_uppercase, digits
 import re
 
@@ -22,34 +21,6 @@ def b64decode(strn):
     ''' Return the integer with base 64 encoding strn. '''
     
     return sum(ALPHABET.index(c) * 64**i for i, c in enumerate(strn))
-
-def string_generator(n, skip=None):
-    ''' Return a list of n usable names, none of which are in skip. '''
-    
-    assert isinstance(n, curver.IntegerType)
-    assert skip is None or isinstance(skip, (list, tuple, dict, set))
-    
-    skip = set() if skip is None else set(skip)
-    
-    alphabet = ascii_lowercase
-    results = []
-    i = 0
-    while len(results) < n:
-        i += 1
-        for letters in product(alphabet, repeat=i):
-            word = ''.join(letters)
-            if word not in skip:
-                results.append(word)
-            if len(results) >= n: break
-    
-    return results
-
-def name_objects(objects, skip=None):
-    ''' Return a list of pairs (name, object). '''
-    
-    assert isinstance(objects, (list, tuple))
-    
-    return zip(string_generator(len(objects), skip), objects)
 
 def cyclic_slice(L, x, y=None):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
@@ -115,6 +86,24 @@ def alphanum_key(strn):
             blocks.append(chunk)
     
     return blocks
+
+def product(iterable, start=1, left=True):
+    ''' Return the product of the items in iterable.
+    
+    If left then multiply items on the left, otherwise multiply on the right.
+    If iterable is empty then return start. '''
+    
+    iterable = iter(iterable)
+    
+    try:
+        result = next(iterable)
+    except StopIteration:
+        return start
+    
+    for item in iterable:
+        result = item * result if left else result * item
+    
+    return result
 
 class Half:
     ''' A class for representing 1/2 in such a way that multiplication preserves types. '''

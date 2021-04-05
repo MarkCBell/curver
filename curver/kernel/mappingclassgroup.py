@@ -37,20 +37,17 @@ class MappingClassGroup:
         
         assert pos_mapping_classes
         
-        if not isinstance(pos_mapping_classes, dict):
-            pos_mapping_classes = dict(curver.kernel.utilities.name_objects(pos_mapping_classes))
-        
-        self.triangulation = list(pos_mapping_classes.values())[0].source_triangulation
+        self.triangulation = next(iter(pos_mapping_classes.values())).source_triangulation
         self.zeta = self.triangulation.zeta
         
         assert all(isinstance(key, str) for key in pos_mapping_classes)
+        assert all(IS_NAME.match(name) for name in pos_mapping_classes)
         assert all(isinstance(pos_mapping_class, curver.kernel.MappingClass) for pos_mapping_class in pos_mapping_classes.values())
         assert all(pos_mapping_class.source_triangulation == self.triangulation for pos_mapping_class in pos_mapping_classes.values())
-        assert all(IS_NAME.match(name) for name in pos_mapping_classes)
         
-        self.pos_mapping_classes = dict(pos_mapping_classes)
+        self.pos_mapping_classes = pos_mapping_classes
         self.neg_mapping_classes = dict((name.swapcase(), pos_mapping_class.inverse()) for name, pos_mapping_class in self.pos_mapping_classes.items())
-        self.mapping_classes = dict(list(self.pos_mapping_classes.items()) + list(self.neg_mapping_classes.items()))
+        self.mapping_classes = {**self.pos_mapping_classes.items(), **self.neg_mapping_classes.items()}
         
         self.arcs = arcs
         self.curves = curves
