@@ -36,41 +36,63 @@ def cyclic_slice(L, x, y=None):
         j = None
     return L[:j]
 
-def minimal(iterable, lower_bound):
-    ''' Return the minimal item of iterable but terminate early when given a lower_bound. '''
+def maximin(*iterables):
+    ''' Return the maximum of the minimum, terminating early.
+    
+    This is equivalent to: max(min(iterable) for iterable in iterables) '''
 
-    def helper():
-        ''' A generator that yields elements from iterable up to and including one such that key(item) <= lower_bound. '''
+    iterables = iter(iterables)
+    try:
+        result = min(next(iterables))  # Get the first one through a full evaluation.
+    except StopIteration:
+        raise ValueError('max() arg is an empty sequence') from None
+    
+    for iterable in iterables:
+        iterable = iter(iterable)
+        try:
+            best = next(iterable)
+        except StopIteration:
+            raise ValueError('min() arg is an empty sequence') from None
+        
         for item in iterable:
-            if item <= lower_bound:
-                yield lower_bound
-                return
-            yield item
-
-    return min(helper())
+            if item < result:
+                break
+            if item < best:
+                best = item
+        else:  # We never broke out, so best >= result
+            result = best
+    
+    return result
 
 def maximum(iterable, key=lambda x: x, upper_bound=None):
     ''' Return the maximum of iterable but terminate early when given an upper_bound. '''
 
     def helper():
-        ''' A generator that yields elements from iterable up to and including one such that key(item) >= upper_bound. '''
+        ''' A generator that yields items from iterable, if it encounters an item s.t. key(item) >= upper_bound then yields it and exits. '''
         for item in iterable:
             yield item
-            if upper_bound is not None and key(item) >= upper_bound: return
+            if key(item) >= upper_bound: return
 
-    return max(helper(), key=key)
+    return max(iterable if upper_bound is None else helper(), key=key)
 
 def maxes(iterable, key=lambda x: x):
     ''' Return the list of items in iterable whose value is maximal. '''
     
-    best = None
-    ans = []
+    iterable = iter(iterable)
+    
+    try:
+        item = next(iterable)
+    except StopIteration:
+        raise ValueError('maxes() arg is an empty sequence') from None
+    
+    best = key(item)
+    ans = [item]
     for item in iterable:
         value = key(item)
-        if best is None or value > best:
+        if value > best:
             ans = [item]
             best = value
-        elif best is not None and value == best:
+        elif value == best:
             ans.append(item)
     
     return ans
