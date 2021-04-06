@@ -30,7 +30,7 @@ jobs:
       run: |
         python -c "import sys; print(sys.version)"
         pip --version
-    - name: Install dependencies
+    - name: Install Tox
       run: |
         pip install --upgrade pip
         pip install tox
