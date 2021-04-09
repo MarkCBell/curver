@@ -6,6 +6,7 @@ from hypothesis import given, settings
 import hypothesis.strategies as st
 import numpy as np
 
+from base_classes import ConjugacyInvariant
 import strategies
 
 class TestEncoding(unittest.TestCase):
@@ -86,7 +87,7 @@ class TestMapping(TestEncoding):
         c = data.draw(strategies.multicurves(h.source_triangulation))
         self.assertEqual(h.pl_action(c)(c.geometric), h(c).geometric)
 
-class TestMappingClass(TestMapping):
+class TestMappingClass(ConjugacyInvariant, TestMapping):
     _strategy = staticmethod(strategies.mapping_classes)
     
     @given(st.data())

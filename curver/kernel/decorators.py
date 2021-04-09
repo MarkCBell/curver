@@ -53,6 +53,14 @@ def topological_invariant(function):
     function.topological_invariant = True
     return function
 
+def conjugacy_invariant(function):
+    ''' Mark this function as a conjugacy invariant.
+    
+    This is allows it to be picked out by the ConjugacyInvariant unittests. '''
+    
+    function.conjugacy_invariant = True
+    return function
+
 def ensure(*fs):
     ''' A decorator that specifies properties that the result of a functions should have. '''
     @decorator

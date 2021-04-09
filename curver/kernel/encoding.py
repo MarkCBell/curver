@@ -6,7 +6,7 @@ import operator
 import numpy as np
 
 import curver
-from curver.kernel.decorators import memoize, ensure
+from curver.kernel.decorators import memoize, ensure, conjugacy_invariant
 
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
@@ -250,6 +250,7 @@ class MappingClass(Mapping):
         else:
             return self.inverse()**abs(k)
     
+    @conjugacy_invariant
     def is_in_torelli(self):
         ''' Return whether this mapping class is in the Torelli subgroup. '''
         
@@ -257,6 +258,7 @@ class MappingClass(Mapping):
         return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0], dtype=object))
     
     @memoize
+    @conjugacy_invariant
     def order(self):
         ''' Return the order of this mapping class.
         
@@ -444,6 +446,7 @@ class MappingClass(Mapping):
         
         raise ValueError('Mapping Class is not a twist')
     
+    @conjugacy_invariant
     def is_multitwist(self):
         ''' Return whether this mapping class is a Dehn twist about a multicurve. '''
         try:
