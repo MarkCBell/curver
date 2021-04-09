@@ -2,7 +2,7 @@
 from hypothesis import given
 import hypothesis.strategies as st
 
-import strategies
+from . import strategies
 
 class TopologicalInvariant(object):
     @given(st.data())

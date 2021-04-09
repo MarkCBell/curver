@@ -6,8 +6,8 @@ from hypothesis import given, settings
 import hypothesis.strategies as st
 import numpy as np
 
-from base_classes import ConjugacyInvariant
-import strategies
+from . import strategies
+from .base_classes import ConjugacyInvariant
 
 class TestEncoding(unittest.TestCase):
     _strategy = staticmethod(strategies.encodings)

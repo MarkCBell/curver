@@ -2,8 +2,8 @@
 from hypothesis import given, settings
 import hypothesis.strategies as st
 
-from lamination import TestLamination
-import strategies
+from . import strategies
+from .lamination import TestLamination
 
 class TestMultiArc(TestLamination):
     _strategy = staticmethod(strategies.multiarcs)

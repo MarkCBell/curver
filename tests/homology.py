@@ -5,7 +5,7 @@ import unittest
 from hypothesis import given
 import hypothesis.strategies as st
 
-import strategies
+from . import strategies
 
 class TestHomologyClass(unittest.TestCase):
     def assertImplies(self, A, B):

@@ -7,7 +7,8 @@ import hypothesis.strategies as st
 import numpy as np
 
 import curver
-import strategies
+
+from . import strategies
 
 class TestPermutation(unittest.TestCase):
     def assertEqualArray(self, M, N):
