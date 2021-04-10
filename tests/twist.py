@@ -5,7 +5,7 @@ import unittest
 from hypothesis import given, settings
 import hypothesis.strategies as st
 
-import strategies
+from . import strategies
 
 class TestTwist(unittest.TestCase):
     @given(strategies.curves(), st.integers())

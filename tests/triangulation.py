@@ -6,7 +6,8 @@ from hypothesis import given
 import hypothesis.strategies as st
 
 import curver
-import strategies
+
+from . import strategies
 
 class TestTriangulation(unittest.TestCase):
     def assertImplies(self, A, B):

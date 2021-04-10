@@ -6,7 +6,7 @@ from collections import Counter
 from hypothesis import given, settings
 import hypothesis.strategies as st
 
-import strategies
+from . import strategies
 
 class TestCrush(unittest.TestCase):
     @given(strategies.curves())
