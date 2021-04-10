@@ -25,7 +25,8 @@ TRIANGULATIONS = {
     (3, 2): 'i_0mGG3b5sZ48hMGl+XMxQf7',
     }
 
-SIGNATURES = [TRIANGULATIONS[key] for key in sorted(TRIANGULATIONS)]
+SURFACES = sorted(TRIANGULATIONS)
+SIGNATURES = [TRIANGULATIONS[mcg] for mcg in SURFACES]
 
 @memoize
 def memoized_triangulation(signature):
@@ -36,15 +37,13 @@ def triangulations(draw):
     sig = draw(st.sampled_from(SIGNATURES))
     return curver.triangulation_from_sig(sig)
 
-MCGS = [(0, 3), (0, 4), (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)]
-
 @memoize
 def memoized_load(*args):
     return curver.load(*args)
 
 @st.composite
 def mcgs(draw):
-    g, p = draw(st.sampled_from(MCGS))
+    g, p = draw(st.sampled_from(SURFACES))
     return memoized_load(g, p)
 
 @st.composite
@@ -52,15 +51,15 @@ def mapping_classes(draw, triangulation=None, power_range=10):
     return draw(encodings(triangulation, power_range, distribution=[2, 3]))
 
 PERIODICS = [
-    curver.load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
-    curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^2'),
-    curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^3'),
-    curver.load(0, 6)('s_0.s_1.S_3.S_4'),
-    curver.load(1, 1)('a_0.b_0'),
-    curver.load(1, 1)('a_0.b_0.a_0'),
-    curver.load(2, 1)('a_0.b_0.c_0.b_1'),
-    curver.load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
-    curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
+    memoized_load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
+    memoized_load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^2'),
+    memoized_load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^3'),
+    memoized_load(0, 6)('s_0.s_1.S_3.S_4'),
+    memoized_load(1, 1)('a_0.b_0'),
+    memoized_load(1, 1)('a_0.b_0.a_0'),
+    memoized_load(2, 1)('a_0.b_0.c_0.b_1'),
+    memoized_load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
+    memoized_load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
     ]
 
 @st.composite

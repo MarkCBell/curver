@@ -36,7 +36,7 @@ jobs:
         pip install tox
     - name: Run Tox
       run: |
-        tox -- --hypothesis-profile=ci --durations=20
+        tox -- --hypothesis-profile=ci --durations=20 -v
       env:
         TOXENV: ${{ matrix.tox }}
 
