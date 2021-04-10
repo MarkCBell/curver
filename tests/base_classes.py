@@ -22,7 +22,7 @@ class ConjugacyInvariant(object):
     @given(st.data())
     def test_conjugacy_invariants(self, data):
         item = data.draw(self._strategy())  # pylint: disable=no-member
-        conjugator = data.draw(strategies.mappings(item.source_triangulation))  # Does this need to be mapping_classes?
+        conjugator = data.draw(strategies.mappings(item.source_triangulation, power_range=1))  # Does this need to be mapping_classes?
         image = item.conjugate_by(conjugator.inverse())
         for method_name in dir(item):
             method = getattr(item, method_name)
