@@ -705,6 +705,7 @@ class IntegralLamination(Lamination):
             
             # The arcs will be dealt with in the first round and once they are gone, they are gone.
             has_arcs = has_arcs and any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)
+            turn_left = turn_right = 0
             extra = []  # High priority edges to check.
             while True:
                 # Note that if lamination does not have any arcs then the max value that shorten_strategy can return is 0.5.
@@ -715,18 +716,30 @@ class IntegralLamination(Lamination):
                     upper_bound=1 if has_arcs else 0.5)
                 if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
                 
+                if extra:  # Record how long we have been in this turn.
+                    if edge == extra[0]:
+                        turn_left += 1
+                        turn_right = 0
+                    elif edge == extra[1]:
+                        turn_left = 0
+                        turn_right += 1
+                    else:
+                        turn_left = turn_right = 0
+                
                 a, b, c, d, e = lamination.triangulation.square(edge)
                 move = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
                 # Since looking for and applying a twist is expensive, we will not do it if:
                 #  * drop == 0,
-                #  * lamination has little weight, or
-                #  * flipping drops the weight by at least drop%.
-                if drop > 0 and 4 * self.zeta < lamination.weight() and (1 - drop) * lamination.weight() < move(lamination).weight() < lamination.weight():
+                #  * lamination has little weight,
+                #  * flipping drops the weight by at least drop%, or
+                #  * We have not done many turns in a row.
+                if drop > 0 and max(turn_left, turn_right) > 2*self.zeta and 4 * self.zeta < lamination.weight() and (1 - drop) * lamination.weight() < move(lamination).weight():
                     try:
                         curve = lamination.trace_curve(edge, lamination.left_weight(edge), 2*self.zeta)
                         slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
                         if abs(slope) > 2:  # Can accelerate and slope is large enough to be efficient.
                             move = curve.encode_twist(power=-int(slope))  # Round towards zero.
+                            turn_left = turn_right = 0
                     except ValueError:
                         extra = [c, d]
                 else:
