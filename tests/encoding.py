@@ -87,7 +87,7 @@ class TestMapping(TestEncoding):
         c = data.draw(strategies.multicurves(h.source_triangulation))
         self.assertEqual(h.pl_action(c)(c.geometric), h(c).geometric)
 
-class TestMappingClass(ConjugacyInvariant, TestMapping):
+class TestMappingClass(TestMapping):
     _strategy = staticmethod(strategies.mapping_classes)
     
     @given(st.data())
@@ -110,6 +110,10 @@ class TestMappingClass(ConjugacyInvariant, TestMapping):
         h = data.draw(self._strategy())
         self.assertLessEqual(h.order(), h.source_triangulation.max_order())
         self.assertEqual(h**(h.order()), h.source_triangulation.id_encoding())
+        
+        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
+        g = h.conjugate_by(f)
+        self.assertEqual(h.order(), g.order())
     
     @given(st.data())
     @settings(max_examples=3)
@@ -118,6 +122,22 @@ class TestMappingClass(ConjugacyInvariant, TestMapping):
         self.assertTrue(h.is_periodic())
         
         f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
-        g = ~f * h * f
+        g = h.conjugate_by(f)
         self.assertTrue(g.is_conjugate_to(h))
+    
+    @given(st.data())
+    def test_torelli(self, data):
+        h = data.draw(self._strategy())
+        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
+        g = h.conjugate_by(f)
+        
+        self.assertEqual(h.is_in_torelli(), g.is_in_torelli())
+    
+    @given(st.data())
+    def test_multitwist(self, data):
+        h = data.draw(self._strategy())
+        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
+        g = h.conjugate_by(f)
+        
+        self.assertEqual(h.is_multitwist(), g.is_multitwist())
 

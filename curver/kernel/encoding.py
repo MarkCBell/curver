@@ -6,7 +6,7 @@ import operator
 import numpy as np
 
 import curver
-from curver.kernel.decorators import memoize, ensure, conjugacy_invariant
+from curver.kernel.decorators import memoize, ensure
 
 NT_TYPE_PERIODIC = 'Periodic'
 NT_TYPE_REDUCIBLE = 'Reducible'  # Strictly this  means 'reducible and not periodic'.
@@ -250,7 +250,6 @@ class MappingClass(Mapping):
         else:
             return self.inverse()**abs(k)
     
-    @conjugacy_invariant
     def is_in_torelli(self):
         ''' Return whether this mapping class is in the Torelli subgroup. '''
         
@@ -258,7 +257,6 @@ class MappingClass(Mapping):
         return np.array_equal(homology_matrix, np.identity(homology_matrix.shape[0], dtype=object))
     
     @memoize
-    @conjugacy_invariant
     def order(self):
         ''' Return the order of this mapping class.
         
@@ -429,11 +427,14 @@ class MappingClass(Mapping):
         This raises a ValueError if no such MultiCurve exists. '''
         
         triangulation = self.source_triangulation
-        lamination = triangulation.as_lamination()
-        for _ in range(self.zeta):
+        triangulation_lamination = triangulation.as_lamination()
+        # Note: If this is a multitwist then triangulation_lamination and self^4(triangulation_lamination)
+        # can't both be in the dangerous twist region.
+        for power in [0, 4]:
+            lamination = self(triangulation_lamination, power)
             image = self(lamination)
             try:
-                multicurve = triangulation([x - y for x, y in zip(image, lamination)])
+                multicurve = triangulation([abs(x - y) for x, y in zip(image, lamination)])
                 if isinstance(multicurve, curver.kernel.MultiCurve):
                     weighted_multicurve = triangulation.disjoint_sum(dict(
                         (component, multiplicity // lamination.intersection(component)) for component, multiplicity in multicurve.components().items()
@@ -442,11 +443,9 @@ class MappingClass(Mapping):
                         return weighted_multicurve
             except ValueError:
                 pass
-            lamination = image
         
         raise ValueError('Mapping Class is not a twist')
     
-    @conjugacy_invariant
     def is_multitwist(self):
         ''' Return whether this mapping class is a Dehn twist about a multicurve. '''
         try:
