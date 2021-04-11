@@ -733,7 +733,7 @@ class IntegralLamination(Lamination):
                 #  * lamination has little weight,
                 #  * flipping drops the weight by at least drop%, or
                 #  * We have not done many turns in a row.
-                if drop > 0 and max(turn_left, turn_right) > 2*self.zeta and 4 * self.zeta < lamination.weight() and (1 - drop) * lamination.weight() < move(lamination).weight():
+                if drop > 0 and max(turn_left, turn_right) > 2*self.zeta and lamination.weight() > 4 * self.zeta and (1 - drop) * lamination.weight() < move(lamination).weight():
                     try:
                         curve = lamination.trace_curve(edge, lamination.left_weight(edge), 2*self.zeta)
                         slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
