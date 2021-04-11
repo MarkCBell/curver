@@ -132,12 +132,4 @@ class TestMappingClass(TestMapping):
         g = h.conjugate_by(f)
         
         self.assertEqual(h.is_in_torelli(), g.is_in_torelli())
-    
-    @given(st.data())
-    def test_multitwist(self, data):
-        h = data.draw(self._strategy())
-        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
-        g = h.conjugate_by(f)
-        
-        self.assertEqual(h.is_multitwist(), g.is_multitwist())
 

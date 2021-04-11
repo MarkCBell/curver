@@ -427,10 +427,11 @@ class MappingClass(Mapping):
         This raises a ValueError if no such MultiCurve exists. '''
         
         triangulation = self.source_triangulation
-        triangulation_lamination = triangulation.as_lamination()
-        # Note: If this is a multitwist then triangulation_lamination and self^4(triangulation_lamination)
-        # can't both be in the dangerous twist region.
-        for power in [0, 4]:
+        lamination = triangulation.as_lamination()
+        # If this is a multitwist then for each component c there are at most three powers of self for
+        # which T_c(self^i(lamination)) does not change by adding c. Since there are at most
+        # 3g - 3 + p components, this means that there are at most 2 zeta bad powers.
+        for _ in range(2 * self.zeta):
             lamination = self(triangulation_lamination, power)
             image = self(lamination)
             try:
@@ -443,6 +444,7 @@ class MappingClass(Mapping):
                         return weighted_multicurve
             except ValueError:
                 pass
+            lamination = image
         
         raise ValueError('Mapping Class is not a twist')
     
