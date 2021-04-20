@@ -432,7 +432,7 @@ class MappingClass(Mapping):
         # which T_c(self^i(lamination)) does not change by adding c. Since there are at most
         # 3g - 3 + p components, this means that there are at most 2 zeta bad powers.
         for _ in range(2 * self.zeta):
-            lamination = self(triangulation_lamination, power)
+            lamination = self(lamination)
             image = self(lamination)
             try:
                 multicurve = triangulation([abs(x - y) for x, y in zip(image, lamination)])
