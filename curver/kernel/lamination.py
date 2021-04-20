@@ -8,17 +8,16 @@ from queue import Queue
 import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
-def render_topological_type(self):
-    ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
-    
-    braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
-    if any(self.arcs):
-        return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
-    else:
-        return '({}, [{}])'.format(self.genuses, braced)
+class TopologicalType(namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])):
+    def __str__(self):
+        ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
+        
+        braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
+        if any(self.arcs):
+            return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
+        else:
+            return '({}, [{}])'.format(self.genuses, braced)
 
-TopologicalType = namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])
-TopologicalType.__str__ = render_topological_type
 
 class Lamination:
     ''' This represents a lamination on a triangulation.
