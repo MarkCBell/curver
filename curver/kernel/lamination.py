@@ -9,6 +9,7 @@ import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
 class TopologicalType(namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])):
+    ''' This represents the topological type of a lamination with a nice printer. '''
     def __str__(self):
         ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
         
