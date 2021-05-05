@@ -1,41 +1,42 @@
 
+from hypothesis import settings
 import hypothesis.strategies as st
 from hypothesis.stateful import Bundle, RuleBasedStateMachine, rule
 
 import curver
 
+@settings(max_examples=100)
 class UnionFindRules(RuleBasedStateMachine):
-    def __init__(self):
-        super(UnionFindRules, self).__init__()
-        self.initialize([0])
-    
-    @rule(items=st.sets(elements=st.integers(), min_size=1))
+    Unions = Bundle("unions")
+
+    @rule(target=Unions, items=st.lists(elements=st.integers(), min_size=1, unique=True))
     def initialize(self, items):
-        self.__items = list(items)
-        self.__union_find = curver.kernel.UnionFind(items)
-    
-    @rule(data=st.data())
-    def find(self, data):
-        a = data.draw(st.sampled_from(self.__items))
-        self.__union_find(a)
-    
-    @rule()
-    def iterate(self):
-        assert set(self.__items) == set(sum(self.__union_find, []))
-    
-    @rule(data=st.data())
-    def union2(self, data):
-        a = data.draw(st.sampled_from(self.__items))
-        b = data.draw(st.sampled_from(self.__items))
-        self.__union_find.union2(a, b)
-        assert self.__union_find(a) == self.__union_find(b)
-    
-    @rule(data=st.data())
-    def union(self, data):
-        items = data.draw(st.lists(elements=st.sampled_from(self.__items)))
-        self.__union_find.union(items)
+        return curver.kernel.UnionFind(items)
+
+    @rule(data=st.data(), union=Unions)
+    def find(self, data, union):
+        a = data.draw(st.sampled_from(union.items))
+        union(a)
+
+    @rule(union=Unions)
+    def iterate(self, union):
+        assert set(sum(union, [])) == set(union.items)
+
+    @rule(union=Unions, data=st.data())
+    def union2(self, data, union):
+        a = data.draw(st.sampled_from(union.items))
+        b = data.draw(st.sampled_from(union.items))
+        orig_len = len(union)
+        union.union2(a, b)
+        assert union(a) == union(b)
+        assert len(union) in (orig_len, orig_len - 1)
+
+    @rule(data=st.data(), union=Unions)
+    def union(self, data, union):
+        items = data.draw(st.lists(elements=st.sampled_from(union.items)))
+        union.union(*items)
         for item in items:
-            assert self.__union_find(item) == self.__union_find(items[0])
+            assert union(item) == union(items[0])
 
 TestUnionFind = UnionFindRules.TestCase
 

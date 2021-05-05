@@ -10,6 +10,7 @@ import curver
 class UnionFind:
     ''' A fast union--find data structure. Given items must be hashable. '''
     def __init__(self, items):
+        self.items = items
         self.parent = dict((item, item) for item in items)
         self.rank = dict((item, 0) for item in items)
     def __iter__(self):
@@ -44,7 +45,6 @@ class UnionFind:
             self.rank[rx] += 1
     def union(self, *args):
         ''' Combine all of the classes containing the given items. '''
-        if len(args) == 1: args = args[0]
         for item in args:
             self.union2(args[0], item)
 

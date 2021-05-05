@@ -295,7 +295,7 @@ class Triangulation:
         for edge in self.edges:
             classes.union(edge, ~edge)
         for triangle in self:
-            classes.union(triangle)
+            classes.union(*triangle)
         
         return [tuple(sorted(cls)) for cls in classes]
     
