@@ -415,10 +415,14 @@ class MappingClass(Mapping):
         
         triangulation = self.source_triangulation
         lamination = triangulation.as_lamination()
-        for _ in range(self.zeta):
+        # If this is a multitwist then for each component c there are at most three powers of self for
+        # which T_c(self^i(lamination)) does not change by adding c. Since there are at most
+        # 3g - 3 + p components, this means that there are at most 2 zeta bad powers.
+        for _ in range(2 * self.zeta):
+            lamination = self(lamination)
             image = self(lamination)
             try:
-                multicurve = triangulation([x - y for x, y in zip(image, lamination)])
+                multicurve = triangulation([abs(x - y) for x, y in zip(image, lamination)])
                 if isinstance(multicurve, curver.kernel.MultiCurve):
                     weighted_multicurve = triangulation.disjoint_sum(dict(
                         (component, multiplicity // lamination.intersection(component)) for component, multiplicity in multicurve.components().items()

@@ -18,8 +18,6 @@ def memoize(function, *args, **kwargs):
         try:
             self._cache[key] = function(*args, **kwargs)
         except Exception as error:  # pylint: disable=broad-except
-            if isinstance(error, KeyboardInterrupt):
-                raise
             self._cache[key] = error
     
     result = self._cache[key]
@@ -51,6 +49,14 @@ def topological_invariant(function):
     This is allows it to be picked out by the TopologicalInvariant unittests. '''
     
     function.topological_invariant = True
+    return function
+
+def conjugacy_invariant(function):
+    ''' Mark this function as a conjugacy invariant.
+    
+    This is allows it to be picked out by the ConjugacyInvariant unittests. '''
+    
+    function.conjugacy_invariant = True
     return function
 
 def ensure(*fs):

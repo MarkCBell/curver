@@ -124,10 +124,10 @@ class Twist(FlipGraphMove):
         v = self.curve.triangulation.vertex_lookup[a]
         
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)
-        around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+        around = curver.kernel.utilities.maximin([0], (multicurve.left_weight(edgy) for edgy in v_edges))
         around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around)  # The edge that realises around.
         
-        twisting = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) - around for edgy in v_edges[1:-1]), lower_bound=0)
+        twisting = curver.kernel.utilities.maximin([0], (multicurve.left_weight(edgy) - around for edgy in v_edges[1:-1]))
         twisting_edge = next(edge for edge in v_edges[1:-1] if multicurve.left_weight(edge) - around == twisting)  # The edge that realises twisting.
         
         slope_sign = -1 if multicurve.left_weight(a) - around > 0 else +1
@@ -177,7 +177,7 @@ class Twist(FlipGraphMove):
         
         if power:
             # We now have to recalculate around.
-            around = curver.kernel.utilities.minimal((multicurve.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+            around = curver.kernel.utilities.maximin([0], (multicurve.left_weight(edgy) for edgy in v_edges))
             around_edge = next(edge for edge in v_edges if multicurve.left_weight(edge) == around)  # The edge that realises around.
             around_condition = np.array([C2(edge) - C2(around_edge) for edge in v_edges])
             

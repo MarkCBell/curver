@@ -6,8 +6,9 @@ from hypothesis import given, settings
 import hypothesis.strategies as st
 import pytest
 
-import strategies
 import curver
+
+from . import strategies
 
 class TestFiniteSubgroup(unittest.TestCase):
     @given(st.data())

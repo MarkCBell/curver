@@ -30,13 +30,13 @@ jobs:
       run: |
         python -c "import sys; print(sys.version)"
         pip --version
-    - name: Install dependencies
+    - name: Install Tox
       run: |
         pip install --upgrade pip
         pip install tox
     - name: Run Tox
       run: |
-        tox -- --hypothesis-profile=ci --durations=20
+        tox -- --hypothesis-profile=ci --durations=20 -v --timeout=1000
       env:
         TOXENV: ${{ matrix.tox }}
 

@@ -25,10 +25,14 @@ class MultiCurve(IntegralLamination):
         
         short, conjugator = self.shorten()
         
-        h = short.triangulation.id_encoding()
-        for curve, multiplicity in short.components().items():
-            if not curve.is_peripheral():
-                h = curver.kernel.create.twist(curve, power * multiplicity).encode() * h
+        h = curver.kernel.utilities.product(
+            [
+                curver.kernel.create.twist(curve, power * multiplicity).encode()
+                for curve, multiplicity in short.components().items()
+                if not curve.is_peripheral()
+            ],
+            start=short.triangulation.id_encoding()
+            )
         
         return h.conjugate_by(conjugator)
     
@@ -147,14 +151,14 @@ class Curve(MultiCurve):
         v = short.triangulation.vertex_lookup[a]  # = short.triangulation.vertex_lookup[~a].
         
         v_edges = curver.kernel.utilities.cyclic_slice(v, a, ~a)  # The set of edges that come out of v from a round to ~a.
-        around_v = curver.kernel.utilities.minimal((short_lamination.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+        around_v = curver.kernel.utilities.maximin([0], (short_lamination.left_weight(edgy) for edgy in v_edges))
         out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
         
         denominator = max(short_lamination(a), 0) - 2 * around_v + out_v  # = short.intersection(short_lamination)
         if denominator == 0:
             raise ValueError('Slope is undefined when self is disjoint from lamination')
         
-        twisting = curver.kernel.utilities.minimal((short_lamination.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
+        twisting = curver.kernel.utilities.maximin([0], (short_lamination.left_weight(edgy) - around_v for edgy in v_edges[1:-1]))
         
         numerator = twisting
         

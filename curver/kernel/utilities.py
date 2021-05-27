@@ -1,7 +1,6 @@
 
 ''' A module of useful, generic functions; including input and output formatting. '''
 
-from itertools import product
 from string import ascii_lowercase, ascii_uppercase, digits
 import re
 
@@ -23,34 +22,6 @@ def b64decode(strn):
     
     return sum(ALPHABET.index(c) * 64**i for i, c in enumerate(strn))
 
-def string_generator(n, skip=None):
-    ''' Return a list of n usable names, none of which are in skip. '''
-    
-    assert isinstance(n, curver.IntegerType)
-    assert skip is None or isinstance(skip, (list, tuple, dict, set))
-    
-    skip = set() if skip is None else set(skip)
-    
-    alphabet = ascii_lowercase
-    results = []
-    i = 0
-    while len(results) < n:
-        i += 1
-        for letters in product(alphabet, repeat=i):
-            word = ''.join(letters)
-            if word not in skip:
-                results.append(word)
-            if len(results) >= n: break
-    
-    return results
-
-def name_objects(objects, skip=None):
-    ''' Return a list of pairs (name, object). '''
-    
-    assert isinstance(objects, (list, tuple))
-    
-    return zip(string_generator(len(objects), skip), objects)
-
 def cyclic_slice(L, x, y=None):
     ''' Return the sublist of L from x (inclusive) to y (exclusive).
     
@@ -65,41 +36,65 @@ def cyclic_slice(L, x, y=None):
         j = None
     return L[:j]
 
-def minimal(iterable, lower_bound):
-    ''' Return the minimal item of iterable but terminate early when given a lower_bound. '''
-
-    def helper():
-        ''' A generator that yields elements from iterable up to and including one such that key(item) <= lower_bound. '''
+def maximin(*iterables):
+    ''' Return the maximum of the minimum, terminating early.
+    
+    This is equivalent to: max(min(iterable) for iterable in iterables) '''
+    
+    iterables = iter(iterables)
+    try:
+        result = min(next(iterables))  # Get the first one through a full evaluation.
+    except StopIteration:
+        raise ValueError('max() arg is an empty sequence') from None
+    
+    for iterable in iterables:
+        iterable = iter(iterable)
+        try:
+            best = next(iterable)
+        except StopIteration:
+            raise ValueError('min() arg is an empty sequence') from None
+        
+        if best <= result: continue
+        
         for item in iterable:
-            if item <= lower_bound:
-                yield lower_bound
-                return
-            yield item
-
-    return min(helper())
+            if item <= result:
+                break
+            if item < best:
+                best = item
+        else:  # We never broke out, so best > result
+            result = best
+    
+    return result
 
 def maximum(iterable, key=lambda x: x, upper_bound=None):
     ''' Return the maximum of iterable but terminate early when given an upper_bound. '''
 
     def helper():
-        ''' A generator that yields elements from iterable up to and including one such that key(item) >= upper_bound. '''
+        ''' A generator that yields items from iterable, if it encounters an item s.t. key(item) >= upper_bound then yields it and exits. '''
         for item in iterable:
             yield item
-            if upper_bound is not None and key(item) >= upper_bound: return
+            if key(item) >= upper_bound: return
 
-    return max(helper(), key=key)
+    return max(iterable if upper_bound is None else helper(), key=key)
 
 def maxes(iterable, key=lambda x: x):
     ''' Return the list of items in iterable whose value is maximal. '''
     
-    best = None
-    ans = []
+    iterable = iter(iterable)
+    
+    try:
+        item = next(iterable)
+    except StopIteration:
+        raise ValueError('maxes() arg is an empty sequence') from None
+    
+    best = key(item)
+    ans = [item]
     for item in iterable:
         value = key(item)
-        if best is None or value > best:
+        if value > best:
             ans = [item]
             best = value
-        elif best is not None and value == best:
+        elif value == best:
             ans.append(item)
     
     return ans
@@ -115,6 +110,24 @@ def alphanum_key(strn):
             blocks.append(chunk)
     
     return blocks
+
+def product(iterable, start=1, left=True):
+    ''' Return the product of the items in iterable.
+    
+    If left then multiply items on the left, otherwise multiply on the right.
+    If iterable is empty then return start. '''
+    
+    iterable = iter(iterable)
+    
+    try:
+        result = next(iterable)
+    except StopIteration:
+        return start
+    
+    for item in iterable:
+        result = item * result if left else result * item
+    
+    return result
 
 class Half:
     ''' A class for representing 1/2 in such a way that multiplication preserves types. '''

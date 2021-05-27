@@ -25,7 +25,8 @@ TRIANGULATIONS = {
     (3, 2): 'i_0mGG3b5sZ48hMGl+XMxQf7',
     }
 
-SIGNATURES = [TRIANGULATIONS[key] for key in sorted(TRIANGULATIONS)]
+SURFACES = sorted(TRIANGULATIONS)
+SIGNATURES = [TRIANGULATIONS[mcg] for mcg in SURFACES]
 
 @memoize
 def memoized_triangulation(signature):
@@ -36,36 +37,34 @@ def triangulations(draw):
     sig = draw(st.sampled_from(SIGNATURES))
     return curver.triangulation_from_sig(sig)
 
-MCGS = [(0, 3), (0, 4), (1, 1), (1, 2), (1, 3), (2, 1), (2, 2), (2, 3), (3, 1), (3, 2)]
-
 @memoize
 def memoized_load(*args):
     return curver.load(*args)
 
 @st.composite
 def mcgs(draw):
-    g, p = draw(st.sampled_from(MCGS))
+    g, p = draw(st.sampled_from(SURFACES))
     return memoized_load(g, p)
 
-@st.composite
-def mapping_classes(draw, triangulation=None, power_range=10):
-    return draw(encodings(triangulation, power_range, distribution=[2, 3]))
-
 PERIODICS = [
-    curver.load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
-    curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^2'),
-    curver.load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^3'),
-    curver.load(0, 6)('s_0.s_1.S_3.S_4'),
-    curver.load(1, 1)('a_0.b_0'),
-    curver.load(1, 1)('a_0.b_0.a_0'),
-    curver.load(2, 1)('a_0.b_0.c_0.b_1'),
-    curver.load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
-    curver.load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
+    memoized_load(0, 6)('s_0.s_1.s_2.s_3.s_4'),
+    memoized_load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^2'),
+    memoized_load(0, 6)('(s_0.s_1.s_2.s_3.s_4)^3'),
+    memoized_load(0, 6)('s_0.s_1.S_3.S_4'),
+    memoized_load(1, 1)('a_0.b_0'),
+    memoized_load(1, 1)('a_0.b_0.a_0'),
+    memoized_load(2, 1)('a_0.b_0.c_0.b_1'),
+    memoized_load(2, 1)('a_0.b_0.c_0.b_1.a_1'),
+    memoized_load(2, 2)('a_0.b_0.c_0.b_1.p_1'),
     ]
 
 @st.composite
 def periodic_mapping_classes(draw):
     return draw(st.sampled_from(PERIODICS))
+
+@st.composite
+def mapping_classes(draw, triangulation=None, power_range=10):
+    return draw(encodings(triangulation, power_range, distribution=[2, 3]))
 
 @st.composite
 def mappings(draw, triangulation=None, power_range=10):
@@ -85,13 +84,14 @@ def encodings(draw, triangulation=None, power_range=10, distribution=None):
         elif move_type == 1:  # Isometry.
             term = T.encode_relabel_edges([i if draw(st.booleans()) else ~i for i in draw(st.permutations(range(T.zeta)))])
         elif move_type == 2:  # Twist.
-            edge_curves = [T.edge_curve(edge) for edge in T.edges]
-            curve = draw(st.sampled_from(edge_curves))
+            edge = draw(st.sampled_from(T.edges))
+            curve = T.edge_curve(edge)
             term = curve.encode_twist(power=draw(st.integers(min_value=-power_range, max_value=power_range).filter(lambda p: p)))
         elif move_type == 3:  # HalfTwist.
-            edge_arcs = [T.edge_arc(edge) for edge in T.edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
-            if edge_arcs:
-                arc = draw(st.sampled_from(edge_arcs))
+            edges = [edge for edge in T.positive_edges if T.vertex_lookup[edge] != T.vertex_lookup[~edge]]
+            if edges:
+                edge = draw(st.sampled_from(edges))
+                arc = T.edge_arc(edge)
                 term = arc.encode_halftwist(power=draw(st.integers(min_value=-power_range, max_value=power_range).filter(lambda p: p)))
             else:
                 term = T.id_encoding()
@@ -106,27 +106,21 @@ def encodings(draw, triangulation=None, power_range=10, distribution=None):
     return h
 
 @st.composite
-def homology_classes(draw, triangulation=None):
-    if triangulation is None: triangulation = draw(triangulations())
-    algebraic = [draw(st.integers()) for _ in range(triangulation.zeta)]
-    return curver.kernel.HomologyClass(triangulation, algebraic)
-
-@st.composite
 def multiarcs(draw, triangulation=None):
     if triangulation is None: triangulation = draw(triangulations())
     
-    geometric = [0] * triangulation.zeta
+    indices = draw(st.sets(elements=st.sampled_from(triangulation.indices), min_size=1))
+    geometric = [draw(st.integers(max_value=-1)) if i in indices else 0 for i in range(triangulation.zeta)]
     
-    permuted_indices = draw(st.permutations(triangulation.indices))
-    num_arcs = draw(st.integers(min_value=1, max_value=len(permuted_indices)))
-    for index in permuted_indices[:num_arcs]:
-        geometric[index] = draw(st.integers(max_value=-1))
-    
-    return triangulation.lamination(geometric)
+    return triangulation(geometric)
 
 @st.composite
 def arcs(draw, triangulation=None):
-    return draw(multiarcs(triangulation)).peek_component()
+    if triangulation is None: triangulation = draw(triangulations())
+    
+    edge = draw(st.sampled_from(triangulation.positive_edges))
+    
+    return triangulation.edge_arc(edge)
 
 @st.composite
 def multicurves(draw, triangulation=None):
@@ -168,6 +162,12 @@ def curves(draw, triangulation=None):
 @st.composite
 def laminations(draw, triangulation=None):
     return draw(st.one_of(multicurves(triangulation), multiarcs(triangulation)))
+
+@st.composite
+def homology_classes(draw, triangulation=None):
+    if triangulation is None: triangulation = draw(triangulations())
+    algebraic = [draw(st.integers()) for _ in range(triangulation.zeta)]
+    return curver.kernel.HomologyClass(triangulation, algebraic)
 
 @st.composite
 def permutations(draw, N=None):

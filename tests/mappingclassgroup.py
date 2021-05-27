@@ -6,7 +6,7 @@ from hypothesis import given, settings, assume
 import hypothesis.strategies as st
 import pytest
 
-import strategies
+from . import strategies
 
 class TestMCG(unittest.TestCase):
     @pytest.mark.skip('Slow.')

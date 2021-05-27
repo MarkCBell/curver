@@ -415,7 +415,7 @@ class CurverApplication:
         try:  # list of pairs.
             items = [Showable(key, item) for key, item in items]
         except (TypeError, ValueError):  # list.
-            items = [Showable(name, item) for name, item in curver.kernel.utilities.name_objects(items)]
+            items = [Showable(str(index), item) for index, item in enumerate(items)]
         self.items = items
         
         self.canvases = [TK.Canvas(self.note, bg='#dcecff') for i in range(len(self.items))]

@@ -8,17 +8,17 @@ from queue import Queue
 import curver
 from curver.kernel.decorators import memoize, topological_invariant, ensure  # Special import needed for decorating.
 
-def render_topological_type(self):
-    ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
-    
-    braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
-    if any(self.arcs):
-        return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
-    else:
-        return '({}, [{}])'.format(self.genuses, braced)
+class TopologicalType(namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])):
+    ''' This represents the topological type of a lamination with a nice printer. '''
+    def __str__(self):
+        ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
+        
+        braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
+        if any(self.arcs):
+            return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
+        else:
+            return '({}, [{}])'.format(self.genuses, braced)
 
-TopologicalType = namedtuple('TopologicalType', ['genuses', 'edges', 'arcs'])
-TopologicalType.__str__ = render_topological_type
 
 class Lamination:
     ''' This represents a lamination on a triangulation.
@@ -249,7 +249,7 @@ class Lamination:
         
         components = dict()
         for vertex in self.triangulation.vertices:
-            multiplicity = curver.kernel.utilities.minimal((self.left_weight(edge) for edge in vertex), lower_bound=0)
+            multiplicity = curver.kernel.utilities.maximin([0], (self.left_weight(edge) for edge in vertex))
             if multiplicity > 0:
                 component = self.triangulation.curve_from_cut_sequence(vertex)
                 components[component] = (multiplicity, vertex)
@@ -271,8 +271,8 @@ class Lamination:
                 v = self.triangulation.vertex_lookup[edge]  # = self.triangulation.vertex_lookup[~edge].
                 v_edges = curver.kernel.utilities.cyclic_slice(v, edge, ~edge)  # The set of edges that come out of v from edge round to ~edge.
                 if len(v_edges) > 2:
-                    around_v = curver.kernel.utilities.minimal((self.left_weight(edgy) for edgy in v_edges), lower_bound=0)
-                    twisting = curver.kernel.utilities.minimal((self.left_weight(edgy) - around_v for edgy in v_edges[1:-1]), lower_bound=0)
+                    around_v = curver.kernel.utilities.maximin([0], (self.left_weight(edgy) for edgy in v_edges))
+                    twisting = curver.kernel.utilities.maximin([0], (self.left_weight(edgy) - around_v for edgy in v_edges[1:-1]))
                     
                     if self.left_weight(v_edges[0]) == around_v and self.left_weight(v_edges[-1]) == around_v:
                         multiplicity = twisting
@@ -391,7 +391,7 @@ class IntegralLamination(Lamination):
                 v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
                 
                 for short_lamination in short_laminations:
-                    around_v = curver.kernel.utilities.minimal((short_lamination.left_weight(edgy) for edgy in v_edges), lower_bound=0)
+                    around_v = curver.kernel.utilities.maximin([0], (short_lamination.left_weight(edgy) for edgy in v_edges))
                     out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
                     # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
                     intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
@@ -753,6 +753,7 @@ class IntegralLamination(Lamination):
             
             # The arcs will be dealt with in the first round and once they are gone, they are gone.
             has_arcs = has_arcs and any(lamination(edge) < 0 or lamination.dual_weight(edge) < 0 for edge in lamination.triangulation.edges)
+            turn_left = turn_right = 0
             extra = []  # High priority edges to check.
             while True:
                 # Note that if lamination does not have any arcs then the max value that shorten_strategy can return is 0.5.
@@ -763,18 +764,30 @@ class IntegralLamination(Lamination):
                     upper_bound=1 if has_arcs else 0.5)
                 if shorten_strategy(lamination, edge) == 0: break  # No non-parallel arcs or bipods.
                 
+                if extra:  # Record how long we have been in this turn.
+                    if edge == extra[0]:
+                        turn_left += 1
+                        turn_right = 0
+                    elif edge == extra[1]:
+                        turn_left = 0
+                        turn_right += 1
+                    else:
+                        turn_left = turn_right = 0
+                
                 a, b, c, d, e = lamination.triangulation.square(edge)
                 move = lamination.triangulation.encode_flip(edge)  # edge is always flippable.
                 # Since looking for and applying a twist is expensive, we will not do it if:
                 #  * drop == 0,
-                #  * lamination has little weight, or
-                #  * flipping drops the weight by at least drop%.
-                if drop > 0 and 4 * self.zeta < lamination.weight() and (1 - drop) * lamination.weight() < move(lamination).weight() < lamination.weight():
+                #  * lamination has little weight,
+                #  * flipping drops the weight by at least drop%, or
+                #  * We have not done many turns in a row.
+                if drop > 0 and max(turn_left, turn_right) > 2*self.zeta and lamination.weight() > 4 * self.zeta and (1 - drop) * lamination.weight() < move(lamination).weight():
                     try:
                         curve = lamination.trace_curve(edge, lamination.left_weight(edge), 2*self.zeta)
                         slope = curve.slope(lamination)  # Will raise a ValueError if these are disjoint.
                         if abs(slope) > 2:  # Can accelerate and slope is large enough to be efficient.
                             move = curve.encode_twist(power=-int(slope))  # Round towards zero.
+                            turn_left = turn_right = 0
                     except ValueError:
                         extra = [c, d]
                 else:

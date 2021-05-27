@@ -2,9 +2,10 @@
 from hypothesis import given, assume, settings
 import hypothesis.strategies as st
 
-from lamination import TestLamination
-import strategies
 import curver
+
+from . import strategies
+from .lamination import TestLamination
 
 class TestMultiCurve(TestLamination):
     _strategy = staticmethod(strategies.multicurves)

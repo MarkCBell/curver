@@ -5,8 +5,8 @@ import unittest
 from hypothesis import given, settings
 import hypothesis.strategies as st
 
-from base_classes import TopologicalInvariant
-import strategies
+from . import strategies
+from .base_classes import TopologicalInvariant
 
 class TestLamination(TopologicalInvariant, unittest.TestCase):
     _strategy = staticmethod(strategies.laminations)
