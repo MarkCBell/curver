@@ -1,13 +1,10 @@
 
 ''' A module for representing triangulations along with laminations and mapping classes on them. '''
 
-try:
-    from collections.abc import Sequence
-except ImportError:
-    from collections import Sequence
+from collections.abc import Sequence
+from queue import Queue
 from random import choice
 import re
-from queue import Queue
 
 import curver
 
