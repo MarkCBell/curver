@@ -146,7 +146,7 @@ class LinearTransformation(Move):
         self.matrix = matrix
     
     def __str__(self):
-        return 'LT to %s' % self.target_triangulation
+        return f'LT to {self.target_triangulation}'
     def __eq__(self, other):
         eq = super().__eq__(other)
         if eq in [NotImplemented, False]:
@@ -173,7 +173,7 @@ class Lift(LinearTransformation):
         self.vertices = [vertex for vertex in self.source_triangulation.vertices if apply_lamination(self.source_triangulation.curve_from_cut_sequence(vertex)).is_peripheral()]
     
     def __str__(self):
-        return 'Lift to %s' % self.target_triangulation
+        return f'Lift to {self.target_triangulation}'
     
     def apply_lamination(self, lamination):
         assert all(lamination(edge) >= 0 and lamination.left_weight(edge) >= 0 for vertex in self.vertices for edge in vertex)

@@ -13,7 +13,7 @@ class PartialLinearFunction:
         self.condition = np.array([row for index, row in enumerate(condition) if index == 0 or row.any()])
     
     def __str__(self):
-        return 'Action: {}\nCondition: {}'.format(self.action, self.condition)
+        return f'Action: {self.action}\nCondition: {self.condition}'
     def __repr__(self):
         return str(self)
     def __eq__(self, other):

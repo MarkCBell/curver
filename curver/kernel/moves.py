@@ -27,7 +27,7 @@ class Move(ABC):
         elif isinstance(other, curver.kernel.HomologyClass):
             return self.apply_homology(other)
         else:
-            raise TypeError('Unknown type %s' % other)
+            raise TypeError(f'Unknown type {other}')
     def __eq__(self, other):
         if isinstance(other, self.__class__):
             return self.source_triangulation == other.source_triangulation and self.target_triangulation == other.target_triangulation
@@ -136,7 +136,7 @@ class EdgeFlip(FlipGraphMove):
         self.square = self.source_triangulation.square(self.edge)
     
     def __str__(self):
-        return 'Flip %s' % self.edge
+        return f'Flip {self.edge}'
     def package(self):
         return self.edge.label
     def __eq__(self, other):
@@ -225,7 +225,7 @@ class MultiEdgeFlip(FlipGraphMove):
         # Disjoint support implies flippable.
     
     def __str__(self):
-        return 'Flips %s' % self.edges
+        return f'Flips {self.edges}'
     def package(self):
         return set(edge.label for edge in self.edges)
     def __eq__(self, other):

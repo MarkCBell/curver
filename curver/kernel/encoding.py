@@ -33,9 +33,9 @@ class Encoding:
         self.zeta = self.source_triangulation.zeta
     
     def __repr__(self):
-        return '{}: {}'.format(self.source_triangulation, self.package())
+        return f'{self.source_triangulation}: {self.package()}'
     def __str__(self):
-        return 'Encoding %s' % self.sequence
+        return f'Encoding {self.sequence}'
     def __iter__(self):
         return iter(self.sequence)
     def __len__(self):
@@ -91,7 +91,7 @@ class Encoding:
         
         is_lamination = isinstance(other, curver.kernel.Lamination)
         is_homology = isinstance(other, curver.kernel.HomologyClass)
-        if not is_lamination and not is_homology: raise TypeError('Unknown type %s' % other)
+        if not is_lamination and not is_homology: raise TypeError(f'Unknown type {other}')
         
         for item in reversed(self):
             if is_lamination:
@@ -140,7 +140,7 @@ class Mapping(Encoding):
     
     Hence this encoding is a sequence of moves in the same flip graph. '''
     def __str__(self):
-        return 'Mapping %s' % self.sequence
+        return f'Mapping {self.sequence}'
     
     @memoize
     def self_image(self):
@@ -241,7 +241,7 @@ class MappingClass(Mapping):
             other = super().__call__(other)
         return other
     def __str__(self):
-        return 'MappingClass %s' % self.sequence
+        return f'MappingClass {self.sequence}'
     def __pow__(self, k):
         if k == 0:
             return self.source_triangulation.id_encoding()
