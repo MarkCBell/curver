@@ -53,7 +53,7 @@ class MappingClassGroup:
         return str(self)
     def __str__(self):
         pos_keys = sorted(self.pos_mapping_classes.keys(), key=curver.kernel.utilities.alphanum_key)
-        return 'Mapping class group < %s > on %s' % (', '.join(pos_keys), self.triangulation)
+        return f'Mapping class group < {", ".join(pos_keys)} > on {self.triangulation}'
     
     def __eq__(self, other):
         return self.triangulation == other.triangulation and self.mapping_classes == other.mapping_classes
@@ -116,9 +116,9 @@ class MappingClassGroup:
                         if remaining.startswith(item):
                             remaining = remaining[len(item):]
                         else:
-                            raise ValueError('After extracting {}, the remaining {} of {} could not be decomposed'.format(iterable[:index], remaining, word))
+                            raise ValueError(f'After extracting {iterable[:index]}, the remaining {remaining} of {word} could not be decomposed')
                     remaining = LEADING_DOTS.sub('', remaining)  # Remove leading dots.
-                    raise ValueError('After extracting {}, the remaining "{}" of "{}" could not be decomposed'.format(iterable, remaining, word))
+                    raise ValueError(f'After extracting {iterable}, the remaining "{remaining}" of "{word}" could not be decomposed')
                 return iterable
             
             stack = [[]]

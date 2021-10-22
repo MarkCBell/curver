@@ -15,7 +15,7 @@ class Permutation:
     def __str__(self):
         return str(self.perm)
     def __repr__(self):
-        return '%s(%s)' % (self.__class__.__name__, self.perm)
+        return f'{self.__class__.__name__}({self.perm})'
     def __getitem__(self, item):
         return self.perm[item]
     def __call__(self, item):

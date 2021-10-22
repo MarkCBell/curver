@@ -38,7 +38,7 @@ class Twist(FlipGraphMove):
         self.signed_encoding = self.encoding if self.power > 0 else self.encoding.inverse()
     
     def __str__(self):
-        return 'Twist^%d_%s ' % (self.power, self.curve)
+        return f'Twist^{self.power}_{self.curve}'
     def package(self):
         return (self.curve.parallel().label, self.power)
     def __eq__(self, other):
@@ -243,7 +243,7 @@ class HalfTwist(FlipGraphMove):
             self.encoding_power = self.arc.boundary().encode_twist(self.power // 2) * self.encoding
     
     def __str__(self):
-        return 'HalfTwist^%d_%s ' % (self.power, self.arc)
+        return f'HalfTwist^{self.power}_{self.arc}'
     def package(self):
         return (self.arc.parallel().label, self.power)
     def __eq__(self, other):

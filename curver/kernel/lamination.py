@@ -13,11 +13,11 @@ class TopologicalType(namedtuple('TopologicalType', ['genuses', 'edges', 'arcs']
     def __str__(self):
         ''' Return the canonical string of a topological type (from arXiv:1910.08155). '''
         
-        braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)
+        braced = ', '.join('{{{}}}'.format(', '.join(str(edge) for edge in edges)) for edges in self.edges)  # pylint: disable=consider-using-f-string
         if any(self.arcs):
-            return '({}, [{}], {})'.format(self.genuses, braced, self.arcs)
+            return f'({self.genuses}, [{braced}], {self.arcs})'
         else:
-            return '({}, [{}])'.format(self.genuses, braced)
+            return f'({self.genuses}, [{braced}])'
 
 
 class Lamination:
@@ -45,12 +45,12 @@ class Lamination:
                 self._dual[j] = self._right[k] = self._left[i] = curver.kernel.utilities.half(cf + af - bf + correction)
                 self._dual[k] = self._right[i] = self._left[j] = curver.kernel.utilities.half(af + bf - cf + correction)
             except ValueError:
-                raise ValueError('Weights {}, {}, {} in triangle {} are not consistent'.format(a, b, c, triangle)) from None
+                raise ValueError(f'Weights {a}, {b}, {c} in triangle {triangle} are not consistent') from None
     
     def __repr__(self):
-        return '%s(%r, %r)' % (self.__class__.__name__, self.triangulation, self.geometric)
+        return f'{self.__class__.__name__}({self.triangulation}, {self.geometric})'
     def __str__(self):
-        return '%s %s on %s' % (self.__class__.__name__, '[' + ', '.join(str(weight) for weight in self.geometric) + ']', self.triangulation)
+        return '{} {} on {}'.format(self.__class__.__name__, '[' + ', '.join(str(weight) for weight in self.geometric) + ']', self.triangulation)  # pylint: disable=consider-using-f-string
     def __iter__(self):
         return iter(self.geometric)
     def __call__(self, edge):
@@ -241,7 +241,7 @@ class Lamination:
             trace.append(edge)
             assert 0 <= intersection < self(edge)  # Sanity.
         
-        raise ValueError('Curve does not close up in {} steps'.format(max_length))
+        raise ValueError(f'Curve does not close up in {max_length} steps')
     
     @memoize
     def peripheral_components(self):
@@ -561,7 +561,7 @@ class IntegralLamination(Lamination):
         node_lookup = dict((node, index) for index, node in enumerate(nodes))
         
         # Build link label matrix.
-        link_labels = [[list() for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
+        link_labels = [[[] for _ in range(len(nodes))] for _ in range(len(nodes))]  # The empty matrix of lists.
         for node1, node2, label in links:
             link_labels[node_lookup[node1]][node_lookup[node2]].append(label)
             if node1 != node2:  # Don't add self loops twice.

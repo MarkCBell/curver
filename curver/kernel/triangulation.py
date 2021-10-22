@@ -195,9 +195,9 @@ class Triangulation:
         flattened = set(label for labels in edge_labels for label in labels)
         for i in range(zeta):
             if i not in flattened:
-                raise TypeError('Missing label %d' % i)
+                raise TypeError(f'Missing label {i}')
             if ~i not in flattened:
-                raise TypeError('Missing label ~%d' % i)
+                raise TypeError(f'Missing label ~{i}')
         
         return cls([Triangle([Edge(label) for label in labels]) for labels in edge_labels])
     
@@ -514,7 +514,7 @@ class Triangulation:
         if isinstance(weights, dict):
             weights = [weights.get(i, 0) for i in range(self.zeta)]
         
-        assert len(weights) == self.zeta, 'Expected %d weights but got %d' % (self.zeta, len(weights))
+        assert len(weights) == self.zeta, f'Expected {self.zeta} weights but got {len(weights)}'
         # Should check all dual weights.
         
         lamination = curver.kernel.Lamination(self, weights)
@@ -757,7 +757,7 @@ class Triangulation:
             elif i in label_map and ~i not in label_map:
                 label_map[~i] = ~label_map[i]
             else:
-                raise ValueError('Missing new label for %d' % i)
+                raise ValueError(f'Missing new label for {i}')
         
         edge_map = dict((edge, Edge(label_map[edge.label])) for edge in self.edges)
         new_triangulation = Triangulation([Triangle([edge_map[edge] for edge in triangle]) for triangle in self])

@@ -87,12 +87,12 @@ class StraightLineProgram:
         if len(self) <= 7:
             return str(list(self))
         else:
-            return '[%s, %s, %s, ..., %s, %s, %s]' % tuple(chain(islice(self, 3), reversed(list(islice(reversed(self), 3)))))
+            return '[%s, %s, %s, ..., %s, %s, %s]' % tuple(chain(islice(self, 3), reversed(list(islice(reversed(self), 3)))))  # pylint: disable=consider-using-f-string
         
     def __repr__(self):
         strn = []
         for index, item in enumerate(self.graph):
-            strn.append('%d --> %s' % (index, item))
+            strn.append(f'{index} --> {item}')
         
         return '\n'.join(strn)
     

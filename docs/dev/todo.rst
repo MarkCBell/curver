@@ -2,7 +2,7 @@
 To do
 =====
 
-As part of its analysis pylint will highlight places in curves where work is flagged as ``TODO: #)``.
+As part of its analysis pylint will highlight places in curver where work is flagged as ``TODO: #)``.
 These numbers roughly correspond to:
 
 1. Major feature.
