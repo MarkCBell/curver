@@ -452,7 +452,7 @@ class IntegralLamination(Lamination):
             if self.multiarc():
                 raise ValueError('Cannot apply the forgetful map to a lamination with an Arc component')
             if any(S.p > 1 for S in self.triangulation.surface().values()):
-                raise ValueError('Cannot apply the forgetful map when a component of the surface has more than one puncture until the push map is implemented.')
+                raise ValueError('Cannot apply the forgetful map when a component of the surface has more than one puncture until the push map is implemented')
         
         short, _ = self.shorten()
         

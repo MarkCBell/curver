@@ -25,7 +25,7 @@ class PartialLinearFunction:
     
     def __call__(self, item):
         if (self.condition.dot(item) < 0).any():
-            raise ValueError('Cannot apply a PartialLinearFunction outside of the domain specified by its condition matrix.')
+            raise ValueError('Cannot apply a PartialLinearFunction outside of the domain specified by its condition matrix')
         
         return list(self.action.dot(item))
     

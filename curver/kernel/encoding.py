@@ -475,7 +475,7 @@ class MappingClass(Mapping):
         # This isn't needed but it means that if we ever discover that
         # self is not pA then it must be reducible.
         if self.is_periodic():
-            raise ValueError('Mapping class is periodic.')
+            raise ValueError('Mapping class is periodic')
         
         @memoize
         def test_cell(cell):
@@ -498,7 +498,7 @@ class MappingClass(Mapping):
                 pass
         
         # Self has no pA pieces. Since it is not periodic it must therefore be the root of a multitwist.
-        raise ValueError('Mapping class is reducible.')
+        raise ValueError('Mapping class is reducible')
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.
