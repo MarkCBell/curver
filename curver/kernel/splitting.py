@@ -62,7 +62,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         
         while True:
             if any(weight == 0 for weight in starting_lamination):
-                raise ValueError('Lamination is not filling.')
+                raise ValueError('Lamination is not filling')
             
             puncture = starting_lamination.encode_puncture_to_train_track()
             lamination = punctured_lamination = puncture(starting_lamination)
@@ -130,5 +130,5 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
                         return cls(puncture, preperiodic, periodic, starting_lamination, punctured_lamination, old_lamination)
         
-        raise RuntimeError('Unreachable code.')
+        raise RuntimeError('Unreachable code')
 
