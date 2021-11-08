@@ -55,6 +55,8 @@ class Edge:
     def __hash__(self):
         return hash(self.label)
     
+    def __pos__(self):
+        return self if self.sign() == +1 else ~self
     def __invert__(self):
         ''' Return this edge but with reversed orientation. '''
         
@@ -111,7 +113,10 @@ class Triangle:
         return iter(self.edges)
     
     def __getitem__(self, index):
-        return self.edges[index % 3]
+        if isinstance(index, slice):
+            return self.edges[index]
+        else:
+            return self.edges[index % 3]
     def __contains__(self, other):
         return other in self.edges
 
@@ -823,7 +828,6 @@ class Triangulation:
         then finally flips edge 1. '''
         
         assert isinstance(sequence, (list, tuple))
-        assert sequence
         
         T = self
         terms_reversed = []

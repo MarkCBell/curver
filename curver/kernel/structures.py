@@ -47,6 +47,11 @@ class UnionFind:
         ''' Combine all of the classes containing the given items. '''
         for item in args:
             self.union2(args[0], item)
+    def merge(self, *args):
+        ''' Combine all of the classes containing the given items, raise a ValueError if classes are not distinct. '''
+        if len(set(self(item) for item in args)) < len(args):
+            raise ValueError('Items are not all in distinct classes')
+        self.union(*args)
 
 
 Terminal = namedtuple('Terminal', ['value'])
