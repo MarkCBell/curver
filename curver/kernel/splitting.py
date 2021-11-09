@@ -47,17 +47,58 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         starting_lamination = lamination  # Remember for later.
         refine = lamination.triangulation.id_encoding()
         while True:
+            triangulation = lamination.triangulation  # Shorthand.
             if not all(lamination):  # Lamination is not filling.
-                null_index = next(index for index in lamination.triangulation.indices if lamination(index) == 0)
-                curve = lamination.triangulation.edge_curve(null_index)
+                null_index = next(index for index in triangulation.indices if lamination(index) == 0)
+                curve = triangulation.edge_curve(null_index)
                 disjoint_curve = refine.inverse()(curve)  # Pull back.
                 assert disjoint_curve and mapping_class(disjoint_curve) == disjoint_curve
                 raise ValueError(f'Lamination is not filling, it is disjoint from {disjoint_curve}')
             
             refined_lamination = lamination  # Remember this point in case we later need to refine further.
             
-            # Now move onto the punctured surface.
-            puncture = lamination.encode_puncture_to_train_track()  # Could raise a ValueError.
+            # Compute the puncture map.
+            tripods = set(triangle for triangle in triangulation if all(lamination.dual_weight(side) > 0 for side in triangle))
+            internal_sides = set(
+                side
+                for triangle in tripods
+                for side in triangle
+                if triangulation.triangle_lookup[~side] in tripods
+                and lamination.left_weight(side) == lamination.right_weight(~side)  # Central split.
+                and lamination.right_weight(side) == lamination.left_weight(~side)
+                )
+            boundary = set(
+                side
+                for triangle in tripods
+                for side in triangle
+                if side not in internal_sides
+                )
+            
+            # Grab one triangle from each collection to puncture.
+            classes = curver.kernel.UnionFind(tripods)
+            try:
+                for side in internal_sides:
+                    if side.sign() == +1:
+                        classes.merge(triangulation.triangle_lookup[side], triangulation.triangle_lookup[~side])
+            except ValueError:
+                # We tried to merge two tripods in the same class, so they didn't form a polygon.
+                # TODO: 3) Determine an invariant curve.
+                raise ValueError('Lamination is not filling') from None
+            seeds = [cls[0] for cls in classes]
+            
+            # Compute the flips to cone over the collections via a depth first search.
+            flips = []
+            stack = [side.index for triangle in seeds for side in triangle]
+            while stack:
+                side = stack.pop()
+                if side in internal_sides:
+                    flips.append(side)
+                    stack.extend(triangulation.corner_lookup[~side][1:])  # Put the other two sides on the stack.
+            
+            puncture = triangulation.encode_pachner_1_3(seeds)
+            puncture = puncture.target_triangulation.encode(flips[::-1]) * puncture
+            
+            # puncture = lamination.encode_puncture_to_train_track()  # Could raise a ValueError.
             lamination = puncture(lamination)
             
             encodings = [lamination.triangulation.id_encoding()]

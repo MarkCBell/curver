@@ -318,49 +318,6 @@ class Lamination:
         assert isinstance(other, Lamination)
         
         return any(True for _ in self.isometries_to(other))  # Return whether there at least one isometry.
-    
-    def is_central_split(self, edge):
-        ''' Return whether flipping this edge performs a central split. '''
-        
-        return self.left_weight(edge) == self.right_weight(~edge) and self.right_weight(edge) == self.left_weight(~edge)
-    
-    def encode_puncture_to_train_track(self):
-        ''' Return an encoding which punctures all triangles where this lamination forms a tripod.
-        
-        Assumes, but does not check, that self is a filling lamination. '''
-        
-        tripods = set(triangle for triangle in self.triangulation if all(self.dual_weight(side) > 0 for side in triangle))
-        internal_edges = set(
-            side
-            for triangle in tripods
-            for side in triangle
-            if side.sign() == +1
-            and self.triangulation.triangle_lookup[~side] in tripods
-            and self.is_central_split(side)
-            )
-        
-        # Grab one triangle from each collection to puncture.
-        classes = curver.kernel.UnionFind(tripods)
-        try:
-            for edge in internal_edges:
-                classes.merge(self.triangulation.triangle_lookup[edge], self.triangulation.triangle_lookup[~edge])
-        except ValueError:
-            # We tried to merge two tripods in the same class, so they didn't form a polygon.
-            # TODO: 3) Determine an invariant curve.
-            raise ValueError('Lamination is not filling') from None
-        seeds = [cls[0] for cls in classes]
-        
-        # Compute the flips to cone over the collections via a depth first search.
-        flips = []
-        stack = [side.index for triangle in seeds for side in triangle]
-        while stack:
-            side = stack.pop()
-            if side in internal_edges:
-                flips.append(side)
-                stack.extend(self.triangulation.corner_lookup[~side][1:])  # Put the other two sides on the stack.
-        
-        puncture = self.triangulation.encode_pachner_1_3(seeds)
-        return puncture.target_triangulation.encode(flips[::-1]) * puncture
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
