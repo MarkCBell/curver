@@ -27,7 +27,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         until you reach a projectively periodic sequence.
         
         Each entry of self.geometric must be an Integer or a RealAlgebraic (over
-        the same RealNumberField). 
+        the same RealNumberField).
         
         Raises a ValueError describing a disjoint curve if the lamination is not filling. '''
         
