@@ -24,11 +24,12 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         
         This is the encoding obtained by flipping edges to repeatedly split
         the branches of the corresponding train track with maximal weight
-        until you reach a projectively periodic sequence (with the required
-        dilatation if given).
+        until you reach a projectively periodic sequence.
         
         Each entry of self.geometric must be an Integer or a RealAlgebraic (over
-        the same RealNumberField). '''
+        the same RealNumberField). 
+        
+        Raises a ValueError describing a disjoint curve if the lamination is not filling. '''
         
         def projective_hash(L):
             ''' Return a hash key for L that is scale and isometry invariant. '''
@@ -151,22 +152,35 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             lamination = refined_lamination
             
             while True:
-                _, _, c, d, _ = lamination.triangulation.square(end)
                 ad, bd, cd, dd, _ = [lamination.dual_weight(edgy) for edgy in lamination.triangulation.square(end)]
                 assert ad > 0 and bd > 0, f'No cusp on edge {end}'
+                
+                left, center, right = -1, 0, +1
+                split = right if ad < dd else left if ad > dd else center
+                
+                # Move chords of the polygons out of the way.
+                for side, square_index in zip((end, ~end), (0, 2) if split == right else (1, 3) if split == left else ()):
+                    while side in boundary:
+                        flip = lamination.triangulation.square(side)[square_index]
+                        if flip in boundary: break
+                        move = lamination.triangulation.encode_flip(flip)
+                        refine = move * refine
+                        lamination = move(lamination)
+                
+                _, _, c, d, _ = lamination.triangulation.square(end)
                 
                 move = lamination.triangulation.encode_flip(end)
                 refine = move * refine
                 lamination = move(lamination)
                 
                 # Follow the cusp.
-                if ad < dd:  # Right split.
+                if split == right:
                     assert bd > cd
                     end = c
-                elif ad > dd:  # Left split.
+                elif split == left:
                     assert bd < cd
                     end = d
-                else:  # ad == dd  # Central split.
+                else:  # split == center:
                     assert bd == cd
                     break
         
