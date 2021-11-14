@@ -1,3 +1,4 @@
+flipper
 flake8
 hypothesis
 pylint!=2.0.0
