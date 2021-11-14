@@ -298,11 +298,13 @@ class MappingClass(Mapping):
         
         return self.order() == 1
     
+    @memoize
     def is_periodic(self):
         ''' Return whether this mapping class has finite order. '''
         
         return self.order() > 0
     
+    @memoize
     def is_reducible(self):
         ''' Return whether this mapping class is reducible. '''
         
@@ -319,6 +321,7 @@ class MappingClass(Mapping):
             except ValueError:
                 return True
     
+    @memoize
     def is_pseudo_anosov(self):
         ''' Return whether this mapping class is pseudo-Anosov. '''
         
@@ -486,6 +489,14 @@ class MappingClass(Mapping):
         
         # Self has no pA pieces. Since it is not periodic it must therefore be the root of a multitwist.
         raise ValueError('Mapping class is reducible')
+    
+    @memoize
+    def dilatation(self):
+        if not self.is_pseudo_anosov():
+            return 1
+        else:
+            lmbda, _ = self.projective_invariant_lamination()
+            return lmbda
 
 def create_encoding(source_triangulation, sequence):
     ''' Return the encoding defined by sequence starting at source_triangulation.

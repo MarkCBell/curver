@@ -19,4 +19,7 @@ class TestFlipper(unittest.TestCase):
         g = S(word)
         h = SS(word)
         self.assertEqual(g.is_pseudo_anosov(), h.is_pseudo_anosov())
+        
+        if g.is_pseudo_anosov():
+            self.assertEqual(g.dilatation(), h.dilatation())
 
