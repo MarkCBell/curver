@@ -314,7 +314,7 @@ class MappingClass(Mapping):
         else:
             try:
                 d, L = self.projective_invariant_lamination()
-                curver.kernel.SplittingSequence.from_lamination(L, self)
+                curver.kernel.SplittingSequence(L, self)
                 return False
             except ValueError:
                 return True

@@ -10,23 +10,14 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
-    def __init__(self, lamination, puncture, refine, preperiodic, periodic):  # pylint: disable=too-many-arguments
-        self.lamination = lamination
-        self.puncture = puncture
-        self.refine = refine
-        self.preperiodic = preperiodic
-        self.periodic = periodic
-        self.image = self.preperiodic(self.refine(self.puncture(self.lamination)))
-    
-    @classmethod
-    def from_lamination(cls, lamination, mapping_class):
+    def __init__(self, lamination, mapping_class):
         ''' Return a splitting sequence from a projectively invariant lamination.
         
         This is the encoding obtained by flipping edges to repeatedly split
         the branches of the corresponding train track with maximal weight
         until you reach a projectively periodic sequence.
         
-        Each entry of self.geometric must be an Integer or a RealAlgebraic (over
+        Each weight of lamination must be an Integer or a RealAlgebraic (over
         the same RealNumberField).
         
         Raises a ValueError describing a disjoint curve if the lamination is not filling. '''
@@ -139,7 +130,13 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         # We really should only return for the correct isometry.
                         # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
                         # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                        return cls(starting_lamination, puncture, refine, preperiodic, periodic)
+                        self.lamination = starting_lamination
+                        self.puncture = puncture
+                        self.refine = refine
+                        self.preperiodic = preperiodic
+                        self.periodic = periodic
+                        self.image = self.preperiodic(self.refine(self.puncture(self.lamination)))
+                        return
                 
                 proj_indices[projective_hash(lamination)].append(len(laminations))
                 laminations.append(lamination)
