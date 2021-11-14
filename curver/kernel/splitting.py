@@ -146,7 +146,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             for encoding in reversed(encodings):
                 arc = encoding.inverse()(arc)
             
-            end, _ = [label for label in arc.triangulation.labels if arc.dual_weight(label) < 0]
+            end, _ = [edge for edge in arc.triangulation.edges if arc.dual_weight(edge) < 0]
             
             # Jump back to before doing the puncture.
             lamination = refined_lamination
