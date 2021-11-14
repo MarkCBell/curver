@@ -87,11 +87,9 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 while True:
                     a, b, c, d, _ = lamination.triangulation.square(edge)
                     ad, bd, cd, dd, ed = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
-                    assert ad > 0
-                    assert bd > 0
-                    assert ed == 0
+                    assert ad > 0 and bd > 0 and ed == 0
                     
-                    move = lamination.triangulation.encode_flip(+edge)
+                    move = lamination.triangulation.encode_multiflip([+edge])
                     refine = move * refine
                     lamination = move(lamination)
                     
@@ -152,12 +150,13 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             pairs = []
             for move in encoding * refine:
                 if isinstance(move, curver.kernel.Isometry):  # Skip over the id_encoding.
+                    assert move.is_identity()
                     continue
                 
-                assert isinstance(move, (curver.kernel.EdgeFlip, curver.kernel.MultiEdgeFlip))
+                assert isinstance(move, curver.kernel.MultiEdgeFlip)
                 mapping = dict()
                 new_pairs = []
-                for edge in [move.edge] if isinstance(move, curver.kernel.EdgeFlip) else move.edges:
+                for edge in move.edges:
                     assert edge.sign() == +1
                     
                     a, b, c, d, e = move.target_triangulation.square(edge)
