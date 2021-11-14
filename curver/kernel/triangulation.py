@@ -113,10 +113,7 @@ class Triangle:
         return iter(self.edges)
     
     def __getitem__(self, index):
-        if isinstance(index, slice):
-            return self.edges[index]
-        else:
-            return self.edges[index % 3]
+        return self.edges[index % 3]
     def __contains__(self, other):
         return other in self.edges
 
