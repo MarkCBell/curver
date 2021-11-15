@@ -492,6 +492,10 @@ class MappingClass(Mapping):
     
     @memoize
     def dilatation(self):
+        ''' Return the scaling factor of this mapping class if it is pseudo-Anosov.
+        
+        If it is not pseudo-Anosov then return 1. '''
+        
         if not self.is_pseudo_anosov():
             return 1
         else:
