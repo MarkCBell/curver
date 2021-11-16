@@ -315,8 +315,7 @@ class MappingClass(Mapping):
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
             try:
-                d, L = self.projective_invariant_lamination()
-                curver.kernel.SplittingSequence(L, self)
+                self.splitting_sequence()
                 return False
             except ValueError:
                 return True
@@ -326,6 +325,26 @@ class MappingClass(Mapping):
         ''' Return whether this mapping class is pseudo-Anosov. '''
         
         return not self.is_periodic() and not self.is_reducible()
+    
+    @memoize
+    def splitting_sequence(self):
+        ''' Return the splitting sequence of this mapping class.
+        
+        Assumes and checks that this mapping class is pseudo-Anosov. '''
+        
+        d, L = self.projective_invariant_lamination()  # Can raise a ValueError.
+        return curver.kernel.SplittingSequence(L, self)  # Can raise a ValueError.
+    
+    def stratum(self):
+        ''' Return the stratum of this mapping class.
+        
+        Assumes and checks that this mapping class is pseudo-Anosov. '''
+        
+        splitting = self.splitting_sequence()
+        lamination = splitting.stable_lamination
+        
+        # Do we need to distinguish the punctures and singularities?
+        return sorted(sum(1 for edge in vertex if lamination.left_weight(edge) == 0) - 2 for vertex in lamination.triangulation.vertices)
     
     def nielsen_thurston_type(self):
         ''' Return the Nielsen--Thurston type of this mapping class. '''

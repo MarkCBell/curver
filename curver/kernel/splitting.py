@@ -84,6 +84,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     refine = move * refine
                     lamination = move(lamination)
                     
+                    # This relies on knowing exactly how edge flips work.
                     mapping = dict()
                     if ad > dd:  # Horizontal chord.
                         mapping[edge] = d
@@ -124,18 +125,17 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     old_lamination = laminations[index]
                     
                     for isometry in (lamination * old_lamination.weight()).isometries_to(old_lamination * lamination.weight()):
-                        isom_e = isometry.encode()
                         preperiodic = encoding[-index:]
-                        periodic = isom_e * encoding[:-index]  # Don't forget to close up
+                        periodic = (isometry.encode() * encoding[:-index]).inverse()  # Don't forget to close up
                         # We really should only return for the correct isometry.
                         # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
                         # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                        self.lamination = starting_lamination
                         self.puncture = puncture
                         self.refine = refine
                         self.preperiodic = preperiodic
                         self.periodic = periodic
-                        self.image = self.preperiodic(self.refine(self.puncture(self.lamination)))
+                        self.lamination = starting_lamination
+                        self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
                         return
                 
                 proj_indices[projective_hash(lamination)].append(len(laminations))
@@ -158,6 +158,9 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     
                     a, b, c, d, e = move.target_triangulation.square(edge)
                     ad, _, _, dd, _ = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
+                    # This relies on knowing exactly how edge flips work.
+                    # In particular, since we have not pulled lamination back onto the source_triangulation of move yet,
+                    # it is *not* the inverse of the mapping above.
                     if ad > dd:  # Horizontal chord.
                         mapping[edge] = d
                         mapping[d] = edge

@@ -22,4 +22,7 @@ class TestFlipper(unittest.TestCase):
         
         if g.is_pseudo_anosov():
             self.assertEqual(g.dilatation(), h.dilatation())
+            
+            flipper_stratum = sorted(c - 2 for c in h.stratum().values())
+            self.assertEqual(g.stratum(), flipper_stratum)
 

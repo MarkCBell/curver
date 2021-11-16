@@ -551,6 +551,14 @@ class Triangulation:
         
         return curver.kernel.MultiArc(self, [-1] * self.zeta)  # Avoids promote.
     
+    def peripheral_multicurve(self):
+        ''' Return the multicurve which runs once around each puncture. '''
+        
+        if self.num_vertices == 1:
+            return curver.kernel.Curve(self, [2] * self.zeta)  # Avoids promote.
+        else:  # self.num_vertices == 1:
+            return curver.kernel.MultiCurve(self, [2] * self.zeta)  # Avoids promote.
+    
     def sum(self, laminations):
         ''' An efficient way of summing multiple laminations without computing intermediate values.
         
