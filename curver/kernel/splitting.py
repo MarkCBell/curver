@@ -1,8 +1,6 @@
 
 ''' A module for building and manipulating splitting sequences. '''
 
-from collections import defaultdict
-
 import curver
 
 class SplittingSequence:  # pylint: disable=too-few-public-methods
@@ -56,6 +54,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     # TODO: 3) Determine an invariant curve.
                     raise ValueError('Lamination is not filling') from None
             
+            # Determine where we need to puncture.
             seeds = []
             for group in classes:
                 num_tripods = sum(1 for triangle in group if all(lamination.dual_weight(side) > 0 for side in triangle))
@@ -70,6 +69,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)
             lamination = puncture(lamination)  # Start again.
             
+            # Open up to a train track.
             refine = lamination.triangulation.id_encoding()
             to_open = {side for pair in pairs for side in pair}
             while to_open:
@@ -97,6 +97,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         mapping[~edge] = a
                         mapping[a] = ~edge
                     else:  # ad == dd  # No chord.
+                        assert ~edge in to_open
                         to_open.remove(edge)
                         to_open.remove(~edge)
                         break
@@ -106,81 +107,89 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             
             assert all(sum(1 for side in triangle if lamination.dual_weight(side) > 0) == 2 for triangle in lamination.triangulation)
             
-            encoding = lamination.triangulation.id_encoding()
-            laminations = [lamination]
-            proj_indices = defaultdict(list)  # hash |--> [i]  # This is a dict taking the hash of each lamination to the index where we saw it.
-            
-            # Maximal split.
+            # Compute the preperiodic map.
+            # We use Floyd's tortoise and hare algorithm to detect a (projective) cycle.
+            preperiodic = lamination.triangulation.id_encoding()
+            hare = lamination  # Lamination is our tortoise.
             while True:
                 # Split all of the maximal branches
                 move = lamination.triangulation.encode_multiflip(curver.kernel.utilities.maxes(lamination.triangulation.positive_edges, key=lamination))
-                encoding = move * encoding
+                preperiodic = move * preperiodic
                 lamination = move(lamination)
                 
                 if not all(lamination):  # We did a central split and so have found a refinement.
                     break
                 
-                # Check if lamination now (projectively) matches a lamination we've already seen.
-                for index in proj_indices.get(projective_hash(lamination), []):
-                    old_lamination = laminations[index]
-                    if dilatation is not None:
-                        if lamination.weight() * dilatation > old_lamination.weight():
-                            break  # Haven't gone far enough around periodic.
-                        if lamination.weight() * dilatation < old_lamination.weight():
-                            raise ValueError(f'No cycle with dilatation {dilatation}')
+                for _ in range(2):
+                    if all(hare):  # Careful, the move may only be well defined when there isn't a refinement.
+                        move = hare.triangulation.encode_multiflip(curver.kernel.utilities.maxes(hare.triangulation.positive_edges, key=hare))
+                        hare = move(hare)
+                
+                if (lamination * hare.weight()).is_isometric_to(hare * lamination.weight()):  # Tortoise has entered the loop.
+                    break
+        
+            if not all(lamination):  # We've encountered a refinement.
+                # Work backwards to find more pairs to start with.
+                pairs = []
+                for move in preperiodic * refine:
+                    if isinstance(move, curver.kernel.Isometry):  # Skip over the id_encoding.
+                        assert move.is_identity()
+                        continue
                     
-                    for isometry in (lamination * old_lamination.weight()).isometries_to(old_lamination * lamination.weight()):
-                        preperiodic = encoding[-index:]
-                        periodic = (isometry.encode() * encoding[:-index]).inverse()  # Don't forget to close up
-                        # We really should only return for the correct isometry.
-                        # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
-                        # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                        self.puncture = puncture
-                        self.refine = refine
-                        self.preperiodic = preperiodic
-                        self.periodic = periodic
-                        self.lamination = starting_lamination
-                        self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
-                        return
-                
-                proj_indices[projective_hash(lamination)].append(len(laminations))
-                laminations.append(lamination)
-            
-            # We've encountered a refinement.
-            
-            # Work backwards to find more pairs to start with.
-            pairs = []
-            for move in encoding * refine:
-                if isinstance(move, curver.kernel.Isometry):  # Skip over the id_encoding.
-                    assert move.is_identity()
-                    continue
-                
-                assert isinstance(move, curver.kernel.MultiEdgeFlip)
-                mapping = dict()
-                new_pairs = []
-                for edge in move.edges:
-                    assert edge.sign() == +1
+                    assert isinstance(move, curver.kernel.MultiEdgeFlip)
+                    mapping = dict()
+                    new_pairs = []
+                    for edge in move.edges:
+                        assert edge.sign() == +1
+                        
+                        a, b, c, d, e = move.target_triangulation.square(edge)
+                        ad, _, _, dd, _ = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
+                        # This relies on knowing exactly how edge flips work.
+                        # In particular, since we have not pulled lamination back onto the source_triangulation of move yet,
+                        # it is *not* the inverse of the mapping above.
+                        if ad > dd:  # Horizontal chord.
+                            mapping[edge] = d
+                            mapping[d] = edge
+                            mapping[b] = ~edge
+                            mapping[~edge] = b
+                        elif ad < dd:  # Vertical chord.
+                            mapping[edge] = c
+                            mapping[c] = ~edge
+                            mapping[~edge] = a
+                            mapping[a] = edge
+                        else:  # ad == dd  # No chord.
+                            new_pairs.append({e, ~e})
                     
-                    a, b, c, d, e = move.target_triangulation.square(edge)
-                    ad, _, _, dd, _ = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
-                    # This relies on knowing exactly how edge flips work.
-                    # In particular, since we have not pulled lamination back onto the source_triangulation of move yet,
-                    # it is *not* the inverse of the mapping above.
-                    if ad > dd:  # Horizontal chord.
-                        mapping[edge] = d
-                        mapping[d] = edge
-                        mapping[b] = ~edge
-                        mapping[~edge] = b
-                    elif ad < dd:  # Vertical chord.
-                        mapping[edge] = c
-                        mapping[c] = ~edge
-                        mapping[~edge] = a
-                        mapping[a] = edge
-                    else:  # ad == dd  # No chord.
-                        new_pairs.append({e, ~e})
+                    lamination = move.inverse()(lamination)
+                    pairs = [set(mapping.get(x, x) for x in pair) for pair in pairs] + new_pairs
                 
-                lamination = move.inverse()(lamination)
-                pairs = [set(mapping.get(x, x) for x in pair) for pair in pairs] + new_pairs
+                continue
+            
+            # Compute the periodic map.
+            cycle_start = lamination  # Remember where we started.
+            periodic = lamination.triangulation.id_encoding()
+            while True:
+                move = lamination.triangulation.encode_multiflip(curver.kernel.utilities.maxes(lamination.triangulation.positive_edges, key=lamination))
+                periodic = move * periodic
+                lamination = move(lamination)
+                
+                if dilatation is not None:
+                    if lamination.weight() * dilatation > cycle_start.weight():
+                        continue  # Haven't gone far enough around periodic.
+                    if lamination.weight() * dilatation < cycle_start.weight():
+                        raise RuntimeError(f'No cycle with dilatation {dilatation}')
+                
+                for isometry in (lamination * cycle_start.weight()).isometries_to(cycle_start * lamination.weight()):
+                    # We really should only return for the correct isometry.
+                    # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
+                    # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
+                    self.puncture = puncture
+                    self.refine = refine
+                    self.preperiodic = preperiodic
+                    self.periodic = (isometry.encode() * periodic).inverse()  # Don't forget to close up
+                    self.lamination = starting_lamination
+                    self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
+                    return
         
         raise RuntimeError('Unreachable code')
 
