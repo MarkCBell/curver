@@ -288,6 +288,8 @@ class Lamination:
         assert isinstance(other, Lamination)
         
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
+        if self.weight() != other.weight():
+            return
         
         # Isometries are determined by where a single triangle is sent.
         k = lambda L: lambda e: (
