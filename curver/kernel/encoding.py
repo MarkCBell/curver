@@ -327,13 +327,13 @@ class MappingClass(Mapping):
         return not self.is_periodic() and not self.is_reducible()
     
     @memoize
-    def splitting_sequence(self):
+    def splitting_sequence(self, take_roots=False):
         ''' Return the splitting sequence of this mapping class.
         
         Assumes and checks that this mapping class is pseudo-Anosov. '''
         
         d, L = self.projective_invariant_lamination()  # Can raise a ValueError.
-        return curver.kernel.SplittingSequence(L, self)  # Can raise a ValueError.
+        return curver.kernel.SplittingSequence(L, self, dilatation=None if take_roots else d)  # Can raise a ValueError.
     
     def stratum(self):
         ''' Return the stratum of this mapping class.

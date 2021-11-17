@@ -10,7 +10,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
-    def __init__(self, lamination, mapping_class):
+    def __init__(self, lamination, mapping_class, dilatation=None):
         ''' Return a splitting sequence from a projectively invariant lamination.
         
         This is the encoding obtained by flipping edges to repeatedly split
@@ -123,6 +123,11 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 # Check if lamination now (projectively) matches a lamination we've already seen.
                 for index in proj_indices.get(projective_hash(lamination), []):
                     old_lamination = laminations[index]
+                    if dilatation is not None:
+                        if lamination.weight() * dilatation > old_lamination.weight():
+                            break  # Haven't gone far enough around periodic.
+                        if lamination.weight() * dilatation < old_lamination.weight():
+                            raise ValueError(f'No cycle with dilatation {dilatation}')
                     
                     for isometry in (lamination * old_lamination.weight()).isometries_to(old_lamination * lamination.weight()):
                         preperiodic = encoding[-index:]
