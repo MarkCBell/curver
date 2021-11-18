@@ -4,6 +4,7 @@
 from fractions import Fraction
 import operator
 import numpy as np
+import networkx
 
 import curver
 from curver.kernel.decorators import memoize, ensure
@@ -355,6 +356,28 @@ class MappingClass(Mapping):
             return NT_TYPE_REDUCIBLE
         else:  # self.is_pesudo_anosov():
             return NT_TYPE_PSEUDO_ANOSOV
+    
+    def is_abelian(self):
+        ''' Return whether this mapping class corresponds to an Abelian differential.
+        
+        This is an Abelian differential (rather than a quadratic differential) if and
+        only if its stable lamination is orientable.
+        
+        Assumes (and checks) that the mapping class is pseudo-Anosov. '''
+        
+        lamination = self.splitting_sequence().stable_lamination
+        
+        edges = [(index, ~index) for index in lamination.triangulation.indices] \
+            + [(triangle[i], triangle[i+1]) for triangle in lamination.triangulation for i in range(3) if lamination.right_weight(triangle[i]) > 0]
+        G = networkx.Graph(edges)
+        return networkx.algorithms.is_bipartite(G)
+    
+    def is_primitive(self):
+        ''' Return whether this mapping class is primitive.
+        
+        Assumes (and checks) that this mapping class is pseudo-Anosov. '''
+        
+        return self.splitting_sequence(take_roots=False).periodic == self.splitting_sequence(take_roots=True).periodic
     
     def asymptotic_translation_length(self):
         ''' Return the asymptotic translation length of this mapping class on the curve complex.
