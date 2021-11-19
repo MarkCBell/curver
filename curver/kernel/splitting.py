@@ -148,15 +148,15 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         tetra = lamination.triangulation.square(edge) + [~edge]
                         ad, _, _, dd, _ = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
                         if ad == dd:  # No chord.
-                             new_pairs.append({edge, ~edge})
-                             continue
+                            new_pairs.append({edge, ~edge})
+                            continue
                         
                         for i, j in enumerate(INV_H_MAPPING if ad > dd else INV_V_MAPPING):
                             mapping[tetra[i]] = tetra[j]
                     
                     pairs = [set(mapping.get(x, x) for x in pair) for pair in pairs] + new_pairs
                 
-                continue
+                continue  # Start again.
             
             # Compute the periodic map.
             cycle_start = lamination  # Remember where we started.
