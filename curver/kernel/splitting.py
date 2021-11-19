@@ -3,6 +3,14 @@
 
 import curver
 
+
+# These rely on knowing exactly how edge flips work.
+H_MAPPING = [0, 4, 2, 5, 3, 1]
+V_MAPPING = [5, 1, 4, 3, 2, 0]
+
+INV_H_MAPPING = [H_MAPPING.index(i) for i in range(6)]
+INV_V_MAPPING = [V_MAPPING.index(i) for i in range(6)]
+
 class SplittingSequence:  # pylint: disable=too-few-public-methods
     ''' This represents a splitting sequence.
     
@@ -76,7 +84,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 edge = next(side for side in to_open if lamination.left_weight(side) > 0 and lamination.right_weight(side) > 0 and lamination.dual_weight(side) == 0)
                 
                 while True:
-                    a, b, c, d, _ = lamination.triangulation.square(edge)
+                    tetra = lamination.triangulation.square(edge) + [~edge]
                     ad, bd, cd, dd, ed = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
                     assert ad > 0 and bd > 0 and ed == 0
                     
@@ -84,23 +92,15 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     refine = move * refine
                     lamination = move(lamination)
                     
-                    # This relies on knowing exactly how edge flips work.
-                    mapping = dict()
-                    if ad > dd:  # Horizontal chord.
-                        mapping[edge] = d
-                        mapping[d] = ~edge
-                        mapping[~edge] = b
-                        mapping[b] = edge
-                    elif ad < dd:  # Vertical chord.
-                        mapping[edge] = c
-                        mapping[c] = edge
-                        mapping[~edge] = a
-                        mapping[a] = ~edge
-                    else:  # ad == dd  # No chord.
+                    if ad == dd:  # No chord.
                         assert ~edge in to_open
                         to_open.remove(edge)
                         to_open.remove(~edge)
                         break
+                    
+                    mapping = dict()
+                    for i, j in enumerate(H_MAPPING if ad > dd else V_MAPPING):
+                        mapping[tetra[i]] = tetra[j]
                     
                     to_open = set(mapping.get(side, side) for side in to_open)
                     edge = mapping[edge]
@@ -137,30 +137,23 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         continue
                     
                     assert isinstance(move, curver.kernel.MultiEdgeFlip)
+                    
+                    lamination = move.inverse()(lamination)
+                    
                     mapping = dict()
                     new_pairs = []
                     for edge in move.edges:
                         assert edge.sign() == +1
                         
-                        a, b, c, d, e = move.target_triangulation.square(edge)
+                        tetra = lamination.triangulation.square(edge) + [~edge]
                         ad, _, _, dd, _ = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
-                        # This relies on knowing exactly how edge flips work.
-                        # In particular, since we have not pulled lamination back onto the source_triangulation of move yet,
-                        # it is *not* the inverse of the mapping above.
-                        if ad > dd:  # Horizontal chord.
-                            mapping[edge] = d
-                            mapping[d] = edge
-                            mapping[b] = ~edge
-                            mapping[~edge] = b
-                        elif ad < dd:  # Vertical chord.
-                            mapping[edge] = c
-                            mapping[c] = ~edge
-                            mapping[~edge] = a
-                            mapping[a] = edge
-                        else:  # ad == dd  # No chord.
-                            new_pairs.append({e, ~e})
+                        if ad == dd:  # No chord.
+                             new_pairs.append({edge, ~edge})
+                             continue
+                        
+                        for i, j in enumerate(INV_H_MAPPING if ad > dd else INV_V_MAPPING):
+                            mapping[tetra[i]] = tetra[j]
                     
-                    lamination = move.inverse()(lamination)
                     pairs = [set(mapping.get(x, x) for x in pair) for pair in pairs] + new_pairs
                 
                 continue
@@ -189,6 +182,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     self.periodic = (isometry.encode() * periodic).inverse()  # Don't forget to close up
                     self.lamination = starting_lamination
                     self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
+                    self.punctures = self.preperiodic(self.refine(self.puncture(self.lamination.triangulation.peripheral_multicurve())))
                     return
         
         raise RuntimeError('Unreachable code')
