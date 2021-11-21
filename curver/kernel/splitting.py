@@ -173,17 +173,17 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         raise RuntimeError(f'No cycle with dilatation {dilatation}')
                 
                 for isometry in (lamination * cycle_start.weight()).isometries_to(cycle_start * lamination.weight()):
-                    # We really should only return for the correct isometry.
-                    # This should be determined by mapping_class.homology_matrix() and periodic.homology_matrix().
-                    # if np.array_equal((preperiodic * mapping_class).homology_matrix(), (periodic * preperiodic).homology_matrix()):  # if isometry gives correct map.
-                    self.puncture = puncture
-                    self.refine = refine
-                    self.preperiodic = preperiodic
-                    self.periodic = (isometry.encode() * periodic).inverse()  # Don't forget to close up
-                    self.lamination = starting_lamination
-                    self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
-                    self.punctures = self.preperiodic(self.refine(self.puncture(self.lamination.triangulation.peripheral_multicurve())))
-                    return
+                    closed = (isometry.encode() * periodic).inverse()  # Don't forget to close up
+                    # Currently we can't use **.homology_matrix() since that isn't defined for encodings.
+                    if all(closed(preperiodic(refine(puncture(hc)))) == preperiodic(refine(puncture(mapping_class(hc)))) for hc in starting_lamination.triangulation.edge_homologies()):
+                        self.puncture = puncture
+                        self.refine = refine
+                        self.preperiodic = preperiodic
+                        self.periodic = closed
+                        self.lamination = starting_lamination
+                        self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
+                        self.punctures = self.preperiodic(self.refine(self.puncture(self.lamination.triangulation.peripheral_multicurve())))
+                        return
         
         raise RuntimeError('Unreachable code')
 
