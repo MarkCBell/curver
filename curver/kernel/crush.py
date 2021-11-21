@@ -139,11 +139,12 @@ class Crush(Move):
 
 class LinearTransformation(Move):
     ''' This represents a linear transformation between two triangulations. '''
-    def __init__(self, source_triangulation, target_triangulation, matrix):
+    def __init__(self, source_triangulation, target_triangulation, geometric, homology=None):
         super().__init__(source_triangulation, target_triangulation)
-        assert matrix.shape == (target_triangulation.zeta, source_triangulation.zeta)
+        assert geometric.shape == (target_triangulation.zeta, source_triangulation.zeta)
         
-        self.matrix = matrix
+        self.geometric = geometric
+        self.homology = homology
     
     def __str__(self):
         return f'LT to {self.target_triangulation}'
@@ -152,21 +153,24 @@ class LinearTransformation(Move):
         if eq in [NotImplemented, False]:
             return eq
         
-        return np.array_equal(self.matrix, other.matrix)
+        return np.array_equal(self.geometric, other.geometric)
     
     def package(self):
-        return (self.target_triangulation.sig(), self.matrix.tolist())
+        return (self.target_triangulation.sig(), self.geometric.tolist())
     
     def apply_lamination(self, lamination):
-        return self.target_triangulation(self.matrix.dot(lamination.geometric).tolist())
+        return self.target_triangulation(self.geometric.dot(lamination.geometric).tolist())
     
     def apply_homology(self, homology_class):
-        return NotImplemented  # I don't think we ever need this.
+        if self.homology is None:
+            return NotImplemented
+        
+        return curver.kernel.HomologyClass(self.target_triangulation, self.homology.dot(homology_class.algebraic).tolist())
 
 class Lift(LinearTransformation):
     ''' This represents the inverse of crushing along a curve. '''
-    def __init__(self, source_triangulation, target_triangulation, matrix):
-        super().__init__(source_triangulation, target_triangulation, matrix)
+    def __init__(self, source_triangulation, target_triangulation, geometric):
+        super().__init__(source_triangulation, target_triangulation, geometric)
         
         # We need to use super again since we have not found the vertices needed so that we can call self yet.
         apply_lamination = super().apply_lamination

@@ -49,13 +49,13 @@ def crush(source_triangulation, target_triangulation, curve, matrix):
     ''' Create a crush. '''
     return link(
         curver.kernel.Crush(source_triangulation, target_triangulation, curve),
-        curver.kernel.Lift(target_triangulation, source_triangulation, matrix)  # pylint: disable=arguments-out-of-order
+        curver.kernel.Lift(target_triangulation, source_triangulation, matrix)
         )
 
-def lineartransformation(source_triangulation, target_triangulation, matrix, inverse_matrix):
+def lineartransformation(source_triangulation, target_triangulation, geometric, inv_geometric, homology=None, inv_homology=None):  # pylint: disable=too-many-arguments
     ''' Create a linear transformation. '''
     return link(
-        curver.kernel.LinearTransformation(source_triangulation, target_triangulation, matrix),
-        curver.kernel.LinearTransformation(target_triangulation, source_triangulation, inverse_matrix)
+        curver.kernel.LinearTransformation(source_triangulation, target_triangulation, geometric, homology),
+        curver.kernel.LinearTransformation(target_triangulation, source_triangulation, inv_geometric, inv_homology)
         )
 

@@ -802,15 +802,18 @@ class Triangulation:
                 new_triangles.append(curver.kernel.Triangle([a, b, c]))
         
         new_triangulation = curver.kernel.Triangulation(new_triangles)
-        matrix = np.stack(matrix_rows)
-        inverse_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(self.zeta)], dtype=object)
+        geometric = np.stack(matrix_rows)
+        inv_geometric = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(self.zeta)], dtype=object)
         
         half_matrix = np.array([[curver.kernel.utilities.half if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
         inverse_half_matrix = np.array([[2 if i == j else 0 for i in range(zeta)] for j in range(zeta)], dtype=object)
         
+        homology = np.array([[1 if i == j else 0 for i in range(self.zeta)] for j in range(zeta)], dtype=object)
+        identity = np.identity(zeta, dtype=object)
+        
         return curver.kernel.Encoding([
-            curver.kernel.create.lineartransformation(new_triangulation, new_triangulation, half_matrix, inverse_half_matrix),
-            curver.kernel.create.lineartransformation(self, new_triangulation, matrix, inverse_matrix)
+            curver.kernel.create.lineartransformation(new_triangulation, new_triangulation, half_matrix, inverse_half_matrix, identity, identity),
+            curver.kernel.create.lineartransformation(self, new_triangulation, geometric, inv_geometric, homology)
             ])
     
     def encode(self, sequence):
