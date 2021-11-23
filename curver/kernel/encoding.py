@@ -431,7 +431,7 @@ class MappingClass(Mapping):
         
         return other.inverse() * self * other
 
-    def is_conjugate_to(self, other):
+    def is_conjugate_to(self, other, permutation=None):
         ''' Return whether this mapping class is conjugate to other.
         
         It would also be straightforward to check whether self^i ~~ other^j for some i, j.
@@ -439,9 +439,15 @@ class MappingClass(Mapping):
         In the periodic case we use the quotient orbifold and its covering map, the covering map is recorded via the `preimage` and `holonomy` fields.
         This is a total conjugacy invariant for periodic mapping classes by Theorem 9 of [Mosher07]_.
         
-        Currently, at least one mapping class must be is periodic. '''
+        If given, permutation specifies how the vertices of self.triangulation must be mapped by a conjugator.
+        
+        Currently raises a ValueError if both mapping classes are reducible and not periodic. '''
         
         assert isinstance(other, curver.kernel.MappingClass)
+        assert self.source_triangulation == other.source_triangulation  # We don't strictly need this, but it makes things easier.
+        
+        if permutation is None:
+            permutation = dict()
         
         if self.source_triangulation.surface() != other.source_triangulation.surface():  # Defined on different surfaces.
             return False
@@ -449,15 +455,43 @@ class MappingClass(Mapping):
         if not self.vertex_permutation().is_conjugate_to(other.vertex_permutation()):  # Induce non-conjugate permutations of the vertices.
             return False
         
-        if self.is_periodic() != other.is_periodic():
+        if self.nielsen_thurston_type() != other.nielsen_thurston_type():
             return False
         
         if self.is_periodic():
             if self.order() != other.order():  # Conjugacy invariant.
                 return False
+            
             return self.subgroup().is_conjugate_to(other.subgroup())  # Compares self.quotient_orbifold_signature() to others.
-        else:
-            raise ValueError('is_conjugate_to is currently only implemented when one of the mapping classes is periodic. Consider using flipper')
+        elif self.is_pseudo_anosov():
+            if self.dilatation() != other.dilatation():  # Conjugacy invariant.
+                return False
+            
+            # Two pseudo-Anosov mapping classes are conjugate if and only if
+            # there canonical forms are cyclically conjugate via an isometry.
+            self_splitting = self.splitting_sequence()
+            other_splitting = other.splitting_sequence()
+            s_puncture, s_refine, s_preperiodic = self_splitting.puncture, self_splitting.refine, self_splitting.preperiodic
+            o_puncture, o_refine, o_preperiodic = other_splitting.puncture, other_splitting.refine, other_splitting.preperiodic
+            f = self_splitting.periodic
+            g = other_splitting.periodic
+            s_vertices, o_vertices = [
+                self.source_triangulation.sum(dict(
+                    (self.triangulation.lamination_from_cut_sequence(vertex), index)
+                    for vertex, index in enumerate(vertices, start=1)
+                ))
+                for vertices in (zip(*permutation.items()) if permutation else [(), ()])
+                ]
+            f_peripheral = self_splitting.punctures + s_preperiodic(s_refine(s_puncture(s_vertices)))
+            g_peripheral = other_splitting.punctures + o_preperiodic(o_refine(o_puncture(o_vertices)))
+            return any(
+                isom.encode()(f[i:](f_peripheral)) == g_peripheral
+                and isom.encode() * f[i:] * f[:i] == g * isom.encode()
+                for i in range(len(f))
+                for isom in f[i-1].source_triangulation.isometries_to(g.source_triangulation)
+                )
+        else:  # self.is_reducible() and not self.is_periodic()
+            raise ValueError('Mapping classes are reducible and not periodic.')
     
     @memoize
     def extract_twisting_multicurve(self):

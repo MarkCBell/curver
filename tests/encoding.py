@@ -2,7 +2,7 @@
 import pickle
 import unittest
 
-from hypothesis import given, settings
+from hypothesis import given, settings, assume
 import hypothesis.strategies as st
 import numpy as np
 
@@ -116,7 +116,7 @@ class TestMappingClass(TestMapping):
     
     @given(st.data())
     @settings(max_examples=3)
-    def test_conjugacy(self, data):
+    def test_periodic_conjugacy(self, data):
         h = data.draw(strategies.periodic_mapping_classes())
         self.assertTrue(h.is_periodic())
         
@@ -131,4 +131,13 @@ class TestMappingClass(TestMapping):
         g = h.conjugate_by(f)
         
         self.assertEqual(h.is_in_torelli(), g.is_in_torelli())
+    
+    @given(st.data())
+    def test_pA_conjugacy(self, data):
+        h = data.draw(self._strategy())
+        assume(h.is_pseudo_anosov())
+        f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
+        g = h.conjugate_by(f)
+        
+        self.assertTrue(h.is_conjugate_to(g))
 
