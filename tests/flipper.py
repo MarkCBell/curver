@@ -36,4 +36,3 @@ class TestFlipper(unittest.TestCase):
         
         flipper_stratum = sorted(c - 2 for c in h.stratum().values())
         self.assertEqual(g.stratum(), flipper_stratum)
-
