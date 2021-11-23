@@ -328,7 +328,7 @@ class MappingClass(Mapping):
         return not self.is_periodic() and not self.is_reducible()
     
     @memoize
-    def splitting_sequence(self, take_roots=False):
+    def splitting_sequence(self):
         ''' Return the splitting sequence of this mapping class.
         
         Raises a ValueError if self is not pseudo-Anosov. '''
@@ -377,7 +377,14 @@ class MappingClass(Mapping):
         
         Raises a ValueError if self is not pseudo-Anosov. '''
         
-        return self.splitting_sequence(take_roots=False).periodic == self.splitting_sequence(take_roots=True).periodic
+        splitting = self.splitting_sequence()  # Will raise a ValueError if self is not pA.
+        lamination = splitting.stable_lamination
+        for index, move in enumerate(reversed(splitting.periodic)):
+            lamination = move(lamination)
+            if index not in (0, len(splitting.periodic) - 1) and lamination.is_projectively_isometric_to(splitting.stable_lamination):
+                return False
+        
+        return True
     
     def asymptotic_translation_length(self):
         ''' Return the asymptotic translation length of this mapping class on the curve complex.
