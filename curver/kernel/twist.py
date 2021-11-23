@@ -68,7 +68,7 @@ class Twist(FlipGraphMove):
         power = self.power
         slope = self.curve.slope(lamination)
         slope_sign = +1 if slope > 0 else -1
-        steps = min(abs(power), abs(slope.numerator) // slope.denominator)  # This is how far we can definitely move without reaching the dangerous region.
+        steps = min(abs(power), int(abs(slope)))  # This is how far we can definitely move without reaching the dangerous region.
         
         if power * slope_sign < 0:  # We are heading towards the dangerous region.
             lamination = lamination.__class__(self.target_triangulation, [w - steps * intersection * c for w, c in zip(lamination, self.curve)])  # Avoids promote.

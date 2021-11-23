@@ -164,7 +164,11 @@ class Curve(MultiCurve):
         
         sign = -1 if short_lamination.left_weight(a) - around_v > 0 or short_lamination.right_weight(a) < 0 else +1
         
-        return Fraction(sign * numerator, denominator)  # + (1 if sign < 0 and not short.is_isolating() else 0)  # Curver is right biased on non-isolating curves.
+        # Return sign * numerator / denominator, but these are likely integers so a little care is needed.
+        if isinstance(numerator, int) and isinstance(denominator, int):
+            return Fraction(sign * numerator, denominator)
+        
+        return sign * numerator / denominator
     
     def relative_twisting(self, b, c):
         ''' Return the relative twisting number of b about self relative to c.
