@@ -316,7 +316,7 @@ class MappingClass(Mapping):
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
             try:
-                self.splitting_sequence()
+                self.splitting_sequence()  # Will raise a ValueError if self is not pA.
                 return False
             except ValueError:
                 return True
@@ -331,17 +331,17 @@ class MappingClass(Mapping):
     def splitting_sequence(self, take_roots=False):
         ''' Return the splitting sequence of this mapping class.
         
-        Assumes and checks that this mapping class is pseudo-Anosov. '''
+        Raises a ValueError if self is not pseudo-Anosov. '''
         
-        d, L = self.projective_invariant_lamination()  # Can raise a ValueError.
-        return curver.kernel.SplittingSequence(L, self, dilatation=None if take_roots else d)  # Can raise a ValueError.
+        d, L = self.projective_invariant_lamination()  # May raise a ValueError if self is not pA.
+        return curver.kernel.SplittingSequence(L, self, dilatation=d)  # Will raise a ValueError if self is not pA.
     
     def stratum(self):
         ''' Return the stratum of this mapping class.
         
-        Assumes and checks that this mapping class is pseudo-Anosov. '''
+        Raises a ValueError if self is not pseudo-Anosov. '''
         
-        splitting = self.splitting_sequence()
+        splitting = self.splitting_sequence()  # Will raise a ValueError if self is not pA.
         lamination = splitting.stable_lamination
         
         # Do we need to distinguish the punctures and singularities?
@@ -363,7 +363,7 @@ class MappingClass(Mapping):
         This is an Abelian differential (rather than a quadratic differential) if and
         only if its stable lamination is orientable.
         
-        Assumes (and checks) that the mapping class is pseudo-Anosov. '''
+        Raises a ValueError if self is not pseudo-Anosov. '''
         
         lamination = self.splitting_sequence().stable_lamination
         
@@ -375,7 +375,7 @@ class MappingClass(Mapping):
     def is_primitive(self):
         ''' Return whether this mapping class is primitive.
         
-        Assumes (and checks) that this mapping class is pseudo-Anosov. '''
+        Raises a ValueError if self is not pseudo-Anosov. '''
         
         return self.splitting_sequence(take_roots=False).periodic == self.splitting_sequence(take_roots=True).periodic
     
