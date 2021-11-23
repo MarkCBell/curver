@@ -320,6 +320,11 @@ class Lamination:
         assert isinstance(other, Lamination)
         
         return any(True for _ in self.isometries_to(other))  # Return whether there at least one isometry.
+    
+    def is_projectively_isometric_to(self, other):
+        ''' Return whether there are any orientation preserving isometries from this lamination to other up to rescaling. '''
+        
+        return (self * other.weight()).is_isometric_to(other * self.weight())
 
 class IntegralLamination(Lamination):
     ''' This represents a lamination in which all weights are integral. '''
