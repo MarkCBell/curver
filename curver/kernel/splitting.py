@@ -16,7 +16,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
-    def __init__(self, lamination, mapping_class, dilatation=None):
+    def __init__(self, lamination, mapping_class, dilatation):
         ''' Return a splitting sequence from a projectively invariant lamination.
         
         This is the encoding obtained by flipping edges to repeatedly split
@@ -166,24 +166,23 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 periodic = move * periodic
                 lamination = move(lamination)
                 
-                if dilatation is not None:
-                    if lamination.weight() * dilatation > cycle_start.weight():
-                        continue  # Haven't gone far enough around periodic.
-                    if lamination.weight() * dilatation < cycle_start.weight():
-                        raise RuntimeError(f'No cycle with dilatation {dilatation}')
-                
-                for isometry in (lamination * cycle_start.weight()).isometries_to(cycle_start * lamination.weight()):
-                    closed = (isometry.encode() * periodic).inverse()  # Don't forget to close up
-                    # Currently we can't use **.homology_matrix() since that isn't defined for encodings.
-                    if all(closed(preperiodic(refine(puncture(hc)))) == preperiodic(refine(puncture(mapping_class(hc)))) for hc in starting_lamination.triangulation.edge_homologies()):
-                        self.puncture = puncture
-                        self.refine = refine
-                        self.preperiodic = preperiodic
-                        self.periodic = closed
-                        self.lamination = starting_lamination
-                        self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
-                        self.punctures = self.preperiodic(self.refine(self.puncture(self.lamination.triangulation.peripheral_multicurve())))
-                        return
+                if lamination.weight() * dilatation > cycle_start.weight():
+                    continue  # Haven't gone far enough around periodic.
+                elif lamination.weight() * dilatation == cycle_start.weight():
+                    for isometry in (lamination * cycle_start.weight()).isometries_to(cycle_start * lamination.weight()):
+                        closed = (isometry.encode() * periodic).inverse()  # Don't forget to close up
+                        # Currently we can't use **.homology_matrix() since that isn't defined for encodings.
+                        if all(closed(preperiodic(refine(puncture(hc)))) == preperiodic(refine(puncture(mapping_class(hc)))) for hc in starting_lamination.triangulation.edge_homologies()):
+                            self.puncture = puncture
+                            self.refine = refine
+                            self.preperiodic = preperiodic
+                            self.periodic = closed
+                            self.lamination = starting_lamination
+                            self.stable_lamination = self.preperiodic(self.refine(self.puncture(self.lamination)))
+                            self.punctures = self.preperiodic(self.refine(self.puncture(self.lamination.triangulation.peripheral_multicurve())))
+                            return
+                else:  # lamination.weight() * dilatation < cycle_start.weight()
+                    raise RuntimeError(f'No cycle with dilatation {dilatation}')
         
         raise RuntimeError('Unreachable code')
 
