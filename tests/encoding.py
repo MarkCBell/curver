@@ -5,6 +5,7 @@ import unittest
 from hypothesis import given, settings, assume
 import hypothesis.strategies as st
 import numpy as np
+import pytest
 
 from . import strategies
 
@@ -132,6 +133,7 @@ class TestMappingClass(TestMapping):
         
         self.assertEqual(h.is_in_torelli(), g.is_in_torelli())
     
+    @pytest.mark.skip('Slow')
     @given(st.data())
     def test_pA_conjugacy(self, data):
         h = data.draw(self._strategy())

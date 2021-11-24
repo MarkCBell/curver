@@ -477,7 +477,7 @@ class MappingClass(Mapping):
             g = other_splitting.periodic
             s_vertices, o_vertices = [
                 self.source_triangulation.sum(dict(
-                    (self.triangulation.lamination_from_cut_sequence(vertex), index)
+                    (self.source_triangulation.lamination_from_cut_sequence(vertex), index)
                     for vertex, index in enumerate(vertices, start=1)
                 ))
                 for vertices in (zip(*permutation.items()) if permutation else [(), ()])

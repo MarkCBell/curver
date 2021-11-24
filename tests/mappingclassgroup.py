@@ -9,7 +9,7 @@ import pytest
 from . import strategies
 
 class TestMCG(unittest.TestCase):
-    @pytest.mark.skip('Slow.')
+    @pytest.mark.skip('Slow')
     @given(strategies.mcgs())
     @settings(max_examples=1)
     def test_pickle(self, mcg):

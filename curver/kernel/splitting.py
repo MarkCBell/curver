@@ -166,7 +166,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 periodic = move * periodic
                 lamination = move(lamination)
                 
-                if lamination.weight() * dilatation > cycle_start.weight():
+                if lamination.weight() * dilatation > cycle_start.weight():  # pylint: disable=no-else-continue
                     continue  # Haven't gone far enough around periodic.
                 elif lamination.weight() * dilatation == cycle_start.weight():
                     for isometry in (lamination * cycle_start.weight()).isometries_to(cycle_start * lamination.weight()):
