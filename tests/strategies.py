@@ -1,7 +1,7 @@
 
 import unittest
 
-from hypothesis import given
+from hypothesis import given, assume
 import hypothesis.strategies as st
 
 import pytest
@@ -63,6 +63,14 @@ def periodic_mapping_classes(draw):
     return draw(st.sampled_from(PERIODICS))
 
 @st.composite
+def pseudo_anosovs(draw, triangulation=None, power_range=10):
+    if triangulation is None: triangulation = draw(triangulations())
+    zeta = triangulation.zeta
+    h = draw(encodings(triangulation, power_range, distribution=[2, 3], min_size=2*zeta, max_size=10*zeta))
+    assume(h.is_pseudo_anosov())
+    return h
+
+@st.composite
 def mapping_classes(draw, triangulation=None, power_range=10):
     return draw(encodings(triangulation, power_range, distribution=[2, 3]))
 
@@ -71,11 +79,11 @@ def mappings(draw, triangulation=None, power_range=10):
     return draw(encodings(triangulation, power_range, distribution=[0, 0, 0, 0, 1, 2, 3]))
 
 @st.composite
-def encodings(draw, triangulation=None, power_range=10, distribution=None):
+def encodings(draw, triangulation=None, power_range=10, distribution=None, min_size=1, max_size=10):
     if triangulation is None: triangulation = draw(triangulations())
     if distribution is None: distribution = [0, 0, 0, 0, 1, 2, 3, 4]
     h = triangulation.id_encoding()
-    move_types = draw(st.lists(elements=st.sampled_from(distribution), min_size=1, max_size=10))
+    move_types = draw(st.lists(elements=st.sampled_from(distribution), min_size=min_size, max_size=max_size))
     T = triangulation
     for move_type in move_types:
         if move_type == 0:  # EdgeFlip.
@@ -183,6 +191,10 @@ class TestStrategiesHealth(unittest.TestCase):
     @given(mcgs())
     def test_mcgs(self, mcg):
         self.assertIsInstance(mcg, curver.kernel.MappingClassGroup)
+    
+    @given(pseudo_anosovs())
+    def test_pseudo_anosovs(self, h):
+        self.assertIsInstance(h, curver.kernel.MappingClass)
     
     @given(mapping_classes())
     def test_mapping_classes(self, h):

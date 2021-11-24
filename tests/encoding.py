@@ -2,7 +2,7 @@
 import pickle
 import unittest
 
-from hypothesis import given, settings, assume
+from hypothesis import given, settings
 import hypothesis.strategies as st
 import numpy as np
 import pytest
@@ -136,8 +136,7 @@ class TestMappingClass(TestMapping):
     @pytest.mark.skip('Slow')
     @given(st.data())
     def test_pA_conjugacy(self, data):
-        h = data.draw(self._strategy())
-        assume(h.is_pseudo_anosov())
+        h = data.draw(strategies.pseudo_anosovs())
         f = data.draw(strategies.mapping_classes(h.source_triangulation, power_range=1))  # Don't make the word length too large.
         g = h.conjugate_by(f)
         
