@@ -316,7 +316,7 @@ class MappingClass(Mapping):
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
             try:
-                self.splitting_sequence()  # Will raise a ValueError if self is not pA.
+                self.splitting_sequence()  # Raises a ValueError if self is not pA.
                 return False
             except ValueError:
                 return True
@@ -333,15 +333,14 @@ class MappingClass(Mapping):
         
         Raises a ValueError if self is not pseudo-Anosov. '''
         
-        d, L = self.projective_invariant_lamination()  # May raise a ValueError if self is not pA.
-        return curver.kernel.SplittingSequence(L, self, dilatation=d)  # Will raise a ValueError if self is not pA.
+        return curver.kernel.SplittingSequence(self)  # Raises a ValueError if self is not pA.
     
     def stratum(self):
         ''' Return the stratum of this mapping class.
         
         Raises a ValueError if self is not pseudo-Anosov. '''
         
-        splitting = self.splitting_sequence()  # Will raise a ValueError if self is not pA.
+        splitting = self.splitting_sequence()  # Raises a ValueError if self is not pA.
         lamination = splitting.stable_lamination
         
         # Do we need to distinguish the punctures and singularities?
@@ -377,7 +376,7 @@ class MappingClass(Mapping):
         
         Raises a ValueError if self is not pseudo-Anosov. '''
         
-        splitting = self.splitting_sequence()  # Will raise a ValueError if self is not pA.
+        splitting = self.splitting_sequence()  # Raises a ValueError if self is not pA.
         lamination = splitting.stable_lamination
         for index, move in enumerate(reversed(splitting.periodic)):
             lamination = move(lamination)
@@ -535,7 +534,7 @@ class MappingClass(Mapping):
         lambda data: data.result[1],  # Non-empty.
         lambda data: data.self(data.result[1]) == data.result[0] * data.result[1],
         )
-    def projective_invariant_lamination(self, curves=None):
+    def projectively_invariant_lamination(self, curves=None):
         ''' Return (d, L) such that self(L) == d * L.
         
         May raise a ValueError if self is not pseudo-Anosov. '''
@@ -582,7 +581,7 @@ class MappingClass(Mapping):
         if not self.is_pseudo_anosov():
             return 1
         else:
-            lmbda, _ = self.projective_invariant_lamination()
+            lmbda, _ = self.projectively_invariant_lamination()
             return lmbda
 
 def create_encoding(source_triangulation, sequence):

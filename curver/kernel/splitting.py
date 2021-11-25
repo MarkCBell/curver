@@ -16,31 +16,18 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
     
     This is an encoding which splits a lamination open along its large branches,
     ensuring that the lamination is a bipod or empty in every triangle. '''
-    def __init__(self, lamination, mapping_class, dilatation):
-        ''' Return a splitting sequence from a projectively invariant lamination.
+    def __init__(self, mapping_class):
+        ''' Return the splitting sequence of a pseudo-Anosov mapping class.
         
         This is the encoding obtained by flipping edges to repeatedly split
         the branches of the corresponding train track with maximal weight
         until you reach a projectively periodic sequence.
         
-        Each weight of lamination must be an Integer or a RealAlgebraic (over
-        the same RealNumberField).
+        Raises a ValueError if mapping_class is not pseudo-Anosov.
+        Sometimes this ValueError describes an invariant multicurve. '''
         
-        Raises a ValueError describing a disjoint curve if the lamination is not filling. '''
-        
-        def projective_hash(L):
-            ''' Return a hash key for L that is scale and isometry invariant. '''
-            weight = L.weight()
-            PL = [entry / weight for entry in L]
-            
-            # We'll try to preserve as much of the structure as possible to try to reduce hash collisions.
-            # In this version we'll store the sorted, cyclically ordered, triangles.
-            triples = [tuple(PL[edge.index] for edge in triangle) for triangle in L.triangulation]
-            return tuple(sorted([min(triple[i:] + triple[:i] for i in range(len(triple))) for triple in triples]))
-        
+        dilatation, lamination = mapping_class.projectively_invariant_lamination()  # May raise a ValueError if self is not pA.
         assert all(lamination.dual_weight(edge) >= 0 for edge in lamination.triangulation.edges)  # No arcs.
-        image = mapping_class(lamination)
-        assert (image * lamination.weight()).is_isometric_to(lamination * image.weight())
         
         if not all(lamination):
             null_index = next(edge for edge in lamination.triangulation.positive_edges if lamination(edge) == 0)
@@ -125,7 +112,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         move = hare.triangulation.encode_multiflip(curver.kernel.utilities.maxes(hare.triangulation.positive_edges, key=hare))
                         hare = move(hare)
                 
-                if (lamination * hare.weight()).is_isometric_to(hare * lamination.weight()):  # Tortoise has entered the loop.
+                if lamination.is_projectively_isometric_to(hare):  # Tortoise has entered the loop.
                     break
         
             if not all(lamination):  # We've encountered a refinement.
