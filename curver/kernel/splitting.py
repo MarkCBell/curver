@@ -3,7 +3,6 @@
 
 import curver
 
-
 # These rely on knowing exactly how edge flips work.
 H_MAPPING = [0, 4, 2, 5, 3, 1]
 V_MAPPING = [5, 1, 4, 3, 2, 0]
@@ -59,6 +58,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 elif num_bipods == 1:
                     continue
                 else:  # num_bipods > 1:
+                    # TODO: 3) Determine an invariant curve.
                     raise ValueError('Lamination is not filling')
             
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)
@@ -72,7 +72,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 
                 while True:
                     tetra = lamination.triangulation.square(edge) + [~edge]
-                    ad, bd, cd, dd, ed = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
+                    ad, bd, _, dd, ed, _ = [lamination.dual_weight(side) for side in tetra]
                     assert ad > 0 and bd > 0 and ed == 0
                     
                     move = lamination.triangulation.encode_multiflip([+edge])
@@ -112,7 +112,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         move = hare.triangulation.encode_multiflip(curver.kernel.utilities.maxes(hare.triangulation.positive_edges, key=hare))
                         hare = move(hare)
                 
-                if lamination.is_projectively_isometric_to(hare):  # Tortoise has entered the loop.
+                if lamination.is_projectively_isometric_to(hare):  # Tortoise in now inside the loop.
                     break
         
             if not all(lamination):  # We've encountered a refinement.
@@ -125,15 +125,16 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     
                     assert isinstance(move, curver.kernel.MultiEdgeFlip)
                     
-                    lamination = move.inverse()(lamination)
+                    lamination = move.inverse()(lamination)  # Pull back lamination.
                     
+                    # Determine the mapping to pull back the pairs.
                     mapping = dict()
                     new_pairs = []
                     for edge in move.edges:
                         assert edge.sign() == +1
                         
                         tetra = lamination.triangulation.square(edge) + [~edge]
-                        ad, _, _, dd, _ = [lamination.dual_weight(side) for side in lamination.triangulation.square(edge)]
+                        ad, _, _, dd, _, _ = [lamination.dual_weight(side) for side in tetra]
                         if ad == dd:  # No chord.
                             new_pairs.append({edge, ~edge})
                             continue
