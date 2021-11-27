@@ -1,6 +1,10 @@
 
 ''' A module for building and manipulating splitting sequences. '''
 
+from collections import Counter
+
+import networkx
+
 import curver
 
 # These rely on knowing exactly how edge flips work.
@@ -9,6 +13,8 @@ V_MAPPING = [5, 1, 4, 3, 2, 0]
 
 INV_H_MAPPING = [H_MAPPING.index(i) for i in range(6)]
 INV_V_MAPPING = [V_MAPPING.index(i) for i in range(6)]
+
+PUNCTURE = object()  # Sentinal value used to mark punctures.
 
 class SplittingSequence:  # pylint: disable=too-few-public-methods
     ''' This represents a splitting sequence.
@@ -35,34 +41,57 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             assert mapping_class(curve) == curve
             raise ValueError(f'Lamination is not filling, it is disjoint from {curve}')
         
+        def trace(lamination, edge):
+            intersection = lamination.left_weight(edge)
+            assert 0 <= intersection <= lamination(edge)  # Sanity.
+            dual_weights = dict((edge, lamination.dual_weight(edge)) for edge in lamination.triangulation.edges)
+            trace = Counter()
+            while True:
+                trace[edge.index] += 1
+                x, y, z = lamination.triangulation.corner_lookup[~edge]
+                # Move onto next edge.
+                if intersection < dual_weights[z]:  # Turn right.
+                    edge, intersection = y, intersection  # pylint: disable=self-assigning-variable
+                elif intersection == dual_weights[z]:  # Center.
+                    return trace
+                else:  # intersection > dual_weights[z]  # Turn left.
+                    edge, intersection = z, lamination(z) - lamination(x) + intersection
+        
         starting_lamination = lamination  # Remember where we started.
         pairs = []  # List of pairs {side, side} whose corridors are connected.
         while True:
             lamination = starting_lamination  # Reset.
-            classes = curver.kernel.UnionFind(lamination.triangulation)
-            for side, sidy in pairs:
-                try:
-                    classes.merge(lamination.triangulation.triangle_lookup[side], lamination.triangulation.triangle_lookup[sidy])
-                except ValueError:
-                    # We tried to merge two tripods in the same class, so they didn't form a polygon.
-                    # TODO: 3) Determine an invariant curve.
-                    raise ValueError('Lamination is not filling') from None
             
-            # Determine where we need to puncture.
-            seeds = []
-            for group in classes:
-                num_tripods = sum(1 for triangle in group if all(lamination.dual_weight(side) > 0 for side in triangle))
-                num_bipods = len(group) - num_tripods
-                if num_bipods == 0:
-                    seeds.append(group[0])
-                elif num_bipods == 1:
-                    continue
-                else:  # num_bipods > 1:
-                    # TODO: 3) Determine an invariant curve.
-                    raise ValueError('Lamination is not filling')
+            tripod_lookup = dict((side, triangle) for triangle in lamination.triangulation if all(lamination.dual_weight(side) > 0 for side in triangle) for side in triangle)
+            tripods = set(tripod_lookup.values())
+            edges = [tuple(tripod_lookup.get(side, PUNCTURE) for side in pair) + ({'pair': tuple(pair)},) for pair in pairs]
+            G = networkx.MultiGraph()
+            G.add_nodes_from(tripods)
+            G.add_edges_from(edges)
+            
+            if G and not networkx.algorithms.tree.recognition.is_forest(G):
+                # G contains a cycle, so we can build an invariant multicurve.
+                cycle = networkx.algorithms.cycles.find_cycle(G)
+                geometric = Counter()
+                for u, v, key in cycle:
+                    a, _ = G.get_edge_data(u, v, key)['pair']
+                    geometric.update(trace(lamination, a))
+                
+                path = lamination.triangulation([geometric[i] for i in range(lamination.zeta)])
+                if any(a == PUNCTURE or b == PUNCTURE for a, b, _ in cycle):  # Path is an arc connecting between punctures.
+                    assert isinstance(path, curver.kernel.Arc)
+                    path = path.boundary()
+                
+                assert isinstance(path, curver.kernel.MultiCurve)
+                assert path.intersection(lamination) == 0
+                assert path.intersection(mapping_class(path)) == 0
+                raise ValueError(f'Lamination is not filling, it is disjoint from {path}')
+            
+            # Add a puncture to each group consisting only of tripods.
+            seeds = [next(iter(component)) for component in networkx.algorithms.components.connected_components(G) if not any(v == PUNCTURE  for v in component)]
             
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)
-            lamination = puncture(lamination)  # Start again.
+            lamination = puncture(lamination)
             
             # Open up to a train track.
             refine = lamination.triangulation.id_encoding()
@@ -86,8 +115,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                         break
                     
                     mapping = dict()
-                    for i, j in enumerate(H_MAPPING if ad > dd else V_MAPPING):
-                        mapping[tetra[i]] = tetra[j]
+                    mapping.update((tetra[i], tetra[j]) for i, j in enumerate(H_MAPPING if ad > dd else V_MAPPING))
                     
                     to_open = set(mapping.get(side, side) for side in to_open)
                     edge = mapping[edge]
@@ -139,8 +167,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                             new_pairs.append({edge, ~edge})
                             continue
                         
-                        for i, j in enumerate(INV_H_MAPPING if ad > dd else INV_V_MAPPING):
-                            mapping[tetra[i]] = tetra[j]
+                        mapping.update((tetra[i], tetra[j]) for i, j in enumerate(INV_H_MAPPING if ad > dd else INV_V_MAPPING))
                     
                     pairs = [set(mapping.get(x, x) for x in pair) for pair in pairs] + new_pairs
                 
