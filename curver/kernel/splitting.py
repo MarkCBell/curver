@@ -72,7 +72,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             if G and not networkx.algorithms.tree.recognition.is_forest(G):
                 # G contains a cycle, so we can build an invariant multicurve.
                 cycle = networkx.algorithms.cycles.find_cycle(G)
-                geometric = Counter()
+                geometric = Counter()  # Merge all the traces together in here.
                 for u, v, key in cycle:
                     a, _ = G.get_edge_data(u, v, key)['pair']
                     geometric.update(trace(lamination, a))
@@ -87,7 +87,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 assert path.intersection(mapping_class(path)) == 0
                 raise ValueError(f'Lamination is not filling, it is disjoint from {path}')
             
-            # Add a puncture to each group consisting only of tripods.
+            # Add a puncture to each group that is not connected to an existing puncture.
             seeds = [next(iter(component)) for component in networkx.algorithms.components.connected_components(G) if not any(v == PUNCTURE  for v in component)]
             
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)

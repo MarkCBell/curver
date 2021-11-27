@@ -531,7 +531,7 @@ class MappingClass(Mapping):
     @memoize
     @ensure(
         lambda data: data.result[0] > 0,
-        lambda data: data.result[1],  # Non-empty.
+        lambda data: data.result[1].non_peripheral(promote=False),  # Not entirely peripheral.
         lambda data: data.self(data.result[1]) == data.result[0] * data.result[1],
         )
     def projectively_invariant_lamination(self, curves=None):
