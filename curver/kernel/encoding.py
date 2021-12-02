@@ -288,12 +288,6 @@ class MappingClass(Mapping):
         
         return 0
     
-    def vertex_permutation(self):
-        ''' Return a permutation describing how the vertices of self.source_triangulation (labelled in sorted order) are permuted. '''
-        
-        vertex_map = self.vertex_map()
-        return curver.kernel.Permutation.from_dict(vertex_map, ordering=sorted(vertex_map))
-    
     def is_identity(self):
         ''' Return whether this mapping class is the identity. '''
         
@@ -451,7 +445,25 @@ class MappingClass(Mapping):
         if self.source_triangulation.surface() != other.source_triangulation.surface():  # Defined on different surfaces.
             return False
         
-        if not self.vertex_permutation().is_conjugate_to(other.vertex_permutation()):  # Induce non-conjugate permutations of the vertices.
+        # Extend the permutation by the vertex maps via the rule that:
+        #  permutation[s_vertex_map[vertex]] == o_vertex_map[permutation[vertex]]
+        s_vertex_map = self.vertex_map()
+        o_vertex_map = other.vertex_map()
+        for source, target in list(permutation.items()):
+            while True:
+                source, target = s_vertex_map[source], o_vertex_map[target]
+                if source in permutation:
+                    if target != permutation[source]:
+                        return False  # Permutation does not extend.
+                    break
+                permutation[source] = target
+        
+        if len(set(permutation)) != len(set(permutation.values())):  # Permutation is not injective.
+            return False
+        
+        s_cycles = curver.kernel.utilities.cycle_decomposition(s_vertex_map)
+        o_cycles = curver.kernel.utilities.cycle_decomposition(o_vertex_map)
+        if sorted(len(cycle) for cycle in s_cycles) != sorted(len(cycle) for cycle in o_cycles):  # Induce non-conjugate permutations of the vertices.
             return False
         
         if self.nielsen_thurston_type() != other.nielsen_thurston_type():
