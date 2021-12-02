@@ -78,7 +78,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     geometric.update(trace(lamination, a))
                 
                 path = lamination.triangulation([geometric[i] for i in range(lamination.zeta)])
-                if any(a == PUNCTURE or b == PUNCTURE for a, b, _ in cycle):  # Path is an arc connecting between punctures.
+                if any(PUNCTURE in (a, b) for a, b, _ in cycle):  # Path is an arc connecting between punctures.
                     assert isinstance(path, curver.kernel.Arc)
                     path = path.boundary()
                 
@@ -88,7 +88,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 raise ValueError(f'Lamination is not filling, it is disjoint from {path}')
             
             # Add a puncture to each group that is not connected to an existing puncture.
-            seeds = [next(iter(component)) for component in networkx.algorithms.components.connected_components(G) if not any(v == PUNCTURE  for v in component)]
+            seeds = [next(iter(component)) for component in networkx.algorithms.components.connected_components(G) if not any(v == PUNCTURE for v in component)]
             
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)
             lamination = puncture(lamination)
