@@ -140,20 +140,7 @@ class Triangulation:
         
         # Group the edges into vertices and ordered anti-clockwise.
         # Here two edges are in the same class iff they have the same tail.
-        unused = set(self.edges)
-        self.vertices = set()
-        while unused:
-            vertex = [min(unused)]  # Make canonical by starting at min.
-            unused.discard(vertex[0])
-            while True:
-                neighbour = ~self.corner_lookup[vertex[-1]][2]
-                if neighbour in unused:
-                    vertex.append(neighbour)
-                    unused.remove(neighbour)
-                else:
-                    break
-            
-            self.vertices.add(tuple(vertex))
+        self.vertices = curver.kernel.utilities.cycle_decomposition(dict((edge, ~self.corner_lookup[edge][2]) for edge in self.edges))
         
         self.vertex_lookup = dict((edge.label, vertex) for vertex in self.vertices for edge in vertex)
         

@@ -129,6 +129,26 @@ def product(iterable, start=1, left=True):
     
     return result
 
+def cycle_decomposition(mapping):
+    ''' Given a dictionary that defines a permutation, return the set of tuples of cycles. '''
+    
+    unused = set(mapping)
+    cycles = set()
+    while unused:
+        cycle = [min(unused)]  # Make canonical by starting at min.
+        unused.discard(cycle[0])
+        while True:
+            neighbour = mapping[cycle[-1]]
+            if neighbour in unused:
+                cycle.append(neighbour)
+                unused.remove(neighbour)
+            else:
+                break
+        
+        cycles.add(tuple(cycle))
+    
+    return cycles
+
 class Half:
     ''' A class for representing 1/2 in such a way that multiplication preserves types. '''
     def __mul__(self, other):
