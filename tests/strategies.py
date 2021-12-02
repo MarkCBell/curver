@@ -192,6 +192,7 @@ class TestStrategiesHealth(unittest.TestCase):
     def test_mcgs(self, mcg):
         self.assertIsInstance(mcg, curver.kernel.MappingClassGroup)
     
+    @pytest.mark.skip('Slow')
     @given(pseudo_anosovs())
     def test_pseudo_anosovs(self, h):
         self.assertIsInstance(h, curver.kernel.MappingClass)
