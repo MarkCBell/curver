@@ -38,7 +38,6 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             null_index = next(edge for edge in lamination.triangulation.positive_edges if lamination(edge) == 0)
             curve = lamination.triangulation.edge_curve(null_index)
             assert curve.intersection(lamination) == 0
-            assert mapping_class(curve) == curve
             raise ValueError(f'Lamination is not filling, it is disjoint from {curve}')
         
         def trace(lamination, edge):
@@ -84,7 +83,6 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 
                 assert isinstance(path, curver.kernel.MultiCurve)
                 assert path.intersection(lamination) == 0
-                assert path.intersection(mapping_class(path)) == 0
                 raise ValueError(f'Lamination is not filling, it is disjoint from {path}')
             
             # Add a puncture to each group that is not connected to an existing puncture.
