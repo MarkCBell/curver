@@ -38,6 +38,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             null_index = next(edge for edge in lamination.triangulation.positive_edges if lamination(edge) == 0)
             curve = lamination.triangulation.edge_curve(null_index)
             assert curve.intersection(lamination) == 0
+            assert any(mapping_class(curve, power=i) == curve for i in range(mapping_class.source_triangulation.max_order()))
             raise ValueError(f'Lamination is not filling, it is disjoint from {curve}')
         
         def trace(lamination, edge):
@@ -76,14 +77,11 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     a, _ = G.get_edge_data(u, v, key)['pair']
                     geometric.update(trace(lamination, a))
                 
-                path = lamination.triangulation([geometric[i] for i in range(lamination.zeta)])
-                if any(PUNCTURE in (a, b) for a, b, _ in cycle):  # Path is an arc connecting between punctures.
-                    assert isinstance(path, curver.kernel.Arc)
-                    path = path.boundary()
-                
-                assert isinstance(path, curver.kernel.MultiCurve)
-                assert path.intersection(lamination) == 0
-                raise ValueError(f'Lamination is not filling, it is disjoint from {path}')
+                curve = lamination.triangulation([geometric[i] for i in range(lamination.zeta)]).boundary().skeleton()
+                assert isinstance(curve, curver.kernel.MultiCurve)
+                assert curve.intersection(lamination) == 0
+                assert any(mapping_class(curve, power=i) == curve for i in range(mapping_class.source_triangulation.max_order()))
+                raise ValueError(f'Lamination is not filling, it is disjoint from {curve}')
             
             # Add a puncture to each group that is not connected to an existing puncture.
             seeds = [next(iter(component)) for component in networkx.algorithms.components.connected_components(G) if not any(v == PUNCTURE for v in component)]
