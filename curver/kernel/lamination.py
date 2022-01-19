@@ -30,22 +30,6 @@ class Lamination:
         self.triangulation = triangulation
         self.zeta = self.triangulation.zeta
         self.geometric = geometric
-        
-        # Store some additional weights that are often used.
-        self._dual = dict()
-        self._left = dict()
-        self._right = dict()
-        for triangle in self.triangulation:
-            i, j, k = triangle  # Edges.
-            a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
-            af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
-            correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
-            try:
-                self._dual[i] = self._right[j] = self._left[k] = curver.kernel.utilities.half(bf + cf - af + correction)
-                self._dual[j] = self._right[k] = self._left[i] = curver.kernel.utilities.half(cf + af - bf + correction)
-                self._dual[k] = self._right[i] = self._left[j] = curver.kernel.utilities.half(af + bf - cf + correction)
-            except ValueError:
-                raise ValueError(f'Weights {a}, {b}, {c} in triangle {triangle} are not consistent') from None
     
     def __repr__(self):
         return f'{self.__class__.__name__}({self.triangulation}, {self.geometric})'
@@ -109,6 +93,7 @@ class Lamination:
         
         return sum(max(weight, 0) for weight in self)
     
+    @memoize
     def dual_weight(self, edge):
         ''' Return the number of component of this lamination dual to the given edge.
         
@@ -116,8 +101,16 @@ class Lamination:
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self._dual[edge]
+        i, j, k = self.triangulation.corner_lookup[edge]
+        a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
+        af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
+        correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
+        try:
+            return curver.kernel.utilities.half(bf + cf - af + correction)
+        except ValueError:
+            raise ValueError(f'Weights {a}, {b}, {c} in triangle ({i}, {j}, {k}) are not consistent') from None
     
+    @memoize
     def left_weight(self, edge):
         ''' Return the number of component of this lamination dual to the left of the given edge.
         
@@ -125,8 +118,9 @@ class Lamination:
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self._left[edge]
+        return self.dual_weight(self.triangulation.corner_lookup[edge][1])
     
+    @memoize
     def right_weight(self, edge):
         ''' Return the number of component of this lamination dual to the right the given edge.
         
@@ -134,7 +128,7 @@ class Lamination:
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self._right[edge]
+        return self.dual_weight(self.triangulation.corner_lookup[edge][2])
     
     def is_integral(self):
         ''' Return whether this lamination is integral. '''
