@@ -59,14 +59,14 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         
         starting_lamination = lamination  # Remember where we started.
         pairs = []  # List of pairs {side, side} whose corridors are connected.
+        tripod_lookup = dict((side, triangle) for triangle in lamination.triangulation if all(lamination.dual_weight(side) > 0 for side in triangle) for side in triangle)
+        nodes = set(tripod_lookup.values())
         while True:
             lamination = starting_lamination  # Reset.
             
-            tripod_lookup = dict((side, triangle) for triangle in lamination.triangulation if all(lamination.dual_weight(side) > 0 for side in triangle) for side in triangle)
-            tripods = set(tripod_lookup.values())
             edges = [tuple(tripod_lookup.get(side, PUNCTURE) for side in pair) + ({'pair': tuple(pair)},) for pair in pairs]
             G = networkx.MultiGraph()
-            G.add_nodes_from(tripods)
+            G.add_nodes_from(nodes)
             G.add_edges_from(edges)
             
             if G and not networkx.algorithms.tree.recognition.is_forest(G):
