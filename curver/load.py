@@ -1,4 +1,3 @@
-
 import re
 
 import curver
@@ -42,9 +41,9 @@ def S_0_n(n):
     
     curves, arcs = dict(), dict()
     for i in range(n-2):
-        arcs['s_%d' % i] = T.edge_arc(2*n-4+i)
-    arcs['s_%d' % (n-2)] = T.edge_arc(2*n-5)
-    arcs['s_%d' % (n-1)] = T.edge_arc(0)
+        arcs[f's_{i}'] = T.edge_arc(2*n-4+i)
+    arcs[f's_{n-2}'] = T.edge_arc(2*n-5)
+    arcs[f's_{n-1}'] = T.edge_arc(0)
     
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
@@ -71,11 +70,11 @@ def S_1_n(n):
         # The twists obtained by pushing a_0 across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_0.
         for i in range(1, n):
-            curves['p_%d' % i] = T.curve_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1-i)] + [2*n + 2 - 2*i] + [2*n+i + j for j in range(n-i)])
+            curves[f'p_{i}'] = T.curve_from_cut_sequence([0, 1] + [3 + 2*j for j in range(n-1-i)] + [2*n + 2 - 2*i] + [2*n+i + j for j in range(n-i)])
         # The half-twists that permute the ith and (i+1)st punctures.
         arcs['s_0'] = T.edge_arc(2*n - 1)
         for i in range(1, n):
-            arcs['s_%d' % i] = T.edge_arc(2*n + 2 - 2*i)
+            arcs[f's_{i}'] = T.edge_arc(2*n + 2 - 2*i)
     
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
@@ -112,11 +111,11 @@ def S_2_n(n):
         # The twists obtained by pushing a_1 across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_1.
         for i in range(1, n):
-            curves['p_%d' % i] = T.curve_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n-i)] + [2*n + 8 - 2*i] + [2*n+6+i + j for j in range(n-i)])
+            curves[f'p_{i}'] = T.curve_from_cut_sequence([6, 5] + [7 + j*2 for j in range(n-i)] + [2*n + 8 - 2*i] + [2*n+6+i + j for j in range(n-i)])
         # The half-twists that permute the ith and (i+1)st punctures.
         arcs['s_0'] = T.edge_arc(2*n + 5)
         for i in range(1, n):
-            arcs['s_%d' % i] = T.edge_arc(2*n + 8 - 2*i)
+            arcs[f's_{i}'] = T.edge_arc(2*n + 8 - 2*i)
     
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
@@ -165,11 +164,11 @@ def S_3_n(n):
         # The twists obtained by pushing a_2 across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_2.
         for i in range(1, n):
-            curves['p_%d' % i] = T.curve_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n-i)] + [2*n + 14 - 2*i] + [2*n+12+i + j for j in range(n-i)])
+            curves[f'p_{i}'] = T.curve_from_cut_sequence([12, 11] + [13 + j*2 for j in range(n-i)] + [2*n + 14 - 2*i] + [2*n+12+i + j for j in range(n-i)])
         # The half-twists that permute the ith and (i+1)st punctures.
         arcs['s_0'] = T.edge_arc(2*n + 11)
         for i in range(1, n):
-            arcs['s_%d' % i] = T.edge_arc(2*n + 14 - 2*i)
+            arcs[f's_{i}'] = T.edge_arc(2*n + 14 - 2*i)
     
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
@@ -191,15 +190,15 @@ def S_g_n(g, n):
             )  # 0, ..., 6g - 4.
         
         for i in range(g):
-            curves['a_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+3])
-            curves['b_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+4])
-        curves['c_%d' % 0] = T.curve_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
+            curves[f'a_{i}'] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+3])
+            curves[f'b_{i}'] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+4])
+        curves['c_0'] = T.curve_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
         for i in range(1, g-2):
-            curves['c_%d' % i] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + i - 1, 5*g + i - 1])
-        curves['c_%d' % (g-2)] = T.curve_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
+            curves[f'c_{i}'] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + i - 1, 5*g + i - 1])
+        curves[f'c_{g-2}'] = T.curve_from_cut_sequence([5*(g-2)+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
         for i in range(1, g-1):
-            curves['d_%d' % i] = T([2] + [2] * (5*i) + [1, 1, 1] + [0] * (5*g + 3*n - 7 - 5*i) + [2] * (i-1) + [0] * (1 + g - 3 - i))
-        curves['d_%d' % (g-1)] = T([2] * (5*g - 4) + [1, 1, 1, 0] + [2]*(g-3))
+            curves[f'd_{i}'] = T([2] + [2] * (5*i) + [1, 1, 1] + [0] * (5*g + 3*n - 7 - 5*i) + [2] * (i-1) + [0] * (1 + g - 3 - i))
+        curves[f'd_{g-1}'] = T([2] * (5*g - 4) + [1, 1, 1, 0] + [2]*(g-3))
     else:  # n > 1:
         T = curver.create_triangulation(
             # Build the fins using the first 5g edges.
@@ -219,29 +218,29 @@ def S_g_n(g, n):
             )
         
         for i in range(g-1):
-            curves['a_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+3])
-        curves['a_%d' % (g-1)] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)])
+            curves[f'a_{i}'] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+3])
+        curves[f'a_{g-1}'] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)])
         
         for i in range(g):
-            curves['b_%d' % i] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+4])
-        curves['c_%d' % 0] = T.curve_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
+            curves[f'b_{i}'] = T.curve_from_cut_sequence([5*i+1, 5*i+2, 5*i+4])
+        curves['c_0'] = T.curve_from_cut_sequence([5*0+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]])
         for i in range(1, g-2):
-            curves['c_%d' % i] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + 3*n - 3 + i - 1, 5*g + 3*n - 3 + i - 1])
+            curves[f'c_{i}'] = T.curve_from_cut_sequence([5*i+j for j in [0, 2, 4, 3, 2, 1, 4, 2, 0, 5, 6, 8, 7, 5]] + [5*g + 3*n - 3 + i - 1, 5*g + 3*n - 3 + i - 1])
         
-        curves['c_%d' % (g-2)] = T.curve_from_cut_sequence([5*(g-2) + j for j in [7, 5, 0, 2, 4, 1, 2, 3, 4, 2, 0, 5, 6]] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)])
+        curves[f'c_{g-2}'] = T.curve_from_cut_sequence([5*(g-2) + j for j in [7, 5, 0, 2, 4, 1, 2, 3, 4, 2, 0, 5, 6]] + [5*(g-1)+3 + j*2 for j in range(n)] + [] + [5*g+2*n-2 + j for j in range(n-1)])
         
         for i in range(1, g-1):
-            curves['d_%d' % i] = T([2] + [2] * (5*i) + [1, 1, 1] + [0] * (5*g + 3*n - 7 - 5*i) + [2] * (i-1) + [0] * (1 + g - 3 - i))
-        curves['d_%d' % (g-1)] = T([2] * (5*g - 4) + [1, 1, 1, 0] + [1, 0]*(n-1) + [1]*(n-1) + [2]*(g-3))
+            curves[f'd_{i}'] = T([2] + [2] * (5*i) + [1, 1, 1] + [0] * (5*g + 3*n - 7 - 5*i) + [2] * (i-1) + [0] * (1 + g - 3 - i))
+        curves[f'd_{g-1}'] = T([2] * (5*g - 4) + [1, 1, 1, 0] + [1, 0]*(n-1) + [1]*(n-1) + [2]*(g-3))
         
         # The twists obtained by pushing a_{g-1} across the punctures.
         # Note that if the loop ran with i=0 then it would create p_0 == a_{g-1}.
         for i in range(1, n):
-            curves['p_%d' % i] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n-i)] + [5*g + 2*n - 1 - 2*i] + [5*g+2*n-3+i + j for j in range(n-i)])
+            curves[f'p_{i}'] = T.curve_from_cut_sequence([5*(g-1)+1, 5*(g-1)+2] + [5*(g-1)+3 + j*2 for j in range(n-i)] + [5*g + 2*n - 1 - 2*i] + [5*g+2*n-3+i + j for j in range(n-i)])
         # The half-twists that permute the ith and (i+1)st punctures.
         arcs['s_0'] = T.edge_arc(5*g + 2*n - 4)
         for i in range(1, n):
-            arcs['s_%d' % i] = T.edge_arc(5*g + 2*n - 1 - 2*i)
+            arcs[f's_{i}'] = T.edge_arc(5*g + 2*n - 1 - 2*i)
     
     return curver.kernel.MappingClassGroup(curves=curves, arcs=arcs)
 
@@ -331,7 +330,7 @@ def load_old(surface):
     elif REGEX_IS_SPHERE_BRAID.match(surface):
         return S_0_n(int(REGEX_IS_SPHERE_BRAID.match(surface).groupdict()['num_strands']))
     else:
-        raise ValueError('Unknown surface: %s' % surface)
+        raise ValueError(f'Unknown surface: {surface}')
 
 def load(*args):
     ''' Return the requested example MappingClassGroup.
