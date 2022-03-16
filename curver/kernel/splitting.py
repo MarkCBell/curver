@@ -29,7 +29,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         until you reach a projectively periodic sequence.
         
         Raises a ValueError if mapping_class is not pseudo-Anosov.
-        Sometimes this ValueError describes an invariant multicurve. '''
+        Sometimes this ValueError describes a finite-orbit multicurve. '''
         
         dilatation, lamination = mapping_class.projectively_invariant_lamination()  # May raise a ValueError if self is not pA.
         assert all(lamination.dual_weight(edge) >= 0 for edge in lamination.triangulation.edges)  # No arcs.
@@ -70,7 +70,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             G.add_edges_from(edges)
             
             if G and not networkx.algorithms.tree.recognition.is_forest(G):
-                # G contains a cycle, so we can build an invariant multicurve.
+                # G contains a cycle, so we can build a disjoint multicurve.
                 cycle = networkx.algorithms.cycles.find_cycle(G)
                 geometric = Counter()  # Merge all the traces together in here.
                 for u, v, key in cycle:
