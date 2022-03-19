@@ -86,3 +86,13 @@ def decorate_all(function):
         return cls
     return decorate
 
+def catch(*errors):
+    ''' A decorator that causes a function to just return None if any of the specified errors are raised. '''
+    @decorator
+    def wrapper(func, *args, **kwargs):  # pylint: disable=inconsistent-return-statements
+        try:
+            return func(*args, **kwargs)
+        except errors:
+            return
+    return wrapper
+

@@ -2,10 +2,11 @@
 import pytest
 import unittest
 
-from hypothesis import given, assume
+from hypothesis import given
 import hypothesis.strategies as st
 
 import curver
+from curver.kernel.decorators import catch
 
 flipper = pytest.importorskip('flipper')  # Skip these tests if flipper is not available.
 
@@ -26,13 +27,12 @@ class TestFlipper(unittest.TestCase):
     @given(st.data())
     def test_dilatation(self, data):
         g, h = self.mapping_classes(data)
-        assume(g.is_pseudo_anosov())
         self.assertEqual(g.dilatation(), h.dilatation())
     
     @given(st.data())
+    @catch(flipper.AssumptionError, ValueError)
     def test_stratum(self, data):
         g, h = self.mapping_classes(data)
-        assume(g.is_pseudo_anosov())
         
         flipper_stratum = sorted(c - 2 for c in h.stratum().values())
         self.assertEqual(g.stratum(), flipper_stratum)
