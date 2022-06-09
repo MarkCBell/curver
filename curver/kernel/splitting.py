@@ -2,6 +2,7 @@
 ''' A module for building and manipulating splitting sequences. '''
 
 from collections import Counter
+from itertools import zip_longest
 
 import networkx
 
@@ -33,59 +34,32 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         
         dilatation, lamination = mapping_class.projectively_invariant_lamination()  # May raise a ValueError if self is not pA.
         assert all(lamination.dual_weight(edge) >= 0 for edge in lamination.triangulation.edges)  # No arcs.
+        assert lamination
         
-        if not all(lamination):
-            null_index = next(edge for edge in lamination.triangulation.positive_edges if lamination(edge) == 0)
-            curve = lamination.triangulation.edge_curve(null_index)
-            assert curve.intersection(lamination) == 0
-            assert any(mapping_class(curve, power=i) == curve for i in range(mapping_class.source_triangulation.max_order()))
-            raise ValueError(f'Lamination is not filling, it is disjoint from {curve}')
-        
-        def trace(lamination, edge):
-            intersection = lamination.left_weight(edge)
-            assert 0 <= intersection <= lamination(edge)  # Sanity.
-            dual_weights = dict((edge, lamination.dual_weight(edge)) for edge in lamination.triangulation.edges)
-            trace = Counter()
-            while True:
-                trace[edge.index] += 1
-                x, y, z = lamination.triangulation.corner_lookup[~edge]
-                # Move onto next edge.
-                if intersection < dual_weights[z]:  # Turn right.
-                    edge, intersection = y, intersection  # pylint: disable=self-assigning-variable
-                elif intersection == dual_weights[z]:  # Center.
-                    return trace
-                else:  # intersection > dual_weights[z]  # Turn left.
-                    edge, intersection = z, lamination(z) - lamination(x) + intersection
+        def maximal_branches(lamination):
+            branches = []
+            for current in curver.kernel.utilities.maxes(lamination.triangulation.edges, key=lamination):
+                if lamination.left_weight(current) == 0 or lamination.right_weight(current) == 0: continue  # Not a cusp.
+                if any(branch[-1] == +current for branch in branches): continue  # Has already been traversed.
+                branch = [+current]  # We always append the +ve edge.
+                # Walk along.
+                while lamination.left_weight(~current) == 0 or lamination.right_weight(~current) == 0:
+                    current = lamination.triangulation.corner_lookup[~current][1 if lamination.left_weight(~current) == 0 else 2]
+                    branch.append(+current)
+                branches.append(branch)
+            
+            return branches
         
         starting_lamination = lamination  # Remember where we started.
         pairs = []  # List of pairs {side, side} whose corridors are connected.
         tripod_lookup = dict((side, triangle) for triangle in lamination.triangulation if all(lamination.dual_weight(side) > 0 for side in triangle) for side in triangle)
-        nodes = set(tripod_lookup.values())
         while True:
             lamination = starting_lamination  # Reset.
             
-            edges = [tuple(tripod_lookup.get(side, PUNCTURE) for side in pair) + ({'pair': tuple(pair)},) for pair in pairs]
-            G = networkx.MultiGraph()
-            G.add_nodes_from(nodes)
-            G.add_edges_from(edges)
-            
-            if G and not networkx.algorithms.tree.recognition.is_forest(G):
-                # G contains a cycle, so we can build a disjoint multicurve.
-                cycle = networkx.algorithms.cycles.find_cycle(G)
-                geometric = Counter()  # Merge all the traces together in here.
-                for u, v, key in cycle:
-                    a, _ = G.get_edge_data(u, v, key)['pair']
-                    geometric.update(trace(lamination, a))
-                
-                curve = lamination.triangulation([geometric[i] for i in range(lamination.zeta)]).boundary().skeleton()
-                assert isinstance(curve, curver.kernel.MultiCurve)
-                assert curve.intersection(lamination) == 0
-                assert any(mapping_class(curve, power=i) == curve for i in range(mapping_class.source_triangulation.max_order()))
-                raise ValueError(f'Lamination is not filling, it is disjoint from {curve}')
-            
-            # Add a puncture to each group that is not connected to an existing puncture.
-            seeds = [next(iter(component)) for component in networkx.algorithms.components.connected_components(G) if not any(v == PUNCTURE for v in component)]
-            
+            classes = curver.kernel.UnionFind(list(tripod_lookup.values()) + [PUNCTURE])
+            for a, b in pairs:
+                classes.union(tripod_lookup.get(a, PUNCTURE), tripod_lookup.get(b, PUNCTURE))
+            seeds = [cls[0] for cls in classes if PUNCTURE not in cls]
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)
             lamination = puncture(lamination)
             
@@ -116,7 +90,16 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                     to_open = set(mapping.get(side, side) for side in to_open)
                     edge = mapping[edge]
             
-            assert all(sum(1 for side in triangle if lamination.dual_weight(side) > 0) == 2 for triangle in lamination.triangulation)
+            assert all(sum(1 for side in triangle if lamination.dual_weight(side) > 0) < 3 for triangle in lamination.triangulation)
+            
+            boundary = lamination.triangulation([2 if weight else 0 for weight in lamination]).non_peripheral()
+            if boundary:
+                # Pull back
+                original_boundary = (refine * puncture).inverse()(boundary)
+                if mapping_class(original_boundary) == original_boundary:
+                    raise ValueError(original_boundary)  # This is the only escape point.
+            
+            num_null_edges = sum(1 for weight in lamination if weight == 0)
             
             # Compute the preperiodic map.
             # We use Floyd's tortoise and hare algorithm to detect a (projective) cycle.
@@ -124,22 +107,26 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             hare = lamination  # Lamination is our tortoise.
             while True:
                 # Split all of the maximal branches
-                move = lamination.triangulation.encode_multiflip(curver.kernel.utilities.maxes(lamination.triangulation.positive_edges, key=lamination))
-                preperiodic = move * preperiodic
-                lamination = move(lamination)
+                branches = maximal_branches(lamination)
+                assert all(len(branch) == 1 for branch in branches) or boundary
+                for flips in zip_longest(*branches, fillvalue=None):
+                    move = lamination.triangulation.encode_multiflip([flip for flip in flips if flip is not None])
+                    preperiodic = move * preperiodic
+                    lamination = move(lamination)
                 
-                if not all(lamination):  # We did a central split and so have found a refinement.
-                    break
+                did_central_split = sum(1 for weight in lamination if weight == 0) > num_null_edges
+                if did_central_split:
+                    break  # Case #1.
                 
                 for _ in range(2):
-                    if all(hare):  # Careful, the move may only be well defined when there isn't a refinement.
-                        move = hare.triangulation.encode_multiflip(curver.kernel.utilities.maxes(hare.triangulation.positive_edges, key=hare))
+                    for flips in zip_longest(*maximal_branches(hare), fillvalue=None):
+                        move = hare.triangulation.encode_multiflip([flip for flip in flips if flip is not None])
                         hare = move(hare)
                 
                 if lamination.is_projectively_isometric_to(hare):  # Tortoise in now inside the loop.
-                    break
-        
-            if not all(lamination):  # We've encountered a refinement.
+                    break  # Case #2
+            
+            if did_central_split:  # Case #1.
                 # Work backwards to find more pairs to start with.
                 pairs = []
                 for move in preperiodic * refine:
@@ -169,6 +156,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
                 
                 continue  # Start again.
             
+            # Case #2
             # Compute the periodic map.
             cycle_start = lamination  # Remember where we started.
             periodic = lamination.triangulation.id_encoding()
