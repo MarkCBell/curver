@@ -306,7 +306,7 @@ class MappingClass(Mapping):
         if self.is_periodic():
             # A periodic mapping class is reducible iff at least one of the components of its quotient orbifold is not a triangle orbifold.
             # The genus of the surface underlying an orbifold.
-            genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.order)) for cone_point in orbifold.cone_points)) // 2
+            genus = lambda orbifold: (2 - orbifold.euler_characteristic - sum(1 - (0 if cone_point.punctured else Fraction(1, cone_point.order)) for cone_point in orbifold.cone_points)) // 2  # pylint: disable=unnecessary-lambda-assignment
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
             try:

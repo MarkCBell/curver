@@ -170,7 +170,7 @@ class MappingClassGroup:
         
         identity = tuple()
         id_mapping_class = self('')
-        convert = lambda X: (X[0], tuple(X[1].flatten()))  # Since numpy.ndarrays are not hashable we need a converter.
+        convert = lambda X: (X[0], tuple(X[1].flatten()))  # Since numpy.ndarrays are not hashable we need a converter.  # pylint: disable=unnecessary-lambda-assignment
         elements = {convert((id_mapping_class.source_triangulation.as_lamination(), id_mapping_class.homology_matrix())): identity}
         good = set([identity])
         Q = Queue()

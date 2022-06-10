@@ -1,10 +1,7 @@
 
 ''' A module for building and manipulating splitting sequences. '''
 
-from collections import Counter
 from itertools import zip_longest
-
-import networkx
 
 import curver
 
