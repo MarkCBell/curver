@@ -251,6 +251,13 @@ class MappingClass(Mapping):
         else:
             return self.inverse()**abs(k)
     
+    def images(self, other):
+        ''' Yield the image of other under successive powers of self, starting with power=1. '''
+        
+        while True:
+            other = self(other)
+            yield other
+    
     def is_in_torelli(self):
         ''' Return whether this mapping class is in the Torelli subgroup. '''
         

@@ -1,7 +1,7 @@
 
 ''' A module for building and manipulating splitting sequences. '''
 
-from itertools import zip_longest
+from itertools import takewhile, zip_longest
 
 import curver
 
@@ -13,6 +13,14 @@ INV_H_MAPPING = [H_MAPPING.index(i) for i in range(6)]
 INV_V_MAPPING = [V_MAPPING.index(i) for i in range(6)]
 
 PUNCTURE = object()  # Sentinal value used to mark punctures.
+
+def has_disjoint_orbit(mapping_class, curve):
+    ''' Return whether the orbit of curve under the mapping class is disjoint. '''
+    
+    # Note that if the orbit is finite then the the takewhile will terminate the loop.
+    # If not then after at most zeta iterations then the image must intersect curve.
+    
+    return all(curve.intersection(image) == 0 for image in takewhile(lambda image: image != curve, mapping_class.images(curve)))
 
 class SplittingSequence:  # pylint: disable=too-few-public-methods
     ''' This represents a splitting sequence.
@@ -91,10 +99,10 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             
             boundary = lamination.triangulation([2 if weight else 0 for weight in lamination]).non_peripheral()
             if boundary:
-                # Pull back
-                original_boundary = (refine * puncture).inverse()(boundary)
-                if mapping_class(original_boundary) == original_boundary:
-                    raise ValueError(original_boundary)  # This is the only escape point.
+                for component in boundary.components():
+                    original_boundary = (refine * puncture).inverse()(component)
+                    if isinstance(original_boundary, curver.kernel.Curve) and has_disjoint_orbit(mapping_class, original_boundary):
+                        raise ValueError(original_boundary)  # This is the only escape point.
             
             num_null_edges = sum(1 for weight in lamination if weight == 0)
             
@@ -155,6 +163,7 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             
             # Case #2
             # Compute the periodic map.
+            assert not boundary
             cycle_start = lamination  # Remember where we started.
             periodic = lamination.triangulation.id_encoding()
             while True:
