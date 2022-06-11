@@ -2,7 +2,7 @@
 ''' A module for representing a triangulation of a punctured surface. '''
 
 from collections import Counter, namedtuple
-from functools import total_ordering
+from functools import partial, total_ordering
 from itertools import product
 import numpy as np
 
@@ -470,13 +470,14 @@ class Triangulation:
         # TODO: 3) Make this more efficient by avoiding trying all mappings.
         
         # Isometries are determined by where a single triangle is sent.
-        k = lambda T: lambda e: (
-            len(T.vertex_lookup[e]),
-            len(curver.kernel.utilities.cyclic_slice(T.vertex_lookup[~e], ~e, e))
+        def key(T, e):
+            return (
+                len(T.vertex_lookup[e]),
+                len(curver.kernel.utilities.cyclic_slice(T.vertex_lookup[~e], ~e, e))
             )
-        sources = [max(component, key=k(self)) for component in self.components()]
-        values = [k(self)(edge) for edge in sources]
-        targets = [[edge for edge in other.edges if k(other)(edge) == value] for value in values]
+        sources = [max(component, key=partial(key, self)) for component in self.components()]
+        values = [key(self, edge) for edge in sources]
+        targets = [[edge for edge in other.edges if key(other, edge) == value] for value in values]
         
         for chosen_targets in product(*targets):
             try:

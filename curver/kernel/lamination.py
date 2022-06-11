@@ -2,6 +2,7 @@
 ''' A module for representing laminations on Triangulations. '''
 
 from collections import namedtuple
+from functools import partial
 from itertools import permutations, groupby, product, chain
 from queue import Queue
 
@@ -286,14 +287,15 @@ class Lamination:
             return
         
         # Isometries are determined by where a single triangle is sent.
-        k = lambda L: lambda e: (
-            L(e),
-            len(L.triangulation.vertex_lookup[e]),
-            len(curver.kernel.utilities.cyclic_slice(L.triangulation.vertex_lookup[~e], ~e, e))
+        def key(L, e):
+            return (
+                L(e),
+                len(L.triangulation.vertex_lookup[e]),
+                len(curver.kernel.utilities.cyclic_slice(L.triangulation.vertex_lookup[~e], ~e, e))
             )
-        sources = [max(component, key=k(self)) for component in self.triangulation.components()]
-        values = [k(self)(edge) for edge in sources]
-        targets = [[edge for edge in other.triangulation.edges if k(other)(edge) == value] for value in values]
+        sources = [max(component, key=partial(key, self)) for component in self.triangulation.components()]
+        values = [key(self, edge) for edge in sources]
+        targets = [[edge for edge in other.triangulation.edges if key(other, edge) == value] for value in values]
         
         for chosen_targets in product(*targets):
             try:
