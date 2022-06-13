@@ -3,6 +3,8 @@
 
 from itertools import takewhile, zip_longest
 
+import networkx
+
 import curver
 
 # These rely on knowing exactly how edge flips work.
@@ -58,13 +60,27 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
         starting_lamination = lamination  # Remember where we started.
         pairs = []  # List of pairs {side, side} whose corridors are connected.
         tripod_lookup = dict((side, triangle) for triangle in lamination.triangulation if all(lamination.dual_weight(side) > 0 for side in triangle) for side in triangle)
+        nodes = set(tripod_lookup.values())
         while True:
             lamination = starting_lamination  # Reset.
             
-            classes = curver.kernel.UnionFind(list(tripod_lookup.values()) + [PUNCTURE])
-            for a, b in pairs:
-                classes.union(tripod_lookup.get(a, PUNCTURE), tripod_lookup.get(b, PUNCTURE))
-            seeds = [cls[0] for cls in classes if PUNCTURE not in cls]
+            edges = [tuple(tripod_lookup.get(side, PUNCTURE) for side in pair) for pair in pairs]
+            G = networkx.MultiGraph()
+            G.add_nodes_from(nodes)
+            G.add_edges_from(edges)
+            
+            # Find the seed tripods to puncture.
+            # We need one for each complementary region (connected component of G)
+            # which does not meet a real puncture (does not contain PUNCTURE).
+            # If the component contains a cycle then we need to use a triangle in a cycle
+            # otherwise it doesn't matter which one we use.
+            components = [G.subgraph(component) for component in networkx.algorithms.components.connected_components(G)]
+            seeds = [
+                next(iter(component)) if networkx.algorithms.is_tree(component) else networkx.algorithms.find_cycle(component)[0][0]
+                for component in components
+                if PUNCTURE not in component
+            ]
+            
             puncture = lamination.triangulation.encode_pachner_1_3(seeds)
             lamination = puncture(lamination)
             
@@ -99,10 +115,10 @@ class SplittingSequence:  # pylint: disable=too-few-public-methods
             
             boundary = lamination.triangulation([2 if weight else 0 for weight in lamination]).non_peripheral()
             if boundary:
-                for component in boundary.components():
-                    original_boundary = (refine * puncture).inverse()(component)
-                    if isinstance(original_boundary, curver.kernel.Curve) and has_disjoint_orbit(mapping_class, original_boundary):
-                        raise ValueError(original_boundary)  # This is the only escape point.
+                original_boundary = (refine * puncture).inverse()(boundary)
+                assert isinstance(original_boundary, curver.kernel.MultiCurve)
+                if has_disjoint_orbit(mapping_class, original_boundary):
+                    raise ValueError(original_boundary)  # This is the only escape point.
             
             num_null_edges = sum(1 for weight in lamination if weight == 0)
             
