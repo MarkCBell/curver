@@ -95,7 +95,7 @@ class Lamination:
         return sum(max(weight, 0) for weight in self)
     
     @memoize
-    def dual_weight(self, edge):
+    def dual_weight(self, edge, double=False):
         ''' Return the number of component of this lamination dual to the given edge.
         
         Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
@@ -106,30 +106,32 @@ class Lamination:
         a, b, c = self.geometric[i.index], self.geometric[j.index], self.geometric[k.index]
         af, bf, cf = max(a, 0), max(b, 0), max(c, 0)  # Correct for negatives.
         correction = min(af + bf - cf, bf + cf - af, cf + af - bf, 0)
+        dual = bf + cf - af + correction
+        if double: return dual
         try:
-            return curver.kernel.utilities.half(bf + cf - af + correction)
+            return curver.kernel.utilities.half(dual)
         except ValueError:
             raise ValueError(f'Weights {a}, {b}, {c} in triangle ({i}, {j}, {k}) are not consistent') from None
     
     @memoize
-    def left_weight(self, edge):
+    def left_weight(self, edge, double=False):
         ''' Return the number of component of this lamination dual to the left of the given edge.
         
         Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self.dual_weight(self.triangulation.corner_lookup[edge][1])
+        return self.dual_weight(self.triangulation.corner_lookup[edge][1], double)
     
     @memoize
-    def right_weight(self, edge):
+    def right_weight(self, edge, double=False):
         ''' Return the number of component of this lamination dual to the right the given edge.
         
         Note that when there is a terminal normal arc then we record this weight with a negative sign. '''
         
         if isinstance(edge, curver.IntegerType): edge = curver.kernel.Edge(edge)  # If given an integer instead.
         
-        return self.dual_weight(self.triangulation.corner_lookup[edge][2])
+        return self.dual_weight(self.triangulation.corner_lookup[edge][2], double)
     
     def is_integral(self):
         ''' Return whether this lamination is integral. '''
@@ -383,10 +385,10 @@ class IntegralLamination(Lamination):
                 v_edges = curver.kernel.utilities.cyclic_slice(v, p, ~p)  # The set of edges that come out of v from p round to ~p.
                 
                 for short_lamination in short_laminations:
-                    around_v = curver.kernel.utilities.maximin([0], (short_lamination.left_weight(edgy) for edgy in v_edges))
+                    around2_v = curver.kernel.utilities.maximin([0], (short_lamination.left_weight(edgy, double=True) for edgy in v_edges))
                     out_v = sum(max(-short_lamination.left_weight(edge), 0) for edge in v_edges) + sum(max(-short_lamination(edge), 0) for edge in v_edges[1:])
                     # around_v > 0 ==> out_v == 0; out_v > 0 ==> around_v == 0.
-                    intersection += multiplicity * (max(short_lamination(p), 0) - 2 * around_v + out_v)
+                    intersection += multiplicity * (max(short_lamination(p), 0) - around2_v + out_v)
         
         return intersection
     
