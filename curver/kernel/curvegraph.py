@@ -131,7 +131,7 @@ class CurveGraph:
         edges = [(u, v) for u, v in combinations(vertices, r=2) if u.intersection(v) == 0 and u.no_common_component(v)]
         G = networkx.Graph(edges)
         
-        geodesic = networkx.algorithms.shortest_path(G, a, b)  # Find a geodesic from self to other, however this might not be tight.  # pylint: disable=too-many-function-args
+        geodesic = networkx.algorithms.shortest_path(G, a, b)  # Find a geodesic from self to other, however this might not be tight.
         
         for i in range(1, len(geodesic)-1):
             geodesic[i] = geodesic[i-1].boundary_union(geodesic[i+1])  # Tighten.
