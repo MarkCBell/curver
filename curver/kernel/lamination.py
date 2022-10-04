@@ -465,7 +465,7 @@ class IntegralLamination(Lamination):
         
         return dual_tree.union(avoid) == set(short.triangulation.indices)  # Every edge is in avoid or dual_tree.
     
-    def fills_with(self, other):
+    def fills_with(self, other):  # pylint: disable=no-self-use
         ''' Return whether self \\cup other fills. '''
         assert isinstance(other, IntegralLamination)
         
