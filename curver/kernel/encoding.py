@@ -51,6 +51,8 @@ class Encoding:
             
             start = 0 if value.start is None else value.start if value.start >= 0 else len(self) + value.start
             stop = len(self) if value.stop is None else value.stop if value.stop >= 0 else len(self) + value.stop
+            start = max(start, -len(self))
+            stop = min(stop, len(self))
             if start == stop:
                 if 0 <= start < len(self):
                     return self.sequence[start].target_triangulation.id_encoding()
