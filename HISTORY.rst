@@ -6,7 +6,7 @@ History
 ------------------
 
 * Added PartialLinear functions and the ability to find invariant laminations using realalg.
-* Added Python 3.9 support.
+* Added Python 3.9 - 3.11 support.
 * Changed CI/CD pipeline to Github actions.
 * Encode_halftwist generalised to multiarcs.
 * Isometries_to and self_isometries now return generators

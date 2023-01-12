@@ -22,9 +22,11 @@ class PartialLinearFunction:
         return not self == other
     def __hash__(self):
         return hash((tuple(self.action.flatten()), tuple(self.condition.flatten())))
+    def __contains__(self, item):
+        return (self.condition.dot(item) >= 0).all()
     
     def __call__(self, item):
-        if (self.condition.dot(item) < 0).any():
+        if item not in self:
             raise ValueError('Cannot apply a PartialLinearFunction outside of the domain specified by its condition matrix')
         
         return list(self.action.dot(item))
