@@ -6,9 +6,6 @@ environment:
     - PYTHON: "C:\\Python38"
       TOXENV: "lint"
 
-    - PYTHON: "C:\\Python36"
-      TOXENV: "py36"
-
     - PYTHON: "C:\\Python37"
       TOXENV: "py37"
 
@@ -17,6 +14,12 @@ environment:
 
     - PYTHON: "C:\\Python39"
       TOXENV: "py39"
+
+    - PYTHON: "C:\\Python310"
+      TOXENV: "py310"
+
+    - PYTHON: "C:\\Python311"
+      TOXENV: "py311"
 
 init:
   - set "PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
