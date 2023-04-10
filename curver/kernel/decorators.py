@@ -75,14 +75,3 @@ def ensure(*fs):
     
     return wrapper
 
-def decorate_all(function):
-    ''' A decorator that applies a function, most likely another decorator, to all public methods of a class. '''
-    def decorate(cls):
-        ''' A class decorator that applies the given function to every public method. '''
-        
-        for attr, method in inspect.getmembers(cls):  # there's propably a better way to do this
-            if not attr.startswith('_') and inspect.isfunction(method):
-                setattr(cls, attr, function(method))
-        return cls
-    return decorate
-
