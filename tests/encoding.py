@@ -87,9 +87,9 @@ class TestMapping(TestEncoding):
         self.assertEqual(h.pl_action(c)(c.geometric), h(c).geometric)
     
     @given(st.data())
-    def test_front_isometry(self, data):
+    def test_collapse_isometries(self, data):
         h = data.draw(self._strategy())
-        self.assertEqual(h.front_isometry(), h)
+        self.assertEqual(h.collapse_isometries(), h)
 
 class TestMappingClass(TestMapping):
     _strategy = staticmethod(strategies.mapping_classes)
