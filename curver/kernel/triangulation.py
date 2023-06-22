@@ -64,6 +64,11 @@ class Edge:
         ''' Return the sign (+/-1) of this edge. '''
         
         return +1 if self.label == self.index else -1
+    
+    def set_sign(self, sign):
+        ''' Return whichever of self or ~self has the given sign. '''
+        
+        return self if self.sign() == sign else ~self
 
 class Triangle:
     ''' This represents a triangle.

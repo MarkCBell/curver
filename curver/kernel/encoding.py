@@ -229,6 +229,28 @@ class Mapping(Encoding):
             multicurve = item(multicurve)
         
         return current
+    
+    def front_isometry(self):
+        ''' Return an equal Mapping which only has one isometry (at the front). '''
+        
+        edges = self.source_triangulation.edges
+        encoding = []
+        permutation = {e: e for e in edges}
+        
+        for item in reversed(self):
+            if isinstance(item, curver.kernel.EdgeFlip):
+                encoding.append(permutation[item.edge].set_sign(item.edge.sign()))
+            elif isinstance(item, curver.kernel.MultiEdgeFlip):
+                encoding.append({permutation[edge].set_sign(edge.sign()) for edge in item.edges})
+            elif isinstance(item, (curver.kernel.Twist, curver.kernel.HalfTwist)):
+                edge, power = item.package()
+                encoding.append((permutation[edge], power))
+            elif isinstance(item, curver.kernel.Isometry):
+                permutation = {i: permutation[item.inverse_label_map[i]] for i in edges}
+        
+        encoding.append({v.label: k.label for k, v in permutation.items()})
+        
+        return self.source_triangulation.encode(encoding[::-1])
 
 class MappingClass(Mapping):
     ''' A Mapping from a Triangulation to itself.
