@@ -88,8 +88,8 @@ class Isometry(FlipGraphMove):
         
         self.index_map = dict((i, curver.kernel.norm(self.label_map[i])) for i in self.source_triangulation.indices)
         # Store the inverses too while we're at it.
-        self.inverse_label_map = dict((self.label_map[label], label) for label in self.source_triangulation.labels)
-        self.inverse_index_map = dict((index, curver.kernel.norm(self.inverse_label_map[index])) for index in self.source_triangulation.indices)
+        self.inverse_label_map = dict((value, key) for key, value in self.label_map.items())
+        self.inverse_index_map = dict((value, key) for key, value in self.index_map.items())
     
     def __str__(self):
         return 'Isometry ' + str([curver.kernel.Edge(self.label_map[index]) for index in self.source_triangulation.indices])

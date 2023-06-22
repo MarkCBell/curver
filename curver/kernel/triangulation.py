@@ -452,10 +452,10 @@ class Triangulation:
         # If we have gotten this far then the and unmapped edges must be entire components.
         used_labels = set(x for key_value in label_map.items() for x in key_value)
         for edge in self.edges:
-            if edge.label not in used_labels:
+            if edge not in used_labels:
                 if self.corner_lookup[edge] != other.corner_lookup[edge]:
                     raise ValueError('This label_map does not extend to an isometry')
-                label_map[edge.label] = edge.label
+                label_map[edge] = edge
         
         # Check map is a bijection.
         if set(label_map.keys()) != set(self.labels):
@@ -828,7 +828,7 @@ class Triangulation:
         T = self
         terms_reversed = []
         for item in reversed(sequence):
-            if isinstance(item, curver.IntegerType):  # Flip.
+            if isinstance(item, (curver.IntegerType, curver.kernel.Edge)):  # Flip.
                 term = T.encode_flip(item)
             elif isinstance(item, set):  # MultiFlip.
                 term = T.encode_multiflip(item)
