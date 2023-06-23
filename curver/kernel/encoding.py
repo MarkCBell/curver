@@ -230,7 +230,7 @@ class Mapping(Encoding):
         
         return current
     
-    def collapse_isometries(self):
+    def combine_isometries(self):
         ''' Return an equal Mapping which only has one isometry (at the front). '''
         
         edges = self.source_triangulation.edges
