@@ -16,9 +16,6 @@ jobs:
       Lint:
         python.version: '3.8'
         TOXENV: 'lint'
-      Python37:
-        python.version: '3.7'
-        TOXENV: 'py37'
       Python38:
         python.version: '3.8'
         TOXENV: 'py38'
@@ -31,6 +28,9 @@ jobs:
       Python311:
         python.version: '3.11'
         TOXENV: 'py311'
+      Python312:
+        python.version: '3.12'
+        TOXENV: 'py312'
   
   steps:
   - task: UsePythonVersion@0
