@@ -10,7 +10,7 @@ Curver
     :target: https://pypi.org/project/curver/
     :alt: PyPI license
 
-.. image:: https://img.shields.io/github/workflow/status/MarkCBell/curver/Build/master
+.. image:: https://img.shields.io/github/check-runs/MarkCBell/curver/master
     :target: https://github.com/MarkCBell/curver/actions
     :alt: Github build status
 
