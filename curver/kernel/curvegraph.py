@@ -55,7 +55,7 @@ class CurveGraph:
         inv_conjugator_b = conjugator_b.inverse()
         
         train_track = short_b
-        quasiconvex = set()
+        quasiconvex = set([a, b])
         for index, move in enumerate(reversed(conjugator_b), start=1):
             train_track = move(train_track)
             vertex_cycle = train_track.vertex_cycle()
