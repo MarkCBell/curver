@@ -2,6 +2,12 @@
 History
 =======
 
+0.5.1 (2024-12-20)
+------------------
+
+* Fix bug where the reducibility seed curve may attempt to start with a multicurve.
+* Fix bug where quasiconvex subsets might not contain their endpoints.
+
 0.5.0 (2024-09-19)
 ------------------
 
