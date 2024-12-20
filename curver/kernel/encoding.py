@@ -336,7 +336,7 @@ class MappingClass(Mapping):
             return not all(len(orbifold.cone_points) == 3 and genus(orbifold) == 0 for orbifold in self.subgroup().quotient_orbifold_signature())
         else:
             C = curver.kernel.CurveGraph(self.source_triangulation)
-            c = self.source_triangulation.edge_arc(0).boundary()  # A "short" curve.
+            c = self.source_triangulation.edge_curve(0)  # A "short" curve.
             
             # Set some constants.
             D = max(C.BOUNDED_GEODESIC_IMAGE, 2*C.QUASICONVEXITY + 3) + 1  # Universal
