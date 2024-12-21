@@ -64,9 +64,9 @@ class SLPRules(RuleBasedStateMachine):
         assert list(slp * factor) == list(slp) * factor
         assert list(factor * slp) == list(slp * factor)
     
-    @rule(data=st.data())
-    def getitem(self, data):
-        slp = data.draw(self.SLPs.filter(lambda s: len(s) > 0))  # Non-empty.
+    @rule(slp=SLPs, data=st.data())
+    def getitem(self, slp, data):
+        if len(slp) == 0: return  # Empty SLP, nothing to check.
         index = data.draw(st.integers(min_value=0, max_value=len(slp)-1))
         assert list(slp)[index] == slp[index]
     
