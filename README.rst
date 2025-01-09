@@ -10,7 +10,7 @@ Curver
     :target: https://pypi.org/project/curver/
     :alt: PyPI license
 
-.. image:: https://img.shields.io/github/workflow/status/MarkCBell/curver/Build/master
+.. image:: https://img.shields.io/github/check-runs/MarkCBell/curver/master
     :target: https://github.com/MarkCBell/curver/actions
     :alt: Github build status
 
@@ -18,7 +18,7 @@ Curver is a program for performing calculations in the curve complex.
 It implements the Bell--Webb algorithm to determine the Nielsen--Thurston type of a mapping class.
 This algorithm runs in polynomial time but the constants involved currently make this implementation impractical.
 
-Curver officially supports Python 3.7 -- 3.11.
+Curver officially supports Python 3.8 -- 3.12.
 Unoffically, it also runs on `PyPy`_ and `Sage`_ with some care.
 
 Quickstart

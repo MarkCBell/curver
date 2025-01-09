@@ -81,15 +81,19 @@ class Isometry(FlipGraphMove):
         super().__init__(source_triangulation, target_triangulation)
         
         assert isinstance(label_map, dict)
-        self.label_map = dict(label_map)
+        self.label_map = {
+            k.label if isinstance(k, curver.kernel.Edge) else k:
+            v.label if isinstance(v, curver.kernel.Edge) else v
+            for k, v in label_map.items()
+            }
         
         # Quick sanity check.
         assert all(i in self.label_map for i in self.source_triangulation.labels)
         
         self.index_map = dict((i, curver.kernel.norm(self.label_map[i])) for i in self.source_triangulation.indices)
         # Store the inverses too while we're at it.
-        self.inverse_label_map = dict((self.label_map[label], label) for label in self.source_triangulation.labels)
-        self.inverse_index_map = dict((index, curver.kernel.norm(self.inverse_label_map[index])) for index in self.source_triangulation.indices)
+        self.inverse_label_map = dict((value, key) for key, value in self.label_map.items())
+        self.inverse_index_map = dict((value, key) for key, value in self.index_map.items())
     
     def __str__(self):
         return 'Isometry ' + str([curver.kernel.Edge(self.label_map[index]) for index in self.source_triangulation.indices])

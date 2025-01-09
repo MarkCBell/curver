@@ -95,4 +95,3 @@ def catch(*errors):
         except errors:
             return
     return wrapper
-

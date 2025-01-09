@@ -2,9 +2,16 @@
 History
 =======
 
-0.5.0 (2021-XX-YY)
+0.5.1 (2024-12-20)
 ------------------
 
+* Fix bug where the reducibility seed curve may attempt to start with a multicurve.
+* Fix bug where quasiconvex subsets might not contain their endpoints.
+
+0.5.0 (2024-09-19)
+------------------
+
+* Drop Python 3.7 support.
 * Added PartialLinear functions and the ability to find invariant laminations using realalg.
 * Added Python 3.9 - 3.11 support.
 * Changed CI/CD pipeline to Github actions.

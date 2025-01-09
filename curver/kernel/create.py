@@ -52,7 +52,7 @@ def crush(source_triangulation, target_triangulation, curve, matrix):
         curver.kernel.Lift(target_triangulation, source_triangulation, matrix)
         )
 
-def lineartransformation(source_triangulation, target_triangulation, geometric, inv_geometric, homology=None, inv_homology=None):  # pylint: disable=too-many-arguments
+def lineartransformation(source_triangulation, target_triangulation, geometric, inv_geometric, homology=None, inv_homology=None):  # pylint: disable=too-many-arguments,too-many-positional-arguments
     ''' Create a linear transformation. '''
     return link(
         curver.kernel.LinearTransformation(source_triangulation, target_triangulation, geometric, homology),

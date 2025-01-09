@@ -31,7 +31,7 @@ class Twist(FlipGraphMove):
         twist = self.curve.triangulation.id_encoding()
         for _ in range(num_flips):
             twist = twist.target_triangulation.encode_flip(twist.target_triangulation.corner_lookup[a][2]) * twist
-        twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a.label: a.label}).encode() * twist
+        twist = twist.target_triangulation.find_isometry(twist.source_triangulation, {a: a}).encode() * twist
         
         self.encoding = twist
         self.power_sign = +1 if self.power > 0 else -1
@@ -229,7 +229,7 @@ class HalfTwist(FlipGraphMove):
             half_twist = flip * half_twist
         
         # No close up to complete the half twist. Use the isometry that inverts this edge.
-        half_twist = half_twist.target_triangulation.find_isometry(half_twist.source_triangulation, {edge.label: ~edge.label}).encode() * half_twist
+        half_twist = half_twist.target_triangulation.find_isometry(half_twist.source_triangulation, {edge: ~edge}).encode() * half_twist
         
         self.encoding = half_twist.conjugate_by(conjugator)
         

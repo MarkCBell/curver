@@ -86,6 +86,11 @@ class TestMapping(TestEncoding):
         h = data.draw(self._strategy())
         c = data.draw(strategies.multicurves(h.source_triangulation))
         self.assertEqual(h.pl_action(c)(c.geometric), h(c).geometric)
+    
+    @given(st.data())
+    def test_combine_isometries(self, data):
+        h = data.draw(self._strategy())
+        self.assertEqual(h.combine_isometries(), h)
 
 class TestMappingClass(TestMapping):
     _strategy = staticmethod(strategies.mapping_classes)
